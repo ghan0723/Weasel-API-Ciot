@@ -1,0 +1,6 @@
+{
+    "password" : "tldht",
+    "SCHEMA": "filemondb",
+    "HOST" : "localhost",
+    "USER" : "root"
+}
