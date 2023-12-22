@@ -7,7 +7,8 @@ var logger = require('morgan');
 const cors = require('cors');
 
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+var usersRouter = require('./routes/users.js');
+var pieChartRouter = require('./controller/pieChart.js');
 
 var app = express();
 const fs = require('fs');
@@ -26,17 +27,17 @@ let connection = mysql.createConnection({
 });
 
 connection.connect();
-module.exports = connection;
+app.locals.connection = connection; // connection 객체를 app.locals에 저장
 
 //미들웨어 전부 ok임 -> 전부 말고 특정 주소만
 const corsOptions = {
   origin : 'http://localhost:3000',
-  methods : 'GET, HEAD, PUT, PATCH,POST,DELETE'
+  methods : 'GET, HEAD, PUT, PATCH, POST, DELETE'
 }
-app.use('/api/data', cors(corsOptions));
+app.use(cors(corsOptions));
 // app.use('/');
 
-app.get('/api/data', (req, res) => {
+app.get('/api/detectfiles', (req, res) => {
   connection.query('select * from detectfiles', (err, rows, fields) => {
     if (err) {
       console.error('Error executing query:', err);
@@ -61,7 +62,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-
+app.use('/pie', pieChartRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
