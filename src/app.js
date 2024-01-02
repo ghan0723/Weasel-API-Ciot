@@ -6,9 +6,10 @@ var logger = require('morgan');
 
 const cors = require('cors');
 
-var indexRouter = require('./routes/index');
+var indexRouter = require('./routes/index.js');  
 var usersRouter = require('./routes/users.js');
 var pieChartRouter = require('./controller/pieChart.js');
+var userRouter = require('./routes/userRouter.js');
 
 var app = express();
 const fs = require('fs');
@@ -63,6 +64,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/pie', pieChartRouter);
+app.use('/user', userRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
