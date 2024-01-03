@@ -11,6 +11,7 @@ const cors = require('cors');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users.js');
 var pieChartRouter = require('./controller/pieChart.js');
+var userRouter = require('./routes/userRouter.js');
 
 var app = express();
 const fs = require('fs');
@@ -48,14 +49,10 @@ app.get('/api/detectfiles', (req:Request, res : Response) => {
     }
 
     // rows를 JSON 문자열로 변환하여 클라이언트에게 전달
-    res.status(200).send(rows);
+    res.send(rows);
   });
 });
 
-
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-// app.set('view engine', 'pug');
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -66,6 +63,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/pie', pieChartRouter);
+app.use('/user', userRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req:Request, res:Response, next:NextFunction) {
@@ -78,10 +76,14 @@ app.use(function(req:Request, res:Response, next:NextFunction) {
 //   res.locals.message = err.message;
 //   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-//   // render the error page
-//   if(!isNaN(+err.message)) res.status(+err.message);
-//   else                     res.status(500);
-//   res.render('error');
+  // render the error page
+//   if (!isNaN(+err.message)) {
+//     res.status(+err.message);
+//   } else {
+//     res.status(500);
+//   }
+//   // res.render('error');
 // });
+
 
 module.exports = app;
