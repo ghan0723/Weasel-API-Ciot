@@ -11,7 +11,7 @@ router.get('/count', function (req, res) {
             return res.status(500).send('fucking');
         }
         console.log("rows : ", rows);
-        connection.query('select count(*) totalCount  from detectfiles', (err2, row2) => {
+        connection.query('select count(*) as totalCount from detectfiles', (err2, row2) => {
             if (err2) {
                 console.error("두번째 쿼리에서 에러 발생 :", err2);
                 return res.status(500).send('fucking');

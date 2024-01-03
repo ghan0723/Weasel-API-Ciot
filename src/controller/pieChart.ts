@@ -36,13 +36,14 @@ router.get('/count', function(req:Request, res:Response){
                         process : rows[index].process,
                         count : rows[index].count,
                         hcount : Math.floor(count) ,
-                        day : index
+                        day : Date.now()
                     });
             }
             
             data.sort((a, b) => b.count - a.count );
             res.send(data);
         });
+        console.log("rows : ",data);
     });
 });
 
