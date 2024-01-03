@@ -38,12 +38,12 @@ app.get('/api/detectfiles', (req, res) => {
             return res.status(500).json('Internal Server Error');
         }
         // rows를 JSON 문자열로 변환하여 클라이언트에게 전달
-        res.send(rows.json);
+        res.status(200).send(rows);
     });
 });
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'pug');
+// app.set('view engine', 'pug');
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -57,15 +57,13 @@ app.use(function (req, res, next) {
     next(createError(404));
 });
 // error handler
-app.use(function (err, req, res, next) {
-    // set locals, only providing error in development
-    res.locals.message = err.message;
-    res.locals.error = req.app.get('env') === 'development' ? err : {};
-    // render the error page
-    if (err.message !== '')
-        res.status(+err.message);
-    else
-        res.status(500);
-    res.render('error');
-});
+// app.use(function(err:Error, req:Request, res:Response, next:NextFunction) {
+//   // set locals, only providing error in development
+//   res.locals.message = err.message;
+//   res.locals.error = req.app.get('env') === 'development' ? err : {};
+//   // render the error page
+//   if(!isNaN(+err.message)) res.status(+err.message);
+//   else                     res.status(500);
+//   res.render('error');
+// });
 module.exports = app;

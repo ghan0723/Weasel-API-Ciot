@@ -17,6 +17,7 @@ router.get('/count', function (req, res) {
                 return res.status(500).send('fucking');
             }
             console.log('row2 : ', row2);
+            console.log('typeof-row2 : ', typeof (row2));
             for (let index = 0; index < rows.length; index++) {
                 let count = (rows[index].count / row2) * 100;
                 console.log('hcount : ', count);

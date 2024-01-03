@@ -48,14 +48,14 @@ app.get('/api/detectfiles', (req:Request, res : Response) => {
     }
 
     // rows를 JSON 문자열로 변환하여 클라이언트에게 전달
-    res.send(rows.json);
+    res.status(200).send(rows);
   });
 });
 
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'pug');
+// app.set('view engine', 'pug');
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -73,15 +73,15 @@ app.use(function(req:Request, res:Response, next:NextFunction) {
 });
 
 // error handler
-app.use(function(err:Error, req:Request, res:Response, next:NextFunction) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+// app.use(function(err:Error, req:Request, res:Response, next:NextFunction) {
+//   // set locals, only providing error in development
+//   res.locals.message = err.message;
+//   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-  // render the error page
-  if(err.message !== '') res.status(+err.message);
-  else                   res.status(500);
-  res.render('error');
-});
+//   // render the error page
+//   if(!isNaN(+err.message)) res.status(+err.message);
+//   else                     res.status(500);
+//   res.render('error');
+// });
 
 module.exports = app;

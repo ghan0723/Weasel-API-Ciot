@@ -22,12 +22,14 @@ router.get('/count', function(req:Request, res:Response){
         }
         console.log("rows : ",rows);
 
-        connection.query('select count(*) as totalCount from detectfiles', (err2:Error, row2:number) => {
+        connection.query('select count(*) as totalCount from detectfiles', (err2:Error, row2:Response) => {
             if(err2){
                 console.error("두번째 쿼리에서 에러 발생 :", err2);
                 return res.status(500).send('fucking');
             }
             console.log('row2 : ',row2);
+            console.log('typeof-row2 : ',typeof(row2));
+            const row2TotalCountValue = row2[0];
 
             for (let index = 0; index < rows.length; index++) {
                 let count = (rows[index].count / row2) * 100;
