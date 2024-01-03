@@ -4,7 +4,7 @@
  * Module dependencies.
  */
 
-var app = require('../build/src/app');
+var app = require('../build/app');
 var debug = require('debug')('dashboard-horizonui-back:server');
 var http = require('http');
 /**

@@ -22,15 +22,15 @@ router.get('/count', function(req:Request, res:Response){
         }
         console.log("rows : ",rows);
 
-        connection.query('select count(*) as totalCount from detectfiles', (err2:Error, row2:number) => {
+        connection.query('select count(*) as totalCount from detectfiles', (err2:Error, row2:[{totalCount:number}]) => {
             if(err2){
                 console.error("두번째 쿼리에서 에러 발생 :", err2);
                 return res.status(500).send('fucking');
             }
-            console.log('row2 : ',row2);
+            console.log('row2[0] : ',row2);
 
             for (let index = 0; index < rows.length; index++) {
-                let count = (rows[index].count / row2) * 100;
+                let count = (rows[index].count / row2[0].totalCount) * 100;
                 console.log('hcount : ', count);            
                 data.push({
                         process : rows[index].process,
@@ -41,11 +41,6 @@ router.get('/count', function(req:Request, res:Response){
             }
             
             data.sort((a, b) => b.count - a.count );
-            // let sliceData = data.slice(0, 2);
-            // // console.log(sliceData);
-            // let minus = 100 - sliceData[0] - sliceData[1];
-            // sliceData.push(minus);
-            // console.log('sliceData : ', sliceData);
             res.send(data);
         });
     });

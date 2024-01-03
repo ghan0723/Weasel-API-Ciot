@@ -1,24 +1,21 @@
-import { Connection, OkPacket } from "mysql";
-
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 class UserService {
-    private connection: Connection;
-
-    constructor(connection: Connection){
+    constructor(connection) {
         this.connection = connection;
     }
-
-    getUser(username: string, passwd: string): Promise<any> {
+    getUser(username, passwd) {
         return new Promise((resolve, reject) => {
             const query = 'SELECT username, grade, enabled, mng_ip_ranges FROM userlist WHERE username = ? AND passwd = ?';
             this.connection.query(query, [username, passwd], (error, results) => {
                 if (error) {
                     reject(error);
-                } else {
+                }
+                else {
                     resolve(results);
                 }
             });
         });
     }
 }
-
-export default UserService;
+exports.default = UserService;
