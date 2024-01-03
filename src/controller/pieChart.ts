@@ -15,14 +15,14 @@ router.get('/count', function(req:Request, res:Response){
 
     const connection = req.app.locals.connection;
 
-    connection.query('select process, count(process) as count from detectfiles group by process', (err:Error, rows:Response) => {
+    connection.query('select process, count(process) as count from detectfiles group by process', (err:Error, rows:[data]) => {
         if(err){
             console.error('에러 발생 : ', err);
             return res.status(500).send('fucking');
         }
         console.log("rows : ",rows);
 
-        connection.query('select count(*) as totalCount from detectfiles', (err2:Error, row2:Response) => {
+        connection.query('select count(*) as totalCount from detectfiles', (err2:Error, row2:number) => {
             if(err2){
                 console.error("두번째 쿼리에서 에러 발생 :", err2);
                 return res.status(500).send('fucking');
@@ -30,7 +30,7 @@ router.get('/count', function(req:Request, res:Response){
             console.log('row2 : ',row2);
 
             for (let index = 0; index < rows.length; index++) {
-                let count = (rows[index].count / row2[0].totalCount) * 100;
+                let count = (rows[index].count / row2) * 100;
                 console.log('hcount : ', count);            
                 data.push({
                         process : rows[index].process,
