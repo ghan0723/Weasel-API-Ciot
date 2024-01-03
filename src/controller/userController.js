@@ -1,4 +1,6 @@
 class userController {
+  
+  
   constructor(userService) {
     this.userService = userService;
   }
@@ -16,7 +18,7 @@ class userController {
         console.log("user : ",user);
       if (user && user.passwd === passwd) {
         res.status(200).json({ message: "로그인 성공" });
-        res.send(user);
+        // res.send(user);
       } else {
         res.status(401).json({ message: "잘못된 사용자명 또는 비밀번호" });
       }
