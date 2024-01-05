@@ -10,7 +10,7 @@ const cors = require('cors');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users.js');
-var pieChartRouter = require('./controller/pieChart.js');
+var pieChartRouter = require('./routes/pieChartRouter.js');
 var userRouter = require('./routes/userRouter.js');
 var networkRouter = require('./routes/networkRouter.js')
 var mediaRouter = require('./routes/mediaRouter.js')
