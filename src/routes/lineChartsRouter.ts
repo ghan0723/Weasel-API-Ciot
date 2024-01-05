@@ -7,7 +7,7 @@ const router:Router = express.Router();
 const lineChartsService:LineChartsService = new LineChartsService(connection);
 
 router.get('/', (req:Request, res:Response) => {
-    lineChartsService.getTablesYearData()
+    lineChartsService.getTablesMonthData()
     .then((data) => {
         console.log('====================================================================');
         console.log('networkmonthsCount', data);

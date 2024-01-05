@@ -1,11 +1,17 @@
-import { Connection } from "mysql";
+import { Connection, MysqlError } from "mysql";
 import { resolve } from "path";
+
+interface ResultMonth {
+    month : string,
+    count : number
+}
 
 class LineChartsService {
     private connection:Connection;
     private contents = ['detectfiles', 'detectmediafiles', 'outlookpstviewer', 'detectprinteddocuments'];
     private yearArray:string[] = [];
-    private monthArray:string[] = ['01','02','03','04','05','06','07','08','09','10','11','12'];
+    private monthArray:number[] = [];
+    private monthlyArray = this.generateMonthlyArray();
 
     constructor(connection:Connection) {
         this.connection = connection;
@@ -39,8 +45,6 @@ class LineChartsService {
 
                     })
                 }
-
-
 
                 resolve(values);
             })
@@ -82,9 +86,34 @@ class LineChartsService {
         })
     }
 
+    generateMonthlyArray(): string[] {
+        const currentDate = new Date();
+        let str:string = "";
+        const months:string[] = [];
+    
+        // 1년 전의 현재 월부터 현재 월까지 반복
+        for (let i = -10; i <= 1; i++) {
+            const date = new Date();
+            date.setMonth(currentDate.getMonth() + i);
+            
+            if(date.getMonth() === 0) {
+                str = "12";
+            } else if(date.getMonth() < 10) {
+                str = "0" + date.getMonth();
+            } else {
+                str = date.getMonth().toString();
+            }
+
+            months.push(str);
+        }
+    
+        return months;
+    }
 
     // tables month count
     getTablesMonthData(): Promise<any> {
+        let monthArray:number[] = [];
+
         return new Promise((resolve, reject) => {
             Promise.all([
                 this.getTableMonth(0),
@@ -94,6 +123,14 @@ class LineChartsService {
             ])
             .then((values) => {
                 console.log("values : ", values);
+                console.log("this.monthArray : ", this.monthArray);
+
+                for(const month of this.monthlyArray) {
+                    monthArray.push(+month);
+                }
+
+                values.push(monthArray);
+
                 resolve(values);
             });
         });
@@ -101,17 +138,38 @@ class LineChartsService {
 
     getTableMonth(num:number): Promise<any> {
         return new Promise((resolve, reject) => {
+            let str = "";
             let query = "select substring(time, 6, 2) as month, count(*) as count" + 
             " from " + this.contents[num] +
-            " where time not like '%null%' " +
+            " where time not like '%null%' and" +
+            " date_format(time, '%y-%m-%d %h:%m:%s') > date_sub(curdate(), interval 1 Year) and" + 
+            " date_format(time, '%y-%m-%d %h:%m:%s') < curdate()" +
             " group by substring(time, 6, 2);";
 
-            this.connection.query(query, (error, results) => {
+            this.connection.query(query, (error:MysqlError, results:ResultMonth[]) => {
                 if(error) {
                     reject(error);                        
                 } else {
-                    const resultValue:any = [this.contents[num], results[0].month, results[0].count];
+                    const resultValue:any = {
+                        name : this.contents[num], 
+                        data : []
+                    };
+
+                    console.log("results : ", results);
+                    console.log("result-type : ", typeof(results));
+
+                    for(const month of this.monthlyArray) {
+                        const value = results.find(data => data.month === month);
+
+                        if(value === undefined) {
+                            resultValue.data.push(0);
+                        } else {
+                            resultValue.data.push(value.count);
+                        }
+                    }
+
                     console.log("resultValue : ", resultValue);
+                    console.log("this.monthArray : ", this.monthArray);
                     
                     resolve(resultValue);
                 }

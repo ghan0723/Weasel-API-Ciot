@@ -9,7 +9,7 @@ const lineChartsService_1 = __importDefault(require("../service/lineChartsServic
 const router = express_1.default.Router();
 const lineChartsService = new lineChartsService_1.default(db_1.default);
 router.get('/', (req, res) => {
-    lineChartsService.getTablesYearData()
+    lineChartsService.getTablesMonthData()
         .then((data) => {
         console.log('====================================================================');
         console.log('networkmonthsCount', data);
