@@ -36,7 +36,7 @@ router.get('/count', function(req:Request, res:Response){
                         process : rows[index].process,
                         count : rows[index].count,
                         hcount : Math.floor(count) ,
-                        day : index
+                        day : Date.now()
                     });
             }
             

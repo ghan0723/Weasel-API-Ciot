@@ -10,6 +10,10 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users.js');
 var pieChartRouter = require('./controller/pieChart.js');
 var userRouter = require('./routes/userRouter.js');
+var networkRouter = require('./routes/networkRouter.js');
+var mediaRouter = require('./routes/mediaRouter.js');
+var outlookRouter = require('./routes/outlookRouter.js');
+var printRouter = require('./routes/printRouter.js');
 const lineChartsRouter = require('./routes/lineChartsRouter.js');
 var app = express();
 const fs = require('fs');
@@ -52,6 +56,10 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/pie', pieChartRouter);
 app.use('/user', userRouter);
+app.use('/network', networkRouter);
+app.use('/media', mediaRouter);
+app.use('/outlook', outlookRouter);
+app.use('/print', printRouter);
 app.use('/lineCharts', lineChartsRouter);
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
