@@ -43,7 +43,6 @@ router.get('/count', function(req:Request, res:Response){
             data.sort((a, b) => b.count - a.count );
             res.send(data);
         });
-        console.log("rows : ",data);
     });
 });
 

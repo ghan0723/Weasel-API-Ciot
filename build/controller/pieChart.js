@@ -24,7 +24,7 @@ router.get('/count', function (req, res) {
                     process: rows[index].process,
                     count: rows[index].count,
                     hcount: Math.floor(count),
-                    day: index
+                    day: Date.now()
                 });
             }
             data.sort((a, b) => b.count - a.count);
