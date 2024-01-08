@@ -13,7 +13,7 @@ router.post('/login', (req, res) => {
     const { username, passwd } = req.body;
     userService.getUser(username, passwd)
         .then((user) => {
-        console.log("user(여긴 라우터) :", user);
+        // console.log("user(여긴 라우터) :", user);
         res.redirect('http://localhost:3000/admin/default');
     })
         .catch((error) => {

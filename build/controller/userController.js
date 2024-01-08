@@ -8,7 +8,7 @@ class UserController {
         const { username, passwd } = req.body;
         this.userService.getUser(username, passwd)
             .then((user) => {
-            console.log("user(여긴 컨트롤러) :", user);
+            // console.log("user(여긴 컨트롤러) :", user);
             res.redirect('http://localhost:3000/admin/default');
         })
             .catch((error) => {
