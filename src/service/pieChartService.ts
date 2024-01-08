@@ -2,12 +2,23 @@ import connection from "../db/db";
 
 class PieChartService {
 
-  getPieDataToday(): Promise<any> {
+  getPieDataToday(id:any): Promise<any> {
     //매개변수를 Table 명을 정하는 값으로 받을꺼임
-    const queryNet1 =
-      "select process, count(process) as count from detectfiles where time LIKE CONCAT('%', (CURDATE()), '%') group by process";
-    const queryNet2 =
-      "select count(*) as totalCount from detectfiles where time LIKE CONCAT('%', (CURDATE()), '%')";
+    let table:string;
+    if(id === ':Network'){
+      table = 'detectfiles';
+    }else if(id === ':Media'){
+      table = 'detectmediafiles';
+    }else if(id === ':Outlook'){
+      table = 'outlookpstviewer';
+    }else {
+      table = 'detectprinteddocuments';
+    }
+
+    let queryNet1 =
+      `select process, count(process) as count from ${table} where time LIKE CONCAT('%', (CURDATE()), '%') group by process`;
+    let queryNet2 =
+      `select count(*) as totalCount from ${table} where time LIKE CONCAT('%', (CURDATE()), '%')`;
     return new Promise<any>((resolve, reject) => {
       connection.query(queryNet1, (error, result1) => {
         if (error) {

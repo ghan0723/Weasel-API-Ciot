@@ -37,7 +37,7 @@ class PrintService {
           resolve({
             allprints: this.query1,
             beforeprints:
-            (this.query1 / this.query2) * 100 || 0,
+            (this.query2 !== 0) ? (this.query1 / this.query2) * 100 : 0,
           });
         })
         .catch((error) => {

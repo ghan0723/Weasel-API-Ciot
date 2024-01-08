@@ -5,9 +5,23 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const db_1 = __importDefault(require("../db/db"));
 class PieChartService {
-    getPieDataToday() {
-        const queryNet1 = "select process, count(process) as count from detectfiles where time LIKE CONCAT('%', (CURDATE()), '%') group by process";
-        const queryNet2 = "select count(*) as totalCount from detectfiles where time LIKE CONCAT('%', (CURDATE()), '%')";
+    getPieDataToday(id) {
+        //매개변수를 Table 명을 정하는 값으로 받을꺼임
+        let table;
+        if (id === ':Network') {
+            table = 'detectfiles';
+        }
+        else if (id === ':Media') {
+            table = 'detectmediafiles';
+        }
+        else if (id === ':Outlook') {
+            table = 'outlookpstviewer';
+        }
+        else {
+            table = 'detectprinteddocuments';
+        }
+        let queryNet1 = `select process, count(process) as count from ${table} where time LIKE CONCAT('%', (CURDATE()), '%') group by process`;
+        let queryNet2 = `select count(*) as totalCount from ${table} where time LIKE CONCAT('%', (CURDATE()), '%')`;
         return new Promise((resolve, reject) => {
             db_1.default.query(queryNet1, (error, result1) => {
                 if (error) {

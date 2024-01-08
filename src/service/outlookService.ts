@@ -37,7 +37,7 @@ class OutlookService {
           resolve({
             alloutlooks: this.query1,
             beforeoutlooks:
-            (this.query1 / this.query2) * 100 || 0,
+            (this.query2 !== 0) ? (this.query1 / this.query2) * 100 : 0,
           });
         })
         .catch((error) => {

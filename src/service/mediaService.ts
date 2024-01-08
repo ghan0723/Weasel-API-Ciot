@@ -37,7 +37,7 @@ class MediaService {
           resolve({
             allmedias: this.query1,
             beforemedias:
-            (this.query1 / this.query2) * 100 || 0,
+            (this.query2 !== 0) ? (this.query1 / this.query2) * 100 : 0,
           });
         })
         .catch((error) => {
