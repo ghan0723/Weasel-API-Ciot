@@ -11,8 +11,8 @@ const lineChartsService = new lineChartsService_1.default(db_1.default);
 router.get('/', (req, res) => {
     lineChartsService.getTablesMonthData()
         .then((data) => {
-        console.log('====================================================================');
-        console.log('networkmonthsCount', data);
+        // console.log('====================================================================');
+        // console.log('networkmonthsCount', data);
         res.status(200).send(data);
     })
         .catch((error) => {

@@ -18,8 +18,8 @@ class LineChartsService {
                 this.getTableYear(3),
             ])
                 .then((values) => {
-                console.log("this.yearArray : ", this.yearArray);
-                console.log("values : ", values);
+                // console.log("this.yearArray : ",this.yearArray);
+                // console.log("values : ", values);
                 let chkData = [];
                 for (let i = 0; i < values.length; i++) {
                     let data = [];
@@ -57,8 +57,8 @@ class LineChartsService {
                             this.yearArray.push(results[i].year);
                         }
                     }
-                    console.log("results : ", results);
-                    console.log("resultValue : ", resultValue);
+                    // console.log("results : ", results);
+                    // console.log("resultValue : ", resultValue);
                     resolve(resultValue);
                 }
             });
@@ -96,8 +96,8 @@ class LineChartsService {
                 this.getTableMonth(3),
             ])
                 .then((values) => {
-                console.log("values : ", values);
-                console.log("this.monthArray : ", this.monthArray);
+                // console.log("values : ", values);
+                // console.log("this.monthArray : ", this.monthArray);
                 for (const month of this.monthlyArray) {
                     monthArray.push(+month);
                 }
@@ -124,8 +124,8 @@ class LineChartsService {
                         name: this.contents[num],
                         data: []
                     };
-                    console.log("results : ", results);
-                    console.log("result-type : ", typeof (results));
+                    // console.log("results : ", results);
+                    // console.log("result-type : ", typeof(results));
                     for (const month of this.monthlyArray) {
                         const value = results.find(data => data.month === month);
                         if (value === undefined) {
@@ -135,8 +135,8 @@ class LineChartsService {
                             resultValue.data.push(value.count);
                         }
                     }
-                    console.log("resultValue : ", resultValue);
-                    console.log("this.monthArray : ", this.monthArray);
+                    // console.log("resultValue : ", resultValue);
+                    // console.log("this.monthArray : ", this.monthArray);
                     resolve(resultValue);
                 }
             });

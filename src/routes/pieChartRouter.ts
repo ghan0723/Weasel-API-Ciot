@@ -6,7 +6,7 @@ const pieChartService: PieChartService = new PieChartService();
 
 router.get('/count/:select', (req: Request, res: Response) => {
   const id = req.params.select;
-  console.log('id 이름 :',id);
+  // console.log('id 이름 :',id);
   pieChartService
     .getPieDataToday(id)
     .then((pieData) => {

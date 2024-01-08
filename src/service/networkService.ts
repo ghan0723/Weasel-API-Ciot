@@ -43,7 +43,7 @@ class NetworkService {
           resolve({
             allfiles: this.query1,
             beforefiles:
-            (this.query2 !== 0) ? (this.query1 / this.query2) * 100 : 0,
+            (this.query2 !== 0) ? (this.query1 / this.query2) * 100 : (this.query1 / 1) * 100,
           });
         })
         .catch((error) => {

@@ -36,7 +36,7 @@ class MediaService {
                 .then(() => {
                 resolve({
                     allmedias: this.query1,
-                    beforemedias: (this.query2 !== 0) ? (this.query1 / this.query2) * 100 : 0,
+                    beforemedias: (this.query2 !== 0) ? (this.query1 / this.query2) * 100 : (this.query1 / 1) * 100,
                 });
             })
                 .catch((error) => {

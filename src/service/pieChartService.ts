@@ -30,7 +30,7 @@ class PieChartService {
             }
             const data = result1.map((item: any) => {
               const count = (item.count / result2[0].totalCount) * 100;
-              console.log("hcount : ", count);
+              // console.log("hcount : ", count);
 
               return {
                 process: item.process,
@@ -40,7 +40,7 @@ class PieChartService {
               };
             });
             data.sort((a:any, b:any) => b.count - a.count);
-            console.log("data : ", data);
+            // console.log("data : ", data);
             resolve(data);
           });
         }

@@ -27,9 +27,9 @@ class LineChartsService {
                 this.getTableYear(3),
             ])
             .then((values) => {
-                console.log("this.yearArray : ",this.yearArray);
+                // console.log("this.yearArray : ",this.yearArray);
                 
-                console.log("values : ", values);
+                // console.log("values : ", values);
 
                 let chkData = [];
 
@@ -77,8 +77,8 @@ class LineChartsService {
                         }
                     }
 
-                    console.log("results : ", results);
-                    console.log("resultValue : ", resultValue);
+                    // console.log("results : ", results);
+                    // console.log("resultValue : ", resultValue);
                     
                     resolve(resultValue);
                 }
@@ -122,8 +122,8 @@ class LineChartsService {
                 this.getTableMonth(3),
             ])
             .then((values) => {
-                console.log("values : ", values);
-                console.log("this.monthArray : ", this.monthArray);
+                // console.log("values : ", values);
+                // console.log("this.monthArray : ", this.monthArray);
 
                 for(const month of this.monthlyArray) {
                     monthArray.push(+month);
@@ -155,8 +155,8 @@ class LineChartsService {
                         data : []
                     };
 
-                    console.log("results : ", results);
-                    console.log("result-type : ", typeof(results));
+                    // console.log("results : ", results);
+                    // console.log("result-type : ", typeof(results));
 
                     for(const month of this.monthlyArray) {
                         const value = results.find(data => data.month === month);
@@ -168,8 +168,8 @@ class LineChartsService {
                         }
                     }
 
-                    console.log("resultValue : ", resultValue);
-                    console.log("this.monthArray : ", this.monthArray);
+                    // console.log("resultValue : ", resultValue);
+                    // console.log("this.monthArray : ", this.monthArray);
                     
                     resolve(resultValue);
                 }

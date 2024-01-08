@@ -9,8 +9,8 @@ const lineChartsService:LineChartsService = new LineChartsService(connection);
 router.get('/', (req:Request, res:Response) => {
     lineChartsService.getTablesMonthData()
     .then((data) => {
-        console.log('====================================================================');
-        console.log('networkmonthsCount', data);
+        // console.log('====================================================================');
+        // console.log('networkmonthsCount', data);
         
         res.status(200).send(data);
     })

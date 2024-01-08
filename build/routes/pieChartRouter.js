@@ -8,7 +8,7 @@ const router = express_1.default.Router();
 const pieChartService = new pieChartService_1.default();
 router.get('/count/:select', (req, res) => {
     const id = req.params.select;
-    console.log('id 이름 :', id);
+    // console.log('id 이름 :',id);
     pieChartService
         .getPieDataToday(id)
         .then((pieData) => {
