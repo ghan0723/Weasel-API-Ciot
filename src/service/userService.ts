@@ -19,6 +19,19 @@ class UserService {
             });
         });
     }
+
+    getUserList(grade:number): Promise<any> {
+        return new Promise((resolve, reject) => {
+            const query = `select username, grade, enabled, mng_ip_ranges from userlist where grade > ${grade}`;
+            this.connection.query(query, (error, result) => {
+                if (error) {
+                    reject(error);
+                } else {
+                    resolve(result);
+                }
+            })
+        })
+    }
 }
 
 export default UserService;
