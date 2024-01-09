@@ -8,7 +8,6 @@ const outlookService: OutlookService = new OutlookService();
 router.get('/all', (req:Request, res:Response) => {
     outlookService.getCountAll()
     .then((alloutlooks) => {
-        console.log("alloutlooks : ", alloutlooks);
         res.send(alloutlooks);
     })
     .catch((error) => {

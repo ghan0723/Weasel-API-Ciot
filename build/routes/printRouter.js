@@ -9,7 +9,6 @@ const printService = new printService_1.default();
 router.get('/all', (req, res) => {
     printService.getCountAll()
         .then((allprints) => {
-        console.log("allprints : ", allprints);
         res.send(allprints);
     })
         .catch((error) => {

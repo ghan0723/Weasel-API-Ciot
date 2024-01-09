@@ -10,7 +10,6 @@ const networkService = new networkService_1.default(db_1.default);
 router.get('/all', (req, res) => {
     networkService.getCountAll()
         .then((allfiles) => {
-        console.log("allfiles : ", allfiles);
         res.send(allfiles);
     })
         .catch((error) => {

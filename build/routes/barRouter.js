@@ -32,7 +32,6 @@ router.get('/count', (req, res) => {
         fetchData('print', 3)
     ])
         .then(() => {
-        console.log("각 서비스 점검 barData : ", barData);
         res.status(200).send(barData);
     })
         .catch((err) => {

@@ -10,7 +10,6 @@ router.get("/all", (req, res) => {
     mediaService
         .getMediaAll()
         .then((allmedias) => {
-        console.log("allmedias : ", allmedias);
         res.send(allmedias);
     })
         .catch((error) => {

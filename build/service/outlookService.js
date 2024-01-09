@@ -36,7 +36,7 @@ class OutlookService {
                 .then(() => {
                 resolve({
                     alloutlooks: this.query1,
-                    beforeoutlooks: (this.query2 !== 0) ? (this.query1 / this.query2) * 100 : (this.query1 / 1) * 100,
+                    beforeoutlooks: (this.query2 !== 0) ? (((this.query1 - this.query2) / this.query2) * 100).toFixed(2) : (this.query1 / 1 * 100).toFixed(2),
                 });
             })
                 .catch((error) => {
@@ -44,5 +44,19 @@ class OutlookService {
             });
         });
     }
+    getApiData() {
+        return new Promise((resolve, reject) => {
+            const query = 'select * from outlookpstviewer';
+            db_1.default.query(query, (error, result) => {
+                if (error) {
+                    reject(error);
+                }
+                else {
+                    resolve(result);
+                }
+            });
+        });
+    }
+    ;
 }
 exports.default = OutlookService;

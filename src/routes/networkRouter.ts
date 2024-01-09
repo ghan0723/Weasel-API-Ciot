@@ -9,7 +9,6 @@ const networkService: NetworkService = new NetworkService(connection);
 router.get('/all', (req:Request, res: Response) => {
     networkService.getCountAll()
     .then((allfiles)=>{
-        console.log("allfiles : ", allfiles);
         res.send(allfiles);
     })
     .catch((error) => {

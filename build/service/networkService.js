@@ -36,7 +36,7 @@ class NetworkService {
                 .then(() => {
                 resolve({
                     allfiles: this.query1,
-                    beforefiles: (this.query2 !== 0) ? (this.query1 / this.query2) * 100 : (this.query1 / 1) * 100,
+                    beforefiles: (this.query2 !== 0) ? (((this.query1 - this.query2) / this.query2) * 100).toFixed(2) : (this.query1 / 1 * 100).toFixed(2),
                 });
             })
                 .catch((error) => {
@@ -44,5 +44,19 @@ class NetworkService {
             });
         });
     }
+    getApiData() {
+        return new Promise((resolve, reject) => {
+            const query = 'select * from detectfiles';
+            this.connection.query(query, (error, result) => {
+                if (error) {
+                    reject(error);
+                }
+                else {
+                    resolve(result);
+                }
+            });
+        });
+    }
+    ;
 }
 exports.default = NetworkService;
