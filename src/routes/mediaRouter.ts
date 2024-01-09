@@ -4,9 +4,10 @@ import express, { Request, Response, Router } from "express";
 const router: Router = express.Router();
 const mediaService: MediaService = new MediaService();
 
-router.get("/all", (req: Request, res: Response) => {
+router.get("/all/:select", (req: Request, res: Response) => {
+  let select = req.params.select;
   mediaService
-    .getMediaAll()
+    .getMediaAll(select)
     .then((allmedias) => {
       res.send(allmedias);
     })

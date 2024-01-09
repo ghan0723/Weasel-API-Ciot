@@ -5,10 +5,24 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const db_1 = __importDefault(require("../db/db"));
 class OutlookService {
-    getCountAll() {
+    getCountAll(select) {
+        let dayOption1;
+        let dayOption2;
+        if (select === 'day') {
+            dayOption1 = 'CURDATE(), INTERVAL 0 DAY';
+            dayOption2 = 'CURDATE(), INTERVAL 1 DAY';
+        }
+        else if (select === 'week') {
+            dayOption1 = 'CURDATE(), INTERVAL 1 WEEK';
+            dayOption2 = 'CURDATE(), INTERVAL 2 WEEK';
+        }
+        else {
+            dayOption1 = 'CURDATE(), INTERVAL 1 MONTH';
+            dayOption2 = 'CURDATE(), INTERVAL 2 MONTH';
+        }
         return new Promise((resolve, reject) => {
-            const query = "select count(*) as alloutlooks from outlookpstviewer where time Like CONCAT('%', CURDATE(), '%')";
-            const query3 = "select count(*) as beforeoutlooks from outlookpstviewer where time LIKE CONCAT('%', (CURDATE()- INTERVAL 1 DAY), '%')";
+            const query = `SELECT COUNT(*) as alloutlooks FROM outlookpstviewer WHERE time >= DATE_SUB(${dayOption1})`;
+            const query3 = `SELECT COUNT(*) as beforeoutlooks FROM outlookpstviewer WHERE time >= DATE_SUB(${dayOption2}) AND time < DATE_SUB(${dayOption1})`;
             Promise.all([
                 new Promise((innerResolve, innerReject) => {
                     db_1.default.query(query, (error, result) => {

@@ -5,12 +5,12 @@ import express, { Request, Response, Router } from 'express';
 const router: Router = express.Router();
 const barService: BarService = new BarService();
 
-router.get('/count', (req: Request, res: Response) => {
+router.get('/count/:select', (req: Request, res: Response) => {
+    let param = req.params.select;
     let barData: any[] = [];
-
     // Function to fetch data for each service
     function fetchData(serviceName: string, index: number) {
-        return barService.getBarData(serviceName)
+        return barService.getBarData(serviceName, param)
             .then((data) => {
                 barData[index] = {
                     name: data.table,
@@ -24,7 +24,6 @@ router.get('/count', (req: Request, res: Response) => {
                 throw error; // rethrow the error to stop further execution
             });
     }
-
     // Fetch data for each service concurrently
     Promise.all([
         fetchData('network', 0),
@@ -41,5 +40,7 @@ router.get('/count', (req: Request, res: Response) => {
         res.status(500).send('Error fetching data');
     });
 });
+
+
 
 export = router;

@@ -7,8 +7,9 @@ const networkService_1 = __importDefault(require("../service/networkService"));
 const express_1 = __importDefault(require("express"));
 const router = express_1.default.Router();
 const networkService = new networkService_1.default(db_1.default);
-router.get('/all', (req, res) => {
-    networkService.getCountAll()
+router.get('/all/:select', (req, res) => {
+    let select = req.params.select;
+    networkService.getCountAll(select)
         .then((allfiles) => {
         res.send(allfiles);
     })

@@ -6,8 +6,9 @@ const outlookService_1 = __importDefault(require("../service/outlookService"));
 const express_1 = __importDefault(require("express"));
 const router = express_1.default.Router();
 const outlookService = new outlookService_1.default();
-router.get('/all', (req, res) => {
-    outlookService.getCountAll()
+router.get('/all/:select', (req, res) => {
+    let select = req.params.select;
+    outlookService.getCountAll(select)
         .then((alloutlooks) => {
         res.send(alloutlooks);
     })

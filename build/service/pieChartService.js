@@ -5,23 +5,33 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const db_1 = __importDefault(require("../db/db"));
 class PieChartService {
-    getPieDataToday(id) {
+    getPieDataToday(id, day) {
         //매개변수를 Table 명을 정하는 값으로 받을꺼임
         let table;
-        if (id === ':Network') {
+        let dayOption;
+        if (id === 'Network') {
             table = 'detectfiles';
         }
-        else if (id === ':Media') {
+        else if (id === 'Media') {
             table = 'detectmediafiles';
         }
-        else if (id === ':Outlook') {
+        else if (id === 'Outlook') {
             table = 'outlookpstviewer';
         }
         else {
             table = 'detectprinteddocuments';
         }
-        let queryNet1 = `select process, count(process) as count from ${table} where time LIKE CONCAT('%', (CURDATE()), '%') group by process`;
-        let queryNet2 = `select count(*) as totalCount from ${table} where time LIKE CONCAT('%', (CURDATE()), '%')`;
+        if (day === 'day') {
+            dayOption = 'DATE(time) = CURDATE()';
+        }
+        else if (day === 'week') {
+            dayOption = 'time >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) AND time < CURDATE()';
+        }
+        else {
+            dayOption = 'time >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH) AND time < CURDATE()';
+        }
+        let queryNet1 = `select process, count(process) as count from ${table} where ${dayOption} group by process`;
+        let queryNet2 = `select count(*) as totalCount from ${table} where ${dayOption}`;
         return new Promise((resolve, reject) => {
             db_1.default.query(queryNet1, (error, result1) => {
                 if (error) {

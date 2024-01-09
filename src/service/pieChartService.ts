@@ -2,24 +2,35 @@ import connection from "../db/db";
 
 class PieChartService {
 
-  getPieDataToday(id:any): Promise<any> {
+  getPieDataToday(id:string, day:any): Promise<any> {
     //매개변수를 Table 명을 정하는 값으로 받을꺼임
     let table:string;
-    if(id === ':Network'){
+    let dayOption:string;
+
+    if(id === 'Network'){
       table = 'detectfiles';
-    }else if(id === ':Media'){
+    }else if(id === 'Media'){
       table = 'detectmediafiles';
-    }else if(id === ':Outlook'){
+    }else if(id === 'Outlook'){
       table = 'outlookpstviewer';
     }else {
       table = 'detectprinteddocuments';
     }
 
+    if(day === 'day'){
+      dayOption = 'DATE(time) = CURDATE()';
+    }else if(day === 'week'){
+      dayOption = 'time >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) AND time < CURDATE()';
+    }else {
+      dayOption = 'time >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH) AND time < CURDATE()';
+    }
+
     let queryNet1 =
-      `select process, count(process) as count from ${table} where time LIKE CONCAT('%', (CURDATE()), '%') group by process`;
+      `select process, count(process) as count from ${table} where ${dayOption} group by process`;
     let queryNet2 =
-      `select count(*) as totalCount from ${table} where time LIKE CONCAT('%', (CURDATE()), '%')`;
-    return new Promise<any>((resolve, reject) => {
+      `select count(*) as totalCount from ${table} where ${dayOption}`;
+    
+      return new Promise<any>((resolve, reject) => {
       connection.query(queryNet1, (error, result1) => {
         if (error) {
           reject(error);

@@ -6,8 +6,9 @@ import express, { Request, Response, Router } from "express";
 const router: Router = express.Router();
 const networkService: NetworkService = new NetworkService(connection);
 
-router.get('/all', (req:Request, res: Response) => {
-    networkService.getCountAll()
+router.get('/all/:select', (req:Request, res: Response) => {
+    let select = req.params.select;
+    networkService.getCountAll(select)
     .then((allfiles)=>{
         res.send(allfiles);
     })

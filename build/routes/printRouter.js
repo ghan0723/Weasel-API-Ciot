@@ -6,8 +6,9 @@ const printService_1 = __importDefault(require("../service/printService"));
 const express_1 = __importDefault(require("express"));
 const router = express_1.default.Router();
 const printService = new printService_1.default();
-router.get('/all', (req, res) => {
-    printService.getCountAll()
+router.get('/all/:select', (req, res) => {
+    let select = req.params.select;
+    printService.getCountAll(select)
         .then((allprints) => {
         res.send(allprints);
     })

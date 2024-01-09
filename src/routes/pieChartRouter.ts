@@ -5,10 +5,12 @@ const router: Router = express.Router();
 const pieChartService: PieChartService = new PieChartService();
 
 router.get('/count/:select', (req: Request, res: Response) => {
-  const id = req.params.select;
-  // console.log('id 이름 :',id);
+  let id = req.params.select;
+  let day = req.query.day;
+  console.log('id 이름 :',id);
+  console.log('day 이름 :',day);
   pieChartService
-    .getPieDataToday(id)
+    .getPieDataToday(id, day)
     .then((pieData) => {
       res.send(pieData);
     })

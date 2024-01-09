@@ -6,9 +6,10 @@ const mediaService_1 = __importDefault(require("../service/mediaService"));
 const express_1 = __importDefault(require("express"));
 const router = express_1.default.Router();
 const mediaService = new mediaService_1.default();
-router.get("/all", (req, res) => {
+router.get("/all/:select", (req, res) => {
+    let select = req.params.select;
     mediaService
-        .getMediaAll()
+        .getMediaAll(select)
         .then((allmedias) => {
         res.send(allmedias);
     })

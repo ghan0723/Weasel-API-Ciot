@@ -4,12 +4,27 @@ class MediaService {
   private query1!: number;
   private query2!: number;
 
-  getMediaAll(): Promise<any> {
+  getMediaAll(select:string): Promise<any> {
+
+    let dayOption1:string;
+    let dayOption2:string;
+
+    if(select === 'day'){
+      dayOption1 = 'CURDATE(), INTERVAL 0 DAY';
+      dayOption2 = 'CURDATE(), INTERVAL 1 DAY';
+    }else if(select === 'week'){
+      dayOption1 = 'CURDATE(), INTERVAL 1 WEEK'
+      dayOption2 = 'CURDATE(), INTERVAL 2 WEEK'
+    }else{
+      dayOption1 = 'CURDATE(), INTERVAL 1 MONTH'
+      dayOption2 = 'CURDATE(), INTERVAL 2 MONTH'
+    }
+
     return new Promise((resolve, reject) => {
       const query =
-        "select count(*) as allmedias from detectmediafiles where time Like CONCAT('%', CURDATE(), '%')";
+      `SELECT COUNT(*) as allmedias FROM detectmediafiles WHERE time >= DATE_SUB(${dayOption1})`;
       const query3 =
-        "select count(*) as beforemedias from detectmediafiles where time LIKE CONCAT('%', (CURDATE()- INTERVAL 1 DAY), '%')";
+      `SELECT COUNT(*) as beforemedias FROM detectmediafiles WHERE time >= DATE_SUB(${dayOption2}) AND time < DATE_SUB(${dayOption1})`;
 
       Promise.all([
         new Promise<void>((innerResolve, innerReject) => {

@@ -4,12 +4,27 @@ class OutlookService {
   private query1!: number;
   private query2!: number;
 
-  getCountAll(): Promise<any> {
+  getCountAll(select:string): Promise<any> {
+
+    let dayOption1:string;
+    let dayOption2:string;
+
+    if(select === 'day'){
+      dayOption1 = 'CURDATE(), INTERVAL 0 DAY';
+      dayOption2 = 'CURDATE(), INTERVAL 1 DAY';
+    }else if(select === 'week'){
+      dayOption1 = 'CURDATE(), INTERVAL 1 WEEK'
+      dayOption2 = 'CURDATE(), INTERVAL 2 WEEK'
+    }else{
+      dayOption1 = 'CURDATE(), INTERVAL 1 MONTH'
+      dayOption2 = 'CURDATE(), INTERVAL 2 MONTH'
+    }
+
     return new Promise((resolve, reject) => {
       const query =
-        "select count(*) as alloutlooks from outlookpstviewer where time Like CONCAT('%', CURDATE(), '%')";
+      `SELECT COUNT(*) as alloutlooks FROM outlookpstviewer WHERE time >= DATE_SUB(${dayOption1})`;
       const query3 =
-        "select count(*) as beforeoutlooks from outlookpstviewer where time LIKE CONCAT('%', (CURDATE()- INTERVAL 1 DAY), '%')";
+      `SELECT COUNT(*) as beforeoutlooks FROM outlookpstviewer WHERE time >= DATE_SUB(${dayOption2}) AND time < DATE_SUB(${dayOption1})`;
 
       Promise.all([
         new Promise<void>((innerResolve, innerReject) => {

@@ -5,10 +5,24 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const db_1 = __importDefault(require("../db/db"));
 class PrintService {
-    getCountAll() {
+    getCountAll(select) {
+        let dayOption1;
+        let dayOption2;
+        if (select === "day") {
+            dayOption1 = "CURDATE(), INTERVAL 0 DAY";
+            dayOption2 = "CURDATE(), INTERVAL 1 DAY";
+        }
+        else if (select === "week") {
+            dayOption1 = "CURDATE(), INTERVAL 1 WEEK";
+            dayOption2 = "CURDATE(), INTERVAL 2 WEEK";
+        }
+        else {
+            dayOption1 = "CURDATE(), INTERVAL 1 MONTH";
+            dayOption2 = "CURDATE(), INTERVAL 2 MONTH";
+        }
         return new Promise((resolve, reject) => {
-            const query = "select count(*) as allprints from detectprinteddocuments where time Like CONCAT('%', CURDATE(), '%')";
-            const query3 = "select count(*) as beforeprints from detectprinteddocuments where time LIKE CONCAT('%', (CURDATE()- INTERVAL 1 DAY), '%')";
+            const query = `SELECT COUNT(*) as allprints FROM detectprinteddocuments WHERE time >= DATE_SUB(${dayOption1})`;
+            const query3 = `SELECT COUNT(*) as beforeprints FROM detectprinteddocuments WHERE time >= DATE_SUB(${dayOption2}) AND time < DATE_SUB(${dayOption1})`;
             Promise.all([
                 new Promise((innerResolve, innerReject) => {
                     db_1.default.query(query, (error, result) => {
@@ -36,7 +50,9 @@ class PrintService {
                 .then(() => {
                 resolve({
                     allprints: this.query1,
-                    beforeprints: (this.query2 !== 0) ? (((this.query1 - this.query2) / this.query2) * 100).toFixed(2) : (this.query1 / 1 * 100).toFixed(2),
+                    beforeprints: this.query2 !== 0
+                        ? (((this.query1 - this.query2) / this.query2) * 100).toFixed(2)
+                        : ((this.query1 / 1) * 100).toFixed(2),
                 });
             })
                 .catch((error) => {
@@ -46,7 +62,7 @@ class PrintService {
     }
     getApiData() {
         return new Promise((resolve, reject) => {
-            const query = 'select * from detectprinteddocuments';
+            const query = "select * from detectprinteddocuments";
             db_1.default.query(query, (error, result) => {
                 if (error) {
                     reject(error);
@@ -57,6 +73,5 @@ class PrintService {
             });
         });
     }
-    ;
 }
 exports.default = PrintService;

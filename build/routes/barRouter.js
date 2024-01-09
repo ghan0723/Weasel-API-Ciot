@@ -6,11 +6,12 @@ const barService_1 = __importDefault(require("../service/barService"));
 const express_1 = __importDefault(require("express"));
 const router = express_1.default.Router();
 const barService = new barService_1.default();
-router.get('/count', (req, res) => {
+router.get('/count/:select', (req, res) => {
+    let param = req.params.select;
     let barData = [];
     // Function to fetch data for each service
     function fetchData(serviceName, index) {
-        return barService.getBarData(serviceName)
+        return barService.getBarData(serviceName, param)
             .then((data) => {
             barData[index] = {
                 name: data.table,
