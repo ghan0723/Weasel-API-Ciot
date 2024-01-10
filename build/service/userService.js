@@ -30,5 +30,10 @@ class UserService {
             });
         });
     }
+    addUser(user) {
+        return new Promise((resolve, reject) => {
+            const query = `insert into userlist (?)`;
+        });
+    }
 }
 exports.default = UserService;

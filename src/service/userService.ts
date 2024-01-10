@@ -32,6 +32,12 @@ class UserService {
             })
         })
     }
+
+    addUser(user:[username:string, passwd:string, passwdChk:string, grade:string, mng_ip_ranges:string]): Promise<any> {
+        return new Promise((resolve, reject) => {
+            const query = `insert into userlist (?)`;
+        })
+    }
 }
 
 export default UserService;
