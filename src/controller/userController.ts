@@ -11,7 +11,7 @@ class UserController {
     login(req: Request, res: Response): void {
         const { username, passwd }: { username: string; passwd: string } = req.body;
 
-        this.userService.getUser(username, passwd)
+        this.userService.getLogin(username, passwd)
             .then((user) => {
                 // console.log("user(여긴 컨트롤러) :", user);
                 res.redirect('http://localhost:3000/admin/default');
