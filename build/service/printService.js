@@ -62,7 +62,12 @@ class PrintService {
     }
     getApiData() {
         return new Promise((resolve, reject) => {
-            const query = "select * from detectprinteddocuments";
+            const query = 'select `time` as Time, pcname , agent_ip , process , pid as PIDs, printer as Printers, ' +
+                'owner as Owners, document as Documents, ' +
+                'spl_file as Copied_Spool_Files, spl_file as Downloading, ' +
+                '`size` as Sizes, pages as Pages ' +
+                'from detectprinteddocuments ' +
+                'order by `time` desc;';
             db_1.default.query(query, (error, result) => {
                 if (error) {
                     reject(error);

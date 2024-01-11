@@ -60,7 +60,11 @@ class OutlookService {
     }
     getApiData() {
         return new Promise((resolve, reject) => {
-            const query = 'select * from outlookpstviewer';
+            const query = 'select `time` as Time, pcname , agent_ip , process, media_type , file as Files , ' +
+                'saved_file as Copied_files, saved_file as Downloading , ' +
+                'file_size as File_Sizes , keywords as Keywords ' +
+                'from detectmediafiles ' +
+                'order by `time` desc;';
             db_1.default.query(query, (error, result) => {
                 if (error) {
                     reject(error);
