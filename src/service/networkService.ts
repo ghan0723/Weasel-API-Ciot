@@ -69,8 +69,19 @@ class NetworkService {
 
   getApiData(): Promise<any>{
     return new Promise((resolve, reject) => {
-      const query = 'select * from detectfiles';
+      const query = 
+        'select accuracy, `time` as Time, pcname , agent_ip, src_ip , src_port as Ports , ' +
+        'dst_ip , dst_port as Ports , process , pid as PIDS, src_file , ' +
+        'saved_file as Downloading, saved_file as Screenshots, file_size as FileSizes, ' +
+        'keywords as Keywords, dst_file as Dest_files ' +
+        'from detectfiles ' + 
+        'order by `time` desc;'
+      
+
       this.connection.query(query, (error, result) => {
+        console.log("result.length : ", result.length);
+        console.log("result : ", result);
+        
         if(error){
           reject(error);
         }else{

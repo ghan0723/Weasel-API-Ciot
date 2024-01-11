@@ -11,23 +11,31 @@ const mediaService: MediaService = new MediaService();
 const outlookService: OutlookService = new OutlookService();
 const printService: PrintService = new PrintService();
 
-router.get("/:url", (req: Request, res: Response) => {
-  let param = req.params.url;
-  console.log("url : " , param);
+router.get("/", (req: Request, res: Response) => {
+  const contents = req.query.contents;
+  const page = req.query.page;
+  const pageSize = req.query.pageSize;
+  const category = req.query.category;
+  const search = req.query.search;
+  console.log("contents : " , contents);
+  console.log("page : " , page);
+  console.log("pageSize : " , pageSize);
+  console.log("category : " , category);
+  console.log("search : " , search);
   
   let results;
 
-  if (param === ":network") {
+  if (contents === "network") {
     results = networkService.getApiData();
-  } else if (param === ":media") {
+  } else if (contents === "media") {
     results = mediaService.getApiData();
-  } else if (param === ":outlook") {
+  } else if (contents === "outlook") {
     results = outlookService.getApiData();
-  } else if (param === ":print") {
+  } else if (contents === "print") {
     results = printService.getApiData();
   } else {
     // Handle the case when param doesn't match any of the expected values
-    console.error("Invalid param:", param);
+    console.error("Invalid param:", contents);
   }
 
   results
@@ -35,7 +43,7 @@ router.get("/:url", (req: Request, res: Response) => {
       res.send(DataItem);
     })
     .catch((error) => {
-      console.error(error + " : " + param);
+      console.error(error + " : " + contents);
       res.status(500).send("server error");
     });
 });
