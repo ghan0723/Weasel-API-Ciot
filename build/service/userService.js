@@ -6,7 +6,7 @@ class UserService {
     }
     getLogin(username, passwd) {
         return new Promise((resolve, reject) => {
-            const query = "SELECT username, grade, enabled, mng_ip_ranges FROM userlist WHERE username = ? AND passwd = ?";
+            const query = "SELECT username, grade, mng_ip_ranges FROM userlist WHERE username = ? AND passwd = ?";
             this.connection.query(query, [username, passwd], (error, results) => {
                 if (error) {
                     reject(error);

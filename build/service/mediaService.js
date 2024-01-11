@@ -67,6 +67,7 @@ class MediaService {
                 'from outlookpstviewer ' +
                 'order by `time` desc;';
             const query2 = 'select count(*) from detectfiles;';
+            console.log("들어옴???");
             Promise.all([
                 new Promise((innerResolve, innerReject) => {
                     db_1.default.query(query, (error, result) => {
