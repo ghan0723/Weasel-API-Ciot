@@ -58,16 +58,15 @@ class MediaService {
             });
         });
     }
-    getApiData() {
+    getApiData(page, pageSize) {
         return new Promise((resolve, reject) => {
-            const query = 'select `time` as Time, pcname , agent_ip , process , ' +
-                'pid as PIDs , subject as Mail_Subjects , sender , receiver , ' +
-                'attachment as Attached_Files, asked_file as Copied_files, saved_file as Downloading , ' +
+            const query = 'select id, `time` as Time, pcname , agent_ip , process, media_type , file as Files , ' +
+                'saved_file as Copied_files, saved_file as Downloading , ' +
                 'file_size as File_Sizes , keywords as Keywords ' +
-                'from outlookpstviewer ' +
-                'order by `time` desc;';
-            const query2 = 'select count(*) from detectfiles;';
-            console.log("들어옴???");
+                'from detectmediafiles ' +
+                'order by `time` desc' +
+                'LIMIT ' + pageSize + ' offset ' + page * pageSize;
+            const query2 = 'select count(*) as count from detectmediafiles;';
             Promise.all([
                 new Promise((innerResolve, innerReject) => {
                     db_1.default.query(query, (error, result) => {
@@ -80,7 +79,7 @@ class MediaService {
                     });
                 }),
                 new Promise((innerResolve, innerReject) => {
-                    db_1.default.query(query, (error, result) => {
+                    db_1.default.query(query2, (error, result) => {
                         if (error) {
                             innerReject(error);
                         }
@@ -95,13 +94,6 @@ class MediaService {
                 resolve(values);
             })
                 .catch(error => reject(error));
-            // connection.query(query, (error, result) => {
-            //   if(error){
-            //     reject(error);
-            //   }else{
-            //     resolve(result);
-            //   }
-            // })
         });
     }
     ;
