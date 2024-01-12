@@ -57,24 +57,63 @@ class NetworkService {
             });
         });
     }
-    getApiData() {
+    getApiData(page, pageSize, sorting, desc, category, search) {
+        let queryPage = 0;
+        let queryPageSize = 0;
+        let querySorting = sorting === '' ? 'time' : sorting;
+        let queryDesc = desc === 'false' ? 'asc' : 'desc';
+        let whereClause = '';
+        if (page !== undefined) {
+            queryPage = Number(page);
+        }
+        if (pageSize !== undefined) {
+            queryPageSize = Number(pageSize);
+        }
+        if (sorting === '' && desc === '') {
+            sorting = 'time';
+            desc = 'desc';
+        }
+        if (search !== '') {
+            whereClause = 'where ' + category + " like '%" + search + "%' ";
+        }
+        console.log('whereClause : ', whereClause);
         return new Promise((resolve, reject) => {
-            const query = 'select accuracy, `time` as Time, pcname , agent_ip, src_ip , src_port as Ports , ' +
+            const query = 'select id, accuracy, `time` as Time, pcname , agent_ip, src_ip , src_port as Ports , ' +
                 'dst_ip , dst_port as Ports , process , pid as PIDS, src_file , ' +
                 'saved_file as Downloading, saved_file as Screenshots, file_size as FileSizes, ' +
                 'keywords as Keywords, dst_file as Dest_files ' +
                 'from detectfiles ' +
-                'order by `time` desc;';
-            this.connection.query(query, (error, result) => {
-                console.log("result.length : ", result.length);
-                console.log("result : ", result);
-                if (error) {
-                    reject(error);
-                }
-                else {
-                    resolve(result);
-                }
-            });
+                whereClause +
+                'order by ' + querySorting + ' ' + queryDesc + ' ' +
+                'LIMIT ' + queryPageSize + ' offset ' + queryPage * queryPageSize;
+            const query2 = 'select count(*) as count from detectfiles' + whereClause;
+            console.log('query : ', query);
+            Promise.all([
+                new Promise((innerResolve, innerReject) => {
+                    this.connection.query(query, (error, result) => {
+                        if (error) {
+                            innerReject(error);
+                        }
+                        else {
+                            innerResolve(result); // 빈 인수로 호출
+                        }
+                    });
+                }),
+                new Promise((innerResolve, innerReject) => {
+                    this.connection.query(query2, (error, result) => {
+                        if (error) {
+                            innerReject(error);
+                        }
+                        else {
+                            innerResolve(result); // 빈 인수로 호출
+                        }
+                    });
+                }),
+            ])
+                .then(values => {
+                resolve(values);
+            })
+                .catch(error => reject(error));
         });
     }
     ;

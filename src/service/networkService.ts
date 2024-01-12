@@ -67,27 +67,76 @@ class NetworkService {
     });
   }
 
-  getApiData(): Promise<any>{
+  getApiData(page:any,pageSize:any,sorting:any,desc:any,category:any,search:any): Promise<any>{
+    let queryPage:number=0;
+    let queryPageSize:number=0;
+    let querySorting:string=sorting === '' ? 'time' : sorting;
+    let queryDesc:string=desc === 'false' ? 'asc' : 'desc';
+    let whereClause = '';
+
+    if(page !== undefined) {      
+      queryPage = Number(page);
+    }
+
+    if(pageSize !== undefined) {
+      queryPageSize = Number(pageSize);
+    }
+
+    if(sorting === '' && desc === '') {
+      sorting = 'time';
+      desc = 'desc';
+    }
+
+    if(search !== '') {
+      whereClause = 'where ' + category + " like '%" + search + "%' ";
+    }
+
+    console.log('whereClause : ', whereClause);
+    
+    
+
     return new Promise((resolve, reject) => {
       const query = 
-        'select accuracy, `time` as Time, pcname , agent_ip, src_ip , src_port as Ports , ' +
+        'select id, accuracy, `time` as Time, pcname , agent_ip, src_ip , src_port as Ports , ' +
         'dst_ip , dst_port as Ports , process , pid as PIDS, src_file , ' +
         'saved_file as Downloading, saved_file as Screenshots, file_size as FileSizes, ' +
         'keywords as Keywords, dst_file as Dest_files ' +
         'from detectfiles ' + 
-        'order by `time` desc;'
+         whereClause +
+        'order by '+ querySorting + ' ' + queryDesc + ' ' +
+        'LIMIT ' + queryPageSize + ' offset ' + queryPage*queryPageSize;
+
+      const query2 = 'select count(*) as count from detectfiles' + whereClause;
+
+      console.log('query : ', query);
+      
       
 
-      this.connection.query(query, (error, result) => {
-        console.log("result.length : ", result.length);
-        console.log("result : ", result);
-        
-        if(error){
-          reject(error);
-        }else{
-          resolve(result);
-        }
+      Promise.all([
+        new Promise<void>((innerResolve, innerReject) => {
+          this.connection.query(query, (error, result) => {
+            if (error) {
+              innerReject(error);
+            } else {
+              innerResolve(result); // 빈 인수로 호출
+            }
+          });
+        }),
+        new Promise<void>((innerResolve, innerReject) => {
+          this.connection.query(query2, (error, result) => {
+            if (error) {
+              innerReject(error);
+            } else {
+              innerResolve(result); // 빈 인수로 호출
+            }
+          });
+        }),
+      ])
+      .then(values => {
+        resolve(values);
       })
+      .catch(error => reject(error));
+
     })
   };
 }
