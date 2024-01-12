@@ -13,22 +13,28 @@ const printService: PrintService = new PrintService();
 
 router.get("/", (req: Request, res: Response) => {
   const contents = req.query.contents;
-  const page = req.query.page;
-  const pageSize = req.query.pageSize;
-  const category = req.query.category;
-  const search = req.query.search;
+  const page = req.query.page;         // page count
+  const pageSize = req.query.pageSize; // page 갯수
+  const sorting = req.query.sorting;   // sort column
+  const desc = req.query.desc;         // desc : false, asc : true, undefined
+  const category = req.query.category; // search column
+  const search = req.query.search;     // search context
   console.log("contents : " , contents);
   console.log("page : " , page);
   console.log("pageSize : " , pageSize);
+  console.log("sorting : ", sorting);
+  console.log("desc : ", desc);
   console.log("category : " , category);
   console.log("search : " , search);
+  console.log("page type : ", typeof(page));
+  console.log("page type : ", typeof(pageSize));  
   
   let results;
 
   if (contents === "network") {
-    results = networkService.getApiData();
+    results = networkService.getApiData(page,pageSize,sorting,desc,category,search);
   } else if (contents === "media") {
-    results = mediaService.getApiData();
+    results = mediaService.getApiData(page,pageSize);
   } else if (contents === "outlook") {
     results = outlookService.getApiData();
   } else if (contents === "print") {

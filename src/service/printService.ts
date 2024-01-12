@@ -62,20 +62,42 @@ class PrintService {
   getApiData(): Promise<any> {
     return new Promise((resolve, reject) => {
       const query = 
-      'select `time` as Time, pcname , agent_ip , process , pid as PIDs, printer as Printers, ' +
+      'select id, `time` as Time, pcname , agent_ip , process , pid as PIDs, printer as Printers, ' +
       'owner as Owners, document as Documents, ' +
       'spl_file as Copied_Spool_Files, spl_file as Downloading, ' +
       '`size` as Sizes, pages as Pages ' +
       'from detectprinteddocuments ' + 
-      'order by `time` desc;'
-      ;
-      connection.query(query, (error, result) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(result);
-        }
-      });
+      'order by `time` desc;';
+
+      const query2 = 'select count(*) as count from detectprinteddocuments;';
+      
+      Promise.all([
+        new Promise<void>((innerResolve, innerReject) => {
+          connection.query(query, (error, result) => {
+            if (error) {
+              innerReject(error);
+            } else {
+              innerResolve(result); // 빈 인수로 호출
+            }
+          });
+        }),
+        new Promise<void>((innerResolve, innerReject) => {
+          connection.query(query2, (error, result) => {
+            if (error) {
+              innerReject(error);
+            } else {
+              innerResolve(result); // 빈 인수로 호출
+            }
+          });
+        }),
+      ])
+      .then(values => {
+        console.log("values : ", values);
+        
+        resolve(values);
+      })
+      .catch(error => reject(error));
+
     });
   }
 }
