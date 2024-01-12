@@ -15,9 +15,6 @@ class UserService {
         if (error) {
           reject(error);
         } else {
-          
-          
-
           resolve(results);
         }
       });
@@ -96,12 +93,15 @@ class UserService {
     });
   }
 
-  modUser(user: {
-    username: string;
-    passwd: string;
-    grade: string;
-    mng_ip_ranges: string;
-  }, oldname:string) : Promise<any> {
+  modUser(
+    user: {
+      username: string;
+      passwd: string;
+      grade: string;
+      mng_ip_ranges: string;
+    },
+    oldname: string
+  ): Promise<any> {
     let mngip = user.mng_ip_ranges.replace(/(\r\n|\n|\r)/gm, ", ");
     let grade: number = parseInt(user.grade, 10);
     const query = `UPDATE userlist SET username = '${user.username}', passwd = '${user.passwd}', grade = ${grade}, mng_ip_ranges = '${mngip}' WHERE username = '${oldname}'`;
@@ -118,7 +118,6 @@ class UserService {
       });
     });
   }
-  
 }
 
 export default UserService;
