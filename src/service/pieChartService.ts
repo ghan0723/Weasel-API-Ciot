@@ -1,8 +1,9 @@
+import { IpRange } from "../interface/interface";
 import connection from "../db/db";
 
 class PieChartService {
 
-  getPieDataToday(id:string, day:any): Promise<any> {
+  getPieDataToday(id:string, day:any, ipRanges: IpRange[]): Promise<any> {
     //매개변수를 Table 명을 정하는 값으로 받을꺼임
     let table:string;
     let dayOption:string;
@@ -20,15 +21,23 @@ class PieChartService {
     if(day === 'day'){
       dayOption = 'DATE(time) = CURDATE()';
     }else if(day === 'week'){
-      dayOption = 'time >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) AND time < CURDATE()';
+      dayOption = 'time >= DATE_SUB(NOW(), INTERVAL 7 DAY) AND time < NOW()';
     }else {
-      dayOption = 'time >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH) AND time < CURDATE()';
+      dayOption = 'time >= DATE_SUB(NOW(), INTERVAL 1 MONTH) AND time < NOW()';
     }
 
+    // IP 범위 조건들을 생성
+    const ipConditions = ipRanges
+      .map(
+        (range) =>
+          `(INET_ATON(agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`
+      )
+      .join(" OR ");
+
     let queryNet1 =
-      `select process, count(process) as count from ${table} where ${dayOption} group by process`;
+      `select process, count(process) as count from ${table} where ${dayOption} AND (${ipConditions}) group by process`;
     let queryNet2 =
-      `select count(*) as totalCount from ${table} where ${dayOption}`;
+      `select count(*) as totalCount from ${table} where ${dayOption} AND (${ipConditions})`;
     
       return new Promise<any>((resolve, reject) => {
       connection.query(queryNet1, (error, result1) => {

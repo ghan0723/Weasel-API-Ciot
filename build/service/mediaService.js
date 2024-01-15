@@ -5,24 +5,28 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const db_1 = __importDefault(require("../db/db"));
 class MediaService {
-    getMediaAll(select) {
+    getMediaAll(select, ipRanges) {
         let dayOption1;
         let dayOption2;
-        if (select === 'day') {
-            dayOption1 = 'CURDATE(), INTERVAL 0 DAY';
-            dayOption2 = 'CURDATE(), INTERVAL 1 DAY';
+        if (select === "day") {
+            dayOption1 = "CURDATE(), INTERVAL 0 DAY";
+            dayOption2 = "CURDATE(), INTERVAL 1 DAY";
         }
-        else if (select === 'week') {
-            dayOption1 = 'CURDATE(), INTERVAL 1 WEEK';
-            dayOption2 = 'CURDATE(), INTERVAL 2 WEEK';
+        else if (select === "week") {
+            dayOption1 = "CURDATE(), INTERVAL 1 WEEK";
+            dayOption2 = "CURDATE(), INTERVAL 2 WEEK";
         }
         else {
-            dayOption1 = 'CURDATE(), INTERVAL 1 MONTH';
-            dayOption2 = 'CURDATE(), INTERVAL 2 MONTH';
+            dayOption1 = "CURDATE(), INTERVAL 1 MONTH";
+            dayOption2 = "CURDATE(), INTERVAL 2 MONTH";
         }
+        // IP 범위 조건들을 생성
+        const ipConditions = ipRanges
+            .map((range) => `(INET_ATON(agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`)
+            .join(" OR ");
         return new Promise((resolve, reject) => {
-            const query = `SELECT COUNT(*) as allmedias FROM detectmediafiles WHERE time >= DATE_SUB(${dayOption1})`;
-            const query3 = `SELECT COUNT(*) as beforemedias FROM detectmediafiles WHERE time >= DATE_SUB(${dayOption2}) AND time < DATE_SUB(${dayOption1})`;
+            const query = `SELECT COUNT(*) as allmedias FROM detectmediafiles WHERE time >= DATE_SUB(${dayOption1}) AND (${ipConditions})`;
+            const query3 = `SELECT COUNT(*) as beforemedias FROM detectmediafiles WHERE time >= DATE_SUB(${dayOption2}) AND time < DATE_SUB(${dayOption1}) AND (${ipConditions})`;
             Promise.all([
                 new Promise((innerResolve, innerReject) => {
                     db_1.default.query(query, (error, result) => {
@@ -50,7 +54,9 @@ class MediaService {
                 .then(() => {
                 resolve({
                     allmedias: this.query1,
-                    beforemedias: (this.query2 !== 0) ? (((this.query1 - this.query2) / this.query2) * 100).toFixed(2) : (this.query1 / 1 * 100).toFixed(2),
+                    beforemedias: this.query2 !== 0
+                        ? (((this.query1 - this.query2) / this.query2) * 100).toFixed(2)
+                        : ((this.query1 / 1) * 100).toFixed(2),
                 });
             })
                 .catch((error) => {
@@ -60,13 +66,16 @@ class MediaService {
     }
     getApiData(page, pageSize) {
         return new Promise((resolve, reject) => {
-            const query = 'select id, `time` as Time, pcname , agent_ip , process, media_type , file as Files , ' +
-                'saved_file as Copied_files, saved_file as Downloading , ' +
-                'file_size as File_Sizes , keywords as Keywords ' +
-                'from detectmediafiles ' +
-                'order by `time` desc' +
-                'LIMIT ' + pageSize + ' offset ' + page * pageSize;
-            const query2 = 'select count(*) as count from detectmediafiles;';
+            const query = "select id, `time` as Time, pcname , agent_ip , process, media_type , file as Files , " +
+                "saved_file as Copied_files, saved_file as Downloading , " +
+                "file_size as File_Sizes , keywords as Keywords " +
+                "from detectmediafiles " +
+                "order by `time` desc" +
+                "LIMIT " +
+                pageSize +
+                " offset " +
+                page * pageSize;
+            const query2 = "select count(*) as count from detectmediafiles;";
             Promise.all([
                 new Promise((innerResolve, innerReject) => {
                     db_1.default.query(query, (error, result) => {
@@ -89,13 +98,12 @@ class MediaService {
                     });
                 }),
             ])
-                .then(values => {
+                .then((values) => {
                 console.log("values : ", values);
                 resolve(values);
             })
-                .catch(error => reject(error));
+                .catch((error) => reject(error));
         });
     }
-    ;
 }
 exports.default = MediaService;

@@ -1,17 +1,15 @@
+import { IpRange } from "../interface/interface";
+import connection from "../db/db";
 import { Connection, OkPacket } from "mysql";
 
-class UserService {
-  private connection: Connection;
 
-  constructor(connection: Connection) {
-    this.connection = connection;
-  }
+class UserService {
 
   getLogin(username: string, passwd: string): Promise<any> {
     return new Promise((resolve, reject) => {
       const query =
         "SELECT username, grade, mng_ip_ranges FROM userlist WHERE username = ? AND passwd = ?";
-      this.connection.query(query, [username, passwd], (error, results) => {
+      connection.query(query, [username, passwd], (error, results) => {
         if (error) {
           reject(error);
         } else {
@@ -22,12 +20,9 @@ class UserService {
   }
 
   getUserList(grade: any): Promise<any> {
-
-    
-
     return new Promise((resolve, reject) => {
       const query = `select username, grade, enabled, mng_ip_ranges from userlist where grade > ${grade}`;
-      this.connection.query(query, (error, result) => {
+      connection.query(query, (error, result) => {
         if (error) {
           reject(error);
         } else {
@@ -48,7 +43,7 @@ class UserService {
     const query = `insert into userlist (\`username\`, \`passwd\`, \`grade\`, \`enabled\`, \`mng_ip_ranges\`) values ('${user.username}', '${user.passwd}', ${grade}, 1, '${mngip}')`;
 
     return new Promise((resolve, reject) => {
-      this.connection.query(query, (error, result) => {
+      connection.query(query, (error, result) => {
         if (error) {
           console.log("데이터 넣다가 사고남");
           reject(error);
@@ -68,7 +63,7 @@ class UserService {
     const query = `DELETE FROM userlist WHERE username IN (${usernameString})`;
 
     return new Promise((resolve, reject) => {
-      this.connection.query(query, (error, result) => {
+      connection.query(query, (error, result) => {
         if (error) {
           console.log("삭제하다가 사고남");
           reject(error);
@@ -84,7 +79,7 @@ class UserService {
     const query = `select username, passwd, grade, mng_ip_ranges from userlist where username = ? `;
 
     return new Promise((resolve, reject) => {
-      this.connection.query(query, username, (error, result) => {
+      connection.query(query, username, (error, result) => {
         if (error) {
           console.log("업데이트 가져오다가 사고남");
           reject(error);
@@ -110,7 +105,7 @@ class UserService {
     const query = `UPDATE userlist SET username = '${user.username}', passwd = '${user.passwd}', grade = ${grade}, mng_ip_ranges = '${mngip}' WHERE username = '${oldname}'`;
 
     return new Promise((resolve, reject) => {
-      this.connection.query(query, (error, result) => {
+      connection.query(query, (error, result) => {
         if (error) {
           console.log("데이터 업데이트 중 오류 발생");
           reject(error);
@@ -122,11 +117,11 @@ class UserService {
     });
   }
 
-  getGrade(username:string): Promise<any> {
+  getGrade(username: string): Promise<any> {
     const query = `select grade from userlist where username = ? `;
 
     return new Promise((resolve, reject) => {
-      this.connection.query(query, username, (error, result) => {
+      connection.query(query, username, (error, result) => {
         if (error) {
           console.log("grade 가져오다가 사고남");
           reject(error);
@@ -137,13 +132,55 @@ class UserService {
     });
   }
 
-  getGradeAndMngip(username:any): Promise<any> {
+  getGradeAndMngip(username: any): Promise<any> {
+
     const query = `select grade, mng_ip_ranges from userlist where username = ? `;
 
     return new Promise((resolve, reject) => {
-      this.connection.query(query, username, (error, result) => {
+      connection.query(query, username, (error, result) => {
         if (error) {
           console.log("grade 가져오다가 사고남");
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      });
+    });
+  }
+
+  getUserListByGradeAndMngip(grade: any, ipRanges: IpRange[]): Promise<any> {
+    return new Promise((resolve, reject) => {
+      // IP 범위 조건들을 생성
+      const ipConditions = ipRanges
+        .map(
+          (range) =>
+            `(INET_ATON(mng_ip_ranges) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`
+        )
+        .join(" OR ");
+
+      // SQL 쿼리 생성
+      const query = `
+        SELECT username, grade, enabled, mng_ip_ranges
+        FROM userlist
+        WHERE grade > ${grade} AND (${ipConditions})
+      `;
+
+      // 쿼리 실행
+      connection.query(query, (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      });
+    });
+  }
+
+  getUserListAll(): Promise<any> {
+    return new Promise((resolve, reject) => {
+      const query = `select username, grade, enabled, mng_ip_ranges from userlist where grade > 1`;
+      connection.query(query, (error, result) => {
+        if (error) {
           reject(error);
         } else {
           resolve(result);

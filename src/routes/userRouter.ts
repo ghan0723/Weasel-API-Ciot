@@ -1,9 +1,10 @@
 import express, { Request, Response, Router } from "express";
 import UserService from "../service/userService";
-import connection from "../db/db";
+import IpCalcService from "../service/ipCalcService";
 
 const router: Router = express.Router();
-const userService: UserService = new UserService(connection);
+const userService: UserService = new UserService();
+const ipCalcService = new IpCalcService();
 
 router.post("/login", (req: Request, res: Response) => {
   const { username, passwd }: { username: string; passwd: string } = req.body;
@@ -32,28 +33,29 @@ router.post("/login", (req: Request, res: Response) => {
     });
 });
 
-router.get("/all", (req: Request, res: Response) => {
-  let username = req.query.username;
-  console.log("grade 확인점 : ", username);
-  userService
-    .getGradeAndMngip(username)
-    .then((result) => {
-      console.log("result(grade랑 ip 들어있음) 생긴거 보여줘 : ", result);
-      userService.getUserList(result[0].grade)
-      .then((result2) => {
-        console.log("list를 잘 가져왔는가 ? : ", result2);
-        res.status(200).send(result2);
-      })
-      .catch((error2) => {
-        console.error("list를 제대로 못 가져옴:", error2);
-        res.status(500).send("Internal Server Error");
-      });
-    })
-    .catch((error) => {
-      console.error("user 정보 제대로 못 가져옴:", error);
-      res.status(500).send("Internal Server Error");
-    });
-});
+// router.get("/all", (req: Request, res: Response) => {
+//   let username = req.query.username;
+//   console.log("grade 확인점 : ", username);
+//   userService
+//     .getGradeAndMngip(username)
+//     .then((result) => {
+//       console.log("result(grade랑 ip 들어있음) 생긴거 보여줘 : ", result);
+
+//       userService.getUserList(result[0].grade)
+//       .then((result2) => {
+//         console.log("list를 잘 가져왔는가 ? : ", result2);
+//         res.status(200).send(result2);
+//       })
+//       .catch((error2) => {
+//         console.error("list를 제대로 못 가져옴:", error2);
+//         res.status(500).send("Internal Server Error");
+//       });
+//     })
+//     .catch((error) => {
+//       console.error("user 정보 제대로 못 가져옴:", error);
+//       res.status(500).send("Internal Server Error");
+//     });
+// });
 
 router.post("/add", (req: Request, res: Response) => {
   const user = req.body;
@@ -130,13 +132,47 @@ router.get("/grade/:username", (req: Request, res: Response) => {
   userService
     .getGrade(username)
     .then((result) => {
-      console.log("grade 값 체크 좀:", result);
       res.send(result);
     })
     .catch((error) => {
       console.error("grade 보내기 실패:", error);
       res.status(500).send("Internal Server Error");
     });
+});
+
+router.get("/all", (req: Request, res: Response) => {
+  let username = req.query.username;
+  if (username !== "admin") {
+    userService
+      .getGradeAndMngip(username)
+      .then((result) => {
+        let IpRange = ipCalcService.parseIPRange(result[0].mng_ip_ranges);
+        userService
+          .getUserListByGradeAndMngip(result[0].grade, IpRange)
+          .then((result2) => {
+            console.log("grade 버그 걸림ㅋㅋ : ", result[0].grade);
+            console.log("뭐임 ? 왜 제대로 안나옴? : ", result2);
+            res.status(200).send(result2);
+          })
+          .catch((error2) => {
+            console.error("list를 제대로 못 가져옴:", error2);
+            res.status(500).send("Internal Server Error");
+          });
+      })
+      .catch((error) => {
+        console.error("user 정보 제대로 못 가져옴:", error);
+        res.status(500).send("Internal Server Error");
+      });
+  }else {
+    userService.getUserListAll()
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => {
+      console.error("list 잘못 가져옴:", error);
+        res.status(500).send("Internal Server Error");
+    }) 
+  }
 });
 
 export = router;
