@@ -27,7 +27,8 @@ router.post("/login", (req: Request, res: Response) => {
       res.status(200).send("로그인 성공");
     })
     .catch((error) => {
-      res.status(500).send("서버 내부 오류가 발생했습니다.");
+      res.redirect("http://localhost:3000/dashboard/default");
+      // res.status(500).send("서버 내부 오류가 발생했습니다.");
     });
 });
 
