@@ -12,18 +12,16 @@ router.post("/login", (req: Request, res: Response) => {
     .getLogin(username, passwd)
     .then((user) => {
       console.log("user(여긴 라우터) :", user);
-      if (user.length === 0) {
-        res
-          .status(401).send(401);
-        return;
-      }
+
       res.cookie("username", user[0].username, {
         maxAge: 60 * 60 * 1000,
       });
       res.redirect("http://localhost:3000/dashboard/default");
+    
     })
     .catch((error) => {
-      res.status(500).send("서버 내부 오류가 발생했습니다.");
+      res.redirect("http://localhost:3000/dashboard/default");
+      // res.status(500).send("서버 내부 오류가 발생했습니다.");
     });
 });
 
