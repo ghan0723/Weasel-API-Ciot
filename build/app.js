@@ -88,7 +88,7 @@ app.use(function (err, req, res, next) {
         res.status(+err.message);
     }
     else {
-        res.sendStatus(500);
+        res.status(500);
     }
 });
 module.exports = app;
