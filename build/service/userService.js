@@ -97,5 +97,33 @@ class UserService {
             });
         });
     }
+    getGrade(username) {
+        const query = `select grade from userlist where username = ? `;
+        return new Promise((resolve, reject) => {
+            this.connection.query(query, username, (error, result) => {
+                if (error) {
+                    console.log("grade 가져오다가 사고남");
+                    reject(error);
+                }
+                else {
+                    resolve(result);
+                }
+            });
+        });
+    }
+    getGradeAndMngip(username) {
+        const query = `select grade, mng_ip_ranges from userlist where username = ? `;
+        return new Promise((resolve, reject) => {
+            this.connection.query(query, username, (error, result) => {
+                if (error) {
+                    console.log("grade 가져오다가 사고남");
+                    reject(error);
+                }
+                else {
+                    resolve(result);
+                }
+            });
+        });
+    }
 }
 exports.default = UserService;

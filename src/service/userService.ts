@@ -21,7 +21,10 @@ class UserService {
     });
   }
 
-  getUserList(grade: number): Promise<any> {
+  getUserList(grade: any): Promise<any> {
+
+    
+
     return new Promise((resolve, reject) => {
       const query = `select username, grade, enabled, mng_ip_ranges from userlist where grade > ${grade}`;
       this.connection.query(query, (error, result) => {
@@ -113,6 +116,36 @@ class UserService {
           reject(error);
         } else {
           console.log("데이터가 성공적으로 업데이트되었습니다.");
+          resolve(result);
+        }
+      });
+    });
+  }
+
+  getGrade(username:string): Promise<any> {
+    const query = `select grade from userlist where username = ? `;
+
+    return new Promise((resolve, reject) => {
+      this.connection.query(query, username, (error, result) => {
+        if (error) {
+          console.log("grade 가져오다가 사고남");
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      });
+    });
+  }
+
+  getGradeAndMngip(username:any): Promise<any> {
+    const query = `select grade, mng_ip_ranges from userlist where username = ? `;
+
+    return new Promise((resolve, reject) => {
+      this.connection.query(query, username, (error, result) => {
+        if (error) {
+          console.log("grade 가져오다가 사고남");
+          reject(error);
+        } else {
           resolve(result);
         }
       });

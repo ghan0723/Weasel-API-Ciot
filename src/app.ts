@@ -105,7 +105,7 @@ app.use(function (err: Error, req: Request, res: Response, next: NextFunction) {
   if (!isNaN(+err.message)) {
     res.status(+err.message);
   } else {
-    res.sendStatus(500);
+    res.status(500);
   }
 });
 

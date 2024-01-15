@@ -9,6 +9,27 @@ class NetworkService {
     this.connection = connection;
   }
 
+  private columnAlias:any = {
+    // alias    table명
+    'id' : 'id',                  // 0
+    'Accurancy' : 'accuracy',     // 1
+    'Time' : 'time',              // 2
+    'PcName' : 'pcname',          // 3
+    'Agent_ip' : 'agent_ip',      // 4
+    'SrcIp' : 'src_ip',           // 5
+    'SrcPort' : 'src_port',       // 6
+    'DstIp' : 'dst_ip',           // 7
+    'DstPort' : 'dst_port',       // 8
+    'Process' : 'process',        // 9
+    'PIDs' : 'pid',               // 10
+    'SrcFile' : 'src_file',       // 11
+    'DownLoading' : 'saved_file', // 12
+    'ScreenShots' : 'saved_file', // 13
+    'FileSizes' : 'file_size',    // 14
+    'Keywords' : 'keywords',      // 15
+    'DestFiles' : 'dst_file'      // 16
+  };
+
   getCountAll(select:string): Promise<any> {
 
     let dayOption1:string;
@@ -73,6 +94,8 @@ class NetworkService {
     let querySorting:string=sorting === '' ? 'time' : sorting;
     let queryDesc:string=desc === 'false' ? 'asc' : 'desc';
     let whereClause = '';
+    const aliasKey = Object.keys(this.columnAlias);
+    const convertColumns = category !== '' && this.columnAlias[category];
 
     if(page !== undefined) {      
       queryPage = Number(page);
@@ -88,33 +111,35 @@ class NetworkService {
     }
 
     if(search !== '') {
-      whereClause = 'where ' + category + " like '%" + search + "%' ";
+      whereClause = 'where ' + convertColumns + " like ?";
     }
-
-    console.log('whereClause : ', whereClause);
-    
-    
 
     return new Promise((resolve, reject) => {
       const query = 
-        'select id, accuracy, `time` as Time, pcname , agent_ip, src_ip , src_port as Ports , ' +
-        'dst_ip , dst_port as Ports , process , pid as PIDS, src_file , ' +
-        'saved_file as Downloading, saved_file as Screenshots, file_size as FileSizes, ' +
-        'keywords as Keywords, dst_file as Dest_files ' +
+        `select id, accuracy as ${aliasKey[1]}, time as ${aliasKey[2]}, pcname as ${aliasKey[3]}, agent_ip as ${aliasKey[4]}, src_ip as ${aliasKey[5]}, ` +
+        `src_port as ${aliasKey[6]}, dst_ip as ${aliasKey[7]}, dst_port as ${aliasKey[8]}, process as ${aliasKey[9]}, ` +
+        `pid as ${aliasKey[10]}, src_file as ${aliasKey[11]}, saved_file as ${aliasKey[12]}, saved_file as ${aliasKey[13]}, ` +
+        `keywords as ${aliasKey[15]}, dst_file as ${aliasKey[16]} ` +
         'from detectfiles ' + 
          whereClause +
-        'order by '+ querySorting + ' ' + queryDesc + ' ' +
+        ' order by '+ querySorting + ' ' + queryDesc + ' ' +
         'LIMIT ' + queryPageSize + ' offset ' + queryPage*queryPageSize;
 
-      const query2 = 'select count(*) as count from detectfiles' + whereClause;
-
-      console.log('query : ', query);
-      
-      
+      const query2 = 'select count(*) as count from detectfiles ' + whereClause;
+      const whereQuery = '%' + search + '%';      
 
       Promise.all([
         new Promise<void>((innerResolve, innerReject) => {
-          this.connection.query(query, (error, result) => {
+          this.connection.query(query, whereQuery, (error, result) => {
+
+            // 검색 결과가 없을 경우의 처리
+            if(result.length === 0) {
+              result[0] = aliasKey.reduce((obj:any, key:any) => {
+                obj[key] = '';
+                return obj;
+              }, {});
+            }
+            
             if (error) {
               innerReject(error);
             } else {
@@ -123,7 +148,11 @@ class NetworkService {
           });
         }),
         new Promise<void>((innerResolve, innerReject) => {
-          this.connection.query(query2, (error, result) => {
+          this.connection.query(query2, whereQuery, (error, result) => {
+            if(result[0].count === 0) {
+              result[0].count = 1;
+            }
+            
             if (error) {
               innerReject(error);
             } else {
@@ -133,9 +162,12 @@ class NetworkService {
         }),
       ])
       .then(values => {
+        
         resolve(values);
       })
-      .catch(error => reject(error));
+      .catch(error => {
+        return reject(error)
+      });
 
     })
   };
