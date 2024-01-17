@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -34,19 +43,17 @@ class UserService {
     addUser(user) {
         let mngip = user.mng_ip_ranges.replace(/(\r\n|\n|\r)/gm, ", ");
         let grade = parseInt(user.grade, 10);
-        const query = `insert into userlist (\`username\`, \`passwd\`, \`grade\`, \`enabled\`, \`mng_ip_ranges\`) values ('${user.username}', '${user.passwd}', ${grade}, 1, '${mngip}')`;
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+            const query = `insert into userlist (\`username\`, \`passwd\`, \`grade\`, \`enabled\`, \`mng_ip_ranges\`) values ('${user.username}', '${user.passwd}', ${grade}, 1, '${mngip}')`;
             db_1.default.query(query, (error, result) => {
                 if (error) {
-                    console.log("데이터 넣다가 사고남");
                     reject(error);
                 }
                 else {
-                    console.log("데이터 잘 들어감");
-                    resolve(result);
+                    resolve({ success: true, message: "회원 가입 성공" });
                 }
             });
-        });
+        }));
     }
     removeUser(users) {
         // 이 부분에서 배열을 문자열로 변환할 때 각 값에 작은따옴표를 추가하는 방식으로 수정
@@ -75,7 +82,6 @@ class UserService {
                     reject(error);
                 }
                 else {
-                    console.log("업데이트 가져오기 성공");
                     resolve(result);
                 }
             });
@@ -126,19 +132,103 @@ class UserService {
             });
         });
     }
-    getUserListByGradeAndMngip(grade, ipRanges) {
-        return new Promise((resolve, reject) => {
-            // IP 범위 조건들을 생성
-            const ipConditions = ipRanges
-                .map((range) => `(INET_ATON(mng_ip_ranges) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`)
-                .join(" OR ");
-            // SQL 쿼리 생성
-            const query = `
-        SELECT username, grade, enabled, mng_ip_ranges
-        FROM userlist
-        WHERE grade > ${grade} AND (${ipConditions})
+    getUserListByGradeAndMngip(grade, ipRanges, category, searchWord) {
+        let searchCondition = "";
+        if (searchWord !== "" && category !== "") {
+            // 여기에서 category에 따라 적절한 검색 조건을 추가합니다.
+            switch (category) {
+                case "username":
+                    searchCondition = `where username LIKE '%${searchWord}%'`;
+                    break;
+                // 다른 카테고리에 대한 추가적인 case문을 필요에 따라 추가한다.
+                case "grade":
+                    if (/(영역별\s*관리자|영역|영|역|별|관|리|자|관리|관리자|리자|자|리|다)/i.test(searchWord)) {
+                        searchCondition = "where grade = 2";
+                    }
+                    else if (/(모니터|모|모니|니|니터|터|모터)/i.test(searchWord)) {
+                        searchCondition = `where grade = 3`;
+                    }
+                    else {
+                        searchCondition = `where grade = '${searchWord}'`;
+                    }
+                    break;
+                case "enabled":
+                    if (/(켜짐|켜)/i.test(searchWord)) {
+                        searchCondition = `where enabled = 1`;
+                    }
+                    else if (/(꺼짐|꺼)/i.test(searchWord)) {
+                        searchCondition = `where enabled = 0`;
+                    }
+                    else {
+                        searchCondition = `where enabled = '${searchWord}'`;
+                    }
+                    break;
+                case "mng_ip_ranges":
+                    searchCondition = `where mng_ip_ranges LIKE '%${searchWord}%'`;
+                default:
+                    break;
+            }
+        }
+        // IP 범위 조건들을 생성
+        const ipConditions = ipRanges
+            .map((range) => `(INET_ATON(mng_ip_ranges) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`)
+            .join(" OR ");
+        // SQL 쿼리 생성
+        const query = `
+        SELECT username, grade, enabled, mng_ip_ranges FROM userlist WHERE grade > ${grade} AND (${ipConditions}) 
       `;
+        return new Promise((resolve, reject) => {
+            const query2 = `select username, grade, enabled, mng_ip_ranges from (${query}) AS userTable ${searchCondition}`;
             // 쿼리 실행
+            db_1.default.query(query2, (error, result) => {
+                if (error) {
+                    reject(error);
+                }
+                else {
+                    resolve(result);
+                }
+            });
+        });
+    }
+    getUserListAll(category, searchWord) {
+        let searchCondition = "grade > 1";
+        if (searchWord !== "" && category !== "") {
+            // 여기에서 category에 따라 적절한 검색 조건을 추가합니다.
+            switch (category) {
+                case "username":
+                    searchCondition += ` AND username LIKE '%${searchWord}%'`;
+                    break;
+                // 다른 카테고리에 대한 추가적인 case문을 필요에 따라 추가한다.
+                case "grade":
+                    if (/(영역별\s*관리자|영역|영|역|별|관|리|자|관리|관리자|리자|자|리|다)/i.test(searchWord)) {
+                        searchCondition += " AND grade = 2";
+                    }
+                    else if (/(모니터|모|모니|니|니터|터|모터)/i.test(searchWord)) {
+                        searchCondition += ` AND grade = 3`;
+                    }
+                    else {
+                        searchCondition += ` AND grade = '${searchWord}'`;
+                    }
+                    break;
+                case "enabled":
+                    if (/(켜짐|켜)/i.test(searchWord)) {
+                        searchCondition += ` AND enabled = 1`;
+                    }
+                    else if (/(꺼짐|꺼)/i.test(searchWord)) {
+                        searchCondition += ` AND enabled = 0`;
+                    }
+                    else {
+                        searchCondition += ` AND enabled = '${searchWord}'`;
+                    }
+                    break;
+                case "mng_ip_ranges":
+                    searchCondition += ` AND mng_ip_ranges LIKE '%${searchWord}%'`;
+                default:
+                    break;
+            }
+        }
+        return new Promise((resolve, reject) => {
+            const query = `select username, grade, enabled, mng_ip_ranges from userlist where ${searchCondition}`;
             db_1.default.query(query, (error, result) => {
                 if (error) {
                     reject(error);
@@ -149,18 +239,61 @@ class UserService {
             });
         });
     }
-    getUserListAll() {
+    checkUsername(username) {
         return new Promise((resolve, reject) => {
-            const query = `select username, grade, enabled, mng_ip_ranges from userlist where grade > 1`;
-            db_1.default.query(query, (error, result) => {
+            const query = "SELECT COUNT(*) as count FROM userlist WHERE username = ?";
+            db_1.default.query(query, [username], (error, result) => {
                 if (error) {
                     reject(error);
                 }
                 else {
-                    resolve(result);
+                    const isDuplicate = result[0].count > 0;
+                    if (isDuplicate) {
+                        resolve({ exists: true, message: "이미 사용 중인 계정명입니다." });
+                    }
+                    else {
+                        resolve({ exists: false, message: "사용 가능한 계정명입니다." });
+                    }
                 }
             });
         });
+    }
+    checkIpRange(mng_ip, ipRanges) {
+        return new Promise((resolve, reject) => {
+            const ipToCheck = this.ipToNumber(mng_ip);
+            const isInRange = ipRanges.some((range) => ipToCheck >= this.ipToNumber(range.start) &&
+                ipToCheck <= this.ipToNumber(range.end));
+            if (isInRange) {
+                resolve({
+                    inRange: true,
+                    message: "IP 주소가 허용된 범위 내에 있습니다.",
+                });
+            }
+            else {
+                resolve({
+                    inRange: false,
+                    message: "IP 주소가 허용된 범위에 속하지 않습니다.",
+                });
+            }
+        });
+    }
+    ipToNumber(ip) {
+        if (typeof ip === "string" && /^\d+\.\d+\.\d+\.\d+$/.test(ip)) {
+            const ipParts = ip.split(".").map(Number);
+            if (ipParts.length === 4 &&
+                ipParts.every((part) => part >= 0 && part <= 255)) {
+                return ((ipParts[0] << 24) |
+                    (ipParts[1] << 16) |
+                    (ipParts[2] << 8) |
+                    ipParts[3]);
+            }
+            else {
+                throw new Error("올바르지 않은 IP 주소 형식입니다.");
+            }
+        }
+        else {
+            throw new Error("올바르지 않은 IP 형식입니다.");
+        }
     }
 }
 exports.default = UserService;

@@ -33,55 +33,105 @@ router.post("/login", (req, res) => {
         // res.status(500).send("서버 내부 오류가 발생했습니다.");
     });
 });
-// router.get("/all", (req: Request, res: Response) => {
-//   let username = req.query.username;
-//   console.log("grade 확인점 : ", username);
-//   userService
-//     .getGradeAndMngip(username)
-//     .then((result) => {
-//       console.log("result(grade랑 ip 들어있음) 생긴거 보여줘 : ", result);
-//       userService.getUserList(result[0].grade)
-//       .then((result2) => {
-//         console.log("list를 잘 가져왔는가 ? : ", result2);
-//         res.status(200).send(result2);
-//       })
-//       .catch((error2) => {
-//         console.error("list를 제대로 못 가져옴:", error2);
-//         res.status(500).send("Internal Server Error");
-//       });
-//     })
-//     .catch((error) => {
-//       console.error("user 정보 제대로 못 가져옴:", error);
-//       res.status(500).send("Internal Server Error");
-//     });
-// });
 router.post("/add", (req, res) => {
     const user = req.body;
-    userService
-        .addUser(user)
-        .then((result) => {
-        res.redirect("http://localhost:3000/users/control");
-    })
-        .catch((error) => {
-        console.error("회원가입 실패:", error);
-        res.status(500).send("Internal Server Error");
-    });
+    const newUser = {
+        username: user.username,
+        passwd: user.passwd,
+        grade: user.grade,
+        mng_ip_ranges: user.range,
+    };
+    if (user.cookie !== "admin") {
+        userService
+            .checkUsername(user.username)
+            .then((result) => {
+            if (result.exists) {
+                res.status(401).send({ error: result.message });
+            }
+            else {
+                userService
+                    .getGradeAndMngip(user.cookie)
+                    .then((result2) => {
+                    let IpRange = ipCalcService.parseIPRange(result2[0].mng_ip_ranges);
+                    userService.checkIpRange(user.range, IpRange).then((result3) => {
+                        if (result3.inRange) {
+                            userService
+                                .addUser(newUser)
+                                .then((result4) => {
+                                res.send(result4.message);
+                            })
+                                .catch((error) => {
+                                console.error("회원가입 실패:", error);
+                                res.status(500).send(error);
+                            });
+                        }
+                        else {
+                            res.status(401).send({ error: result3.message });
+                        }
+                    });
+                })
+                    .catch((error2) => {
+                    res.send("이거는 쿠키 가지고 grade랑 mngip 가져오는 도중에 발생하는 에러입니다.");
+                });
+            }
+        })
+            .catch((error) => {
+            res.send("이거는 중복을 검사하는 도중에 발생하는 에러입니다.");
+        });
+    }
+    else {
+        userService
+            .addUser(newUser)
+            .then((result4) => {
+            res.send(result4.message);
+        })
+            .catch((error) => {
+            console.error("회원가입 실패:", error);
+            res.status(500).send(error);
+        });
+    }
 });
 router.post("/rm", (req, res) => {
     let users = req.body;
+    let username = req.query.username;
+    let category = req.query.category;
+    let searchWord = req.query.searchWord;
     console.log("삭제할 유저 배열 확인 : ", users);
     userService
         .removeUser(users)
         .then((result) => {
-        userService
-            .getUserList(1)
-            .then((result2) => {
-            res.send(result2);
-        })
-            .catch((error2) => {
-            console.error("유저 불러 오다가 실패:", error2);
-            res.status(500).send("Internal Server Error");
-        });
+        if (username !== "admin") {
+            userService
+                .getGradeAndMngip(username)
+                .then((result) => {
+                let IpRange = ipCalcService.parseIPRange(result[0].mng_ip_ranges);
+                userService
+                    .getUserListByGradeAndMngip(result[0].grade, IpRange, category, searchWord)
+                    .then((result2) => {
+                    console.log("result2가 성공? :", result2);
+                    res.status(200).send(result2);
+                })
+                    .catch((error2) => {
+                    console.error("list를 제대로 못 가져옴:", error2);
+                    res.status(500).send("Internal Server Error");
+                });
+            })
+                .catch((error) => {
+                console.error("user 정보 제대로 못 가져옴:", error);
+                res.status(500).send("Internal Server Error");
+            });
+        }
+        else {
+            userService
+                .getUserListAll(category, searchWord)
+                .then((result) => {
+                res.send(result);
+            })
+                .catch((error) => {
+                console.error("list 잘못 가져옴:", error);
+                res.status(500).send("Internal Server Error");
+            });
+        }
     })
         .catch((error) => {
         console.error("실패:", error);
@@ -90,7 +140,6 @@ router.post("/rm", (req, res) => {
 });
 router.get("/modify/:username", (req, res) => {
     let username = req.params.username;
-    console.log("username이 잘 왔니? : ", username);
     userService
         .getUser(username)
         .then((result) => {
@@ -104,17 +153,62 @@ router.get("/modify/:username", (req, res) => {
 router.post("/update/:username", (req, res) => {
     let oldname = req.params.username;
     let user = req.body;
-    console.log("변경하고자 하는 유저 : ", oldname);
-    console.log("변경 정보 : ", user);
-    userService
-        .modUser(user, oldname)
-        .then((result) => {
-        res.redirect("http://localhost:3000/users/control");
-    })
-        .catch((error) => {
-        console.error("업데이트 실패:", error);
-        res.status(500).send("Internal Server Error");
-    });
+    console.log("user 확인해보자 : ", user);
+    const newUser = {
+        username: user.username,
+        passwd: user.passwd,
+        grade: user.grade,
+        mng_ip_ranges: user.mngRange,
+    };
+    if (user.cookie !== "admin") {
+        userService
+            .checkUsername(user.username)
+            .then((result) => {
+            if (result.exists) {
+                res.status(401).send({ error: result.message });
+            }
+            else {
+                userService
+                    .getGradeAndMngip(user.cookie)
+                    .then((result2) => {
+                    let IpRange = ipCalcService.parseIPRange(result2[0].mng_ip_ranges);
+                    userService.checkIpRange(user.mngRange, IpRange).then((result3) => {
+                        if (result3.inRange) {
+                            userService
+                                .modUser(newUser, oldname)
+                                .then((result4) => {
+                                res.send(result4.message);
+                            })
+                                .catch((error) => {
+                                console.error("업데이트 실패:", error);
+                                res.status(500).send("Internal Server Error");
+                            });
+                        }
+                        else {
+                            res.status(401).send({ error: result3.message });
+                        }
+                    });
+                })
+                    .catch((error2) => {
+                    res.send("이거는 쿠키 가지고 grade랑 mngip 가져오는 도중에 발생하는 에러입니다.");
+                });
+            }
+        })
+            .catch((error) => {
+            res.send("이거는 중복을 검사하는 도중에 발생하는 에러입니다.");
+        });
+    }
+    else {
+        userService
+            .modUser(newUser, oldname)
+            .then((result4) => {
+            res.send(result4.message);
+        })
+            .catch((error) => {
+            console.error("업데이트 실패:", error);
+            res.status(500).send("Internal Server Error");
+        });
+    }
 });
 router.get("/namecookie", (req, res) => {
     let username = req.cookies.username;
@@ -134,16 +228,17 @@ router.get("/grade/:username", (req, res) => {
 });
 router.get("/all", (req, res) => {
     let username = req.query.username;
+    let category = req.query.category;
+    let searchWord = req.query.searchWord;
     if (username !== "admin") {
         userService
             .getGradeAndMngip(username)
             .then((result) => {
             let IpRange = ipCalcService.parseIPRange(result[0].mng_ip_ranges);
             userService
-                .getUserListByGradeAndMngip(result[0].grade, IpRange)
+                .getUserListByGradeAndMngip(result[0].grade, IpRange, category, searchWord)
                 .then((result2) => {
-                console.log("grade 버그 걸림ㅋㅋ : ", result[0].grade);
-                console.log("뭐임 ? 왜 제대로 안나옴? : ", result2);
+                console.log("result2가 성공? :", result2);
                 res.status(200).send(result2);
             })
                 .catch((error2) => {
@@ -157,7 +252,8 @@ router.get("/all", (req, res) => {
         });
     }
     else {
-        userService.getUserListAll()
+        userService
+            .getUserListAll(category, searchWord)
             .then((result) => {
             res.send(result);
         })
@@ -166,5 +262,19 @@ router.get("/all", (req, res) => {
             res.status(500).send("Internal Server Error");
         });
     }
+});
+router.get("/check", (req, res) => {
+    let username = req.query.username;
+    console.log("username : ", username);
+    userService
+        .getGradeAndMngip(username)
+        .then((result) => {
+        console.log("result : ", result);
+        res.send(result);
+    })
+        .catch((error) => {
+        console.error("grade 보내기 실패:", error);
+        res.status(500).send("Internal Server Error");
+    });
 });
 module.exports = router;
