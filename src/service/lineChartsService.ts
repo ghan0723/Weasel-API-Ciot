@@ -6,6 +6,11 @@ interface ResultMonth {
     count : number
 }
 
+interface ResultDay {
+    day : string,
+    count : number
+}
+
 class LineChartsService {
     private connection:Connection;
     private contents = ['detectfiles', 'detectmediafiles', 'outlookpstviewer', 'detectprinteddocuments'];
@@ -173,11 +178,11 @@ class LineChartsService {
     getOneWeekDates(): number[] {
         const oneWeekDates: number[] = [];
         const today = new Date();
-        const currentDay = today.getDate();
+        const currentDay = today.getDate() - 6;
       
         // 현재 날짜부터 1주일 동안의 날짜를 배열에 추가
         for (let i = 0; i < 7; i++) {
-          const day = currentDay - i;
+          const day = currentDay + i;
           if (day > 0) {
             oneWeekDates.push(day);
           } else {
@@ -215,11 +220,11 @@ class LineChartsService {
             let query = "select substring(time, 9, 2) as day, count(*) as count" + 
             " from " + this.contents[num] +
             " where time not like '%null%' and" +
-            " date_format(time, '%y-%m-%d %h:%m:%s') > date_sub(NOW(), interval 1 Year) and" + 
+            " date_format(time, '%y-%m-%d %h:%m:%s') > date_sub(NOW(), interval 1 Week) and" + 
             " date_format(time, '%y-%m-%d %h:%m:%s') <= NOW()" +
-            " group by substring(time, 6, 2);";
+            " group by substring(time, 9, 2);";
 
-            this.connection.query(query, (error:MysqlError, results:ResultMonth[]) => {
+            this.connection.query(query, (error:MysqlError, results:ResultDay[]) => {
                 if(error) {
                     reject(error);                        
                 } else {
@@ -228,8 +233,11 @@ class LineChartsService {
                         data : []
                     };
 
-                    for(const month of this.monthlyArray) {
-                        const value = results.find(data => data.month === month);
+                    console.log(results);
+                    
+
+                    for(const day of this.oneWeekDates) {
+                        const value = results.find(data => +data.day === day);
 
                         if(value === undefined) {
                             resultValue.data.push(0);
