@@ -1,13 +1,14 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+const db_1 = __importDefault(require("../db/db"));
 class UserService {
-    constructor(connection) {
-        this.connection = connection;
-    }
     getLogin(username, passwd) {
         return new Promise((resolve, reject) => {
             const query = "SELECT username, grade, mng_ip_ranges FROM userlist WHERE username = ? AND passwd = ?";
-            this.connection.query(query, [username, passwd], (error, results) => {
+            db_1.default.query(query, [username, passwd], (error, results) => {
                 if (error) {
                     reject(error);
                 }
@@ -20,7 +21,7 @@ class UserService {
     getUserList(grade) {
         return new Promise((resolve, reject) => {
             const query = `select username, grade, enabled, mng_ip_ranges from userlist where grade > ${grade}`;
-            this.connection.query(query, (error, result) => {
+            db_1.default.query(query, (error, result) => {
                 if (error) {
                     reject(error);
                 }
@@ -35,7 +36,7 @@ class UserService {
         let grade = parseInt(user.grade, 10);
         const query = `insert into userlist (\`username\`, \`passwd\`, \`grade\`, \`enabled\`, \`mng_ip_ranges\`) values ('${user.username}', '${user.passwd}', ${grade}, 1, '${mngip}')`;
         return new Promise((resolve, reject) => {
-            this.connection.query(query, (error, result) => {
+            db_1.default.query(query, (error, result) => {
                 if (error) {
                     console.log("데이터 넣다가 사고남");
                     reject(error);
@@ -53,7 +54,7 @@ class UserService {
         // IN 절을 괄호로 감싸고 수정
         const query = `DELETE FROM userlist WHERE username IN (${usernameString})`;
         return new Promise((resolve, reject) => {
-            this.connection.query(query, (error, result) => {
+            db_1.default.query(query, (error, result) => {
                 if (error) {
                     console.log("삭제하다가 사고남");
                     reject(error);
@@ -68,7 +69,7 @@ class UserService {
     getUser(username) {
         const query = `select username, passwd, grade, mng_ip_ranges from userlist where username = ? `;
         return new Promise((resolve, reject) => {
-            this.connection.query(query, username, (error, result) => {
+            db_1.default.query(query, username, (error, result) => {
                 if (error) {
                     console.log("업데이트 가져오다가 사고남");
                     reject(error);
@@ -85,7 +86,7 @@ class UserService {
         let grade = parseInt(user.grade, 10);
         const query = `UPDATE userlist SET username = '${user.username}', passwd = '${user.passwd}', grade = ${grade}, mng_ip_ranges = '${mngip}' WHERE username = '${oldname}'`;
         return new Promise((resolve, reject) => {
-            this.connection.query(query, (error, result) => {
+            db_1.default.query(query, (error, result) => {
                 if (error) {
                     console.log("데이터 업데이트 중 오류 발생");
                     reject(error);
@@ -100,7 +101,7 @@ class UserService {
     getGrade(username) {
         const query = `select grade from userlist where username = ? `;
         return new Promise((resolve, reject) => {
-            this.connection.query(query, username, (error, result) => {
+            db_1.default.query(query, username, (error, result) => {
                 if (error) {
                     console.log("grade 가져오다가 사고남");
                     reject(error);
@@ -114,9 +115,45 @@ class UserService {
     getGradeAndMngip(username) {
         const query = `select grade, mng_ip_ranges from userlist where username = ? `;
         return new Promise((resolve, reject) => {
-            this.connection.query(query, username, (error, result) => {
+            db_1.default.query(query, username, (error, result) => {
                 if (error) {
                     console.log("grade 가져오다가 사고남");
+                    reject(error);
+                }
+                else {
+                    resolve(result);
+                }
+            });
+        });
+    }
+    getUserListByGradeAndMngip(grade, ipRanges) {
+        return new Promise((resolve, reject) => {
+            // IP 범위 조건들을 생성
+            const ipConditions = ipRanges
+                .map((range) => `(INET_ATON(mng_ip_ranges) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`)
+                .join(" OR ");
+            // SQL 쿼리 생성
+            const query = `
+        SELECT username, grade, enabled, mng_ip_ranges
+        FROM userlist
+        WHERE grade > ${grade} AND (${ipConditions})
+      `;
+            // 쿼리 실행
+            db_1.default.query(query, (error, result) => {
+                if (error) {
+                    reject(error);
+                }
+                else {
+                    resolve(result);
+                }
+            });
+        });
+    }
+    getUserListAll() {
+        return new Promise((resolve, reject) => {
+            const query = `select username, grade, enabled, mng_ip_ranges from userlist where grade > 1`;
+            db_1.default.query(query, (error, result) => {
+                if (error) {
                     reject(error);
                 }
                 else {

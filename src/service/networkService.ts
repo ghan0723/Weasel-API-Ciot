@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { IpRange } from "../interface/interface";
 import { Connection } from "mysql";
 
 class NetworkService {
@@ -32,7 +32,8 @@ class NetworkService {
   };
 
   // Dashboard 일/주/월 건수
-  getCountAll(select:string): Promise<any> {
+  getCountAll(select:any, ipRanges: IpRange[]): Promise<any> {
+  
 
     let dayOption1:string;
     let dayOption2:string;
@@ -48,11 +49,19 @@ class NetworkService {
       dayOption2 = 'CURDATE(), INTERVAL 2 MONTH'
     }
 
+      // IP 범위 조건들을 생성
+      const ipConditions = ipRanges
+        .map(
+          (range) =>
+            `(INET_ATON(agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`
+        )
+        .join(" OR ");
+
     return new Promise((resolve, reject) => {
       const query3 =
-        `SELECT COUNT(*) as allfiles FROM detectfiles WHERE time >= DATE_SUB(${dayOption1})`;
+        `SELECT COUNT(*) as allfiles FROM detectfiles WHERE time >= DATE_SUB(${dayOption1}) AND (${ipConditions})`;
       const query4 =
-        `SELECT COUNT(*) as beforefiles FROM detectfiles WHERE time >= DATE_SUB(${dayOption2}) AND time < DATE_SUB(${dayOption1})`;
+        `SELECT COUNT(*) as beforefiles FROM detectfiles WHERE time >= DATE_SUB(${dayOption2}) AND time < DATE_SUB(${dayOption1}) AND (${ipConditions})`;
 
       Promise.all([
         new Promise<void>((innerResolve, innerReject) => {
@@ -91,7 +100,7 @@ class NetworkService {
   }
 
   // 송신탐지내역 테이블
-  getApiData(page:any,pageSize:any,sorting:any,desc:any,category:any,search:any): Promise<any>{
+  getApiData(page:any,pageSize:any,sorting:any,desc:any,category:any,search:any, ipRanges: IpRange[]): Promise<any>{
     let queryPage:number=0;
     let queryPageSize:number=0;
     let querySorting:string=sorting === '' ? 'time' : sorting;
@@ -112,9 +121,19 @@ class NetworkService {
       sorting = 'time';
       desc = 'desc';
     }
+    
+    // IP 범위 조건들을 생성
+    const ipConditions = ipRanges
+      .map(
+        (range) =>
+          `(INET_ATON(agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`
+      )
+      .join(" OR ");
 
     if(search !== '') {
-      whereClause = 'where ' + convertColumns + " like ?";
+      whereClause = 'where ' + convertColumns + ' like ? AND ' + ipConditions;
+    } else {
+      whereClause = 'where ' + ipConditions;
     }
 
     return new Promise((resolve, reject) => {
@@ -223,7 +242,7 @@ class NetworkService {
         isprinted,
         asked_file
       ) VALUES (
-        now(),
+        now()-${i},
         'PCName${count}',
         'Process${count}',
         '123456',

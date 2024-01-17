@@ -33,7 +33,8 @@ class NetworkService {
         };
         this.connection = connection;
     }
-    getCountAll(select) {
+    // Dashboard 일/주/월 건수
+    getCountAll(select, ipRanges) {
         let dayOption1;
         let dayOption2;
         if (select === 'day') {
@@ -48,9 +49,13 @@ class NetworkService {
             dayOption1 = 'CURDATE(), INTERVAL 1 MONTH';
             dayOption2 = 'CURDATE(), INTERVAL 2 MONTH';
         }
+        // IP 범위 조건들을 생성
+        const ipConditions = ipRanges
+            .map((range) => `(INET_ATON(agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`)
+            .join(" OR ");
         return new Promise((resolve, reject) => {
-            const query3 = `SELECT COUNT(*) as allfiles FROM detectfiles WHERE time >= DATE_SUB(${dayOption1})`;
-            const query4 = `SELECT COUNT(*) as beforefiles FROM detectfiles WHERE time >= DATE_SUB(${dayOption2}) AND time < DATE_SUB(${dayOption1})`;
+            const query3 = `SELECT COUNT(*) as allfiles FROM detectfiles WHERE time >= DATE_SUB(${dayOption1}) AND (${ipConditions})`;
+            const query4 = `SELECT COUNT(*) as beforefiles FROM detectfiles WHERE time >= DATE_SUB(${dayOption2}) AND time < DATE_SUB(${dayOption1}) AND (${ipConditions})`;
             Promise.all([
                 new Promise((innerResolve, innerReject) => {
                     this.connection.query(query3, (error, result) => {
@@ -87,7 +92,7 @@ class NetworkService {
         });
     }
     // 송신탐지내역 테이블
-    getApiData(page, pageSize, sorting, desc, category, search) {
+    getApiData(page, pageSize, sorting, desc, category, search, ipRanges) {
         let queryPage = 0;
         let queryPageSize = 0;
         let querySorting = sorting === '' ? 'time' : sorting;
@@ -105,8 +110,15 @@ class NetworkService {
             sorting = 'time';
             desc = 'desc';
         }
+        // IP 범위 조건들을 생성
+        const ipConditions = ipRanges
+            .map((range) => `(INET_ATON(agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`)
+            .join(" OR ");
         if (search !== '') {
-            whereClause = 'where ' + convertColumns + " like ?";
+            whereClause = 'where ' + convertColumns + ' like ? AND ' + ipConditions;
+        }
+        else {
+            whereClause = 'where ' + ipConditions;
         }
         return new Promise((resolve, reject) => {
             const query = `select id, accuracy as ${aliasKey[1]}, time as ${aliasKey[2]}, pcname as ${aliasKey[3]}, agent_ip as ${aliasKey[4]}, src_ip as ${aliasKey[5]}, ` +
@@ -208,7 +220,7 @@ class NetworkService {
         isprinted,
         asked_file
       ) VALUES (
-        now(),
+        now()-${i},
         'PCName${count}',
         'Process${count}',
         '123456',
