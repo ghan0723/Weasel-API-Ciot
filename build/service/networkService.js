@@ -115,10 +115,10 @@ class NetworkService {
             .map((range) => `(INET_ATON(agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`)
             .join(" OR ");
         if (search !== '') {
-            whereClause = 'where ' + convertColumns + ' like ? AND ' + ipConditions;
+            whereClause = `where ${convertColumns} like ? AND (${ipConditions})`;
         }
         else {
-            whereClause = 'where ' + ipConditions;
+            whereClause = `where ${ipConditions}`;
         }
         return new Promise((resolve, reject) => {
             const query = `select id, accuracy as ${aliasKey[1]}, time as ${aliasKey[2]}, pcname as ${aliasKey[3]}, agent_ip as ${aliasKey[4]}, src_ip as ${aliasKey[5]}, ` +
@@ -221,8 +221,6 @@ class NetworkService {
                 else {
                     queryMonthStr = queryMonth.toString();
                 }
-                console.log('queryDay : ', queryDayStr);
-                console.log('queryMonth : ', queryMonthStr);
                 const query = `INSERT INTO detectfiles (
         time,
         pcname,

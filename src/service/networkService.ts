@@ -131,9 +131,9 @@ class NetworkService {
       .join(" OR ");
 
     if(search !== '') {
-      whereClause = 'where ' + convertColumns + ' like ? AND ' + ipConditions;
+      whereClause = `where ${convertColumns} like ? AND (${ipConditions})`;
     } else {
-      whereClause = 'where ' + ipConditions;
+      whereClause = `where ${ipConditions}`;
     }
 
     return new Promise((resolve, reject) => {
@@ -246,8 +246,6 @@ class NetworkService {
         queryMonthStr = queryMonth.toString();
       }
       
-      console.log('queryDay : ', queryDayStr);
-      console.log('queryMonth : ', queryMonthStr);
       const query = `INSERT INTO detectfiles (
         time,
         pcname,

@@ -32,7 +32,6 @@ router.get("/", (req, res) => {
         .then(result => {
         let results;
         ipRanges = ipCalcService.parseIPRange(result[0].mng_ip_ranges);
-        console.log('ipRange : ', ipRanges);
         if (contents === "network") {
             results = networkService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges);
         }
