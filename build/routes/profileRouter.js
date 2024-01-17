@@ -31,14 +31,6 @@ router.post("/update/:username", (req, res) => {
             profileService
                 .modUser(user, oldname)
                 .then((result2) => {
-                // 기존 쿠키 삭제
-                res.clearCookie("username");
-                // 새로운 쿠키 설정
-                res.cookie("username", user.username, {
-                    httpOnly: true,
-                    maxAge: 60 * 60 * 1000,
-                    path: "/", // 쿠키의 경로 설정
-                });
                 res.send(result2.message);
             })
                 .catch((error) => {
