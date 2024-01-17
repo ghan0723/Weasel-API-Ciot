@@ -31,7 +31,9 @@ class NetworkService {
     'DestFiles' : 'dst_file'      // 16
   };
 
+  // Dashboard 일/주/월 건수
   getCountAll(select:any, ipRanges: IpRange[]): Promise<any> {
+  
 
     let dayOption1:string;
     let dayOption2:string;
@@ -97,7 +99,8 @@ class NetworkService {
     });
   }
 
-  getApiData(page:any,pageSize:any,sorting:any,desc:any,category:any,search:any): Promise<any>{
+  // 송신탐지내역 테이블
+  getApiData(page:any,pageSize:any,sorting:any,desc:any,category:any,search:any, ipRanges: IpRange[]): Promise<any>{
     let queryPage:number=0;
     let queryPageSize:number=0;
     let querySorting:string=sorting === '' ? 'time' : sorting;
@@ -118,9 +121,19 @@ class NetworkService {
       sorting = 'time';
       desc = 'desc';
     }
+    
+    // IP 범위 조건들을 생성
+    const ipConditions = ipRanges
+      .map(
+        (range) =>
+          `(INET_ATON(agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`
+      )
+      .join(" OR ");
 
     if(search !== '') {
-      whereClause = 'where ' + convertColumns + " like ?";
+      whereClause = 'where ' + convertColumns + ' like ? AND ' + ipConditions;
+    } else {
+      whereClause = 'where ' + ipConditions;
     }
 
     return new Promise((resolve, reject) => {
@@ -180,6 +193,100 @@ class NetworkService {
 
     })
   };
+
+  // 송신탐지내역 테이블 데이터 삭제
+  postRemoveData(body:string[]) {
+    // 이 부분에서 배열을 문자열로 변환할 때 각 값에 작은따옴표를 추가하는 방식으로 수정
+    const idString = body.map((id) => `'${id}'`).join(", ");
+    const query = `DELETE FROM detectfiles WHERE id IN (${idString})`;
+
+    return new Promise((resolve, reject) => {
+      this.connection.query(query, (error, result) => {
+        if (error) {
+          console.log("삭제하다가 사고남");
+          reject(error);
+        } else {
+          console.log("삭제 성공");
+          resolve(result);
+          console.log('result : ', result);          
+        }
+      });
+    });
+  }
+
+  // DummyData 생성
+  async getDummyData(count:any) {
+    for(let i=0; i < count; i++) {
+      let accuracy = i % 3 === 0 ? 100 : 0;
+      const query = `INSERT INTO detectfiles (
+        time,
+        pcname,
+        process,
+        pid,
+        agent_ip,
+        src_ip,
+        src_port,
+        dst_ip,
+        dst_port,
+        src_file,
+        down_state,
+        scrshot_downloaded,
+        file_size,
+        keywords,
+        dst_file,
+        saved_file,
+        accuracy,
+        evCO,
+        evFA,
+        evSA,
+        isprinted,
+        asked_file
+      ) VALUES (
+        now()-${i},
+        'PCName${count}',
+        'Process${count}',
+        '123456',
+        '10.10.10.126',
+        '192.168.1.1',
+        '12345',
+        '192.168.1.3',
+        '54321',
+        'path/to/source/file.txt',
+        'YES',
+        'YES',
+        '123456789',
+        'Keyword1, Keyword2, Keyword3',
+        'path/to/destination/file.txt',
+        'path/to/saved/file.txt',
+        ${accuracy},
+        'EventCO',
+        'EventFA',
+        'EventSA',
+        1,
+        1 
+      );`;
+  
+      try {
+        const result = await new Promise((resolve, reject) => {
+          this.connection.query(query, (error, result) => {
+            if (error) {
+              console.log("getDummyData 에러 발생");
+              reject(error);
+            } else {
+              console.log("데이터 삽입 성공");
+              resolve(result);
+              console.log('result : ', result);          
+            }
+          });
+        });
+  
+        console.log(`데이터 삽입 ${i+1}번째 성공`);
+      } catch (error) {
+        console.log(`데이터 삽입 ${i+1}번째 실패: ${error}`);
+      }
+    }
+  }
+
 }
 
 export default NetworkService;

@@ -12,6 +12,7 @@ class LineChartsService {
     private yearArray:string[] = [];
     private monthArray:number[] = [];
     private monthlyArray = this.generateMonthlyArray();
+    private oneWeekDates = this.getOneWeekDates();
 
     constructor(connection:Connection) {
         this.connection = connection;
@@ -110,7 +111,7 @@ class LineChartsService {
         return months;
     }
 
-    // tables month count
+    // tables month count(1년치 data)
     getTablesMonthData(): Promise<any> {
         let monthArray:number[] = [];
 
@@ -122,9 +123,6 @@ class LineChartsService {
                 this.getTableMonth(3),
             ])
             .then((values) => {
-                // console.log("values : ", values);
-                // console.log("this.monthArray : ", this.monthArray);
-
                 for(const month of this.monthlyArray) {
                     monthArray.push(+month);
                 }
@@ -142,8 +140,8 @@ class LineChartsService {
             let query = "select substring(time, 6, 2) as month, count(*) as count" + 
             " from " + this.contents[num] +
             " where time not like '%null%' and" +
-            " date_format(time, '%y-%m-%d %h:%m:%s') > date_sub(curdate(), interval 1 Year) and" + 
-            " date_format(time, '%y-%m-%d %h:%m:%s') < curdate()" +
+            " date_format(time, '%y-%m-%d %h:%m:%s') > date_sub(NOW(), interval 1 Year) and" + 
+            " date_format(time, '%y-%m-%d %h:%m:%s') <= NOW()" +
             " group by substring(time, 6, 2);";
 
             this.connection.query(query, (error:MysqlError, results:ResultMonth[]) => {
@@ -155,8 +153,80 @@ class LineChartsService {
                         data : []
                     };
 
-                    // console.log("results : ", results);
-                    // console.log("result-type : ", typeof(results));
+                    for(const month of this.monthlyArray) {
+                        const value = results.find(data => data.month === month);
+
+                        if(value === undefined) {
+                            resultValue.data.push(0);
+                        } else {
+                            resultValue.data.push(value.count);
+                        }
+                    }
+                    
+                    resolve(resultValue);
+                }
+            });
+        })
+    }
+
+    // tables day count(7일치 data)
+    getOneWeekDates(): number[] {
+        const oneWeekDates: number[] = [];
+        const today = new Date();
+        const currentDay = today.getDate();
+      
+        // 현재 날짜부터 1주일 동안의 날짜를 배열에 추가
+        for (let i = 0; i < 7; i++) {
+          const day = currentDay - i;
+          if (day > 0) {
+            oneWeekDates.push(day);
+          } else {
+            // 현재 달의 이전 달로 이동
+            const previousMonthLastDay = new Date(today.getFullYear(), today.getMonth(), 0).getDate();
+            oneWeekDates.push(previousMonthLastDay + day);
+          }
+        }
+      
+        return oneWeekDates;
+    }
+
+    getTablesDayData(): Promise<any> {
+        return new Promise((resolve, reject) => {
+            Promise.all([
+                this.getTableDay(0),
+                this.getTableDay(1),
+                this.getTableDay(2),
+                this.getTableDay(3),
+            ])
+            .then((values) => {
+                values.push(this.oneWeekDates);
+
+                resolve(values);
+            })
+            .catch(() => {
+                reject();
+            });
+        });
+    }
+
+    getTableDay(num:number): Promise<any> {
+        return new Promise((resolve, reject) => {
+            let str = "";
+            let query = "select substring(time, 9, 2) as day, count(*) as count" + 
+            " from " + this.contents[num] +
+            " where time not like '%null%' and" +
+            " date_format(time, '%y-%m-%d %h:%m:%s') > date_sub(NOW(), interval 1 Year) and" + 
+            " date_format(time, '%y-%m-%d %h:%m:%s') <= NOW()" +
+            " group by substring(time, 6, 2);";
+
+            this.connection.query(query, (error:MysqlError, results:ResultMonth[]) => {
+                if(error) {
+                    reject(error);                        
+                } else {
+                    const resultValue:any = {
+                        name : this.contents[num], 
+                        data : []
+                    };
 
                     for(const month of this.monthlyArray) {
                         const value = results.find(data => data.month === month);
@@ -167,9 +237,6 @@ class LineChartsService {
                             resultValue.data.push(value.count);
                         }
                     }
-
-                    // console.log("resultValue : ", resultValue);
-                    // console.log("this.monthArray : ", this.monthArray);
                     
                     resolve(resultValue);
                 }
