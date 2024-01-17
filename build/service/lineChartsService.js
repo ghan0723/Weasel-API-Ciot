@@ -1,70 +1,80 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+const moment_1 = __importDefault(require("moment"));
 class LineChartsService {
     constructor(connection) {
-        this.contents = ['detectfiles', 'detectmediafiles', 'outlookpstviewer', 'detectprinteddocuments'];
+        this.contents = [
+            "detectfiles",
+            "detectmediafiles",
+            "outlookpstviewer",
+            "detectprinteddocuments",
+        ];
         this.yearArray = [];
         this.monthArray = [];
+        // 월,주,일 계산
         this.monthlyArray = this.generateMonthlyArray();
+        this.weeksArray = this.calculateWeeksArray();
         this.oneWeekDates = this.getOneWeekDates();
         this.connection = connection;
     }
-    // tables year count
-    getTablesYearData() {
-        return new Promise((resolve, reject) => {
-            Promise.all([
-                this.getTableYear(0),
-                this.getTableYear(1),
-                this.getTableYear(2),
-                this.getTableYear(3),
-            ])
-                .then((values) => {
-                // console.log("this.yearArray : ",this.yearArray);
-                // console.log("values : ", values);
-                let chkData = [];
-                for (let i = 0; i < values.length; i++) {
-                    let data = [];
-                    for (let j = 0; j < this.yearArray.length; j++) {
-                    }
-                    chkData.push({
-                        name: values.at(i).name,
-                    });
-                }
-                resolve(values);
-            })
-                .catch((error) => {
-                reject(error);
-            });
-        });
-    }
-    getTableYear(num) {
-        return new Promise((resolve, reject) => {
-            let query = "select substring(time, 1, 4) as year, count(*) as count" +
-                " from " + this.contents[num] +
-                " where time not like '%null%' " +
-                " group by substring(time, 1, 4);";
-            this.connection.query(query, (error, results) => {
-                if (error) {
-                    reject(error);
-                }
-                else {
-                    const resultValue = {
-                        name: this.contents[num],
-                        data: results
-                    };
-                    for (let i = 0; i < results.length; i++) {
-                        console.log("this.yearArray.includes(results[i].year)", this.yearArray.includes(results[i].year));
-                        if (this.yearArray.includes(results[i].year) === false) {
-                            this.yearArray.push(results[i].year);
-                        }
-                    }
-                    // console.log("results : ", results);
-                    // console.log("resultValue : ", resultValue);
-                    resolve(resultValue);
-                }
-            });
-        });
-    }
+    // // tables year count
+    // getTablesYearData(): Promise<any> {
+    //     return new Promise((resolve, reject) => {
+    //         Promise.all([
+    //             this.getTableYear(0),
+    //             this.getTableYear(1),
+    //             this.getTableYear(2),
+    //             this.getTableYear(3),
+    //         ])
+    //         .then((values) => {
+    //             // console.log("this.yearArray : ",this.yearArray);
+    //             // console.log("values : ", values);
+    //             let chkData = [];
+    //             for(let i=0; i < values.length; i++) {
+    //                 let data = [];
+    //                 for(let j=0; j < this.yearArray.length; j++) {
+    //                 }
+    //                 chkData.push({
+    //                     name : values.at(i).name,
+    //                 })
+    //             }
+    //             resolve(values);
+    //         })
+    //         .catch((error) => {
+    //             reject(error);
+    //         });
+    //     });
+    // }
+    // getTableYear(num:number): Promise<any> {
+    //     return new Promise((resolve, reject) => {
+    //         let query = "select substring(time, 1, 4) as year, count(*) as count" +
+    //         " from " + this.contents[num] +
+    //         " where time not like '%null%' " +
+    //         " group by substring(time, 1, 4);";
+    //         this.connection.query(query, (error, results) => {
+    //             if(error) {
+    //                 reject(error);
+    //             } else {
+    //                 const resultValue:any = {
+    //                     name : this.contents[num],
+    //                     data : results
+    //                 };
+    //                 for(let i=0; i < results.length; i++) {
+    //                     console.log("this.yearArray.includes(results[i].year)", this.yearArray.includes(results[i].year));
+    //                     if(this.yearArray.includes(results[i].year) === false) {
+    //                         this.yearArray.push(results[i].year);
+    //                     }
+    //                 }
+    //                 // console.log("results : ", results);
+    //                 // console.log("resultValue : ", resultValue);
+    //                 resolve(resultValue);
+    //             }
+    //         });
+    //     })
+    // }
     generateMonthlyArray() {
         const currentDate = new Date();
         let str = "";
@@ -87,16 +97,15 @@ class LineChartsService {
         return months;
     }
     // tables month count(1년치 data)
-    getTablesMonthData() {
+    getTablesMonthData(ipRanges) {
         let monthArray = [];
         return new Promise((resolve, reject) => {
             Promise.all([
-                this.getTableMonth(0),
-                this.getTableMonth(1),
-                this.getTableMonth(2),
-                this.getTableMonth(3),
-            ])
-                .then((values) => {
+                this.getTableMonth(0, ipRanges),
+                this.getTableMonth(1, ipRanges),
+                this.getTableMonth(2, ipRanges),
+                this.getTableMonth(3, ipRanges),
+            ]).then((values) => {
                 for (const month of this.monthlyArray) {
                     monthArray.push(+month);
                 }
@@ -105,15 +114,114 @@ class LineChartsService {
             });
         });
     }
-    getTableMonth(num) {
+    getTableMonth(num, ipRanges) {
+        // IP 범위 조건들을 생성
+        const ipConditions = ipRanges
+            .map((range) => `(INET_ATON(agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`)
+            .join(" OR ");
         return new Promise((resolve, reject) => {
             let str = "";
             let query = "select substring(time, 6, 2) as month, count(*) as count" +
-                " from " + this.contents[num] +
+                " from " +
+                this.contents[num] +
                 " where time not like '%null%' and" +
                 " date_format(time, '%y-%m-%d %h:%m:%s') > date_sub(NOW(), interval 1 Year) and" +
-                " date_format(time, '%y-%m-%d %h:%m:%s') <= NOW()" +
+                " date_format(time, '%y-%m-%d %h:%m:%s') <= NOW() AND (" + ipConditions + ")" +
                 " group by substring(time, 6, 2);";
+            this.connection.query(query, (error, results) => {
+                if (error) {
+                    reject(error);
+                }
+                else {
+                    const resultValue = {
+                        name: this.contents[num],
+                        data: [],
+                    };
+                    for (const month of this.monthlyArray) {
+                        const value = results.find((data) => data.month === month);
+                        if (value === undefined) {
+                            resultValue.data.push(0);
+                        }
+                        else {
+                            resultValue.data.push(value.count);
+                        }
+                    }
+                    resolve(resultValue);
+                }
+            });
+        });
+    }
+    // week
+    calculateWeeksArray() {
+        const currentDate = (0, moment_1.default)(); // 현재 날짜
+        const weeks = [];
+        for (let i = 4; i >= 0; i--) {
+            const startDate = currentDate.clone().subtract(i, 'weeks').startOf('isoWeek');
+            const startDateMonth = startDate.clone().startOf('month');
+            const weekNumber = Math.ceil(startDate.diff(startDateMonth, 'days') / 7) + 1; // 그 외의 경우 월별 주차 계산
+            weeks.push(`${startDate.format('YYYY.MM.')}${weekNumber}`);
+        }
+        return weeks;
+    }
+    getTablesWeekData(ipRanges) {
+        return new Promise((resolve, reject) => {
+            Promise.all([
+                this.getTableWeek(0, ipRanges),
+                this.getTableWeek(1, ipRanges),
+                this.getTableWeek(2, ipRanges),
+                this.getTableWeek(3, ipRanges),
+            ])
+                .then((values) => {
+                // weekStr Naming
+                const weekStr = this.weeksArray.map(str => {
+                    let converseStr = str.slice(2) + '주차';
+                    return converseStr;
+                });
+                values.push(weekStr);
+                resolve(values);
+            })
+                .catch(() => {
+                reject();
+            });
+        });
+    }
+    getTableWeek(num, ipRanges) {
+        // IP 범위 조건들을 생성
+        const ipConditions = ipRanges
+            .map((range) => `(INET_ATON(agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`)
+            .join(" OR ");
+        return new Promise((resolve, reject) => {
+            let query = `SELECT 
+            CAST(
+                CONCAT(
+                    YEAR,
+                    '.',
+                    CASE 
+                        WHEN MONTH < 10 THEN CONCAT('0', MONTH)
+                        ELSE MONTH
+                    END,
+                    '.',
+                    calWeek
+                ) AS CHAR
+            ) as week,
+            COUNT(*) AS count
+        FROM (
+            SELECT 
+                YEAR(STR_TO_DATE(time, '%Y-%m-%d %H:%i:%s')) AS Year,
+                MONTH(STR_TO_DATE(time, '%Y-%m-%d %H:%i:%s')) AS Month,
+                (WEEK(time, 1) - WEEK(DATE_FORMAT(time, '%Y-%m-01'), 1) + 1) AS calWeek,
+                time
+            FROM 
+                ${this.contents[num]}
+            WHERE
+                ${ipConditions}
+        ) AS subquery
+        WHERE 
+            STR_TO_DATE(subquery.time, '%Y-%m-%d %H:%i:%s') >= DATE_SUB(NOW(), INTERVAL 5 WEEK)
+        GROUP BY 
+            Year, Month, calWeek
+        ORDER BY 
+            Year, Month, calWeek;`;
             this.connection.query(query, (error, results) => {
                 if (error) {
                     reject(error);
@@ -123,8 +231,8 @@ class LineChartsService {
                         name: this.contents[num],
                         data: []
                     };
-                    for (const month of this.monthlyArray) {
-                        const value = results.find(data => data.month === month);
+                    for (const week of this.weeksArray) {
+                        const value = results.find(data => data.week === week);
                         if (value === undefined) {
                             resultValue.data.push(0);
                         }
@@ -156,13 +264,13 @@ class LineChartsService {
         }
         return oneWeekDates;
     }
-    getTablesDayData() {
+    getTablesDayData(ipRanges) {
         return new Promise((resolve, reject) => {
             Promise.all([
-                this.getTableDay(0),
-                this.getTableDay(1),
-                this.getTableDay(2),
-                this.getTableDay(3),
+                this.getTableDay(0, ipRanges),
+                this.getTableDay(1, ipRanges),
+                this.getTableDay(2, ipRanges),
+                this.getTableDay(3, ipRanges),
             ])
                 .then((values) => {
                 values.push(this.oneWeekDates);
@@ -173,14 +281,19 @@ class LineChartsService {
             });
         });
     }
-    getTableDay(num) {
+    getTableDay(num, ipRanges) {
+        // IP 범위 조건들을 생성
+        const ipConditions = ipRanges
+            .map((range) => `(INET_ATON(agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`)
+            .join(" OR ");
         return new Promise((resolve, reject) => {
             let str = "";
             let query = "select substring(time, 9, 2) as day, count(*) as count" +
-                " from " + this.contents[num] +
+                " from " +
+                this.contents[num] +
                 " where time not like '%null%' and" +
                 " date_format(time, '%y-%m-%d %h:%m:%s') > date_sub(NOW(), interval 1 Week) and" +
-                " date_format(time, '%y-%m-%d %h:%m:%s') <= NOW()" +
+                " date_format(time, '%y-%m-%d %h:%m:%s') <= NOW() AND (" + ipConditions + ")" +
                 " group by substring(time, 9, 2);";
             this.connection.query(query, (error, results) => {
                 if (error) {
@@ -189,11 +302,10 @@ class LineChartsService {
                 else {
                     const resultValue = {
                         name: this.contents[num],
-                        data: []
+                        data: [],
                     };
-                    console.log(results);
                     for (const day of this.oneWeekDates) {
-                        const value = results.find(data => +data.day === day);
+                        const value = results.find((data) => +data.day === day);
                         if (value === undefined) {
                             resultValue.data.push(0);
                         }
