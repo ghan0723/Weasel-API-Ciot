@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 class NetworkService {
     constructor(connection) {
@@ -24,7 +33,8 @@ class NetworkService {
         };
         this.connection = connection;
     }
-    getCountAll(select) {
+    // Dashboard 일/주/월 건수
+    getCountAll(select, ipRanges) {
         let dayOption1;
         let dayOption2;
         if (select === 'day') {
@@ -39,9 +49,13 @@ class NetworkService {
             dayOption1 = 'CURDATE(), INTERVAL 1 MONTH';
             dayOption2 = 'CURDATE(), INTERVAL 2 MONTH';
         }
+        // IP 범위 조건들을 생성
+        const ipConditions = ipRanges
+            .map((range) => `(INET_ATON(agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`)
+            .join(" OR ");
         return new Promise((resolve, reject) => {
-            const query3 = `SELECT COUNT(*) as allfiles FROM detectfiles WHERE time >= DATE_SUB(${dayOption1})`;
-            const query4 = `SELECT COUNT(*) as beforefiles FROM detectfiles WHERE time >= DATE_SUB(${dayOption2}) AND time < DATE_SUB(${dayOption1})`;
+            const query3 = `SELECT COUNT(*) as allfiles FROM detectfiles WHERE time >= DATE_SUB(${dayOption1}) AND (${ipConditions})`;
+            const query4 = `SELECT COUNT(*) as beforefiles FROM detectfiles WHERE time >= DATE_SUB(${dayOption2}) AND time < DATE_SUB(${dayOption1}) AND (${ipConditions})`;
             Promise.all([
                 new Promise((innerResolve, innerReject) => {
                     this.connection.query(query3, (error, result) => {
@@ -77,7 +91,8 @@ class NetworkService {
             });
         });
     }
-    getApiData(page, pageSize, sorting, desc, category, search) {
+    // 송신탐지내역 테이블
+    getApiData(page, pageSize, sorting, desc, category, search, ipRanges) {
         let queryPage = 0;
         let queryPageSize = 0;
         let querySorting = sorting === '' ? 'time' : sorting;
@@ -95,8 +110,15 @@ class NetworkService {
             sorting = 'time';
             desc = 'desc';
         }
+        // IP 범위 조건들을 생성
+        const ipConditions = ipRanges
+            .map((range) => `(INET_ATON(agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`)
+            .join(" OR ");
         if (search !== '') {
-            whereClause = 'where ' + convertColumns + " like ?";
+            whereClause = 'where ' + convertColumns + ' like ? AND ' + ipConditions;
+        }
+        else {
+            whereClause = 'where ' + ipConditions;
         }
         return new Promise((resolve, reject) => {
             const query = `select id, accuracy as ${aliasKey[1]}, time as ${aliasKey[2]}, pcname as ${aliasKey[3]}, agent_ip as ${aliasKey[4]}, src_ip as ${aliasKey[5]}, ` +
@@ -150,5 +172,98 @@ class NetworkService {
         });
     }
     ;
+    // 송신탐지내역 테이블 데이터 삭제
+    postRemoveData(body) {
+        // 이 부분에서 배열을 문자열로 변환할 때 각 값에 작은따옴표를 추가하는 방식으로 수정
+        const idString = body.map((id) => `'${id}'`).join(", ");
+        const query = `DELETE FROM detectfiles WHERE id IN (${idString})`;
+        return new Promise((resolve, reject) => {
+            this.connection.query(query, (error, result) => {
+                if (error) {
+                    console.log("삭제하다가 사고남");
+                    reject(error);
+                }
+                else {
+                    console.log("삭제 성공");
+                    resolve(result);
+                    console.log('result : ', result);
+                }
+            });
+        });
+    }
+    // DummyData 생성
+    getDummyData(count) {
+        return __awaiter(this, void 0, void 0, function* () {
+            for (let i = 0; i < count; i++) {
+                let accuracy = i % 3 === 0 ? 100 : 0;
+                const query = `INSERT INTO detectfiles (
+        time,
+        pcname,
+        process,
+        pid,
+        agent_ip,
+        src_ip,
+        src_port,
+        dst_ip,
+        dst_port,
+        src_file,
+        down_state,
+        scrshot_downloaded,
+        file_size,
+        keywords,
+        dst_file,
+        saved_file,
+        accuracy,
+        evCO,
+        evFA,
+        evSA,
+        isprinted,
+        asked_file
+      ) VALUES (
+        now()-${i},
+        'PCName${count}',
+        'Process${count}',
+        '123456',
+        '10.10.10.126',
+        '192.168.1.1',
+        '12345',
+        '192.168.1.3',
+        '54321',
+        'path/to/source/file.txt',
+        'YES',
+        'YES',
+        '123456789',
+        'Keyword1, Keyword2, Keyword3',
+        'path/to/destination/file.txt',
+        'path/to/saved/file.txt',
+        ${accuracy},
+        'EventCO',
+        'EventFA',
+        'EventSA',
+        1,
+        1 
+      );`;
+                try {
+                    const result = yield new Promise((resolve, reject) => {
+                        this.connection.query(query, (error, result) => {
+                            if (error) {
+                                console.log("getDummyData 에러 발생");
+                                reject(error);
+                            }
+                            else {
+                                console.log("데이터 삽입 성공");
+                                resolve(result);
+                                console.log('result : ', result);
+                            }
+                        });
+                    });
+                    console.log(`데이터 삽입 ${i + 1}번째 성공`);
+                }
+                catch (error) {
+                    console.log(`데이터 삽입 ${i + 1}번째 실패: ${error}`);
+                }
+            }
+        });
+    }
 }
 exports.default = NetworkService;
