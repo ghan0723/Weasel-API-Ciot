@@ -216,8 +216,38 @@ class NetworkService {
 
   // DummyData 생성
   async getDummyData(count:any) {
+    const date = new Date();
+    let queryDay:number;
+    let queryMonth:number;
+    let queryDayStr:string;
+    let queryMonthStr:string;
+    let queryYearStr:string;
+    
     for(let i=0; i < count; i++) {
       let accuracy = i % 3 === 0 ? 100 : 0;
+
+      // 날짜 계산
+      date.setDate(date.getDate() - 1);
+      if(date.getDate() === 0) date.setDate(0);
+
+      queryDay = date.getDate();
+      queryMonth = date.getMonth() + 1;
+      queryYearStr = date.getFullYear().toString();
+
+      if(queryDay < 10) {
+        queryDayStr = '0' + queryDay;
+      } else {
+        queryDayStr = queryDay.toString();
+      }
+
+      if(queryMonth < 10) {
+        queryMonthStr = '0' + queryMonth;
+      } else {
+        queryMonthStr = queryMonth.toString();
+      }
+      
+      console.log('queryDay : ', queryDayStr);
+      console.log('queryMonth : ', queryMonthStr);
       const query = `INSERT INTO detectfiles (
         time,
         pcname,
@@ -242,7 +272,7 @@ class NetworkService {
         isprinted,
         asked_file
       ) VALUES (
-        now()-${i},
+        '${queryYearStr}-${queryMonthStr}-${queryDayStr} 15:00:29',
         'PCName${count}',
         'Process${count}',
         '123456',
@@ -275,7 +305,7 @@ class NetworkService {
             } else {
               console.log("데이터 삽입 성공");
               resolve(result);
-              console.log('result : ', result);          
+              // console.log('result : ', result);          
             }
           });
         });

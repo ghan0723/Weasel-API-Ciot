@@ -11,6 +11,9 @@ router.get('/', (req:Request, res:Response) => {
     const username = req.query.username; // 로그인 된 사용자
     let results:Promise<any> | undefined;
 
+    console.log("들어옴?");
+    
+
     switch(select) {
         // 일
         case 'day' :

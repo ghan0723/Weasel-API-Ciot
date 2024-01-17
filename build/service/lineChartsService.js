@@ -141,10 +141,10 @@ class LineChartsService {
     getOneWeekDates() {
         const oneWeekDates = [];
         const today = new Date();
-        const currentDay = today.getDate();
+        const currentDay = today.getDate() - 6;
         // 현재 날짜부터 1주일 동안의 날짜를 배열에 추가
         for (let i = 0; i < 7; i++) {
-            const day = currentDay - i;
+            const day = currentDay + i;
             if (day > 0) {
                 oneWeekDates.push(day);
             }
@@ -179,9 +179,9 @@ class LineChartsService {
             let query = "select substring(time, 9, 2) as day, count(*) as count" +
                 " from " + this.contents[num] +
                 " where time not like '%null%' and" +
-                " date_format(time, '%y-%m-%d %h:%m:%s') > date_sub(NOW(), interval 1 Year) and" +
+                " date_format(time, '%y-%m-%d %h:%m:%s') > date_sub(NOW(), interval 1 Week) and" +
                 " date_format(time, '%y-%m-%d %h:%m:%s') <= NOW()" +
-                " group by substring(time, 6, 2);";
+                " group by substring(time, 9, 2);";
             this.connection.query(query, (error, results) => {
                 if (error) {
                     reject(error);
@@ -191,8 +191,9 @@ class LineChartsService {
                         name: this.contents[num],
                         data: []
                     };
-                    for (const month of this.monthlyArray) {
-                        const value = results.find(data => data.month === month);
+                    console.log(results);
+                    for (const day of this.oneWeekDates) {
+                        const value = results.find(data => +data.day === day);
                         if (value === undefined) {
                             resultValue.data.push(0);
                         }

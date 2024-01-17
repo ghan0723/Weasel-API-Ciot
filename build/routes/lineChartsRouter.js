@@ -12,6 +12,7 @@ router.get('/', (req, res) => {
     const select = req.query.select; // 일/주/월
     const username = req.query.username; // 로그인 된 사용자
     let results;
+    console.log("들어옴?");
     switch (select) {
         // 일
         case 'day':
