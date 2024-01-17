@@ -23,6 +23,7 @@ router.post("/login", (req, res) => {
             return;
         }
         res.cookie("username", user[0].username, {
+            httpOnly: true,
             maxAge: 60 * 60 * 1000,
             path: "/", // 쿠키의 경로 설정
         });
@@ -162,7 +163,7 @@ router.post("/update/:username", (req, res) => {
     };
     if (user.cookie !== "admin") {
         userService
-            .checkUsername(user.username)
+            .checkUsername(user.username, oldname)
             .then((result) => {
             if (result.exists) {
                 res.status(401).send({ error: result.message });
@@ -172,7 +173,9 @@ router.post("/update/:username", (req, res) => {
                     .getGradeAndMngip(user.cookie)
                     .then((result2) => {
                     let IpRange = ipCalcService.parseIPRange(result2[0].mng_ip_ranges);
-                    userService.checkIpRange(user.mngRange, IpRange).then((result3) => {
+                    userService
+                        .checkIpRange(user.mngRange, IpRange)
+                        .then((result3) => {
                         if (result3.inRange) {
                             userService
                                 .modUser(newUser, oldname)
@@ -199,14 +202,21 @@ router.post("/update/:username", (req, res) => {
         });
     }
     else {
-        userService
-            .modUser(newUser, oldname)
-            .then((result4) => {
-            res.send(result4.message);
-        })
-            .catch((error) => {
-            console.error("업데이트 실패:", error);
-            res.status(500).send("Internal Server Error");
+        userService.checkUsername(user.username, oldname).then((result) => {
+            if (result.exists) {
+                res.status(401).send({ error: result.message });
+            }
+            else {
+                userService
+                    .modUser(newUser, oldname)
+                    .then((result4) => {
+                    res.send(result4.message);
+                })
+                    .catch((error) => {
+                    console.error("업데이트 실패:", error);
+                    res.status(500).send("Internal Server Error");
+                });
+            }
         });
     }
 });

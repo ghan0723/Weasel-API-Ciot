@@ -239,23 +239,28 @@ class UserService {
             });
         });
     }
-    checkUsername(username) {
+    checkUsername(username, oldname) {
         return new Promise((resolve, reject) => {
-            const query = "SELECT COUNT(*) as count FROM userlist WHERE username = ?";
-            db_1.default.query(query, [username], (error, result) => {
-                if (error) {
-                    reject(error);
-                }
-                else {
-                    const isDuplicate = result[0].count > 0;
-                    if (isDuplicate) {
-                        resolve({ exists: true, message: "이미 사용 중인 계정명입니다." });
+            if (username !== oldname) {
+                const query = "SELECT COUNT(*) as count FROM userlist WHERE username = ?";
+                db_1.default.query(query, [username], (error, result) => {
+                    if (error) {
+                        reject(error);
                     }
                     else {
-                        resolve({ exists: false, message: "사용 가능한 계정명입니다." });
+                        const isDuplicate = result[0].count > 0;
+                        if (isDuplicate) {
+                            resolve({ exists: true, message: "이미 사용 중인 계정명입니다." });
+                        }
+                        else {
+                            resolve({ exists: false, message: "사용 가능한 계정명입니다." });
+                        }
                     }
-                }
-            });
+                });
+            }
+            else {
+                resolve({ exists: false, message: "현재 계정명과 동일합니다." });
+            }
         });
     }
     checkIpRange(mng_ip, ipRanges) {
