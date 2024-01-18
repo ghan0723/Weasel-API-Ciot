@@ -14,10 +14,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const db_1 = __importDefault(require("../db/db"));
 class UserService {
-    getLogin(username, passwd) {
+    getLogin(username) {
         return new Promise((resolve, reject) => {
-            const query = "SELECT username, grade, mng_ip_ranges FROM userlist WHERE username = ? AND passwd = ?";
-            db_1.default.query(query, [username, passwd], (error, results) => {
+            const query = "SELECT username, passwd, grade, mng_ip_ranges FROM userlist WHERE username = ?";
+            db_1.default.query(query, [username], (error, results) => {
                 if (error) {
                     reject(error);
                 }

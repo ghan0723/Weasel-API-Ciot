@@ -5,15 +5,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 const express_1 = __importDefault(require("express"));
 const userService_1 = __importDefault(require("../service/userService"));
 const ipCalcService_1 = __importDefault(require("../service/ipCalcService"));
+const cryptoService_1 = __importDefault(require("../service/cryptoService"));
 const router = express_1.default.Router();
 const userService = new userService_1.default();
 const ipCalcService = new ipCalcService_1.default();
+const cryptoService = new cryptoService_1.default("sn0ISmjyz1CWT6Yb7dxu");
 router.post("/login", (req, res) => {
     const { username, passwd } = req.body;
     userService
-        .getLogin(username, passwd)
+        .getLogin(username)
         .then((user) => {
-        console.log("user(여긴 라우터) :", user);
         if (user.length === 0) {
             // 에러 메시지와 원하는 URL을 포함한 JSON 응답을 보냄
             res.status(401).json({
@@ -22,23 +23,38 @@ router.post("/login", (req, res) => {
             });
             return;
         }
-        res.cookie("username", user[0].username, {
-            httpOnly: true,
-            maxAge: 60 * 60 * 1000,
-            path: "/", // 쿠키의 경로 설정
-        });
-        res.status(200).send("로그인 성공");
+        else {
+            console.log("user[0].passwd : ", user[0].passwd);
+            let decPasswd = cryptoService.getDecryptUltra(user[0].passwd);
+            console.log("decPasswd : ", decPasswd);
+            if (passwd === decPasswd) {
+                res.cookie("username", user[0].username, {
+                    httpOnly: true,
+                    maxAge: 60 * 60 * 1000,
+                    path: "/", // 쿠키의 경로 설정
+                });
+                res.status(200).send("로그인 성공");
+            }
+            else {
+                res.status(401).json({
+                    error: "비밀번호가 일치하지 않습니다",
+                    redirectUrl: "http://localhost:3000/auth/sign-in",
+                });
+                return;
+            }
+        }
     })
         .catch((error) => {
-        res.redirect("http://localhost:3000/dashboard/default");
+        res.redirect("http://localhost:3000/auth/sign-in");
         // res.status(500).send("서버 내부 오류가 발생했습니다.");
     });
 });
 router.post("/add", (req, res) => {
     const user = req.body;
+    let encPasswd = cryptoService.getEncryptUltra(user.passwd);
     const newUser = {
         username: user.username,
-        passwd: user.passwd,
+        passwd: encPasswd,
         grade: user.grade,
         mng_ip_ranges: user.range,
     };
@@ -144,7 +160,14 @@ router.get("/modify/:username", (req, res) => {
     userService
         .getUser(username)
         .then((result) => {
-        res.send(result);
+        const decPasswd = cryptoService.getDecryptUltra(result[0].passwd);
+        let newUser = {
+            username: result[0].username,
+            passwd: decPasswd,
+            grade: result[0].grade,
+            mng_ip_ranges: result[0].mng_ip_ranges
+        };
+        res.send(newUser);
     })
         .catch((error) => {
         console.error("보내기 실패:", error);
@@ -154,10 +177,10 @@ router.get("/modify/:username", (req, res) => {
 router.post("/update/:username", (req, res) => {
     let oldname = req.params.username;
     let user = req.body;
-    console.log("user 확인해보자 : ", user);
+    const encPasswd = cryptoService.getEncryptUltra(user.passwd);
     const newUser = {
         username: user.username,
-        passwd: user.passwd,
+        passwd: encPasswd,
         grade: user.grade,
         mng_ip_ranges: user.mngRange,
     };
@@ -248,7 +271,6 @@ router.get("/all", (req, res) => {
             userService
                 .getUserListByGradeAndMngip(result[0].grade, IpRange, category, searchWord)
                 .then((result2) => {
-                console.log("result2가 성공? :", result2);
                 res.status(200).send(result2);
             })
                 .catch((error2) => {
@@ -279,7 +301,6 @@ router.get("/check", (req, res) => {
     userService
         .getGradeAndMngip(username)
         .then((result) => {
-        console.log("result : ", result);
         res.send(result);
     })
         .catch((error) => {

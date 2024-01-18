@@ -1,13 +1,12 @@
 import { IpRange } from "../interface/interface";
 import connection from "../db/db";
-import { Connection, OkPacket } from "mysql";
 
 class UserService {
-  getLogin(username: string, passwd: string): Promise<any> {
+  getLogin(username: string): Promise<any> {
     return new Promise((resolve, reject) => {
       const query =
-        "SELECT username, grade, mng_ip_ranges FROM userlist WHERE username = ? AND passwd = ?";
-      connection.query(query, [username, passwd], (error, results) => {
+        "SELECT username, passwd, grade, mng_ip_ranges FROM userlist WHERE username = ?";
+      connection.query(query, [username], (error, results) => {
         if (error) {
           reject(error);
         } else {
@@ -31,7 +30,7 @@ class UserService {
   }
   addUser(user: {
     username: string;
-    passwd: string;
+    passwd: any;
     grade: string;
     mng_ip_ranges: string;
   }): Promise<any> {
