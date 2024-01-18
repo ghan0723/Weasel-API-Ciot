@@ -15,6 +15,7 @@ router.get("/edit/:username", (req, res) => {
     profileService
         .getProfile(username)
         .then((user) => {
+        console.log("user : ", user);
         const decPasswd = cryptoService.getDecryptUltra(user[0].passwd);
         const newUser = {
             username: user[0].username,
@@ -22,7 +23,8 @@ router.get("/edit/:username", (req, res) => {
             grade: user[0].grade,
             mng_ip_ranges: user[0].mng_ip_ranges
         };
-        res.send(newUser);
+        console.log("newUser : ", newUser);
+        res.send([newUser]);
     })
         .catch((error) => {
         console.error("profile failed:", error);

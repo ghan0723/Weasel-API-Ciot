@@ -21,7 +21,7 @@ router.get("/edit/:username", (req: Request, res: Response) => {
         grade : user[0].grade,
         mng_ip_ranges: user[0].mng_ip_ranges
       }
-      res.send(newUser);
+      res.send([newUser]);
     })
     .catch((error) => {
       console.error("profile failed:", error);

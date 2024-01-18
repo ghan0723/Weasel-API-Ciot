@@ -138,8 +138,8 @@ class NetworkService {
                 queryPageSize +
                 " offset " +
                 queryPage * queryPageSize;
-            const query2 = "select count(*) as count from detectfiles " + whereClause;
-            const whereQuery = "%" + search + "%";
+            const query2 = 'select count(*) as count from detectfiles ' + whereClause;
+            const whereQuery = '%' + search + '%';
             Promise.all([
                 new Promise((innerResolve, innerReject) => {
                     this.connection.query(query, whereQuery, (error, result) => {
