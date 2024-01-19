@@ -7,6 +7,7 @@ class UserService {
       const query =
         "SELECT username, passwd, grade, mng_ip_ranges FROM userlist WHERE username = ?";
       connection.query(query, [username], (error, results) => {
+        
         if (error) {
           reject(error);
         } else {
