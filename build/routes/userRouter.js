@@ -6,6 +6,7 @@ const express_1 = __importDefault(require("express"));
 const userService_1 = __importDefault(require("../service/userService"));
 const ipCalcService_1 = __importDefault(require("../service/ipCalcService"));
 const cryptoService_1 = __importDefault(require("../service/cryptoService"));
+const ipDomain_1 = require("../interface/ipDomain");
 const router = express_1.default.Router();
 const userService = new userService_1.default();
 const ipCalcService = new ipCalcService_1.default();
@@ -19,7 +20,7 @@ router.post("/login", (req, res) => {
             // 에러 메시지와 원하는 URL을 포함한 JSON 응답을 보냄
             res.status(401).json({
                 error: "사용자를 찾을 수 없습니다",
-                redirectUrl: "http://localhost:3000/auth/sign-in",
+                redirectUrl: `${ipDomain_1.frontIP}/auth/sign-in`,
             });
             return;
         }
@@ -38,14 +39,14 @@ router.post("/login", (req, res) => {
             else {
                 res.status(401).json({
                     error: "비밀번호가 일치하지 않습니다",
-                    redirectUrl: "http://localhost:3000/auth/sign-in",
+                    redirectUrl: `${ipDomain_1.frontIP}/auth/sign-in`,
                 });
                 return;
             }
         }
     })
         .catch((error) => {
-        res.redirect("http://localhost:3000/auth/sign-in");
+        res.redirect(`${ipDomain_1.frontIP}/auth/sign-in`);
         // res.status(500).send("서버 내부 오류가 발생했습니다.");
     });
 });

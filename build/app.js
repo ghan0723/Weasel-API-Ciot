@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const ipDomain_1 = require("./interface/ipDomain");
 var createError = require("http-errors");
 var express = require("express");
 var path = require("path");
@@ -36,7 +37,7 @@ app.locals.connection = connection; // connection 객체를 app.locals에 저장
 const corsOptions = {
     origin: [
         // ... //
-        "http://localhost:3000",
+        `${ipDomain_1.frontIP}`,
         process.env.CALLBACK_URL || "",
     ],
     credentials: true,

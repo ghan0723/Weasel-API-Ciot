@@ -25,9 +25,11 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const crypto = __importStar(require("crypto"));
 class CryptoService {
+    // CryptoService 클래스의 생성자입니다. izkey 매개변수로 암호화 키를 받아 초기화합니다.
     constructor(izkey) {
         this.izkey = izkey;
     }
+    // 지정된 길이만큼의 랜덤 문자열을 생성하는 private 메서드입니다.
     getRandom(length) {
         const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
         let randomString = '';
@@ -37,6 +39,7 @@ class CryptoService {
         }
         return randomString;
     }
+    // 지정된 길이만큼의 랜덤 숫자 시퀀스를 생성하는 private 메서드입니다.
     getRandomNumberSequence(length) {
         if (length < 1) {
             throw new Error('길이는 1 이상이어야 합니다.');
@@ -48,6 +51,7 @@ class CryptoService {
         }
         return result;
     }
+    // 문자열을 지정된 위치에 삽입하는 private 메서드입니다.
     insertString(originalString, position, insertion, isFront) {
         try {
             if (position < 0 || position > originalString.length) {
@@ -65,6 +69,7 @@ class CryptoService {
             throw error; // 에러가 발생하면 다시 던집니다.
         }
     }
+    // 문자열을 지정된 위치와 길이로 자르는 private 메서드입니다.
     cutString(originalString, position, length, fromFront) {
         try {
             if (position < 0 || position > originalString.length) {
@@ -89,6 +94,7 @@ class CryptoService {
             throw error; // 에러가 발생하면 다시 던집니다.
         }
     }
+    // 주어진 텍스트를 주어진 키를 사용하여 암호화하는 private 메서드입니다.
     encrypt(text, key) {
         try {
             const iv = crypto.randomBytes(16);
@@ -102,6 +108,7 @@ class CryptoService {
             throw error; // 에러가 발생하면 다시 던집니다.
         }
     }
+    // 주어진 암호화된 데이터를 주어진 키와 초기화 벡터를 사용하여 복호화하는 private 메서드입니다.
     decrypt(encryptedData, key, iv) {
         try {
             const decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(key), Buffer.from(iv, 'hex'));
@@ -114,6 +121,7 @@ class CryptoService {
             throw error; // 에러가 발생하면 다시 던집니다.
         }
     }
+    // 주어진 데이터를 주어진 비밀 키를 사용하여 암호화하고 결과를 반환하는 public 메서드입니다.
     getEncrypt(dataToEncrypt, secretKey) {
         try {
             const { iv, encryptedData } = this.encrypt(dataToEncrypt, secretKey);
@@ -124,6 +132,7 @@ class CryptoService {
             throw error; // 에러가 발생하면 다시 던집니다.
         }
     }
+    // 주어진 암호화된 데이터를 주어진 비밀 키와 초기화 벡터를 사용하여 복호화하고 결과를 반환하는 public 메서드입니다.
     getDecrypt(encryptedData, secretKey, iv) {
         try {
             const decryptedData = this.decrypt(encryptedData, secretKey, iv);
@@ -134,6 +143,7 @@ class CryptoService {
             throw error; // 에러가 발생하면 다시 던집니다.
         }
     }
+    // 주어진 데이터를 아주 강력한 암호화 방식으로 암호화하고 결과를 반환하는 public 메서드입니다.
     getEncryptUltra(data) {
         try {
             let key12 = this.getRandom(12);
@@ -156,6 +166,7 @@ class CryptoService {
             throw error; // 에러가 발생하면 다시 던집니다.
         }
     }
+    // 주어진 아주 강력하게 암호화된 데이터를 복호화하고 결과를 반환하는 public 메서드입니다.
     getDecryptUltra(data) {
         try {
             let nums = data.slice(-1);
