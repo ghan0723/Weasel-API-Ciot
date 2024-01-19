@@ -20,6 +20,7 @@ var printRouter = require("./routes/printRouter.js");
 var barRouter = require("./routes/barRouter.js");
 var apiRouter = require("./routes/apiRouter.js");
 var profileRouter = require('./routes/profileRouter.js');
+var settingRouter = require('./routes/settingRouter.js');
 const lineChartsRouter = require("./routes/lineChartsRouter.js");
 
 var app = express();
@@ -89,6 +90,7 @@ app.use("/print", printRouter);
 app.use("/bar", barRouter);
 app.use("/api", apiRouter);
 app.use('/profile', profileRouter);
+app.use('/setting', settingRouter);
 app.use("/lineCharts", lineChartsRouter);
 
 // catch 404 and forward to error handler

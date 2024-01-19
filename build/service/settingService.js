@@ -15,12 +15,22 @@ class SettingService {
             db_1.default;
         });
     }
+    getAgentSetting() {
+        return new Promise((resolve, reject) => {
+            db_1.default;
+        });
+    }
     addServerSetting() {
         return new Promise((resolve, reject) => {
             db_1.default;
         });
     }
     modServerSetting() {
+        return new Promise((resolve, reject) => {
+            db_1.default;
+        });
+    }
+    getServerSetting() {
         return new Promise((resolve, reject) => {
             db_1.default;
         });

@@ -20,9 +20,12 @@ class SettingService {
         })
     }
 
-    addServerSetting():Promise<any> {
+    addServerSetting(server:{serverPort:string, ret:string, auto:boolean}):Promise<any> {
+        const query = "";
         return new Promise((resolve, reject) => {
-            connection
+            connection.query(query, ((resolve, reject) => {
+                
+            }))
         })
     }
 
