@@ -168,7 +168,8 @@ router.get("/modify/:username", (req, res) => {
             grade: result[0].grade,
             mng_ip_ranges: result[0].mng_ip_ranges
         };
-        res.send(newUser);
+        console.log("newUser : ", newUser);
+        res.send([newUser]);
     })
         .catch((error) => {
         console.error("보내기 실패:", error);
