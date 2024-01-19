@@ -32,18 +32,17 @@ router.get("/", (req, res) => {
         .then(result => {
         let results;
         ipRanges = ipCalcService.parseIPRange(result[0].mng_ip_ranges);
-        console.log('ipRange : ', ipRanges);
         if (contents === "network") {
             results = networkService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges);
         }
         else if (contents === "media") {
-            results = mediaService.getApiData(page, pageSize);
+            results = mediaService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges);
         }
         else if (contents === "outlook") {
-            results = outlookService.getApiData();
+            results = outlookService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges);
         }
         else if (contents === "print") {
-            results = printService.getApiData();
+            results = printService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges);
         }
         else {
             // Handle the case when param doesn't match any of the expected values
@@ -62,6 +61,7 @@ router.get("/", (req, res) => {
 });
 // dummy data 생성
 router.get('/dummy', (req, res) => {
+    let results;
     const contents = req.query.contents;
     const count = req.query.count;
     // const page = req.query.page;         // page count
@@ -74,19 +74,28 @@ router.get('/dummy', (req, res) => {
     console.log("dummy : ", contents);
     switch (contents) {
         case 'network':
-            networkService.getDummyData(count)
-                .then(() => {
-                getApiDataLogic(contents, 0, pageSize, sorting, desc, category, search, username, req, res);
-            })
-                .catch((error) => {
-                console.error(error + " : " + contents);
-                res.status(500).send("server error");
-            });
+            results = networkService.getDummyData(count);
+            break;
+        case 'media':
+            results = mediaService.getDummyData(count);
+            break;
+        case 'outlook':
+            results = outlookService.getDummyData(count);
+            break;
+        case 'print':
+            results = printService.getDummyData(count);
             break;
     }
+    results === null || results === void 0 ? void 0 : results.then(() => {
+        getApiDataLogic(contents, 0, pageSize, sorting, desc, category, search, username, req, res);
+    }).catch((error) => {
+        console.error(error + " : " + contents);
+        res.status(500).send(contents + " server error");
+    });
 });
 // data 다중 삭제
 router.post('/rm', (req, res) => {
+    let results;
     const contents = req.query.contents;
     // const page = req.query.page;         // page count
     const pageSize = req.query.pageSize; // page 갯수
@@ -98,16 +107,24 @@ router.post('/rm', (req, res) => {
     const body = req.body;
     switch (contents) {
         case 'network':
-            networkService.postRemoveData(body)
-                .then(() => {
-                getApiDataLogic(contents, 0, pageSize, sorting, desc, category, search, username, req, res);
-            })
-                .catch((error) => {
-                console.error(error + " : " + contents);
-                res.status(500).send("server error");
-            });
+            results = networkService.postRemoveData(body);
+            break;
+        case 'media':
+            results = mediaService.postRemoveData(body);
+            break;
+        case 'outlook':
+            results = outlookService.postRemoveData(body);
+            break;
+        case 'print':
+            results = printService.postRemoveData(body);
             break;
     }
+    results === null || results === void 0 ? void 0 : results.then(() => {
+        getApiDataLogic(contents, 0, pageSize, sorting, desc, category, search, username, req, res);
+    }).catch((error) => {
+        console.error(error + " : " + contents);
+        res.status(500).send(contents + " server error");
+    });
 });
 // 송신탐지 외 getApiData Logic
 function getApiDataLogic(contents, page, pageSize, sorting, desc, category, search, username, req, res) {
@@ -117,18 +134,26 @@ function getApiDataLogic(contents, page, pageSize, sorting, desc, category, sear
         let results;
         ipRanges = ipCalcService.parseIPRange(result[0].mng_ip_ranges);
         console.log('ipRange : ', ipRanges);
+        switch (contents) {
+            case 'network':
+                results = networkService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges);
+                break;
+            case 'media':
+                results = mediaService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges);
+                break;
+            case 'outlook':
+                results = outlookService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges);
+                break;
+            case 'print':
+                results = printService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges);
+                break;
+        }
+        results === null || results === void 0 ? void 0 : results.then((DataItem) => {
+            res.send(DataItem);
+        }).catch((error) => {
+            console.error(`getApiDataLogic(${contents}) error`);
+            res.status(500).send("server error");
+        });
     });
-    switch (contents) {
-        case 'network':
-            networkService.getApiData(page, pageSize, sorting, desc, category, search, username)
-                .then(result => {
-                res.send(result);
-            })
-                .catch((error) => {
-                console.error("getApiDataLogic(network) : " + error);
-                res.status(500).send("server error");
-            });
-            break;
-    }
 }
 module.exports = router;

@@ -1,43 +1,58 @@
 import express, { Request, Response, Router } from "express";
 import UserService from "../service/userService";
 import IpCalcService from "../service/ipCalcService";
+import CryptoService from "../service/cryptoService";
+import { frontIP } from "../interface/ipDomain";
 
 const router: Router = express.Router();
 const userService: UserService = new UserService();
 const ipCalcService = new IpCalcService();
+const cryptoService = new CryptoService("sn0ISmjyz1CWT6Yb7dxu");
 
 router.post("/login", (req: Request, res: Response) => {
   const { username, passwd }: { username: string; passwd: string } = req.body;
-
   userService
-    .getLogin(username, passwd)
+    .getLogin(username)
     .then((user) => {
-      console.log("user(여긴 라우터) :", user);
       if (user.length === 0) {
         // 에러 메시지와 원하는 URL을 포함한 JSON 응답을 보냄
         res.status(401).json({
           error: "사용자를 찾을 수 없습니다",
-          redirectUrl: "http://localhost:3000/auth/sign-in",
+          redirectUrl: `${frontIP}/auth/sign-in`,
         });
         return;
+      } else {
+        console.log("user[0].passwd : ", user[0].passwd);
+        let decPasswd = cryptoService.getDecryptUltra(user[0].passwd);
+        console.log("decPasswd : ", decPasswd);
+        if (passwd === decPasswd) {
+          res.cookie("username", user[0].username, {
+            httpOnly: true,
+            maxAge: 60 * 60 * 1000,
+            path: "/", // 쿠키의 경로 설정
+          });
+          res.status(200).send("로그인 성공");
+        } else {
+          res.status(401).json({
+            error: "비밀번호가 일치하지 않습니다",
+            redirectUrl: `${frontIP}/auth/sign-in`,
+          });
+          return;
+        }
       }
-      res.cookie("username", user[0].username, {
-        maxAge: 60 * 60 * 1000,
-        path: "/", // 쿠키의 경로 설정
-      });
-      res.status(200).send("로그인 성공");
     })
     .catch((error) => {
-      res.redirect("http://localhost:3000/dashboard/default");
+      res.redirect(`${frontIP}/auth/sign-in`);
       // res.status(500).send("서버 내부 오류가 발생했습니다.");
     });
 });
 
 router.post("/add", (req: Request, res: Response) => {
   const user = req.body;
+  let encPasswd = cryptoService.getEncryptUltra(user.passwd);
   const newUser = {
     username: user.username,
-    passwd: user.passwd,
+    passwd: encPasswd,
     grade: user.grade,
     mng_ip_ranges: user.range,
   };
@@ -150,7 +165,14 @@ router.get("/modify/:username", (req: Request, res: Response) => {
   userService
     .getUser(username)
     .then((result) => {
-      res.send(result);
+      const decPasswd = cryptoService.getDecryptUltra(result[0].passwd)
+      let newUser = {
+        username : result[0].username,
+        passwd : decPasswd,
+        grade : result[0].grade,
+        mng_ip_ranges: result[0].mng_ip_ranges
+      }
+      res.send(newUser);
     })
     .catch((error) => {
       console.error("보내기 실패:", error);
@@ -161,16 +183,16 @@ router.get("/modify/:username", (req: Request, res: Response) => {
 router.post("/update/:username", (req: Request, res: Response) => {
   let oldname = req.params.username;
   let user = req.body;
-  console.log("user 확인해보자 : ", user);
+  const encPasswd = cryptoService.getEncryptUltra(user.passwd);
   const newUser = {
     username: user.username,
-    passwd: user.passwd,
+    passwd: encPasswd,
     grade: user.grade,
     mng_ip_ranges: user.mngRange,
   };
   if (user.cookie !== "admin") {
     userService
-      .checkUsername(user.username)
+      .checkUsername(user.username, oldname)
       .then((result) => {
         if (result.exists) {
           res.status(401).send({ error: result.message });
@@ -181,21 +203,23 @@ router.post("/update/:username", (req: Request, res: Response) => {
               let IpRange = ipCalcService.parseIPRange(
                 result2[0].mng_ip_ranges
               );
-              userService.checkIpRange(user.mngRange, IpRange).then((result3) => {
-                if (result3.inRange) {
-                  userService
-                    .modUser(newUser, oldname)
-                    .then((result4) => {
-                      res.send(result4.message);
-                    })
-                    .catch((error) => {
-                      console.error("업데이트 실패:", error);
-                      res.status(500).send("Internal Server Error");
-                    });
-                } else {
-                  res.status(401).send({ error: result3.message });
-                }
-              });
+              userService
+                .checkIpRange(user.mngRange, IpRange)
+                .then((result3) => {
+                  if (result3.inRange) {
+                    userService
+                      .modUser(newUser, oldname)
+                      .then((result4) => {
+                        res.send(result4.message);
+                      })
+                      .catch((error) => {
+                        console.error("업데이트 실패:", error);
+                        res.status(500).send("Internal Server Error");
+                      });
+                  } else {
+                    res.status(401).send({ error: result3.message });
+                  }
+                });
             })
             .catch((error2) => {
               res.send(
@@ -208,15 +232,21 @@ router.post("/update/:username", (req: Request, res: Response) => {
         res.send("이거는 중복을 검사하는 도중에 발생하는 에러입니다.");
       });
   } else {
-    userService
-      .modUser(newUser, oldname)
-      .then((result4) => {
-        res.send(result4.message);
-      })
-      .catch((error) => {
-        console.error("업데이트 실패:", error);
-        res.status(500).send("Internal Server Error");
-      });
+    userService.checkUsername(user.username, oldname).then((result) => {
+      if (result.exists) {
+        res.status(401).send({ error: result.message });
+      } else {
+        userService
+          .modUser(newUser, oldname)
+          .then((result4) => {
+            res.send(result4.message);
+          })
+          .catch((error) => {
+            console.error("업데이트 실패:", error);
+            res.status(500).send("Internal Server Error");
+          });
+      }
+    });
   }
 });
 
@@ -255,7 +285,6 @@ router.get("/all", (req: Request, res: Response) => {
             searchWord
           )
           .then((result2) => {
-            console.log("result2가 성공? :", result2);
             res.status(200).send(result2);
           })
           .catch((error2) => {
@@ -286,7 +315,6 @@ router.get("/check", (req: Request, res: Response) => {
   userService
     .getGradeAndMngip(username)
     .then((result) => {
-      console.log("result : ", result);
       res.send(result);
     })
     .catch((error) => {

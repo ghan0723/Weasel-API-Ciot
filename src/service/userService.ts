@@ -1,13 +1,12 @@
 import { IpRange } from "../interface/interface";
 import connection from "../db/db";
-import { Connection, OkPacket } from "mysql";
 
 class UserService {
-  getLogin(username: string, passwd: string): Promise<any> {
+  getLogin(username: string): Promise<any> {
     return new Promise((resolve, reject) => {
       const query =
-        "SELECT username, grade, mng_ip_ranges FROM userlist WHERE username = ? AND passwd = ?";
-      connection.query(query, [username, passwd], (error, results) => {
+        "SELECT username, passwd, grade, mng_ip_ranges FROM userlist WHERE username = ?";
+      connection.query(query, [username], (error, results) => {
         if (error) {
           reject(error);
         } else {
@@ -31,7 +30,7 @@ class UserService {
   }
   addUser(user: {
     username: string;
-    passwd: string;
+    passwd: any;
     grade: string;
     mng_ip_ranges: string;
   }): Promise<any> {
@@ -259,21 +258,25 @@ class UserService {
     });
   }
 
-  checkUsername(username: any): Promise<any> {
+  checkUsername(username: any, oldname?:any): Promise<any> {
     return new Promise((resolve, reject) => {
-      const query = "SELECT COUNT(*) as count FROM userlist WHERE username = ?";
-      connection.query(query, [username], (error, result) => {
-        if (error) {
-          reject(error);
-        } else {
-          const isDuplicate = result[0].count > 0;
-          if (isDuplicate) {
-            resolve({ exists: true, message: "이미 사용 중인 계정명입니다." });
+      if(username !== oldname){
+        const query = "SELECT COUNT(*) as count FROM userlist WHERE username = ?";
+        connection.query(query, [username], (error, result) => {
+          if (error) {
+            reject(error);
           } else {
-            resolve({ exists: false, message: "사용 가능한 계정명입니다." });
+            const isDuplicate = result[0].count > 0;
+            if (isDuplicate) {
+              resolve({ exists: true, message: "이미 사용 중인 계정명입니다." });
+            } else {
+              resolve({ exists: false, message: "사용 가능한 계정명입니다." });
+            }
           }
-        }
-      });
+        });
+      }else{
+        resolve({ exists: false, message: "현재 계정명과 동일합니다." });
+      }
     });
   }
 

@@ -18,5 +18,20 @@ class ProfileService {
             });
         });
     }
+    modUser(user, oldname) {
+        const query = `UPDATE userlist SET username = '${user.username}', passwd = '${user.passwd}' WHERE username = '${oldname}'`;
+        return new Promise((resolve, reject) => {
+            db_1.default.query(query, (error, result) => {
+                if (error) {
+                    console.log("데이터 업데이트 중 오류 발생");
+                    reject(error);
+                }
+                else {
+                    console.log("데이터가 성공적으로 업데이트되었습니다.");
+                    resolve(result);
+                }
+            });
+        });
+    }
 }
 exports.default = ProfileService;

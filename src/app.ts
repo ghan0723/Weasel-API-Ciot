@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from "express";
+import { frontIP } from "./interface/ipDomain";
 
 var createError = require("http-errors");
 var express = require("express");
@@ -44,7 +45,7 @@ app.locals.connection = connection; // connection 객체를 app.locals에 저장
 const corsOptions = {
   origin: [
     // ... //
-    "http://localhost:3000",
+    `${frontIP}`,
     process.env.CALLBACK_URL || "",
   ],
   credentials: true,

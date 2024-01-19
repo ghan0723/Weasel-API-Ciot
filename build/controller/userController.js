@@ -1,15 +1,16 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const ipDomain_1 = require("../interface/ipDomain");
 class UserController {
     constructor(userService) {
         this.userService = userService;
     }
     login(req, res) {
         const { username, passwd } = req.body;
-        this.userService.getLogin(username, passwd)
+        this.userService.getLogin(username)
             .then((user) => {
             // console.log("user(여긴 컨트롤러) :", user);
-            res.redirect('http://localhost:3000/admin/default');
+            res.redirect(`${ipDomain_1.frontIP}/admin/default`);
         })
             .catch((error) => {
             console.error('Login failed:', error);
