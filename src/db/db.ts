@@ -14,7 +14,8 @@ const connection: Connection = mysql.createConnection({
   host: config.HOST,
   user: config.USER,
   password: config.password,
-  database: config.SCHEMA
+  database: config.SCHEMA,
+  charset:'utf8mb4'
 });
 
 connection.connect();
