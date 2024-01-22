@@ -37,7 +37,8 @@ const connection = mysql_1.default.createConnection({
     host: config.HOST,
     user: config.USER,
     password: config.password,
-    database: config.SCHEMA
+    database: config.SCHEMA,
+    charset: 'utf8mb4'
 });
 connection.connect();
 module.exports = connection;

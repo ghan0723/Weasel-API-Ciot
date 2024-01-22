@@ -6,14 +6,38 @@ const settingService_1 = __importDefault(require("../service/settingService"));
 const express_1 = __importDefault(require("express"));
 const router = express_1.default.Router();
 const settingService = new settingService_1.default();
-router.post('/server', (req, res) => {
+router.post("/server", (req, res) => {
     const server = req.body;
-    console.log("server 잘 들어왔나 ?  : ", server);
-    res.send("잘 들어왔습니다.");
+    settingService
+        .modServerSetting(server)
+        .then((result) => {
+        res.send("업데이트 성공했습니다.");
+    })
+        .catch((error) => {
+        console.error("update 에러 : ", error);
+        res.status(500).send("update 하다가 에러났어요");
+    });
 });
-router.post('/agent', (req, res) => {
+router.post("/agent", (req, res) => {
     const agent = req.body;
-    console.log("agent 잘 들어왔나 ?  : ", agent);
-    res.send("잘 들어왔습니다.");
+    settingService.modAgentSetting(agent)
+        .then((result) => {
+        res.send(result);
+    })
+        .catch((error) => {
+        console.error("agent setting post 에러 : ", error);
+        res.status(500).send("agent setting post 하다가 에러났어요");
+    });
+});
+router.get("/agents", (req, res) => {
+    settingService
+        .getAgentSetting()
+        .then((result) => {
+        res.send(result);
+    })
+        .catch((error) => {
+        console.error("agent setting get 에러 : ", error);
+        res.status(500).send("agent setting get 하다가 에러났어요");
+    });
 });
 module.exports = router;
