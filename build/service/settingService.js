@@ -20,9 +20,11 @@ class SettingService {
             db_1.default;
         });
     }
-    addServerSetting() {
+    addServerSetting(server) {
+        const query = "";
         return new Promise((resolve, reject) => {
-            db_1.default;
+            db_1.default.query(query, ((resolve, reject) => {
+            }));
         });
     }
     modServerSetting() {

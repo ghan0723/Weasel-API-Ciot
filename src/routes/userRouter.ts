@@ -312,7 +312,6 @@ router.get("/all", (req: Request, res: Response) => {
 
 router.get("/check", (req: Request, res: Response) => {
   let username = req.query.username;
-  console.log("username : ", username);
   userService
     .getGradeAndMngip(username)
     .then((result) => {
