@@ -39,6 +39,5 @@ const connection = mysql_1.default.createConnection({
     password: config.password,
     database: config.SCHEMA
 });
-let results = connection.connect();
-console.log('results : ', results);
+connection.connect();
 module.exports = connection;

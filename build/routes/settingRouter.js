@@ -11,4 +11,9 @@ router.post('/server', (req, res) => {
     console.log("server 잘 들어왔나 ?  : ", server);
     res.send("잘 들어왔습니다.");
 });
+router.post('/agent', (req, res) => {
+    const agent = req.body;
+    console.log("agent 잘 들어왔나 ?  : ", agent);
+    res.send("잘 들어왔습니다.");
+});
 module.exports = router;

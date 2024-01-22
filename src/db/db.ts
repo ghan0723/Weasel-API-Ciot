@@ -17,11 +17,7 @@ const connection: Connection = mysql.createConnection({
   database: config.SCHEMA
 });
 
-let results = connection.connect();
-
-console.log('results : ', results);
-
-
+connection.connect();
 
 export = connection;
 
