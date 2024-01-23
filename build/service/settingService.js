@@ -85,5 +85,18 @@ class SettingService {
             });
         });
     }
+    getIntervalTime() {
+        const query = "select svr_update_interval from usersettings;";
+        return new Promise((resolve, reject) => {
+            db_1.default.query(query, (error, result) => {
+                if (error) {
+                    reject(error);
+                }
+                else {
+                    resolve(result);
+                }
+            });
+        });
+    }
 }
 exports.default = SettingService;

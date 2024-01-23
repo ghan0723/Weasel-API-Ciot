@@ -98,6 +98,20 @@ class SettingService {
     });
   }
   
+
+  getIntervalTime() : Promise<any> {
+    const query =
+      "select svr_update_interval from usersettings;";
+    return new Promise((resolve, reject) => {
+      connection.query(query, (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      });
+    });
+  }
 }
 
 export default SettingService;
