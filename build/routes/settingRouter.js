@@ -18,9 +18,28 @@ router.post("/server", (req, res) => {
         res.status(500).send("update 하다가 에러났어요");
     });
 });
+router.get("/servers", (req, res) => {
+    settingService
+        .getServerSetting()
+        .then((result) => {
+        const newAuto = result[0].svr_autodownload === 1 ? true : false;
+        const newResult = {
+            serverPort: result[0].svr_server_port,
+            ret: result[0].svr_retention_period,
+            auto: newAuto,
+            interval: result[0].svr_update_interval
+        };
+        res.send(newResult);
+    })
+        .catch((error) => {
+        console.error("update get 에러 : ", error);
+        res.status(500).send("update get 하다가 에러났어요");
+    });
+});
 router.post("/agent", (req, res) => {
     const agent = req.body;
-    settingService.modAgentSetting(agent)
+    settingService
+        .modAgentSetting(agent)
         .then((result) => {
         res.send(result);
     })
@@ -38,6 +57,17 @@ router.get("/agents", (req, res) => {
         .catch((error) => {
         console.error("agent setting get 에러 : ", error);
         res.status(500).send("agent setting get 하다가 에러났어요");
+    });
+});
+router.get("/intervalTime", (req, res) => {
+    settingService
+        .getIntervalTime()
+        .then((result) => {
+        res.send(result);
+    })
+        .catch((error) => {
+        console.error("intervalTime get 에러 : ", error);
+        res.status(500).send("intervalTime get 에러");
     });
 });
 module.exports = router;

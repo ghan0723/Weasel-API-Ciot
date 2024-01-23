@@ -44,7 +44,7 @@ class SettingService {
     }
     modServerSetting(server) {
         const autoDwn = server.auto ? 1 : 0;
-        const query = `update usersettings set svr_server_port=${server.serverPort}, svr_retention_period=${server.ret}, svr_autodownload=${autoDwn}`;
+        const query = `update usersettings set svr_server_port=${server.serverPort}, svr_retention_period=${server.ret}, svr_autodownload=${autoDwn}, svr_update_interval=${server.interval}`;
         return new Promise((resolve, reject) => {
             db_1.default.query(query, (error, result) => {
                 if (error) {
@@ -57,8 +57,45 @@ class SettingService {
         });
     }
     getServerSetting() {
+        const query = `select svr_server_port, svr_retention_period, svr_autodownload, svr_update_interval from usersettings`;
         return new Promise((resolve, reject) => {
-            db_1.default;
+            db_1.default.query(query, (error, result) => {
+                if (error) {
+                    reject(error);
+                }
+                else {
+                    resolve(result);
+                }
+            });
+        });
+    }
+    getGUITime() {
+        return new Promise((resolve, reject) => {
+            const query = `select svr_gui_timeout from usersettings`;
+            db_1.default.query(query, (error, result) => {
+                if (error) {
+                    console.error("Error in query:", error);
+                    reject(error);
+                }
+                else {
+                    // 여기서 result 값이 어떤 형태인지 확인하고 적절한 값을 반환하도록 수정
+                    const guiTimeout = result && result.length > 0 ? result[0].svr_gui_timeout : 3600;
+                    resolve(guiTimeout);
+                }
+            });
+        });
+    }
+    getIntervalTime() {
+        const query = "select svr_update_interval from usersettings;";
+        return new Promise((resolve, reject) => {
+            db_1.default.query(query, (error, result) => {
+                if (error) {
+                    reject(error);
+                }
+                else {
+                    resolve(result);
+                }
+            });
         });
     }
 }

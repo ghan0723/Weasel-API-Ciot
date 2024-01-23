@@ -7,10 +7,12 @@ const userService_1 = __importDefault(require("../service/userService"));
 const ipCalcService_1 = __importDefault(require("../service/ipCalcService"));
 const cryptoService_1 = __importDefault(require("../service/cryptoService"));
 const ipDomain_1 = require("../interface/ipDomain");
+const settingService_1 = __importDefault(require("../service/settingService"));
 const router = express_1.default.Router();
 const userService = new userService_1.default();
 const ipCalcService = new ipCalcService_1.default();
 const cryptoService = new cryptoService_1.default("sn0ISmjyz1CWT6Yb7dxu");
+const settingService = new settingService_1.default();
 router.post("/login", (req, res) => {
     const { username, passwd } = req.body;
     userService
@@ -25,24 +27,29 @@ router.post("/login", (req, res) => {
             return;
         }
         else {
-            console.log("user[0].passwd : ", user[0].passwd);
             let decPasswd = cryptoService.getDecryptUltra(user[0].passwd);
-            console.log("decPasswd : ", decPasswd);
-            if (passwd === decPasswd) {
-                res.cookie("username", user[0].username, {
-                    httpOnly: true,
-                    maxAge: 60 * 60 * 1000,
-                    path: "/", // 쿠키의 경로 설정
-                });
-                res.status(200).send("로그인 성공");
-            }
-            else {
-                res.status(401).json({
-                    error: "비밀번호가 일치하지 않습니다",
-                    redirectUrl: `${ipDomain_1.frontIP}/auth/sign-in`,
-                });
-                return;
-            }
+            settingService.getGUITime()
+                .then((cookieTime) => {
+                if (passwd === decPasswd) {
+                    res.cookie("username", user[0].username, {
+                        httpOnly: true,
+                        maxAge: cookieTime * 1000,
+                        path: "/", // 쿠키의 경로 설정
+                    });
+                    res.status(200).send("로그인 성공");
+                }
+                else {
+                    res.status(401).json({
+                        error: "비밀번호가 일치하지 않습니다",
+                        redirectUrl: `${ipDomain_1.frontIP}/auth/sign-in`,
+                    });
+                    return;
+                }
+            })
+                .catch((error2) => {
+                console.error("쿠키 타임 가져오기 실패:", error2);
+                res.status(500).send(error2);
+            });
         }
     })
         .catch((error) => {
