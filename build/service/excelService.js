@@ -31,8 +31,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const Excel = __importStar(require("exceljs"));
+const moment_1 = __importDefault(require("moment"));
 const headerWidths = [
     15, 20, 24, 24, 24, 24, 20, 24, 15, 20, 15, 40, 40, 40, 20, 24,
 ];
@@ -87,18 +91,41 @@ class ExcelService {
             const workbook = new Excel.Workbook();
             const sheet = workbook.addWorksheet(`${fileName}`);
             const headers = Object.keys(fileData[0]);
-            console.log("headers : ", headers);
             const headerRow = sheet.addRow(headers);
             headerRow.height = 30.75;
             headerRow.eachCell((cell, colNum) => {
                 this.styleHeaderCell(cell);
-                sheet.getColumn(colNum).width = headerWidths[colNum - 1];
             });
             fileData.forEach((item) => {
                 const rowData = Object.values(item);
+                console.log("rowData : ", rowData);
                 const appendRow = sheet.addRow(rowData);
                 appendRow.eachCell((cell, colNum) => {
+                    var _a, _b, _c;
                     this.styleDataCell(cell);
+                    if (typeof rowData[colNum - 1] === 'string') {
+                        sheet.getColumn(colNum).width =
+                            ((_a = rowData[colNum - 1]) === null || _a === void 0 ? void 0 : _a.length) < 20
+                                ? ((_b = rowData[colNum - 1]) === null || _b === void 0 ? void 0 : _b.length) + 15
+                                : ((_c = rowData[colNum - 1]) === null || _c === void 0 ? void 0 : _c.length) + 30;
+                    }
+                    else if (rowData[colNum - 1] instanceof Date) {
+                        const formattedDate = (0, moment_1.default)(rowData[colNum - 1]).format('YYYY-MM-DD HH:mm:ss');
+                        sheet.getColumn(colNum).width =
+                            formattedDate.length < 20
+                                ? formattedDate.length + 15
+                                : formattedDate.length + 30;
+                    }
+                    else if (typeof rowData[colNum - 1] === 'number') {
+                        const numString = rowData[colNum - 1].toString();
+                        sheet.getColumn(colNum).width =
+                            numString.length < 20
+                                ? numString.length + 15
+                                : numString.length + 30;
+                    }
+                    else {
+                        // Handle other data types as needed
+                    }
                     if (colNum === 1) {
                         cell.font = {
                             color: { argb: "ff1890ff" },

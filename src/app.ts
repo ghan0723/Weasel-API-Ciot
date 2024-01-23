@@ -58,22 +58,6 @@ const corsOptions = {
 app.use(cors(corsOptions));
 // app.use('/');
 
-app.get("/api/detectfiles", (req: Request, res: Response) => {
-  connection.query(
-    "select * from detectfiles",
-    (err: Error, rows: Response) => {
-      if (err) {
-        console.error("Error executing query:", err);
-        // return res.status(500).send('Internal Server Error');
-        return res.status(500).json("Internal Server Error");
-      }
-
-      // rows를 JSON 문자열로 변환하여 클라이언트에게 전달
-      res.send(rows);
-    }
-  );
-});
-
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
