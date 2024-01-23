@@ -48,6 +48,7 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 // app.use('/');
+app.use(express.static('C:/Program Files (x86)/ciot/WeaselMon/Temp'));
 app.get("/api/detectfiles", (req, res) => {
     connection.query("select * from detectfiles", (err, rows) => {
         if (err) {

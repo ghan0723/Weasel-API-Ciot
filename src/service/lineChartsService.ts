@@ -184,8 +184,8 @@ class LineChartsService {
               data: [],
             };
 
-            for (const month of this.monthlyArray) {
-              const value = results.find((data) => data.month === month);
+            for (const month of this.monthlyArray) {              
+              const value = results.find((data) => +data.month === +month);
 
               if (value === undefined) {
                 resultValue.data.push(0);
@@ -378,7 +378,7 @@ class LineChartsService {
 
       this.connection.query(
         query,
-        (error: MysqlError, results: ResultDay[]) => {
+        (error: MysqlError, results: ResultDay[]) => {          
           if (error) {
             reject(error);
           } else {
