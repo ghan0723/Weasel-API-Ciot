@@ -24,8 +24,8 @@ class NetworkService {
     Process: "process", // 9
     PIDs: "pid", // 10
     SrcFile: "src_file", // 11
-    DownLoading: "saved_file", // 12
-    ScreenShots: "saved_file", // 13
+    DownLoad: "saved_file", // 12
+    ScreenShot: "saved_file", // 13
     FileSizes: "file_size", // 14
     Keywords: "keywords", // 15
     DestFiles: "dst_file", // 16
