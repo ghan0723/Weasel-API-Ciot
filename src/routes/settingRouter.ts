@@ -41,4 +41,17 @@ router.get("/agents", (req: Request, res: Response) => {
     });
 });
 
+router.get("/intervalTime", (req:Request, res:Response) => {
+  settingService
+    .getIntervalTime()
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => {
+      console.error("intervalTime get 에러 : ", error);
+      res.status(500).send("intervalTime get 에러");
+    });
+  
+});
+
 export = router;

@@ -40,4 +40,15 @@ router.get("/agents", (req, res) => {
         res.status(500).send("agent setting get 하다가 에러났어요");
     });
 });
+router.get("/intervalTime", (req, res) => {
+    settingService
+        .getIntervalTime()
+        .then((result) => {
+        res.send(result);
+    })
+        .catch((error) => {
+        console.error("intervalTime get 에러 : ", error);
+        res.status(500).send("intervalTime get 에러");
+    });
+});
 module.exports = router;

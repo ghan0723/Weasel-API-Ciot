@@ -304,6 +304,7 @@ class LineChartsService {
                         name: this.contents[num],
                         data: [],
                     };
+                    console.log(results);
                     for (const day of this.oneWeekDates) {
                         const value = results.find((data) => +data.day === day);
                         if (value === undefined) {
