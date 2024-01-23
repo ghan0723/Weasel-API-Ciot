@@ -138,7 +138,7 @@ class LineChartsService {
                         data: [],
                     };
                     for (const month of this.monthlyArray) {
-                        const value = results.find((data) => data.month === month);
+                        const value = results.find((data) => +data.month === +month);
                         if (value === undefined) {
                             resultValue.data.push(0);
                         }

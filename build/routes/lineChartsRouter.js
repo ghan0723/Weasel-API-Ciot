@@ -19,6 +19,10 @@ router.get('/', (req, res) => {
     userService.getGradeAndMngip(username)
         .then(result => {
         let results;
+        if (result.length === 0) {
+            console.log("username을 가져오다가 에러 발생:");
+            return res.status(500).send();
+        }
         ipRanges = ipCalcService.parseIPRange(result[0].mng_ip_ranges);
         switch (select) {
             // 일

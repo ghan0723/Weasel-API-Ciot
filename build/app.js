@@ -19,6 +19,7 @@ var barRouter = require("./routes/barRouter.js");
 var apiRouter = require("./routes/apiRouter.js");
 var profileRouter = require('./routes/profileRouter.js');
 var settingRouter = require('./routes/settingRouter.js');
+var excelRouter = require('./routes/excelRouter.js');
 const lineChartsRouter = require("./routes/lineChartsRouter.js");
 var app = express();
 const fs = require("fs");
@@ -48,17 +49,7 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 // app.use('/');
-app.get("/api/detectfiles", (req, res) => {
-    connection.query("select * from detectfiles", (err, rows) => {
-        if (err) {
-            console.error("Error executing query:", err);
-            // return res.status(500).send('Internal Server Error');
-            return res.status(500).json("Internal Server Error");
-        }
-        // rows를 JSON 문자열로 변환하여 클라이언트에게 전달
-        res.send(rows);
-    });
-});
+app.use(express.static('C:/Program Files (x86)/ciot/WeaselMon/Temp'));
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -76,6 +67,7 @@ app.use("/bar", barRouter);
 app.use("/api", apiRouter);
 app.use('/profile', profileRouter);
 app.use('/setting', settingRouter);
+app.use('/excel', excelRouter);
 app.use("/lineCharts", lineChartsRouter);
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
