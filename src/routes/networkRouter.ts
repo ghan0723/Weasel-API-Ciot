@@ -31,4 +31,6 @@ router.get('/all', (req:Request, res: Response) => {
     })
 })
 
+
+
 export = router;

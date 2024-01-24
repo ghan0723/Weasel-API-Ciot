@@ -116,7 +116,7 @@ class NetworkService {
         const ipConditions = ipRanges
             .map((range) => `(INET_ATON(agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`)
             .join(" OR ");
-        if (search !== '') {
+        if (search !== "") {
             whereClause = `where ${convertColumns} like ? AND (${ipConditions})`;
         }
         else {
@@ -138,14 +138,14 @@ class NetworkService {
                 queryPageSize +
                 " offset " +
                 queryPage * queryPageSize;
-            const query2 = 'select count(*) as count from detectfiles ' + whereClause;
-            const whereQuery = '%' + search + '%';
+            const query2 = "select count(*) as count from detectfiles " + whereClause;
+            const whereQuery = "%" + search + "%";
             Promise.all([
                 new Promise((innerResolve, innerReject) => {
                     this.connection.query(query, whereQuery, (error, result) => {
                         var _a;
-                        console.log('result : ', (_a = result[0]) === null || _a === void 0 ? void 0 : _a.ScreenShot);
-                        // 검색 결과가 없을 경우의 처리            
+                        console.log("result : ", (_a = result[0]) === null || _a === void 0 ? void 0 : _a.ScreenShot);
+                        // 검색 결과가 없을 경우의 처리
                         if (result.length === 0) {
                             result[0] = aliasKey.reduce((obj, key) => {
                                 obj[key] = "";
