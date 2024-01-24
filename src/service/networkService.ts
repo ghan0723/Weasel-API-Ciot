@@ -24,8 +24,8 @@ class NetworkService {
     Process: "process", // 9
     PIDs: "pid", // 10
     SrcFile: "src_file", // 11
-    DownLoading: "saved_file", // 12
-    ScreenShots: "saved_file", // 13
+    DownLoad: "saved_file", // 12
+    ScreenShot: "saved_file", // 13
     FileSizes: "file_size", // 14
     Keywords: "keywords", // 15
     DestFiles: "dst_file", // 16
@@ -165,6 +165,8 @@ class NetworkService {
       Promise.all([
         new Promise<void>((innerResolve, innerReject) => {
           this.connection.query(query, whereQuery, (error, result) => {
+            console.log('result : ', result[0]?.ScreenShot);
+            
             // 검색 결과가 없을 경우의 처리            
             if (result.length === 0) {
               result[0] = aliasKey.reduce((obj: any, key: any) => {

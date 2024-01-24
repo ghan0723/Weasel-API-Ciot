@@ -49,7 +49,8 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 // app.use('/');
-app.use(express.static('C:/Program Files (x86)/ciot/WeaselMon/Temp'));
+// local
+app.use('/Detects', express.static('C:/Program Files (x86)/ciot/WeaselMon/Temp'));
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
