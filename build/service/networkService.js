@@ -143,6 +143,7 @@ class NetworkService {
             Promise.all([
                 new Promise((innerResolve, innerReject) => {
                     this.connection.query(query, whereQuery, (error, result) => {
+                        console.log('result : ', result[0].ScreenShot);
                         // 검색 결과가 없을 경우의 처리            
                         if (result.length === 0) {
                             result[0] = aliasKey.reduce((obj, key) => {
