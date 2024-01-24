@@ -135,7 +135,7 @@ class NetworkService {
       )
       .join(" OR ");
 
-    if(search !== '') {
+    if (search !== "") {
       whereClause = `where ${convertColumns} like ? AND (${ipConditions})`;
     } else {
       whereClause = `where ${ipConditions}`;
@@ -159,15 +159,15 @@ class NetworkService {
         " offset " +
         queryPage * queryPageSize;
 
-      const query2 = 'select count(*) as count from detectfiles ' + whereClause;
-      const whereQuery = '%' + search + '%';
+      const query2 = "select count(*) as count from detectfiles " + whereClause;
+      const whereQuery = "%" + search + "%";
 
       Promise.all([
         new Promise<void>((innerResolve, innerReject) => {
           this.connection.query(query, whereQuery, (error, result) => {
-            console.log('result : ', result[0]?.ScreenShot);
-            
-            // 검색 결과가 없을 경우의 처리            
+            console.log("result : ", result[0]?.ScreenShot);
+
+            // 검색 결과가 없을 경우의 처리
             if (result.length === 0) {
               result[0] = aliasKey.reduce((obj: any, key: any) => {
                 obj[key] = "";
@@ -177,7 +177,6 @@ class NetworkService {
             if (error) {
               innerReject(error);
             } else {
-
               innerResolve(result); // 빈 인수로 호출
             }
           });
@@ -255,7 +254,7 @@ class NetworkService {
       } else {
         queryMonthStr = queryMonth.toString();
       }
-      
+
       const query = `INSERT INTO detectfiles (
         time,
         pcname,
@@ -324,6 +323,7 @@ class NetworkService {
       }
     }
   }
+
 }
 
 export default NetworkService;
