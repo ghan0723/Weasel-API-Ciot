@@ -8,7 +8,7 @@ const userService: UserService = new UserService();
 const ipCalcService = new IpCalcService();
 const complexService: ComplexService = new ComplexService();
 
-router.get("/comp", (req: Request, res: Response) => {
+router.get("/all", (req: Request, res: Response) => {
   let select = req.query.select;
   let username = req.query.username;
   let compData: any[] = [];
@@ -28,10 +28,7 @@ router.get("/comp", (req: Request, res: Response) => {
     fetchData("print"),
   ])
     .then((dataArray) => {
-      compData = dataArray.map((data) => ({
-        category: data[0].key,
-      }));
-      res.status(200).send(compData);
+      res.status(200).send(dataArray);
     })
     .catch((err) => {
       console.error("에러 발생: ", err);
@@ -39,3 +36,5 @@ router.get("/comp", (req: Request, res: Response) => {
       res.status(500).send("Error fetching data");
     });
 });
+
+export = router;

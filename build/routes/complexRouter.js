@@ -2,7 +2,6 @@
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const ipCalcService_1 = __importDefault(require("../service/ipCalcService"));
 const userService_1 = __importDefault(require("../service/userService"));
@@ -11,7 +10,7 @@ const router = express_1.default.Router();
 const userService = new userService_1.default();
 const ipCalcService = new ipCalcService_1.default();
 const complexService = new complexService_1.default();
-router.get("/comp", (req, res) => {
+router.get("/all", (req, res) => {
     let select = req.query.select;
     let username = req.query.username;
     let compData = [];
@@ -29,10 +28,7 @@ router.get("/comp", (req, res) => {
         fetchData("print"),
     ])
         .then((dataArray) => {
-        compData = dataArray.map((data) => ({
-            category: data[0].key,
-        }));
-        res.status(200).send(compData);
+        res.status(200).send(dataArray);
     })
         .catch((err) => {
         console.error("에러 발생: ", err);
@@ -40,3 +36,4 @@ router.get("/comp", (req, res) => {
         res.status(500).send("Error fetching data");
     });
 });
+module.exports = router;
