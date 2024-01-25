@@ -35,7 +35,7 @@ class BarService {
         const ipConditions = ipRanges
             .map((range) => `(INET_ATON(agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`)
             .join(" OR ");
-        let query = `select agent_ip, count(distinct id) as totalCount from ${table} where (${dayOption}) AND (${ipConditions}) group by agent_ip order by totalCount desc limit 10`;
+        let query = `select agent_ip, count(distinct id) as totalCount from ${table} where (${dayOption}) AND (${ipConditions}) group by agent_ip order by totalCount desc limit 5`;
         return new Promise((resolve, reject) => {
             db_1.default.query(query, (error, result) => {
                 if (error) {

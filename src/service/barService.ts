@@ -34,7 +34,7 @@ class BarService {
       )
       .join(" OR ");
 
-    let query = `select agent_ip, count(distinct id) as totalCount from ${table} where (${dayOption}) AND (${ipConditions}) group by agent_ip order by totalCount desc limit 10`;
+    let query = `select agent_ip, count(distinct id) as totalCount from ${table} where (${dayOption}) AND (${ipConditions}) group by agent_ip order by totalCount desc limit 5`;
 
     return new Promise<any>((resolve, reject) => {
       connection.query(query, (error, result) => {
