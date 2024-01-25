@@ -11,19 +11,19 @@ class ComplexService {
         let columns;
         if (props === "network") {
             table = "detectfiles";
-            columns = "saved_file";
+            columns = "process ,dst_file";
         }
         else if (props === "media") {
             table = "detectmediafiles";
-            columns = "saved_file";
+            columns = "process, file";
         }
         else if (props === "outlook") {
             table = "outlookpstviewer";
-            columns = "saved_file";
+            columns = "process, receiver";
         }
         else {
             table = "detectprinteddocuments";
-            columns = "document";
+            columns = "printer, document";
         }
         if (select === "day") {
             dayOption = "DATE(time) = CURDATE()";
@@ -38,7 +38,7 @@ class ComplexService {
         const ipConditions = ipRanges
             .map((range) => `(INET_ATON(agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`)
             .join(" OR ");
-        const query = `select pcname, agent_ip, ${columns} from ${table} where (${dayOption}) AND (${ipConditions}) order by time desc limit 5;`;
+        const query = `select pcname, ${columns} from ${table} where (${dayOption}) AND (${ipConditions}) order by time desc limit 5;`;
         return new Promise((resolve, reject) => {
             db_1.default.query(query, (error, result) => {
                 if (error) {
