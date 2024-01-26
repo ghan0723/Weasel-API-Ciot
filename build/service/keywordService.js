@@ -1,87 +1,8 @@
 "use strict";
-// import connection from "../db/db";
-// import {
-//   IpRange,
-//   ResultItem,
-//   ResultWithCountsItem,
-// } from "../interface/interface";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-// class KeywordService {
-//   getKeyword(props: any, select: any, ipRanges: IpRange[]): Promise<any> {
-//     let table: string;
-//     let dayOption: string;
-//     if (props === "network") {
-//       table = "detectfiles";
-//     } else if (props === "media") {
-//       table = "detectmediafiles";
-//     } else if (props === "outlook") {
-//       table = "outlookpstviewer";
-//     } else {
-//       table = "detectprinteddocuments";
-//     }
-//     if (select === "day") {
-//       dayOption = "DATE(time) = CURDATE()";
-//     } else if (select === "week") {
-//       dayOption = "time >= DATE_SUB(NOW(), INTERVAL 7 DAY) AND time <= NOW()";
-//     } else {
-//       dayOption = "time >= DATE_SUB(NOW(), INTERVAL 1 MONTH) AND time <= NOW()";
-//     }
-//     // IP 범위 조건들을 생성
-//     const ipConditions = ipRanges
-//       .map(
-//         (range) =>
-//           `(INET_ATON(agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`
-//       )
-//       .join(" OR ");
-//     const query = `select pcname, keywords from ${table} where (${dayOption}) AND (${ipConditions}) AND
-//     (
-//       keywords LIKE '%주민번호%' OR
-//       keywords LIKE '%핸드폰번호%' OR
-//       keywords LIKE '%이력서%'
-//     ) `;
-//     return new Promise((resolve, reject) => {
-//       const aggregatedResults: Record<string, Record<string, number>> = {};
-//       connection.query(query, (error, result) => {
-//         if (error) {
-//           reject(error);
-//         } else {
-//           console.log("result : ", result);
-//           const pcnames = Array.from(
-//             new Set(result.map((item: any) => item.pcname))
-//           );
-//         //   const resultWithCounts: ResultWithCountsItem[] = result.map(
-//         //     (item: ResultItem) => {
-//         //       // 정규식을 사용하여 괄호 안의 숫자를 추출
-//         //       const counts = item.keywords.match(/\((\d+)\)/g);
-//         //       // 키워드 이름을 추출
-//         //       const keywords = item.keywords.match(/[^()]+(?=\()/g);
-//         //       // 키워드와 카운트를 매핑한 객체 생성
-//         //       const keywordCountMap: Record<string, number> = {};
-//         //       if (keywords && counts) {
-//         //         keywords.forEach((keyword: any, index: any) => {
-//         //           keywordCountMap[keyword] = parseInt(
-//         //             counts[index].match(/\d+/)![0],
-//         //             10
-//         //           );
-//         //         });
-//         //       }
-//         //       console.log("keywordCountMap : ", keywordCountMap);
-//         //       return ({
-//         //         pcname:item.pcname,
-//         //         keywords:keywordCountMap
-//         //       });
-//         //     }
-//         //   );
-//         //   console.log("resultWithCounts : ", resultWithCounts);
-//         }
-//       });
-//     });
-//   }
-// }
-// export default KeywordService;
 const db_1 = __importDefault(require("../db/db"));
 class KeywordService {
     getKeyword(props, select, ipRanges) {
@@ -132,13 +53,15 @@ class KeywordService {
                         pcResults.forEach((item) => {
                             // Extract counts and keywords using regex
                             const counts = item.keywords.match(/\((\d+)\)/g);
-                            const keywords = item.keywords.match(/[^()]+(?=\()/g);
-                            if (keywords && counts) {
-                                keywords.forEach((keyword, index) => {
-                                    const count = parseInt(counts[index].match(/\d+/)[0], 10);
+                            // Extract counts and keywords using regex
+                            const matches = item.keywords.match(/([^\s,()]+)(?:\s*,\s*|\s*\(\s*(\d+)\s*\)\s*)?/g);
+                            if (matches) {
+                                matches.forEach((match) => {
+                                    const [keyword, count] = match.split(/\s*\(\s*|\s*\)\s*/);
+                                    const numericCount = parseInt(count, 10) || 1;
                                     // Add the count to the existing count for the keyword
                                     keywordCountMap[keyword] =
-                                        (keywordCountMap[keyword] || 0) + count;
+                                        (keywordCountMap[keyword] || 0) + numericCount;
                                 });
                             }
                         });
@@ -165,20 +88,6 @@ class KeywordService {
                             mergedResult.push(item);
                         }
                     });
-                    //   // Calculate sums of keywordCounts values and sort by sum in descending order
-                    //   const sortedResult = mergedResult.sort((a, b) => {
-                    //     const sumA = Object.values(a.keywordCounts).reduce(
-                    //       (acc, value) => acc + value,
-                    //       0
-                    //     );
-                    //     const sumB = Object.values(b.keywordCounts).reduce(
-                    //       (acc, value) => acc + value,
-                    //       0
-                    //     );
-                    //     return sumB - sumA; // Sort in descending order
-                    //   });
-                    //   const top5Result = sortedResult.slice(0, 5);
-                    //   console.log('top5Result :', top5Result);
                     resolve(mergedResult);
                 }
             });
