@@ -25,7 +25,6 @@ router.get("/all", (req: Request, res: Response) => {
     fetchData("outlook"),
   ])
   .then((dataArray) => {
-    console.log("dataArray : ", dataArray);
     res.status(200).send("수고");
   })
   .catch((err) => {
