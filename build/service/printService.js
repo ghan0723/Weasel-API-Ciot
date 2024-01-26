@@ -207,11 +207,11 @@ class PrintService {
                     process = 'process1';
                 }
                 else if (i % 3 === 1) {
-                    agentIp = '192.168.1.54';
+                    agentIp = '192.168.1.55';
                     process = 'process2';
                 }
                 else {
-                    agentIp = '10.10.10.126';
+                    agentIp = '10.10.10.127';
                     process = 'process3';
                 }
                 // 날짜 계산
