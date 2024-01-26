@@ -143,8 +143,6 @@ class NetworkService {
             Promise.all([
                 new Promise((innerResolve, innerReject) => {
                     this.connection.query(query, whereQuery, (error, result) => {
-                        var _a;
-                        console.log("result : ", (_a = result[0]) === null || _a === void 0 ? void 0 : _a.ScreenShot);
                         // 검색 결과가 없을 경우의 처리
                         if (result.length === 0) {
                             result[0] = aliasKey.reduce((obj, key) => {
@@ -196,7 +194,6 @@ class NetworkService {
                 else {
                     console.log("삭제 성공");
                     resolve(result);
-                    console.log("result : ", result);
                 }
             });
         });

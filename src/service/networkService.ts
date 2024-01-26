@@ -165,7 +165,6 @@ class NetworkService {
       Promise.all([
         new Promise<void>((innerResolve, innerReject) => {
           this.connection.query(query, whereQuery, (error, result) => {
-            console.log("result : ", result[0]?.ScreenShot);
 
             // 검색 결과가 없을 경우의 처리
             if (result.length === 0) {
@@ -217,7 +216,6 @@ class NetworkService {
         } else {
           console.log("삭제 성공");
           resolve(result);
-          console.log("result : ", result);
         }
       });
     });

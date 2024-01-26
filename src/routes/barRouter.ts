@@ -1,4 +1,3 @@
-import { error } from "console";
 import BarService from "../service/barService";
 import express, { Request, Response, Router } from "express";
 import UserService from "../service/userService";
