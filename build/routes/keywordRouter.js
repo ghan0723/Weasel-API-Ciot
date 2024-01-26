@@ -56,7 +56,6 @@ router.get("/all", (req, res) => {
     Promise.all([fetchData("network"), fetchData("media"), fetchData("outlook")])
         .then((dataArray) => {
         const top5MergedData = mergeKeywordCounts(dataArray);
-        console.log("top5MergedData : ", top5MergedData);
         res.status(200).send(top5MergedData);
     })
         .catch((err) => {

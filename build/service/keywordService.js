@@ -52,8 +52,6 @@ class KeywordService {
                         const keywordCountMap = {};
                         pcResults.forEach((item) => {
                             // Extract counts and keywords using regex
-                            const counts = item.keywords.match(/\((\d+)\)/g);
-                            // Extract counts and keywords using regex
                             const matches = item.keywords.match(/([^\s,()]+)(?:\s*,\s*|\s*\(\s*(\d+)\s*\)\s*)?/g);
                             if (matches) {
                                 matches.forEach((match) => {
