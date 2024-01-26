@@ -34,7 +34,7 @@ class PieChartService {
         const ipConditions = ipRanges
             .map((range) => `(INET_ATON(agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`)
             .join(" OR ");
-        let queryNet1 = `select process, count(process) as count from ${table} where ${dayOption} AND (${ipConditions}) group by process`;
+        let queryNet1 = `select process, count(process) as count from ${table} where ${dayOption} AND (${ipConditions}) group by process order by count(process) desc limit 4`;
         let queryNet2 = `select count(*) as totalCount from ${table} where ${dayOption} AND (${ipConditions})`;
         return new Promise((resolve, reject) => {
             db_1.default.query(queryNet1, (error, result1) => {
@@ -48,16 +48,13 @@ class PieChartService {
                         }
                         const data = result1.map((item) => {
                             const count = (item.count / result2[0].totalCount) * 100;
-                            // console.log("hcount : ", count);
                             return {
                                 process: item.process,
                                 count: item.count,
-                                hcount: Math.floor(count),
-                                day: Date.now(),
+                                hcount: parseFloat(count.toFixed(1))
                             };
                         });
                         data.sort((a, b) => b.count - a.count);
-                        // console.log("data : ", data);
                         resolve(data);
                     });
                 }
