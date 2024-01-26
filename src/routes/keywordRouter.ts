@@ -1,21 +1,21 @@
 import express, { Request, Response, Router } from "express";
 import IpCalcService from "../service/ipCalcService";
 import UserService from "../service/userService";
-import ComplexService from "../service/complexService";
+import KeywordService from "../service/keywordService";
 
 const router: Router = express.Router();
 const userService: UserService = new UserService();
 const ipCalcService = new IpCalcService();
-const complexService: ComplexService = new ComplexService();
+const keywordService: KeywordService = new KeywordService();
 
 router.get("/all", (req: Request, res: Response) => {
   let select = req.query.select;
   let username = req.query.username;
-  // Function to fetch data for each service
+
   function fetchData(serviceName: string) {
     return userService.getGradeAndMngip(username).then((result) => {
       let ipRange = ipCalcService.parseIPRange(result[0].mng_ip_ranges);
-      return complexService.getkData(serviceName, select, ipRange);
+      return keywordService.getKeyword(serviceName, select, ipRange);
     });
   }
 
@@ -23,16 +23,15 @@ router.get("/all", (req: Request, res: Response) => {
     fetchData("network"),
     fetchData("media"),
     fetchData("outlook"),
-    fetchData("print"),
   ])
-    .then((dataArray) => {
-      res.status(200).send(dataArray);
-    })
-    .catch((err) => {
-      console.error("에러 발생: ", err);
-      // If the error has not been handled earlier, send a generic error message
-      res.status(500).send("Error fetching data");
-    });
+  .then((dataArray) => {
+    console.log("dataArray : ", dataArray);
+    res.status(200).send("수고");
+  })
+  .catch((err) => {
+    console.error("에러 발생: ", err);
+    res.status(500).send("Error fetching data");
+  });
 });
 
 export = router;
