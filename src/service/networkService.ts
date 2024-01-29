@@ -136,7 +136,18 @@ class NetworkService {
       .join(" OR ");
 
     if (search !== "") {
-      whereClause = `where ${convertColumns} like ? AND (${ipConditions})`;
+      if(convertColumns ===  'accurancy') {
+        if(/(정|탐|정탐)/i.test(search)) {
+          whereClause = `where ${convertColumns} = '100' AND (${ipConditions})`;
+        } else if(/(확|인|필|요|확인|인필|필요|확인필|인필요|확인필요)/i.test(search)) {
+          whereClause = `where ${convertColumns} != '100' AND (${ipConditions})`;
+        } else {
+          whereClause = `where ${convertColumns} > '100' AND (${ipConditions})`;
+        }
+      } else {
+        whereClause = `where ${convertColumns} like ? AND (${ipConditions})`;
+      }
+      
     } else {
       whereClause = `where ${ipConditions}`;
     }
