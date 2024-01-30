@@ -1,3 +1,4 @@
+import { IpRange } from "../interface/interface";
 import connection from "../db/db";
 
 class SettingService {
@@ -17,8 +18,10 @@ class SettingService {
     keywordList?: string;
     flag: number;
   }): Promise<any> {
+    let excip = agent.exceptionList?.replace(/(\r\n|\n|\r)/gm, ", ");
+    let kewordRef = agent.keywordList?.replace(/(\r\n|\n|\r)/gm, '&&');
     const query = `update usersettings set uid=${agent.uid}, clnt_server_ip="${agent.serverIP}", clnt_server_port=${agent.serverPort}, clnt_svr_att_interval=${agent.serverInterval}, 
-    clnt_license_dist="${agent.licenseDist}", clnt_exception_list="${agent.exceptionList}", clnt_keyword_list="${agent.keywordList}", flag_checkbox=${agent.flag}`;
+    clnt_license_dist="${agent.licenseDist}", clnt_exception_list="${excip}", clnt_keyword_list="${kewordRef}", flag_checkbox=${agent.flag}`;
     return new Promise((resolve, reject) => {
       connection.query(query, (error, result) => {
         if(error) {
