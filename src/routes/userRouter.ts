@@ -18,7 +18,7 @@ router.post("/login", (req: Request, res: Response) => {
     .getLogin(username)
     .then((user) => {
       if (user.length === 0) {
-        // weasel.error('존재하지 않는 사용자 입니당');
+        weasel.error(username, '172.31.168.112', 'User with the provided account name does not exist. (HTTP Status Code: 404)');
         // 에러 메시지와 원하는 URL을 포함한 JSON 응답을 보냄
         res.status(401).json({
           error: "사용자를 찾을 수 없습니다",
