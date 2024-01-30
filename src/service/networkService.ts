@@ -135,8 +135,9 @@ class NetworkService {
       )
       .join(" OR ");
 
+      
     if (search !== "") {
-      if(convertColumns ===  'accurancy') {
+      if(convertColumns ===  'accuracy') {
         if(/(정|탐|정탐)/i.test(search)) {
           whereClause = `where ${convertColumns} = '100' AND (${ipConditions})`;
         } else if(/(확|인|필|요|확인|인필|필요|확인필|인필요|확인필요)/i.test(search)) {
@@ -151,6 +152,10 @@ class NetworkService {
     } else {
       whereClause = `where ${ipConditions}`;
     }
+
+    console.log('search',search);
+    console.log('whereClause',whereClause);
+    console.log('convertColumns',convertColumns);
 
     return new Promise((resolve, reject) => {
       const query =
