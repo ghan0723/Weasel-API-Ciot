@@ -11,8 +11,11 @@ class SettingService {
         });
     }
     modAgentSetting(agent) {
+        var _a, _b;
+        let excip = (_a = agent.exceptionList) === null || _a === void 0 ? void 0 : _a.replace(/(\r\n|\n|\r)/gm, ", ");
+        let kewordRef = (_b = agent.keywordList) === null || _b === void 0 ? void 0 : _b.replace(/(\r\n|\n|\r)/gm, '&&');
         const query = `update usersettings set uid=${agent.uid}, clnt_server_ip="${agent.serverIP}", clnt_server_port=${agent.serverPort}, clnt_svr_att_interval=${agent.serverInterval}, 
-    clnt_license_dist="${agent.licenseDist}", clnt_exception_list="${agent.exceptionList}", clnt_keyword_list="${agent.keywordList}", flag_checkbox=${agent.flag}`;
+    clnt_license_dist="${agent.licenseDist}", clnt_exception_list="${excip}", clnt_keyword_list="${kewordRef}", flag_checkbox=${agent.flag}`;
         return new Promise((resolve, reject) => {
             db_1.default.query(query, (error, result) => {
                 if (error) {
