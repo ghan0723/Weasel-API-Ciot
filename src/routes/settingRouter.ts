@@ -44,7 +44,8 @@ router.post("/agent", (req: Request, res: Response) => {
       res.send(result);
     })
     .catch((error) => {
-      console.error("agent setting post 에러 : ", error);
+      // console.error("agent setting post 에러 : ", error);
+      
       res.status(500).send("agent setting post 하다가 에러났어요");
     });
 });

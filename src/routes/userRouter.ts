@@ -4,6 +4,7 @@ import IpCalcService from "../service/ipCalcService";
 import CryptoService from "../service/cryptoService";
 import { frontIP } from "../interface/ipDomain";
 import SettingService from "../service/settingService";
+import { weasel } from "../interface/log";
 
 const router: Router = express.Router();
 const userService: UserService = new UserService();
@@ -17,6 +18,7 @@ router.post("/login", (req: Request, res: Response) => {
     .getLogin(username)
     .then((user) => {
       if (user.length === 0) {
+        // weasel.error('존재하지 않는 사용자 입니당');
         // 에러 메시지와 원하는 URL을 포함한 JSON 응답을 보냄
         res.status(401).json({
           error: "사용자를 찾을 수 없습니다",
@@ -33,6 +35,7 @@ router.post("/login", (req: Request, res: Response) => {
               maxAge: cookieTime * 1000,
               path: "/", // 쿠키의 경로 설정
             });
+            weasel.log("로그인 성공하였습니다");
             res.status(200).send("로그인 성공");
           } else {
             res.status(401).json({
