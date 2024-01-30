@@ -8,6 +8,7 @@ const ipCalcService_1 = __importDefault(require("../service/ipCalcService"));
 const cryptoService_1 = __importDefault(require("../service/cryptoService"));
 const ipDomain_1 = require("../interface/ipDomain");
 const settingService_1 = __importDefault(require("../service/settingService"));
+const log_1 = require("../interface/log");
 const router = express_1.default.Router();
 const userService = new userService_1.default();
 const ipCalcService = new ipCalcService_1.default();
@@ -19,6 +20,7 @@ router.post("/login", (req, res) => {
         .getLogin(username)
         .then((user) => {
         if (user.length === 0) {
+            // weasel.error('존재하지 않는 사용자 입니당');
             // 에러 메시지와 원하는 URL을 포함한 JSON 응답을 보냄
             res.status(401).json({
                 error: "사용자를 찾을 수 없습니다",
@@ -36,6 +38,7 @@ router.post("/login", (req, res) => {
                         maxAge: cookieTime * 1000,
                         path: "/", // 쿠키의 경로 설정
                     });
+                    log_1.weasel.log("로그인 성공하였습니다");
                     res.status(200).send("로그인 성공");
                 }
                 else {
