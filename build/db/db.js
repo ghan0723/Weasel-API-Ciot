@@ -40,5 +40,9 @@ const connection = mysql_1.default.createConnection({
     database: config.SCHEMA,
     charset: 'utf8mb4'
 });
-connection.connect();
+connection.connect(err => {
+    if (err)
+        throw err;
+    console.log('Connected to the remote database!');
+});
 module.exports = connection;

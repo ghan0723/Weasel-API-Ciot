@@ -18,7 +18,11 @@ const connection: Connection = mysql.createConnection({
   charset:'utf8mb4'
 });
 
-connection.connect();
+connection.connect(err => {
+  if(err) throw err;
+  console.log('Connected to the remote database!');
+  
+});
 
 export = connection;
 
