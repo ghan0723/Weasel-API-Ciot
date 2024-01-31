@@ -8,7 +8,7 @@ const express_1 = __importDefault(require("express"));
 const router = express_1.default.Router();
 const settingService = new settingService_1.default();
 router.post("/server", (req, res) => {
-    const username = req.cookies.username;
+    const username = req.query.username;
     const server = req.body;
     settingService
         .modServerSetting(server)
@@ -23,7 +23,7 @@ router.post("/server", (req, res) => {
     });
 });
 router.get("/servers", (req, res) => {
-    const username = req.cookies.username;
+    const username = req.query.username;
     settingService
         .getServerSetting()
         .then((result) => {
@@ -44,7 +44,7 @@ router.get("/servers", (req, res) => {
     });
 });
 router.post("/agent", (req, res) => {
-    const username = req.cookies.username;
+    const username = req.query.username;
     const agent = req.body;
     settingService
         .modAgentSetting(agent)
@@ -59,7 +59,7 @@ router.post("/agent", (req, res) => {
     });
 });
 router.get("/agents", (req, res) => {
-    const username = req.cookies.username;
+    const username = req.query.username;
     settingService
         .getAgentSetting()
         .then((result) => {
