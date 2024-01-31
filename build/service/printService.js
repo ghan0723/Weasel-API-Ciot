@@ -91,7 +91,7 @@ class PrintService {
             });
         });
     }
-    getApiData(page, pageSize, sorting, desc, category, search, ipRanges) {
+    getApiData(page, pageSize, sorting, desc, category, search, ipRanges, grade) {
         let queryPage = 0;
         let queryPageSize = 0;
         let querySorting = sorting === '' ? 'time' : sorting;
@@ -120,9 +120,15 @@ class PrintService {
             whereClause = `where ${ipConditions}`;
         }
         return new Promise((resolve, reject) => {
-            const query = `select id, time as ${aliasKey[1]}, pcname as ${aliasKey[2]}, agent_ip as ${aliasKey[3]}, process as ${aliasKey[4]}, pid as ${aliasKey[5]}, 
+            const queryStr = grade !== 3 ?
+                `select id, time as ${aliasKey[1]}, pcname as ${aliasKey[2]}, agent_ip as ${aliasKey[3]}, process as ${aliasKey[4]}, pid as ${aliasKey[5]}, 
         printer as ${aliasKey[6]}, owner as ${aliasKey[7]}, document as ${aliasKey[8]}, spl_file as ${aliasKey[9]}, spl_file as ${aliasKey[10]},
-        size as ${aliasKey[11]}, pages as ${aliasKey[12]} ` +
+        size as ${aliasKey[11]}, pages as ${aliasKey[12]} `
+                :
+                    `select id, time as ${aliasKey[1]}, pcname as ${aliasKey[2]}, agent_ip as ${aliasKey[3]}, process as ${aliasKey[4]}, pid as ${aliasKey[5]}, 
+        printer as ${aliasKey[6]}, owner as ${aliasKey[7]}, document as ${aliasKey[8]}, spl_file as ${aliasKey[9]}, 
+        size as ${aliasKey[11]}, pages as ${aliasKey[12]} `;
+            const query = queryStr +
                 "from detectprinteddocuments " +
                 whereClause +
                 ' order by ' + querySorting + ' ' + queryDesc + ' ' +
@@ -133,9 +139,11 @@ class PrintService {
             Promise.all([
                 new Promise((innerResolve, innerReject) => {
                     db_1.default.query(query, whereQuery, (error, result) => {
+                        const excludedKeys = ['Downloading'];
+                        const filteredKeys = grade !== 3 ? aliasKey : aliasKey.filter(key => !excludedKeys.includes(key));
                         // 검색 결과가 없을 경우의 처리
                         if (result.length === 0) {
-                            result[0] = aliasKey.reduce((obj, key) => {
+                            result[0] = filteredKeys.reduce((obj, key) => {
                                 obj[key] = '';
                                 return obj;
                             }, {});

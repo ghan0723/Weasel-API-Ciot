@@ -42,16 +42,16 @@ router.get("/dwn", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         const ipRanges = ipCalcService.parseIPRange(result[0].mng_ip_ranges);
         let results;
         if (contents === "network") {
-            results = yield networkService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges);
+            results = yield networkService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, result[0].grade);
         }
         else if (contents === "media") {
-            results = yield mediaService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges);
+            results = yield mediaService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, result[0].grade);
         }
         else if (contents === "outlook") {
-            results = yield outlookService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges);
+            results = yield outlookService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, result[0].grade);
         }
         else if (contents === "print") {
-            results = yield printService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges);
+            results = yield printService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, result[0].grade);
         }
         else {
             console.error("Invalid param:", contents);

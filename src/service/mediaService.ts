@@ -85,7 +85,7 @@ class MediaService {
   }
 
   // 송신탐지내역 테이블
-  getApiData(page: any, pageSize: any,sorting:any,desc:any,category:any,search:any, ipRanges: IpRange[]): Promise<any> {
+  getApiData(page: any, pageSize: any,sorting:any,desc:any,category:any,search:any, ipRanges: IpRange[],grade:any): Promise<any> {
     let queryPage:number=0;
     let queryPageSize:number=0;
     let querySorting:string=sorting === '' ? 'time' : sorting;
@@ -122,10 +122,16 @@ class MediaService {
     }
 
     return new Promise((resolve, reject) => {
+      const queryStr = grade !== 3 ?
+      `select id, time as ${aliasKey[1]}, pcname as ${aliasKey[2]}, agent_ip as ${aliasKey[3]}, process as ${aliasKey[4]}, media_type as ${aliasKey[5]}, file as ${aliasKey[6]},
+      saved_file as ${aliasKey[7]}, saved_file as ${aliasKey[8]},
+      file_size as ${aliasKey[9]}, keywords as ${aliasKey[10]} `
+      :
+      `select id, time as ${aliasKey[1]}, pcname as ${aliasKey[2]}, agent_ip as ${aliasKey[3]}, process as ${aliasKey[4]}, media_type as ${aliasKey[5]}, file as ${aliasKey[6]},
+        saved_file as ${aliasKey[7]}, file_size as ${aliasKey[9]}, keywords as ${aliasKey[10]} `;
+
       const query =
-        `select id, time as ${aliasKey[1]}, pcname as ${aliasKey[2]}, agent_ip as ${aliasKey[3]}, process as ${aliasKey[4]}, media_type as ${aliasKey[5]}, file as ${aliasKey[6]},
-        saved_file as ${aliasKey[7]}, saved_file as ${aliasKey[8]},
-        file_size as ${aliasKey[9]}, keywords as ${aliasKey[10]} ` +
+        queryStr +
         "from detectmediafiles " +
          whereClause +
         ' order by '+ querySorting + ' ' + queryDesc + ' ' +
@@ -137,10 +143,13 @@ class MediaService {
       Promise.all([
         new Promise<void>((innerResolve, innerReject) => {
           connection.query(query, whereQuery, (error, result) => {
+            const excludedKeys = ['Downloading'];
+
+            const filteredKeys = grade !== 3 ? aliasKey : aliasKey.filter(key => !excludedKeys.includes(key));
 
             // 검색 결과가 없을 경우의 처리
             if(result.length === 0) {
-              result[0] = aliasKey.reduce((obj:any, key:any) => {
+              result[0] = filteredKeys.reduce((obj:any, key:any) => {
                 obj[key] = '';
                 return obj;
               }, {});
