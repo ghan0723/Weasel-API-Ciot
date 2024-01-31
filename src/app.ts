@@ -24,6 +24,7 @@ var settingRouter = require('./routes/settingRouter.js');
 var excelRouter = require('./routes/excelRouter.js');
 var complexRouter = require('./routes/complexRouter.js');
 var keywordRouter = require('./routes/keywordRouter.js');
+var logRouter = require('./routes/logRouter.js');
 const lineChartsRouter = require("./routes/lineChartsRouter.js");
 
 var app = express();
@@ -84,6 +85,7 @@ app.use('/setting', settingRouter);
 app.use('/excel', excelRouter);
 app.use('/complex', complexRouter);
 app.use('/keyword', keywordRouter);
+app.use('/log', logRouter);
 app.use("/lineCharts", lineChartsRouter);
 
 // catch 404 and forward to error handler

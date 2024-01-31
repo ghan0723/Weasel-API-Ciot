@@ -2,6 +2,7 @@ import UserService from "../service/userService";
 import ProfileService from "../service/profileService";
 import express, { Request, Response, Router } from "express";
 import CryptoService from "../service/cryptoService";
+import { weasel } from "../interface/log";
 
 const router: Router = express.Router();
 const profileService: ProfileService = new ProfileService();
@@ -21,9 +22,11 @@ router.get("/edit/:username", (req: Request, res: Response) => {
         grade : user[0].grade,
         mng_ip_ranges: user[0].mng_ip_ranges
       }
+      weasel.log(username, "172.31.168.112", "Success to Load Profile Page [Profile]");
       res.send([newUser]);
     })
     .catch((error) => {
+      weasel.error(username, "172.31.168.112", "Failed to Load Profile Page [Profile]");
       console.error("profile failed:", error);
       res.status(500).send("Internal Server Error");
     });
@@ -39,14 +42,17 @@ router.post("/update/:username", (req: Request, res: Response) => {
   }
   userService.checkUsername(user.username, oldname).then((result) => {
     if (result.exists) {
+      weasel.error(oldname, "172.31.168.112", "Failed to Update Profile [Profile]");
       res.status(401).send({ error: result.message });
     } else {
       profileService
         .modUser(newUser, oldname)
         .then((result2) => {
+          weasel.log(oldname, "172.31.168.112", "Success to Update Profile [Profile]");
           res.send(result2.message);
         })
         .catch((error) => {
+          weasel.error(oldname, "172.31.168.112", "Failed to Update Profile [Profile]");
           res.status(500).send("업데이트 잘못된거 같습니다.");
         });
     }
