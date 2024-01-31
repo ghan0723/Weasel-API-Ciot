@@ -84,7 +84,7 @@ class PrintService {
     });
   }
 
-  getApiData(page: any, pageSize: any,sorting:any,desc:any,category:any,search:any, ipRanges: IpRange[]): Promise<any> {
+  getApiData(page: any, pageSize: any,sorting:any,desc:any,category:any,search:any, ipRanges: IpRange[],grade:any): Promise<any> {
     let queryPage:number=0;
     let queryPageSize:number=0;
     let querySorting:string=sorting === '' ? 'time' : sorting;
@@ -121,10 +121,17 @@ class PrintService {
     }
 
     return new Promise((resolve, reject) => {
-      const query =
-        `select id, time as ${aliasKey[1]}, pcname as ${aliasKey[2]}, agent_ip as ${aliasKey[3]}, process as ${aliasKey[4]}, pid as ${aliasKey[5]}, 
+      const queryStr = grade !== 3 ?
+      `select id, time as ${aliasKey[1]}, pcname as ${aliasKey[2]}, agent_ip as ${aliasKey[3]}, process as ${aliasKey[4]}, pid as ${aliasKey[5]}, 
         printer as ${aliasKey[6]}, owner as ${aliasKey[7]}, document as ${aliasKey[8]}, spl_file as ${aliasKey[9]}, spl_file as ${aliasKey[10]},
-        size as ${aliasKey[11]}, pages as ${aliasKey[12]} ` +
+        size as ${aliasKey[11]}, pages as ${aliasKey[12]} `
+        :
+        `select id, time as ${aliasKey[1]}, pcname as ${aliasKey[2]}, agent_ip as ${aliasKey[3]}, process as ${aliasKey[4]}, pid as ${aliasKey[5]}, 
+        printer as ${aliasKey[6]}, owner as ${aliasKey[7]}, document as ${aliasKey[8]}, spl_file as ${aliasKey[9]}, 
+        size as ${aliasKey[11]}, pages as ${aliasKey[12]} `;
+
+      const query =
+        queryStr +
         "from detectprinteddocuments " +
          whereClause +
         ' order by '+ querySorting + ' ' + queryDesc + ' ' +
@@ -136,10 +143,13 @@ class PrintService {
       Promise.all([
         new Promise<void>((innerResolve, innerReject) => {
           connection.query(query,whereQuery, (error, result) => {
+            const excludedKeys = ['Downloading'];
+
+            const filteredKeys = grade !== 3 ? aliasKey : aliasKey.filter(key => !excludedKeys.includes(key));
 
             // 검색 결과가 없을 경우의 처리
             if(result.length === 0) {
-              result[0] = aliasKey.reduce((obj:any, key:any) => {
+              result[0] = filteredKeys.reduce((obj:any, key:any) => {
                 obj[key] = '';
                 return obj;
               }, {});

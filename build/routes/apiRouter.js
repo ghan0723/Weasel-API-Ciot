@@ -33,16 +33,16 @@ router.get("/", (req, res) => {
         let results;
         ipRanges = ipCalcService.parseIPRange(result[0].mng_ip_ranges);
         if (contents === "network") {
-            results = networkService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges);
+            results = networkService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, result[0].grade);
         }
         else if (contents === "media") {
-            results = mediaService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges);
+            results = mediaService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, result[0].grade);
         }
         else if (contents === "outlook") {
-            results = outlookService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges);
+            results = outlookService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, result[0].grade);
         }
         else if (contents === "print") {
-            results = printService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges);
+            results = printService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, result[0].grade);
         }
         else {
             // Handle the case when param doesn't match any of the expected values
@@ -135,16 +135,16 @@ function getApiDataLogic(contents, page, pageSize, sorting, desc, category, sear
         ipRanges = ipCalcService.parseIPRange(result[0].mng_ip_ranges);
         switch (contents) {
             case 'network':
-                results = networkService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges);
+                results = networkService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, result[0].grade);
                 break;
             case 'media':
-                results = mediaService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges);
+                results = mediaService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, result[0].grade);
                 break;
             case 'outlook':
-                results = outlookService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges);
+                results = outlookService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, result[0].grade);
                 break;
             case 'print':
-                results = printService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges);
+                results = printService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, result[0].grade);
                 break;
         }
         results === null || results === void 0 ? void 0 : results.then((DataItem) => {

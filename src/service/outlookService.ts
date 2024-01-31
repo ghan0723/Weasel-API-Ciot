@@ -87,7 +87,7 @@ class OutlookService {
     });
   }
 
-  getApiData(page: any, pageSize: any,sorting:any,desc:any,category:any,search:any, ipRanges: IpRange[]): Promise<any> {
+  getApiData(page: any, pageSize: any,sorting:any,desc:any,category:any,search:any, ipRanges: IpRange[],grade:any): Promise<any> {
     let queryPage:number=0;
     let queryPageSize:number=0;
     let querySorting:string=sorting === '' ? 'time' : sorting;
@@ -124,11 +124,19 @@ class OutlookService {
     }
 
     return new Promise((resolve, reject) => {
-      const query =
-        `select id, time as ${aliasKey[1]}, pcname as ${aliasKey[2]}, agent_ip as ${aliasKey[3]}, process as ${aliasKey[4]}, 
+      const queryStr = grade !== 3 ? 
+      `select id, time as ${aliasKey[1]}, pcname as ${aliasKey[2]}, agent_ip as ${aliasKey[3]}, process as ${aliasKey[4]}, 
+      pid as ${aliasKey[5]}, subject as ${aliasKey[6]}, sender as ${aliasKey[7]}, receiver as ${aliasKey[8]}, 
+      attachment as ${aliasKey[9]}, asked_file as ${aliasKey[10]}, saved_file as ${aliasKey[11]}, 
+      file_size as ${aliasKey[12]}, keywords as ${aliasKey[13]} `
+      :
+      `select id, time as ${aliasKey[1]}, pcname as ${aliasKey[2]}, agent_ip as ${aliasKey[3]}, process as ${aliasKey[4]}, 
         pid as ${aliasKey[5]}, subject as ${aliasKey[6]}, sender as ${aliasKey[7]}, receiver as ${aliasKey[8]}, 
-        attachment as ${aliasKey[9]}, asked_file as ${aliasKey[10]}, saved_file as ${aliasKey[11]}, 
-        file_size as ${aliasKey[12]}, keywords as ${aliasKey[13]} ` +
+        attachment as ${aliasKey[9]}, asked_file as ${aliasKey[10]}, 
+        file_size as ${aliasKey[12]}, keywords as ${aliasKey[13]} `
+
+      const query =
+        queryStr +
         "from outlookpstviewer " +
          whereClause +
         ' order by '+ querySorting + ' ' + queryDesc + ' ' +
@@ -143,13 +151,14 @@ class OutlookService {
       Promise.all([
         new Promise<void>((innerResolve, innerReject) => {
           connection.query(query,whereQuery, (error, result) => {
+            const excludedKeys = ['Downloading'];
 
-            console.log('result : ', result);
+            const filteredKeys = grade !== 3 ? aliasKey : aliasKey.filter(key => !excludedKeys.includes(key));
             
 
             // 검색 결과가 없을 경우의 처리
             if(result.length === 0) {
-              result[0] = aliasKey.reduce((obj:any, key:any) => {
+              result[0] = filteredKeys.reduce((obj:any, key:any) => {
                 obj[key] = '';
                 return obj;
               }, {});
