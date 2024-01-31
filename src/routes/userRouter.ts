@@ -18,7 +18,7 @@ router.post("/login", (req: Request, res: Response) => {
     .getLogin(username)
     .then((user) => {
       if (user.length === 0) {
-        weasel.error(username,'172.31.168.110',"Not exist user [Login]");
+        weasel.error(username, "172.31.168.112", "Not exist user [Login]");
         // 에러 메시지와 원하는 URL을 포함한 JSON 응답을 보냄
         res.status(401).json({
           error: "사용자를 찾을 수 없습니다",
@@ -27,34 +27,43 @@ router.post("/login", (req: Request, res: Response) => {
         return;
       } else {
         let decPasswd = cryptoService.getDecryptUltra(user[0].passwd);
-        settingService.getGUITime()
-        .then((cookieTime) => {
-          if (passwd === decPasswd) {
-            res.cookie("username", user[0].username, {
-              httpOnly: true,
-              maxAge: cookieTime * 1000,
-              path: "/", // 쿠키의 경로 설정
-            });
-            weasel.log(username,'172.31.168.110',"Success Login [Login]");
-            res.status(200).send("로그인 성공");
-          } else {
-            weasel.error(username,'172.31.168.110',"Passwords do not match [Login]");
-            res.status(401).json({
-              error: "비밀번호가 일치하지 않습니다",
-              redirectUrl: `${frontIP}/auth/sign-in`,
-            });
-            return;
-          }
-        })
-        .catch((error2) => {
-          weasel.error(username,'172.31.168.110',"Failed to get cookie time [Login]");
-          console.error("쿠키 타임 가져오기 실패:", error2);
-          res.status(500).send(error2);
-        })
+        settingService
+          .getGUITime()
+          .then((cookieTime) => {
+            if (passwd === decPasswd) {
+              res.cookie("username", user[0].username, {
+                httpOnly: true,
+                maxAge: cookieTime * 1000,
+                path: "/", // 쿠키의 경로 설정
+              });
+              weasel.log(username, "172.31.168.110", "Success Login [Login]");
+              res.status(200).send("로그인 성공");
+            } else {
+              weasel.error(
+                username,
+                "172.31.168.110",
+                "Passwords do not match [Login]"
+              );
+              res.status(401).json({
+                error: "비밀번호가 일치하지 않습니다",
+                redirectUrl: `${frontIP}/auth/sign-in`,
+              });
+              return;
+            }
+          })
+          .catch((error2) => {
+            weasel.error(
+              username,
+              "172.31.168.110",
+              "Failed to get cookie time [Login]"
+            );
+            console.error("쿠키 타임 가져오기 실패:", error2);
+            res.status(500).send(error2);
+          });
       }
     })
     .catch((error) => {
-      weasel.error(username,'172.31.168.110',"Server error [Login]");
+      weasel.error(username, "172.31.168.110", "Server error [Login]");
       res.redirect(`${frontIP}/auth/sign-in`);
       // res.status(500).send("서버 내부 오류가 발생했습니다.");
     });
@@ -74,6 +83,11 @@ router.post("/add", (req: Request, res: Response) => {
       .checkUsername(user.username)
       .then((result) => {
         if (result.exists) {
+          weasel.error(
+            user.username,
+            "172.31.168.112",
+            "Failed to Add User By Exist Username [Add User]"
+          );
           res.status(401).send({ error: result.message });
         } else {
           userService
@@ -87,18 +101,38 @@ router.post("/add", (req: Request, res: Response) => {
                   userService
                     .addUser(newUser)
                     .then((result4) => {
+                      weasel.log(
+                        user.username,
+                        "172.31.168.112",
+                        "Success Add User [Add User]"
+                      );
                       res.send(result4.message);
                     })
                     .catch((error) => {
+                      weasel.error(
+                        user.username,
+                        "172.31.168.112",
+                        "Failed to Add User By Server [Add User]"
+                      );
                       console.error("회원가입 실패:", error);
                       res.status(500).send(error);
                     });
                 } else {
+                  weasel.error(
+                    user.username,
+                    "172.31.168.112",
+                    "Failed to Add User By Incorrect IP Range [Add User]"
+                  );
                   res.status(401).send({ error: result3.message });
                 }
               });
             })
             .catch((error2) => {
+              weasel.error(
+                user.username,
+                "172.31.168.112",
+                "Failed to Get Grade & IP Ranges [Add User]"
+              );
               res.send(
                 "이거는 쿠키 가지고 grade랑 mngip 가져오는 도중에 발생하는 에러입니다."
               );
@@ -106,18 +140,43 @@ router.post("/add", (req: Request, res: Response) => {
         }
       })
       .catch((error) => {
+        weasel.error(
+          user.username,
+          "172.31.168.112",
+          "Failed to Add User By Exist Username [Add User]"
+        );
         res.send("이거는 중복을 검사하는 도중에 발생하는 에러입니다.");
       });
   } else {
-    userService
-      .addUser(newUser)
-      .then((result4) => {
-        res.send(result4.message);
-      })
-      .catch((error) => {
-        console.error("회원가입 실패:", error);
-        res.status(500).send(error);
-      });
+    userService.checkUsername(newUser.username).then((result5) => {
+      if (result5.exists) {
+        weasel.error(
+          user.username,
+          "172.31.168.112",
+          "Failed to Add User By Exist Username [Add User]"
+        );
+      } else {
+        userService
+          .addUser(newUser)
+          .then((result4) => {
+            weasel.log(
+              user.username,
+              "172.31.168.112",
+              "Success Add User By Admin [Add User]"
+            );
+            res.send(result4.message);
+          })
+          .catch((error) => {
+            weasel.error(
+              user.username,
+              "172.31.168.112",
+              "Failed to Add User By Admin [Add User]"
+            );
+            console.error("회원가입 실패:", error);
+            res.status(500).send(error);
+          });
+      }
+    });
   }
 });
 
@@ -126,7 +185,6 @@ router.post("/rm", (req: Request, res: Response) => {
   let username = req.query.username;
   let category = req.query.category;
   let searchWord = req.query.searchWord;
-  console.log("삭제할 유저 배열 확인 : ", users);
   userService
     .removeUser(users)
     .then((result) => {
@@ -143,15 +201,17 @@ router.post("/rm", (req: Request, res: Response) => {
                 searchWord
               )
               .then((result2) => {
-                console.log("result2가 성공? :", result2);
+                weasel.log(username, "172.31.168.112", 'Success Remove User [Remove User]')
                 res.status(200).send(result2);
               })
               .catch((error2) => {
+                weasel.error(username, "172.31.168.112", 'Failed Remove User By Get User List [Remove User]')
                 console.error("list를 제대로 못 가져옴:", error2);
                 res.status(500).send("Internal Server Error");
               });
           })
           .catch((error) => {
+            weasel.error(username, "172.31.168.112", 'Failed Remove User By Username [Remove User]')
             console.error("user 정보 제대로 못 가져옴:", error);
             res.status(500).send("Internal Server Error");
           });
@@ -159,15 +219,18 @@ router.post("/rm", (req: Request, res: Response) => {
         userService
           .getUserListAll(category, searchWord)
           .then((result) => {
+            weasel.log(username, "172.31.168.112", 'Success Remove User By Admin [Remove User]')
             res.send(result);
           })
           .catch((error) => {
+            weasel.error(username, "172.31.168.112", 'Failed Remove User By Server [Remove User]')
             console.error("list 잘못 가져옴:", error);
             res.status(500).send("Internal Server Error");
           });
       }
     })
     .catch((error) => {
+      weasel.error(username, "172.31.168.112", 'Failed Remove User By Server [Remove User]')
       console.error("실패:", error);
       res.status(500).send("Internal Server Error");
     });
@@ -178,17 +241,26 @@ router.get("/modify/:username", (req: Request, res: Response) => {
   userService
     .getUser(username)
     .then((result) => {
-      const decPasswd = cryptoService.getDecryptUltra(result[0].passwd)
+      const decPasswd = cryptoService.getDecryptUltra(result[0].passwd);
       let newUser = {
-        username : result[0].username,
-        passwd : decPasswd,
-        grade : result[0].grade,
-        mng_ip_ranges: result[0].mng_ip_ranges
-      }
-      console.log("newUser : ", newUser);
+        username: result[0].username,
+        passwd: decPasswd,
+        grade: result[0].grade,
+        mng_ip_ranges: result[0].mng_ip_ranges,
+      };
+      weasel.log(
+        username,
+        "172.31.168.112",
+        "Success to Get Modify User Information [Modify User]"
+      );
       res.send([newUser]);
     })
     .catch((error) => {
+      weasel.error(
+        username,
+        "172.31.168.112",
+        "Failed to Get User Information By Username [Modify User]"
+      );
       console.error("보내기 실패:", error);
       res.status(500).send("Internal Server Error");
     });
@@ -209,6 +281,11 @@ router.post("/update/:username", (req: Request, res: Response) => {
       .checkUsername(user.username, oldname)
       .then((result) => {
         if (result.exists) {
+          weasel.error(
+            oldname,
+            "172.31.168.112",
+            "Failed to Update User Information By Exist Username [Update User]"
+          );
           res.status(401).send({ error: result.message });
         } else {
           userService
@@ -224,18 +301,38 @@ router.post("/update/:username", (req: Request, res: Response) => {
                     userService
                       .modUser(newUser, oldname)
                       .then((result4) => {
+                        weasel.log(
+                          oldname,
+                          "172.31.168.112",
+                          "Success Update User Information [Update User]"
+                        );
                         res.send(result4.message);
                       })
                       .catch((error) => {
+                        weasel.error(
+                          oldname,
+                          "172.31.168.112",
+                          "Failed to Update User Information By Server [Update User]"
+                        );
                         console.error("업데이트 실패:", error);
                         res.status(500).send("Internal Server Error");
                       });
                   } else {
+                    weasel.error(
+                      oldname,
+                      "172.31.168.112",
+                      "Failed to Update User By Incorrect IP Range [Update User]"
+                    );
                     res.status(401).send({ error: result3.message });
                   }
                 });
             })
             .catch((error2) => {
+              weasel.error(
+                oldname,
+                "172.31.168.112",
+                "Failed to Get Grade & IP Ranges [Update User]"
+              );
               res.send(
                 "이거는 쿠키 가지고 grade랑 mngip 가져오는 도중에 발생하는 에러입니다."
               );
@@ -243,19 +340,39 @@ router.post("/update/:username", (req: Request, res: Response) => {
         }
       })
       .catch((error) => {
+        weasel.error(
+          oldname,
+          "172.31.168.112",
+          "Failed to Update User Information By Exist Username [Update User]"
+        );
         res.send("이거는 중복을 검사하는 도중에 발생하는 에러입니다.");
       });
   } else {
     userService.checkUsername(user.username, oldname).then((result) => {
       if (result.exists) {
+        weasel.error(
+          oldname,
+          "172.31.168.112",
+          "Failed to Update User Information By Exist Username [Update User]"
+        );
         res.status(401).send({ error: result.message });
       } else {
         userService
           .modUser(newUser, oldname)
           .then((result4) => {
+            weasel.log(
+              oldname,
+              "172.31.168.112",
+              "Success Update User Information By Admin [Update User]"
+            );
             res.send(result4.message);
           })
           .catch((error) => {
+            weasel.error(
+              oldname,
+              "172.31.168.112",
+              "Failed to Update User Information By Admin [Update User]"
+            );
             console.error("업데이트 실패:", error);
             res.status(500).send("Internal Server Error");
           });
@@ -299,14 +416,21 @@ router.get("/all", (req: Request, res: Response) => {
             searchWord
           )
           .then((result2) => {
+            weasel.log(username, "172.31.168.112", "Success to Load User Control Page [User List]");
             res.status(200).send(result2);
           })
           .catch((error2) => {
+            weasel.error(
+              username,
+              "172.31.168.112",
+              "Failed to Load User Control Page [User List]"
+            );
             console.error("list를 제대로 못 가져옴:", error2);
             res.status(500).send("Internal Server Error");
           });
       })
       .catch((error) => {
+        weasel.error(username, "172.31.168.112", "Failed to Load User Control Page [User List]");
         console.error("user 정보 제대로 못 가져옴:", error);
         res.status(500).send("Internal Server Error");
       });
@@ -314,9 +438,11 @@ router.get("/all", (req: Request, res: Response) => {
     userService
       .getUserListAll(category, searchWord)
       .then((result) => {
+        weasel.log(username, "172.31.168.112", "Success to Load User Control Page [User List]");
         res.send(result);
       })
       .catch((error) => {
+        weasel.error(username, "172.31.168.112", "Failed to Load User Control Page [User List]");
         console.error("list 잘못 가져옴:", error);
         res.status(500).send("Internal Server Error");
       });

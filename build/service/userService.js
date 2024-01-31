@@ -134,6 +134,7 @@ class UserService {
     }
     getUserListByGradeAndMngip(grade, ipRanges, category, searchWord) {
         let searchCondition = "";
+        console.log("grade : ", grade);
         if (searchWord !== "" && category !== "") {
             // 여기에서 category에 따라 적절한 검색 조건을 추가합니다.
             switch (category) {
@@ -185,7 +186,12 @@ class UserService {
                     reject(error);
                 }
                 else {
-                    resolve(result);
+                    if (grade !== 3) {
+                        resolve(result);
+                    }
+                    else {
+                        reject("error");
+                    }
                 }
             });
         });
@@ -250,7 +256,10 @@ class UserService {
                     else {
                         const isDuplicate = result[0].count > 0;
                         if (isDuplicate) {
-                            resolve({ exists: true, message: "이미 사용 중인 계정명입니다." });
+                            resolve({
+                                exists: true,
+                                message: "이미 사용 중인 계정명입니다.",
+                            });
                         }
                         else {
                             resolve({ exists: false, message: "사용 가능한 계정명입니다." });

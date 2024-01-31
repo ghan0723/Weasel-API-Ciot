@@ -7,7 +7,6 @@ class UserService {
       const query =
         "SELECT username, passwd, grade, mng_ip_ranges FROM userlist WHERE username = ?";
       connection.query(query, [username], (error, results) => {
-        
         if (error) {
           reject(error);
         } else {
@@ -147,7 +146,7 @@ class UserService {
     searchWord: any
   ): Promise<any> {
     let searchCondition = "";
-
+    console.log("grade : ", grade);
     if (searchWord !== "" && category !== "") {
       // 여기에서 category에 따라 적절한 검색 조건을 추가합니다.
       switch (category) {
@@ -202,7 +201,11 @@ class UserService {
         if (error) {
           reject(error);
         } else {
-          resolve(result);
+          if (grade !== 3) {
+            resolve(result);
+          } else {
+            reject("error");
+          }
         }
       });
     });
@@ -259,23 +262,27 @@ class UserService {
     });
   }
 
-  checkUsername(username: any, oldname?:any): Promise<any> {
+  checkUsername(username: any, oldname?: any): Promise<any> {
     return new Promise((resolve, reject) => {
-      if(username !== oldname){
-        const query = "SELECT COUNT(*) as count FROM userlist WHERE username = ?";
+      if (username !== oldname) {
+        const query =
+          "SELECT COUNT(*) as count FROM userlist WHERE username = ?";
         connection.query(query, [username], (error, result) => {
           if (error) {
             reject(error);
           } else {
             const isDuplicate = result[0].count > 0;
             if (isDuplicate) {
-              resolve({ exists: true, message: "이미 사용 중인 계정명입니다." });
+              resolve({
+                exists: true,
+                message: "이미 사용 중인 계정명입니다.",
+              });
             } else {
               resolve({ exists: false, message: "사용 가능한 계정명입니다." });
             }
           }
         });
-      }else{
+      } else {
         resolve({ exists: false, message: "현재 계정명과 동일합니다." });
       }
     });

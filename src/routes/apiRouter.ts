@@ -147,7 +147,6 @@ function getApiDataLogic(contents:any,page:any,pageSize:any,sorting:any,desc:any
   .then(result => {
     let results;
     ipRanges = ipCalcService.parseIPRange(result[0].mng_ip_ranges);
-    console.log('ipRange : ', ipRanges);
     
     switch(contents) {
       case 'network' :

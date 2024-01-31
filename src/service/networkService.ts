@@ -153,10 +153,6 @@ class NetworkService {
       whereClause = `where ${ipConditions}`;
     }
 
-    console.log('search',search);
-    console.log('whereClause',whereClause);
-    console.log('convertColumns',convertColumns);
-
     return new Promise((resolve, reject) => {
       const query =
         `select id, accuracy as ${aliasKey[1]}, time as ${aliasKey[2]}, pcname as ${aliasKey[3]}, agent_ip as ${aliasKey[4]}, src_ip as ${aliasKey[5]}, ` +
