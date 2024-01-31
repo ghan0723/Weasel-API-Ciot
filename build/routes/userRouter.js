@@ -39,11 +39,11 @@ router.post("/login", (req, res) => {
                         maxAge: cookieTime * 1000,
                         path: "/", // 쿠키의 경로 설정
                     });
-                    log_1.weasel.log(username, "172.31.168.110", "Success Login [Login]");
+                    log_1.weasel.log(username, "172.31.168.112", "Success Login [Login]");
                     res.status(200).send("로그인 성공");
                 }
                 else {
-                    log_1.weasel.error(username, "172.31.168.110", "Passwords do not match [Login]");
+                    log_1.weasel.error(username, "172.31.168.112", "Passwords do not match [Login]");
                     res.status(401).json({
                         error: "비밀번호가 일치하지 않습니다",
                         redirectUrl: `${ipDomain_1.frontIP}/auth/sign-in`,
@@ -52,14 +52,14 @@ router.post("/login", (req, res) => {
                 }
             })
                 .catch((error2) => {
-                log_1.weasel.error(username, "172.31.168.110", "Failed to get cookie time [Login]");
+                log_1.weasel.error(username, "172.31.168.112", "Failed to get cookie time [Login]");
                 console.error("쿠키 타임 가져오기 실패:", error2);
                 res.status(500).send(error2);
             });
         }
     })
         .catch((error) => {
-        log_1.weasel.error(username, "172.31.168.110", "Server error [Login]");
+        log_1.weasel.error(username, "172.31.168.112", "Server error [Login]");
         res.redirect(`${ipDomain_1.frontIP}/auth/sign-in`);
         // res.status(500).send("서버 내부 오류가 발생했습니다.");
     });

@@ -6,7 +6,7 @@ const router: Router = express.Router();
 const settingService: SettingService = new SettingService();
 
 router.post("/server", (req: Request, res: Response) => {
-  const username = req.cookies.username;
+  const username = req.query.username;
   const server = req.body;
   settingService
     .modServerSetting(server)
@@ -22,7 +22,7 @@ router.post("/server", (req: Request, res: Response) => {
 });
 
 router.get("/servers", (req: Request, res: Response) => {
-  const username = req.cookies.username;
+  const username = req.query.username;
   settingService
     .getServerSetting()
     .then((result) => {
@@ -33,7 +33,7 @@ router.get("/servers", (req: Request, res: Response) => {
             auto:newAuto,
             interval:result[0].svr_update_interval
         }
-      weasel.log(username, "172.31.168.112", "Success to Get Server Information [Server]");
+      weasel.log(username, "172.31.168.112", "Success to Get Server Information [Server]");  
       res.send(newResult);
     })
     .catch((error) => {
@@ -44,7 +44,7 @@ router.get("/servers", (req: Request, res: Response) => {
 });
 
 router.post("/agent", (req: Request, res: Response) => {
-  const username = req.cookies.username;
+  const username = req.query.username;
   const agent = req.body;
   settingService
     .modAgentSetting(agent)
@@ -60,7 +60,7 @@ router.post("/agent", (req: Request, res: Response) => {
 });
 
 router.get("/agents", (req: Request, res: Response) => {
-  const username = req.cookies.username;
+  const username = req.query.username;
   settingService
     .getAgentSetting()
     .then((result) => {

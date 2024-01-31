@@ -34,13 +34,13 @@ router.get("/dwn", async (req: Request, res: Response) => {
   
       let results;
       if (contents === "network") {
-        results = await networkService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges);
+        results = await networkService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges,result[0].grade);
       } else if (contents === "media") {
-        results = await mediaService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges);
+        results = await mediaService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges,result[0].grade);
       } else if (contents === "outlook") {
-        results = await outlookService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges);
+        results = await outlookService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges,result[0].grade);
       } else if (contents === "print") {
-        results = await printService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges);
+        results = await printService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges,result[0].grade);
       } else {
         console.error("Invalid param:", contents);
         res.status(400).send("Invalid param");

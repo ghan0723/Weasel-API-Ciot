@@ -94,7 +94,7 @@ class NetworkService {
         });
     }
     // 송신탐지내역 테이블
-    getApiData(page, pageSize, sorting, desc, category, search, ipRanges) {
+    getApiData(page, pageSize, sorting, desc, category, search, ipRanges, grade) {
         let queryPage = 0;
         let queryPageSize = 0;
         let querySorting = sorting === "" ? "time" : sorting;
@@ -136,10 +136,18 @@ class NetworkService {
             whereClause = `where ${ipConditions}`;
         }
         return new Promise((resolve, reject) => {
-            const query = `select id, accuracy as ${aliasKey[1]}, time as ${aliasKey[2]}, pcname as ${aliasKey[3]}, agent_ip as ${aliasKey[4]}, src_ip as ${aliasKey[5]}, ` +
-                `src_port as ${aliasKey[6]}, dst_ip as ${aliasKey[7]}, dst_port as ${aliasKey[8]}, process as ${aliasKey[9]}, ` +
-                `pid as ${aliasKey[10]}, src_file as ${aliasKey[11]}, saved_file as ${aliasKey[12]}, saved_file as ${aliasKey[13]}, ` +
-                `keywords as ${aliasKey[15]}, dst_file as ${aliasKey[16]} ` +
+            const queryStr = grade !== 3 ?
+                `select id, accuracy as ${aliasKey[1]}, time as ${aliasKey[2]}, pcname as ${aliasKey[3]}, agent_ip as ${aliasKey[4]}, src_ip as ${aliasKey[5]}, ` +
+                    `src_port as ${aliasKey[6]}, dst_ip as ${aliasKey[7]}, dst_port as ${aliasKey[8]}, process as ${aliasKey[9]}, ` +
+                    `pid as ${aliasKey[10]}, src_file as ${aliasKey[11]}, ` +
+                    `saved_file as ${aliasKey[12]}, saved_file as ${aliasKey[13]}, ` +
+                    `keywords as ${aliasKey[15]}, dst_file as ${aliasKey[16]} `
+                :
+                    `select id, accuracy as ${aliasKey[1]}, time as ${aliasKey[2]}, pcname as ${aliasKey[3]}, agent_ip as ${aliasKey[4]}, src_ip as ${aliasKey[5]}, ` +
+                        `src_port as ${aliasKey[6]}, dst_ip as ${aliasKey[7]}, dst_port as ${aliasKey[8]}, process as ${aliasKey[9]}, ` +
+                        `pid as ${aliasKey[10]}, src_file as ${aliasKey[11]}, ` +
+                        `keywords as ${aliasKey[15]}, dst_file as ${aliasKey[16]} `;
+            const query = queryStr +
                 "from detectfiles " +
                 whereClause +
                 " order by " +
@@ -156,9 +164,11 @@ class NetworkService {
             Promise.all([
                 new Promise((innerResolve, innerReject) => {
                     this.connection.query(query, whereQuery, (error, result) => {
+                        const excludedKeys = ['DownLoad', 'ScreenShot'];
+                        const filteredKeys = grade !== 3 ? aliasKey : aliasKey.filter(key => !excludedKeys.includes(key));
                         // 검색 결과가 없을 경우의 처리
                         if (result.length === 0) {
-                            result[0] = aliasKey.reduce((obj, key) => {
+                            result[0] = filteredKeys.reduce((obj, key) => {
                                 obj[key] = "";
                                 return obj;
                             }, {});

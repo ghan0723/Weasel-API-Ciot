@@ -104,7 +104,8 @@ class NetworkService {
     desc: any,
     category: any,
     search: any,
-    ipRanges: IpRange[]
+    ipRanges: IpRange[],
+    grade:any
   ): Promise<any> {
     let queryPage: number = 0;
     let queryPageSize: number = 0;
@@ -152,13 +153,22 @@ class NetworkService {
     } else {
       whereClause = `where ${ipConditions}`;
     }
-
+    
     return new Promise((resolve, reject) => {
+      const queryStr = grade !== 3 ?
+      `select id, accuracy as ${aliasKey[1]}, time as ${aliasKey[2]}, pcname as ${aliasKey[3]}, agent_ip as ${aliasKey[4]}, src_ip as ${aliasKey[5]}, ` +
+      `src_port as ${aliasKey[6]}, dst_ip as ${aliasKey[7]}, dst_port as ${aliasKey[8]}, process as ${aliasKey[9]}, ` +
+      `pid as ${aliasKey[10]}, src_file as ${aliasKey[11]}, ` +
+      `saved_file as ${aliasKey[12]}, saved_file as ${aliasKey[13]}, ` +
+      `keywords as ${aliasKey[15]}, dst_file as ${aliasKey[16]} ` 
+      : 
+      `select id, accuracy as ${aliasKey[1]}, time as ${aliasKey[2]}, pcname as ${aliasKey[3]}, agent_ip as ${aliasKey[4]}, src_ip as ${aliasKey[5]}, ` +
+      `src_port as ${aliasKey[6]}, dst_ip as ${aliasKey[7]}, dst_port as ${aliasKey[8]}, process as ${aliasKey[9]}, ` +
+      `pid as ${aliasKey[10]}, src_file as ${aliasKey[11]}, ` +
+      `keywords as ${aliasKey[15]}, dst_file as ${aliasKey[16]} `;
+
       const query =
-        `select id, accuracy as ${aliasKey[1]}, time as ${aliasKey[2]}, pcname as ${aliasKey[3]}, agent_ip as ${aliasKey[4]}, src_ip as ${aliasKey[5]}, ` +
-        `src_port as ${aliasKey[6]}, dst_ip as ${aliasKey[7]}, dst_port as ${aliasKey[8]}, process as ${aliasKey[9]}, ` +
-        `pid as ${aliasKey[10]}, src_file as ${aliasKey[11]}, saved_file as ${aliasKey[12]}, saved_file as ${aliasKey[13]}, ` +
-        `keywords as ${aliasKey[15]}, dst_file as ${aliasKey[16]} ` +
+        queryStr +
         "from detectfiles " +
         whereClause +
         " order by " +
@@ -177,11 +187,14 @@ class NetworkService {
       Promise.all([
         new Promise<void>((innerResolve, innerReject) => {
           this.connection.query(query, whereQuery, (error, result) => {
+            const excludedKeys = ['DownLoad', 'ScreenShot'];
+
+            const filteredKeys = grade !== 3 ? aliasKey : aliasKey.filter(key => !excludedKeys.includes(key));
 
             // 검색 결과가 없을 경우의 처리
             if (result.length === 0) {
-              result[0] = aliasKey.reduce((obj: any, key: any) => {
-                obj[key] = "";
+              result[0] = filteredKeys.reduce((obj: any, key: any) => {
+                 obj[key] = "";                
                 return obj;
               }, {});
             }
