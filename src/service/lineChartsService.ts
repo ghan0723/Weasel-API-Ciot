@@ -113,21 +113,16 @@ class LineChartsService {
     let sliceNumber = -1;
     const currentMonth:number = currentDate.getMonth() + 1;
     const value: string[] = ['01','02','03','04','05','06','07','08','09','10','11','12'];
-    const months: string[] = ['2','3','4','5','6','7','8','9','10','11','12','1'];
 
     // 1년 전의 현재 월부터 현재 월까지 반복
     for (let i = 0; i <= value.length-1; i++) {
-      // console.log('currentDate',currentDate.getMonth());
-
       if(currentMonth === +value[i]) {
-        sliceNumber = i;
-        // console.log('sliceNumber',sliceNumber);
+        sliceNumber = i+1;
         break;
       }
     }
 
-    const test = value.slice(sliceNumber).concat(value.slice(0, sliceNumber));
-    // console.log('test',test);
+    const months = value.slice(sliceNumber).concat(value.slice(0, sliceNumber));
     
 
     // months.push(str);
@@ -187,12 +182,9 @@ class LineChartsService {
               data: [],
             };            
 
-            for (const month of this.monthlyArray) {   
-              console.log(month);
+            for (const month of this.monthlyArray) {
                          
-              const value = results.find((data) => {
-                console.log('data',+data.month);
-                
+              const value = results.find((data) => {                
                 return +data.month === +month
               });
 
@@ -202,9 +194,6 @@ class LineChartsService {
                 resultValue.data.push(value.count);
               }
             }
-
-            console.log('resultValue',resultValue);
-            
 
             resolve(resultValue);
           }
