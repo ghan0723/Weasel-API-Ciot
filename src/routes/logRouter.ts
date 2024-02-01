@@ -16,14 +16,14 @@ router.get("/dashboard", (req: Request, res: Response) => {
   if (typeof username !== "string" && typeof select !== "string") {
     weasel.error(
       username,
-      "172.31.168.112",
+      req.socket.remoteAddress,
       "Failed to load Dashboard Page. [Dashboard]"
     );
     res.send("error");
   }
   weasel.log(
     username,
-    "172.31.168.112",
+    req.socket.remoteAddress,
     `The current Dashboard Page displays data on a ${select}. [Dashboard]`
   );
   res.send("success");
@@ -38,14 +38,14 @@ router.get("/tables", (req: Request, res: Response) => {
   if (typeof username !== "string" && typeof contents !== "string") {
     weasel.error(
       username,
-      "172.31.168.112",
+      req.socket.remoteAddress,
       "Failed to load Data-Tables Page. [Data-Tables]"
     );
     res.send("error");
   }
   weasel.log(
     username,
-    "172.31.168.112",
+    req.socket.remoteAddress,
     `The current Data-Tables Page displays data on a ${
       contents + " cate : " + category + " sear : " + search
     }. [Data-Tables]`
@@ -57,12 +57,12 @@ router.get("/logout", (req: Request, res: Response) => {
   const username = req.query.username;
 
   if (typeof username !== "string") {
-    weasel.error(username, "172.31.168.112", "Failed to load LogOut. [LogOut]");
+    weasel.error(username, req.socket.remoteAddress, "Failed to load LogOut. [LogOut]");
     res.send("error");
   }
   weasel.log(
     username,
-    "172.31.168.112",
+    req.socket.remoteAddress,
     `Success to LogOut ${username}. [LogOut]`
   );
   res.send("success");

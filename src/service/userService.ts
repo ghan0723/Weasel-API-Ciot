@@ -333,6 +333,15 @@ class UserService {
       throw new Error("올바르지 않은 IP 형식입니다.");
     }
   }
+
+  checkPwdFreq():Promise<boolean> {
+
+    const query = '';
+
+    return new Promise((reject, resolve) => {
+
+    });
+  }
 }
 
 export default UserService;

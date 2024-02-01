@@ -24,10 +24,10 @@ router.get("/dashboard", (req, res) => {
     const select = req.query.select;
     const username = req.query.username;
     if (typeof username !== "string" && typeof select !== "string") {
-        log_1.weasel.error(username, "172.31.168.112", "Failed to load Dashboard Page. [Dashboard]");
+        log_1.weasel.error(username, req.socket.remoteAddress, "Failed to load Dashboard Page. [Dashboard]");
         res.send("error");
     }
-    log_1.weasel.log(username, "172.31.168.112", `The current Dashboard Page displays data on a ${select}. [Dashboard]`);
+    log_1.weasel.log(username, req.socket.remoteAddress, `The current Dashboard Page displays data on a ${select}. [Dashboard]`);
     res.send("success");
 });
 router.get("/tables", (req, res) => {
@@ -36,19 +36,19 @@ router.get("/tables", (req, res) => {
     const category = req.query.category;
     const search = req.query.search;
     if (typeof username !== "string" && typeof contents !== "string") {
-        log_1.weasel.error(username, "172.31.168.112", "Failed to load Data-Tables Page. [Data-Tables]");
+        log_1.weasel.error(username, req.socket.remoteAddress, "Failed to load Data-Tables Page. [Data-Tables]");
         res.send("error");
     }
-    log_1.weasel.log(username, "172.31.168.112", `The current Data-Tables Page displays data on a ${contents + " cate : " + category + " sear : " + search}. [Data-Tables]`);
+    log_1.weasel.log(username, req.socket.remoteAddress, `The current Data-Tables Page displays data on a ${contents + " cate : " + category + " sear : " + search}. [Data-Tables]`);
     res.send("success");
 });
 router.get("/logout", (req, res) => {
     const username = req.query.username;
     if (typeof username !== "string") {
-        log_1.weasel.error(username, "172.31.168.112", "Failed to load LogOut. [LogOut]");
+        log_1.weasel.error(username, req.socket.remoteAddress, "Failed to load LogOut. [LogOut]");
         res.send("error");
     }
-    log_1.weasel.log(username, "172.31.168.112", `Success to LogOut ${username}. [LogOut]`);
+    log_1.weasel.log(username, req.socket.remoteAddress, `Success to LogOut ${username}. [LogOut]`);
     res.send("success");
 });
 router.get('/all', (req, res) => __awaiter(void 0, void 0, void 0, function* () {

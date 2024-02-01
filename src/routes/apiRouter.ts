@@ -141,7 +141,7 @@ router.post('/rm', (req:Request, res:Response) => {
 
 // 송신탐지 외 getApiData Logic
 function getApiDataLogic(contents:any,page:any,pageSize:any,sorting:any,desc:any,category:any,search:any,username:any,req:Request,res:Response) {
-  let ipRanges:IpRange[];  
+  let ipRanges:IpRange[];
 
   userService.getGradeAndMngip(username)
   .then(result => {
