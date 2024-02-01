@@ -14,7 +14,6 @@ const settingService: SettingService = new SettingService();
 
 router.post("/login", (req: Request, res: Response) => {
   const { username, passwd }: { username: string; passwd: string } = req.body;
-  console.log("req.socket.remoteAddress : ", req.socket.remoteAddress);
   userService
     .getLogin(username)
     .then((user) => {
@@ -31,26 +30,42 @@ router.post("/login", (req: Request, res: Response) => {
         settingService
           .getGUITime()
           .then((cookieTime) => {
-            if (passwd === decPasswd) {
-              res.cookie("username", user[0].username, {
-                httpOnly: true,
-                maxAge: cookieTime * 1000,
-                path: "/", // 쿠키의 경로 설정
-              });
-              weasel.log(username, req.socket.remoteAddress, "Success Login [Login]");
-              res.status(200).send("로그인 성공");
-            } else {
+            userService.checkPwdFreq(username)
+            .then((freq) => {
+              if(freq){
+                //변경주기가 지났으므로 변경에 대한 freq 전달
+                weasel.log(username, req.socket.remoteAddress, "Please Change Pwd [Login]");
+                res.status(200).send({username,freq});
+              } else {
+                if (passwd === decPasswd) {
+                  res.cookie("username", user[0].username, {
+                    httpOnly: true,
+                    maxAge: cookieTime * 1000,
+                    path: "/", // 쿠키의 경로 설정
+                  });
+                  weasel.log(username, req.socket.remoteAddress, "Success Login [Login]");
+                  res.status(200).send({username, freq});
+                } else {
+                  weasel.error(
+                    username,
+                    req.socket.remoteAddress,
+                    "Passwords do not match [Login]"
+                  );
+                  res.status(401).json({
+                    error: "비밀번호가 일치하지 않습니다",
+                    redirectUrl: `${frontIP}/auth/sign-in`,
+                  });
+                  return;
+                }
+              }
+            })
+            .catch((error3) => {
               weasel.error(
                 username,
                 req.socket.remoteAddress,
-                "Passwords do not match [Login]"
+                "Failed to get Pwd Freq [Login]"
               );
-              res.status(401).json({
-                error: "비밀번호가 일치하지 않습니다",
-                redirectUrl: `${frontIP}/auth/sign-in`,
-              });
-              return;
-            }
+            })
           })
           .catch((error2) => {
             weasel.error(
