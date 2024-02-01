@@ -37,16 +37,18 @@ class SettingService {
                 }
                 else {
                     const clntKeywordList = (_a = result[0]) === null || _a === void 0 ? void 0 : _a.clnt_keyword_list;
+                    const clntExceptionList = (_b = result[0]) === null || _b === void 0 ? void 0 : _b.clnt_exception_list;
                     if (clntKeywordList && clntKeywordList.includes("&&")) {
                         const modifiedKeywordList = clntKeywordList.replace(/&&/g, "\n");
+                        const modifiedExcepIP = clntExceptionList.replace(/,\s*/gm, "\n");
                         resolve([{
-                                uid: (_b = result[0]) === null || _b === void 0 ? void 0 : _b.uid,
-                                flag_checkbox: (_c = result[0]) === null || _c === void 0 ? void 0 : _c.flag_checkbox,
-                                clnt_server_ip: (_d = result[0]) === null || _d === void 0 ? void 0 : _d.clnt_server_ip,
-                                clnt_server_port: (_e = result[0]) === null || _e === void 0 ? void 0 : _e.clnt_server_port,
-                                clnt_svr_att_interval: (_f = result[0]) === null || _f === void 0 ? void 0 : _f.clnt_svr_att_interval,
-                                clnt_license_dist: (_g = result[0]) === null || _g === void 0 ? void 0 : _g.clnt_license_dist,
-                                clnt_exception_list: (_h = result[0]) === null || _h === void 0 ? void 0 : _h.clnt_exception_list,
+                                uid: (_c = result[0]) === null || _c === void 0 ? void 0 : _c.uid,
+                                flag_checkbox: (_d = result[0]) === null || _d === void 0 ? void 0 : _d.flag_checkbox,
+                                clnt_server_ip: (_e = result[0]) === null || _e === void 0 ? void 0 : _e.clnt_server_ip,
+                                clnt_server_port: (_f = result[0]) === null || _f === void 0 ? void 0 : _f.clnt_server_port,
+                                clnt_svr_att_interval: (_g = result[0]) === null || _g === void 0 ? void 0 : _g.clnt_svr_att_interval,
+                                clnt_license_dist: (_h = result[0]) === null || _h === void 0 ? void 0 : _h.clnt_license_dist,
+                                clnt_exception_list: modifiedExcepIP,
                                 clnt_keyword_list: modifiedKeywordList,
                                 svr_server_port: (_j = result[0]) === null || _j === void 0 ? void 0 : _j.svr_server_port,
                                 svr_retention_period: (_k = result[0]) === null || _k === void 0 ? void 0 : _k.svr_retention_period,

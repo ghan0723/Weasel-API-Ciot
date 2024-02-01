@@ -42,8 +42,10 @@ class SettingService {
           reject(error);
         } else {
           const clntKeywordList = result[0]?.clnt_keyword_list;
+          const clntExceptionList = result[0]?.clnt_exception_list;
           if (clntKeywordList && clntKeywordList.includes("&&")) {
             const modifiedKeywordList = clntKeywordList.replace(/&&/g, "\n");
+            const modifiedExcepIP = clntExceptionList.replace(/,\s*/gm, "\n");
             resolve([{
               uid:result[0]?.uid,
               flag_checkbox:result[0]?.flag_checkbox,
@@ -51,7 +53,7 @@ class SettingService {
               clnt_server_port:result[0]?.clnt_server_port,
               clnt_svr_att_interval:result[0]?.clnt_svr_att_interval,
               clnt_license_dist:result[0]?.clnt_license_dist,
-              clnt_exception_list:result[0]?.clnt_exception_list,
+              clnt_exception_list:modifiedExcepIP,
               clnt_keyword_list:modifiedKeywordList,
               svr_server_port:result[0]?.svr_server_port,
               svr_retention_period:result[0]?.svr_retention_period,
