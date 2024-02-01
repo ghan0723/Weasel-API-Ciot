@@ -334,12 +334,38 @@ class UserService {
     }
   }
 
-  checkPwdFreq():Promise<boolean> {
+  checkPwdFreq(username: any): Promise<boolean> {
+    const query = `SELECT last_pwd_date, pwd_change_freq FROM userlist WHERE username = ?`;
 
-    const query = '';
+    return new Promise((resolve, reject) => {
+      connection.query(query, [username], (error, result) => {
+        if (error) {
+          reject(error.fatal);
+        } else {
+          if (result.length > 0) {
+            const lastPwdDate = new Date(result[0].last_pwd_date);
+            const pwdChangeFreq = result[0].pwd_change_freq;
 
-    return new Promise((reject, resolve) => {
+            // 비밀번호 변경 주기를 날짜로 계산
+            const nextChangeDate = new Date(lastPwdDate);
+            nextChangeDate.setMonth(nextChangeDate.getMonth() + pwdChangeFreq);
 
+            // 현재 날짜와 다음 변경 날짜를 비교
+            const currentDate = new Date();
+
+            if (currentDate > nextChangeDate) {
+              // 현재 날짜가 다음 변경 날짜를 넘었으면 true 반환
+              resolve(true);
+            } else {
+              // 현재 날짜가 다음 변경 날짜를 넘지 않았으면 false 반환
+              resolve(false);
+            }
+          } else {
+            // 해당 username의 레코드가 없는 경우도 처리할 수 있습니다.
+            reject("User not found");
+          }
+        }
+      });
     });
   }
 }

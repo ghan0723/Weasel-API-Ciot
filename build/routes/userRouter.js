@@ -16,7 +16,6 @@ const cryptoService = new cryptoService_1.default("sn0ISmjyz1CWT6Yb7dxu");
 const settingService = new settingService_1.default();
 router.post("/login", (req, res) => {
     const { username, passwd } = req.body;
-    console.log("req.socket.remoteAddress : ", req.socket.remoteAddress);
     userService
         .getLogin(username)
         .then((user) => {
@@ -34,23 +33,36 @@ router.post("/login", (req, res) => {
             settingService
                 .getGUITime()
                 .then((cookieTime) => {
-                if (passwd === decPasswd) {
-                    res.cookie("username", user[0].username, {
-                        httpOnly: true,
-                        maxAge: cookieTime * 1000,
-                        path: "/", // 쿠키의 경로 설정
-                    });
-                    log_1.weasel.log(username, req.socket.remoteAddress, "Success Login [Login]");
-                    res.status(200).send("로그인 성공");
-                }
-                else {
-                    log_1.weasel.error(username, req.socket.remoteAddress, "Passwords do not match [Login]");
-                    res.status(401).json({
-                        error: "비밀번호가 일치하지 않습니다",
-                        redirectUrl: `${ipDomain_1.frontIP}/auth/sign-in`,
-                    });
-                    return;
-                }
+                userService.checkPwdFreq(username)
+                    .then((freq) => {
+                    if (freq) {
+                        //변경주기가 지났으므로 변경에 대한 freq 전달
+                        log_1.weasel.log(username, req.socket.remoteAddress, "Please Change Pwd [Login]");
+                        res.status(200).send({ username, freq });
+                    }
+                    else {
+                        if (passwd === decPasswd) {
+                            res.cookie("username", user[0].username, {
+                                httpOnly: true,
+                                maxAge: cookieTime * 1000,
+                                path: "/", // 쿠키의 경로 설정
+                            });
+                            log_1.weasel.log(username, req.socket.remoteAddress, "Success Login [Login]");
+                            res.status(200).send({ username, freq });
+                        }
+                        else {
+                            log_1.weasel.error(username, req.socket.remoteAddress, "Passwords do not match [Login]");
+                            res.status(401).json({
+                                error: "비밀번호가 일치하지 않습니다",
+                                redirectUrl: `${ipDomain_1.frontIP}/auth/sign-in`,
+                            });
+                            return;
+                        }
+                    }
+                })
+                    .catch((error3) => {
+                    log_1.weasel.error(username, req.socket.remoteAddress, "Failed to get Pwd Freq [Login]");
+                });
             })
                 .catch((error2) => {
                 log_1.weasel.error(username, req.socket.remoteAddress, "Failed to get cookie time [Login]");
