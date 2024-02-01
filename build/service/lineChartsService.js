@@ -84,15 +84,15 @@ class LineChartsService {
         const months = ['2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '1'];
         // 1년 전의 현재 월부터 현재 월까지 반복
         for (let i = 0; i <= value.length - 1; i++) {
-            console.log('currentDate', currentDate.getMonth());
+            // console.log('currentDate',currentDate.getMonth());
             if (currentMonth === +value[i]) {
                 sliceNumber = i;
-                console.log('sliceNumber', sliceNumber);
+                // console.log('sliceNumber',sliceNumber);
                 break;
             }
         }
         const test = value.slice(sliceNumber).concat(value.slice(0, sliceNumber));
-        console.log('test', test);
+        // console.log('test',test);
         // months.push(str);
         return months;
     }
