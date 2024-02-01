@@ -19,11 +19,11 @@ app.set("port", port);
 /**
  * Create HTTPs server.
 //  */
-var certsDir = "C:\\Users\\User\\certs";
+var certsDir = "C:/Program Files (x86)/ciot/certs/";
 
 var serverOptions = {
-  key: fs.readFileSync(path.resolve(__dirname, "certs", "privKey.pem")),
-  cert: fs.readFileSync(path.resolve(__dirname, "certs", "cert.pem")),
+  key: fs.readFileSync(path.resolve(__dirname, certsDir+"privKey.pem")),
+  cert: fs.readFileSync(path.resolve(__dirname, certsDir+"cert.pem")),
 };
 
 // var server = http.createServer(app);
