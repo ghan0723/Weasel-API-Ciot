@@ -309,5 +309,10 @@ class UserService {
             throw new Error("올바르지 않은 IP 형식입니다.");
         }
     }
+    checkPwdFreq() {
+        const query = '';
+        return new Promise((reject, resolve) => {
+        });
+    }
 }
 exports.default = UserService;
