@@ -72,10 +72,42 @@ router.get("/logout", (req: Request, res: Response) => {
   res.send("success");
 });
 
-router.get("/all", (req, res) => {
+router.get("/years", (req: Request, res: Response) => {
   logService.getYears().then((years) => {
     res.send(years);
   });
 });
+
+router.get("/months", (req: Request, res: Response) => {
+  let year = req.query.year;
+  logService.getMonths(year).then((months) => {
+    res.send(months);
+  });
+});
+
+router.get("/day", (req: Request, res: Response) => {
+  let year = req.query.year;
+  let month = req.query.month;
+  logService.getLogFiles(year, month)
+  .then((files) => {
+    res.send(files);
+  })
+})
+
+router.get("/file", (req:Request, res:Response) => {
+  let year = req.query.year;
+  let month = req.query.month;
+  let file = req.query.file;
+
+  logService.getLogContent(year, month, file)
+  .then((content) => {
+    weasel.log("", req.socket.remoteAddress, `Open Log ${file} [Log File]`);
+    res.send([content]);
+  })
+  .catch((error) => {
+    weasel.error("", req.socket.remoteAddress, "Failed Open Log [Log File]");
+    res.status(401).send("fail");
+  })
+})
 
 export = router;
