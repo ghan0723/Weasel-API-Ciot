@@ -42,9 +42,37 @@ router.get("/logout", (req, res) => {
     log_1.weasel.log(username, req.socket.remoteAddress, `Success to LogOut ${username}. [LogOut]`);
     res.send("success");
 });
-router.get("/all", (req, res) => {
+router.get("/years", (req, res) => {
     logService.getYears().then((years) => {
         res.send(years);
+    });
+});
+router.get("/months", (req, res) => {
+    let year = req.query.year;
+    logService.getMonths(year).then((months) => {
+        res.send(months);
+    });
+});
+router.get("/day", (req, res) => {
+    let year = req.query.year;
+    let month = req.query.month;
+    logService.getLogFiles(year, month)
+        .then((files) => {
+        res.send(files);
+    });
+});
+router.get("/file", (req, res) => {
+    let year = req.query.year;
+    let month = req.query.month;
+    let file = req.query.file;
+    logService.getLogContent(year, month, file)
+        .then((content) => {
+        log_1.weasel.log("", req.socket.remoteAddress, `Open Log ${file} [Log File]`);
+        res.send([content]);
+    })
+        .catch((error) => {
+        log_1.weasel.error("", req.socket.remoteAddress, "Failed Open Log [Log File]");
+        res.status(401).send("fail");
     });
 });
 module.exports = router;

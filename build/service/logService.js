@@ -20,7 +20,7 @@ class LogService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const projectRoot = process.cwd();
-                const logsPath = path_1.default.join(projectRoot, 'logs');
+                const logsPath = path_1.default.join(projectRoot, "logs");
                 let years = yield promises_1.default.readdir(logsPath);
                 // 정렬: 최근 년도가 먼저 오도록 역순으로 정렬
                 years = years.sort((a, b) => b.localeCompare(a));
@@ -28,7 +28,7 @@ class LogService {
             }
             catch (error) {
                 console.error(error);
-                throw new Error('내부 서버 오류');
+                throw new Error("내부 서버 오류");
             }
         });
     }
@@ -37,13 +37,16 @@ class LogService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const projectRoot = process.cwd();
-                const logsPath = path_1.default.join(projectRoot, 'logs', year);
+                const logsPath = path_1.default.join(projectRoot, "logs", year);
                 const months = yield promises_1.default.readdir(logsPath);
-                return months;
+                // - 뒤에 있는 부분만 가져오기 (이부분은 고민좀...)
+                const simplifiedMonths = months.map((month) => month.split("-")[1]);
+                return simplifiedMonths;
+                // return months;
             }
             catch (error) {
                 console.error(error);
-                throw new Error('내부 서버 오류');
+                throw new Error("내부 서버 오류");
             }
         });
     }
@@ -52,13 +55,15 @@ class LogService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const projectRoot = process.cwd();
-                const logsPath = path_1.default.join(projectRoot, 'logs', year, month);
+                const logsPath = path_1.default.join(projectRoot, "logs", year, year + "-" + month);
                 const files = yield promises_1.default.readdir(logsPath);
-                return files;
+                // .log 확장자 제거
+                const filesWithoutExtension = files.map((file) => file.replace(".log", ""));
+                return filesWithoutExtension;
             }
             catch (error) {
                 console.error(error);
-                throw new Error('내부 서버 오류');
+                throw new Error("내부 서버 오류");
             }
         });
     }
@@ -67,13 +72,13 @@ class LogService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const projectRoot = process.cwd();
-                const filePath = path_1.default.join(projectRoot, 'logs', year, month, file);
-                const content = yield promises_1.default.readFile(filePath, 'utf-8');
+                const filePath = path_1.default.join(projectRoot, "logs", year, year + "-" + month, file + ".log");
+                const content = yield promises_1.default.readFile(filePath, "utf-8");
                 return content;
             }
             catch (error) {
                 console.error(error);
-                throw new Error('내부 서버 오류');
+                throw new Error("내부 서버 오류");
             }
         });
     }

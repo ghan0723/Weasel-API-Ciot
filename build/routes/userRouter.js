@@ -36,13 +36,16 @@ router.post("/login", (req, res) => {
                 userService
                     .checkPwdFreq(username)
                     .then((freq) => {
-                    if (freq) {
-                        //변경주기가 지났으므로 변경에 대한 freq 전달
-                        log_1.weasel.log(username, req.socket.remoteAddress, "Please Change Pwd [Login]");
-                        res.status(200).send({ username, freq });
+                    if (passwd !== decPasswd) {
+                        log_1.weasel.error(username, req.socket.remoteAddress, "Passwords do not match [Login]");
+                        res.status(401).json({
+                            error: "비밀번호가 일치하지 않습니다",
+                            redirectUrl: `${ipDomain_1.frontIP}/auth/sign-in`,
+                        });
+                        return;
                     }
                     else {
-                        if (passwd === decPasswd) {
+                        if (!freq) {
                             res.cookie("username", user[0].username, {
                                 httpOnly: true,
                                 maxAge: cookieTime * 1000,
@@ -52,12 +55,9 @@ router.post("/login", (req, res) => {
                             res.status(200).send({ username, freq });
                         }
                         else {
-                            log_1.weasel.error(username, req.socket.remoteAddress, "Passwords do not match [Login]");
-                            res.status(401).json({
-                                error: "비밀번호가 일치하지 않습니다",
-                                redirectUrl: `${ipDomain_1.frontIP}/auth/sign-in`,
-                            });
-                            return;
+                            //freq 보고 판별
+                            log_1.weasel.log(username, req.socket.remoteAddress, "Please Change Pwd [Login]");
+                            res.status(200).send({ username, freq });
                         }
                     }
                 })
@@ -374,16 +374,23 @@ router.get("/check", (req, res) => {
 router.post("/pwd", (req, res) => {
     let username = req.query.username;
     let user = req.body;
+    console.log("username : ", username);
+    console.log("user : ", user);
     const encPwd = cryptoService.getEncryptUltra(user.newPwd);
-    userService.getPwdByUsername(username)
+    console.log("encPwd : ", encPwd);
+    userService
+        .getPwdByUsername(username)
         .then((result1) => {
-        const decOldPwd = cryptoService.getDecryptUltra(result1);
+        console.log("result1 : ", result1);
+        const decOldPwd = cryptoService.getDecryptUltra(result1[0].passwd);
+        console.log("decOldPwd : ", decOldPwd);
         if (user.oldPwd !== decOldPwd) {
             log_1.weasel.error(username, req.socket.remoteAddress, "Failed to Update Pwd Freq By Exist OldPwd [Update Pwd Freq]");
             res.status(401).send("fail");
         }
         else {
-            userService.modifyPwdByFreq(username, encPwd)
+            userService
+                .modifyPwdByFreq(username, encPwd)
                 .then((result2) => {
                 log_1.weasel.log(username, req.socket.remoteAddress, "Success Update Pwd Freq [Update Pwd Freq]");
                 res.status(200).send(result2);

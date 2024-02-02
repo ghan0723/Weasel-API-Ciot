@@ -369,31 +369,32 @@ class UserService {
     });
   }
 
-  getPwdByUsername(username:any):Promise<any>{
-    return new Promise((reject, resolve) => {
+  getPwdByUsername(username: any): Promise<any> {
+    return new Promise((resolve, reject) => {
       const query = "select passwd from userlist where username = ?";
       connection.query(query, [username], (error, result) => {
-        if(error) {
+        if (error) {
           reject(error);
         } else {
-          console.log("result[0].passwd : ", result[0].passwd);
-          resolve(result[0].passwd);
+          console.log("result : ", result);
+          resolve(result);
         }
-      })
-    })
+      });
+    });
   }
 
-  modifyPwdByFreq(username:any, encPwd:any):Promise<any>{
-    return new Promise((reject, resolve) => {
-      const query = "update userlist set passwd = ? , last_pwd_date = now() where username = ?";
+  modifyPwdByFreq(username: any, encPwd: any): Promise<any> {
+    return new Promise((resolve, reject) => {
+      const query =
+        "update userlist set passwd = ? , last_pwd_date = now() where username = ?";
       connection.query(query, [encPwd, username], (error, result) => {
-        if(error){
+        if (error) {
           reject(error);
         } else {
           resolve(result);
         }
-      })
-    })
+      });
+    });
   }
 }
 
