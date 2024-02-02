@@ -10,7 +10,6 @@ var logger = require("morgan");
 const cors = require("cors");
 
 var indexRouter = require("./routes/index");
-var usersRouter = require("./routes/users.js");
 var pieChartRouter = require("./routes/pieChartRouter.js");
 var userRouter = require("./routes/userRouter.js");
 var networkRouter = require("./routes/networkRouter.js");
@@ -71,7 +70,6 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
-app.use("/users", usersRouter);
 app.use("/pie", pieChartRouter);
 app.use("/user", userRouter);
 app.use("/network", networkRouter);

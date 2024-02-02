@@ -33,7 +33,8 @@ router.post("/login", (req, res) => {
             settingService
                 .getGUITime()
                 .then((cookieTime) => {
-                userService.checkPwdFreq(username)
+                userService
+                    .checkPwdFreq(username)
                     .then((freq) => {
                     if (freq) {
                         //변경주기가 지났으므로 변경에 대한 freq 전달
@@ -167,17 +168,17 @@ router.post("/rm", (req, res) => {
                 userService
                     .getUserListByGradeAndMngip(result[0].grade, IpRange, category, searchWord)
                     .then((result2) => {
-                    log_1.weasel.log(username, req.socket.remoteAddress, 'Success Remove User [Remove User]');
+                    log_1.weasel.log(username, req.socket.remoteAddress, "Success Remove User [Remove User]");
                     res.status(200).send(result2);
                 })
                     .catch((error2) => {
-                    log_1.weasel.error(username, req.socket.remoteAddress, 'Failed Remove User By Get User List [Remove User]');
+                    log_1.weasel.error(username, req.socket.remoteAddress, "Failed Remove User By Get User List [Remove User]");
                     console.error("list를 제대로 못 가져옴:", error2);
                     res.status(500).send("Internal Server Error");
                 });
             })
                 .catch((error) => {
-                log_1.weasel.error(username, req.socket.remoteAddress, 'Failed Remove User By Username [Remove User]');
+                log_1.weasel.error(username, req.socket.remoteAddress, "Failed Remove User By Username [Remove User]");
                 console.error("user 정보 제대로 못 가져옴:", error);
                 res.status(500).send("Internal Server Error");
             });
@@ -186,18 +187,18 @@ router.post("/rm", (req, res) => {
             userService
                 .getUserListAll(category, searchWord)
                 .then((result) => {
-                log_1.weasel.log(username, req.socket.remoteAddress, 'Success Remove User By Admin [Remove User]');
+                log_1.weasel.log(username, req.socket.remoteAddress, "Success Remove User By Admin [Remove User]");
                 res.send(result);
             })
                 .catch((error) => {
-                log_1.weasel.error(username, req.socket.remoteAddress, 'Failed Remove User By Server [Remove User]');
+                log_1.weasel.error(username, req.socket.remoteAddress, "Failed Remove User By Server [Remove User]");
                 console.error("list 잘못 가져옴:", error);
                 res.status(500).send("Internal Server Error");
             });
         }
     })
         .catch((error) => {
-        log_1.weasel.error(username, req.socket.remoteAddress, 'Failed Remove User By Server [Remove User]');
+        log_1.weasel.error(username, req.socket.remoteAddress, "Failed Remove User By Server [Remove User]");
         console.error("실패:", error);
         res.status(500).send("Internal Server Error");
     });
@@ -368,6 +369,34 @@ router.get("/check", (req, res) => {
         .catch((error) => {
         console.error("grade 보내기 실패:", error);
         res.status(500).send("Internal Server Error");
+    });
+});
+router.post("/pwd", (req, res) => {
+    let username = req.query.username;
+    let user = req.body;
+    const encPwd = cryptoService.getEncryptUltra(user.newPwd);
+    userService.getPwdByUsername(username)
+        .then((result1) => {
+        const decOldPwd = cryptoService.getDecryptUltra(result1);
+        if (user.oldPwd !== decOldPwd) {
+            log_1.weasel.error(username, req.socket.remoteAddress, "Failed to Update Pwd Freq By Exist OldPwd [Update Pwd Freq]");
+            res.status(401).send("fail");
+        }
+        else {
+            userService.modifyPwdByFreq(username, encPwd)
+                .then((result2) => {
+                log_1.weasel.log(username, req.socket.remoteAddress, "Success Update Pwd Freq [Update Pwd Freq]");
+                res.status(200).send(result2);
+            })
+                .catch((error) => {
+                log_1.weasel.error(username, req.socket.remoteAddress, "Failed to Update Pwd Freq By Server [Update Pwd Freq]");
+                res.status(500).send("Internal Server Error");
+            });
+        }
+    })
+        .catch((error2) => {
+        log_1.weasel.error(username, req.socket.remoteAddress, "Failed to Update Pwd Freq By Get Pwd [Update Pwd Freq]");
+        res.send("error :" + error2);
     });
 });
 module.exports = router;

@@ -368,6 +368,33 @@ class UserService {
       });
     });
   }
+
+  getPwdByUsername(username:any):Promise<any>{
+    return new Promise((reject, resolve) => {
+      const query = "select passwd from userlist where username = ?";
+      connection.query(query, [username], (error, result) => {
+        if(error) {
+          reject(error);
+        } else {
+          console.log("result[0].passwd : ", result[0].passwd);
+          resolve(result[0].passwd);
+        }
+      })
+    })
+  }
+
+  modifyPwdByFreq(username:any, encPwd:any):Promise<any>{
+    return new Promise((reject, resolve) => {
+      const query = "update userlist set passwd = ? , last_pwd_date = now() where username = ?";
+      connection.query(query, [encPwd, username], (error, result) => {
+        if(error){
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      })
+    })
+  }
 }
 
 export default UserService;

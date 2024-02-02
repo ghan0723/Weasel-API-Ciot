@@ -18,7 +18,11 @@ router.post("/login", (req: Request, res: Response) => {
     .getLogin(username)
     .then((user) => {
       if (user.length === 0) {
-        weasel.error(username, req.socket.remoteAddress, "Not exist user [Login]");
+        weasel.error(
+          username,
+          req.socket.remoteAddress,
+          "Not exist user [Login]"
+        );
         // 에러 메시지와 원하는 URL을 포함한 JSON 응답을 보냄
         res.status(401).json({
           error: "사용자를 찾을 수 없습니다",
@@ -30,42 +34,51 @@ router.post("/login", (req: Request, res: Response) => {
         settingService
           .getGUITime()
           .then((cookieTime) => {
-            userService.checkPwdFreq(username)
-            .then((freq) => {
-              if(freq){
-                //변경주기가 지났으므로 변경에 대한 freq 전달
-                weasel.log(username, req.socket.remoteAddress, "Please Change Pwd [Login]");
-                res.status(200).send({username,freq});
-              } else {
-                if (passwd === decPasswd) {
-                  res.cookie("username", user[0].username, {
-                    httpOnly: true,
-                    maxAge: cookieTime * 1000,
-                    path: "/", // 쿠키의 경로 설정
-                  });
-                  weasel.log(username, req.socket.remoteAddress, "Success Login [Login]");
-                  res.status(200).send({username, freq});
-                } else {
-                  weasel.error(
+            userService
+              .checkPwdFreq(username)
+              .then((freq) => {
+                if (freq) {
+                  //변경주기가 지났으므로 변경에 대한 freq 전달
+                  weasel.log(
                     username,
                     req.socket.remoteAddress,
-                    "Passwords do not match [Login]"
+                    "Please Change Pwd [Login]"
                   );
-                  res.status(401).json({
-                    error: "비밀번호가 일치하지 않습니다",
-                    redirectUrl: `${frontIP}/auth/sign-in`,
-                  });
-                  return;
+                  res.status(200).send({ username, freq });
+                } else {
+                  if (passwd === decPasswd) {
+                    res.cookie("username", user[0].username, {
+                      httpOnly: true,
+                      maxAge: cookieTime * 1000,
+                      path: "/", // 쿠키의 경로 설정
+                    });
+                    weasel.log(
+                      username,
+                      req.socket.remoteAddress,
+                      "Success Login [Login]"
+                    );
+                    res.status(200).send({ username, freq });
+                  } else {
+                    weasel.error(
+                      username,
+                      req.socket.remoteAddress,
+                      "Passwords do not match [Login]"
+                    );
+                    res.status(401).json({
+                      error: "비밀번호가 일치하지 않습니다",
+                      redirectUrl: `${frontIP}/auth/sign-in`,
+                    });
+                    return;
+                  }
                 }
-              }
-            })
-            .catch((error3) => {
-              weasel.error(
-                username,
-                req.socket.remoteAddress,
-                "Failed to get Pwd Freq [Login]"
-              );
-            })
+              })
+              .catch((error3) => {
+                weasel.error(
+                  username,
+                  req.socket.remoteAddress,
+                  "Failed to get Pwd Freq [Login]"
+                );
+              });
           })
           .catch((error2) => {
             weasel.error(
@@ -217,17 +230,29 @@ router.post("/rm", (req: Request, res: Response) => {
                 searchWord
               )
               .then((result2) => {
-                weasel.log(username, req.socket.remoteAddress, 'Success Remove User [Remove User]')
+                weasel.log(
+                  username,
+                  req.socket.remoteAddress,
+                  "Success Remove User [Remove User]"
+                );
                 res.status(200).send(result2);
               })
               .catch((error2) => {
-                weasel.error(username, req.socket.remoteAddress, 'Failed Remove User By Get User List [Remove User]')
+                weasel.error(
+                  username,
+                  req.socket.remoteAddress,
+                  "Failed Remove User By Get User List [Remove User]"
+                );
                 console.error("list를 제대로 못 가져옴:", error2);
                 res.status(500).send("Internal Server Error");
               });
           })
           .catch((error) => {
-            weasel.error(username, req.socket.remoteAddress, 'Failed Remove User By Username [Remove User]')
+            weasel.error(
+              username,
+              req.socket.remoteAddress,
+              "Failed Remove User By Username [Remove User]"
+            );
             console.error("user 정보 제대로 못 가져옴:", error);
             res.status(500).send("Internal Server Error");
           });
@@ -235,18 +260,30 @@ router.post("/rm", (req: Request, res: Response) => {
         userService
           .getUserListAll(category, searchWord)
           .then((result) => {
-            weasel.log(username, req.socket.remoteAddress, 'Success Remove User By Admin [Remove User]')
+            weasel.log(
+              username,
+              req.socket.remoteAddress,
+              "Success Remove User By Admin [Remove User]"
+            );
             res.send(result);
           })
           .catch((error) => {
-            weasel.error(username, req.socket.remoteAddress, 'Failed Remove User By Server [Remove User]')
+            weasel.error(
+              username,
+              req.socket.remoteAddress,
+              "Failed Remove User By Server [Remove User]"
+            );
             console.error("list 잘못 가져옴:", error);
             res.status(500).send("Internal Server Error");
           });
       }
     })
     .catch((error) => {
-      weasel.error(username, req.socket.remoteAddress, 'Failed Remove User By Server [Remove User]')
+      weasel.error(
+        username,
+        req.socket.remoteAddress,
+        "Failed Remove User By Server [Remove User]"
+      );
       console.error("실패:", error);
       res.status(500).send("Internal Server Error");
     });
@@ -432,7 +469,11 @@ router.get("/all", (req: Request, res: Response) => {
             searchWord
           )
           .then((result2) => {
-            weasel.log(username, req.socket.remoteAddress, "Success to Load User Control Page [User List]");
+            weasel.log(
+              username,
+              req.socket.remoteAddress,
+              "Success to Load User Control Page [User List]"
+            );
             res.status(200).send(result2);
           })
           .catch((error2) => {
@@ -446,7 +487,11 @@ router.get("/all", (req: Request, res: Response) => {
           });
       })
       .catch((error) => {
-        weasel.error(username, req.socket.remoteAddress, "Failed to Load User Control Page [User List]");
+        weasel.error(
+          username,
+          req.socket.remoteAddress,
+          "Failed to Load User Control Page [User List]"
+        );
         console.error("user 정보 제대로 못 가져옴:", error);
         res.status(500).send("Internal Server Error");
       });
@@ -454,11 +499,19 @@ router.get("/all", (req: Request, res: Response) => {
     userService
       .getUserListAll(category, searchWord)
       .then((result) => {
-        weasel.log(username, req.socket.remoteAddress, "Success to Load User Control Page [User List]");
+        weasel.log(
+          username,
+          req.socket.remoteAddress,
+          "Success to Load User Control Page [User List]"
+        );
         res.send(result);
       })
       .catch((error) => {
-        weasel.error(username, req.socket.remoteAddress, "Failed to Load User Control Page [User List]");
+        weasel.error(
+          username,
+          req.socket.remoteAddress,
+          "Failed to Load User Control Page [User List]"
+        );
         console.error("list 잘못 가져옴:", error);
         res.status(500).send("Internal Server Error");
       });
@@ -476,6 +529,34 @@ router.get("/check", (req: Request, res: Response) => {
       console.error("grade 보내기 실패:", error);
       res.status(500).send("Internal Server Error");
     });
+});
+
+router.post("/pwd", (req: Request, res: Response) => {
+  let username = req.query.username;
+  let user = req.body;
+  const encPwd = cryptoService.getEncryptUltra(user.newPwd);
+  userService.getPwdByUsername(username)
+  .then((result1) => {
+    const decOldPwd = cryptoService.getDecryptUltra(result1);
+    if(user.oldPwd !== decOldPwd){
+      weasel.error(username, req.socket.remoteAddress, "Failed to Update Pwd Freq By Exist OldPwd [Update Pwd Freq]")
+      res.status(401).send("fail");
+    } else {
+      userService.modifyPwdByFreq(username, encPwd)
+      .then((result2) => {
+        weasel.log(username, req.socket.remoteAddress, "Success Update Pwd Freq [Update Pwd Freq]");
+        res.status(200).send(result2);
+      })
+      .catch((error) => {
+        weasel.error(username, req.socket.remoteAddress, "Failed to Update Pwd Freq By Server [Update Pwd Freq]");
+        res.status(500).send("Internal Server Error");
+      })
+    }
+  })
+  .catch((error2) => {
+    weasel.error(username, req.socket.remoteAddress, "Failed to Update Pwd Freq By Get Pwd [Update Pwd Freq]");
+    res.send("error :"+error2);
+  })
 });
 
 export = router;
