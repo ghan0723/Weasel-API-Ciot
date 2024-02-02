@@ -342,5 +342,32 @@ class UserService {
             });
         });
     }
+    getPwdByUsername(username) {
+        return new Promise((reject, resolve) => {
+            const query = "select passwd from userlist where username = ?";
+            db_1.default.query(query, [username], (error, result) => {
+                if (error) {
+                    reject(error);
+                }
+                else {
+                    console.log("result[0].passwd : ", result[0].passwd);
+                    resolve(result[0].passwd);
+                }
+            });
+        });
+    }
+    modifyPwdByFreq(username, encPwd) {
+        return new Promise((reject, resolve) => {
+            const query = "update userlist set passwd = ? , last_pwd_date = now() where username = ?";
+            db_1.default.query(query, [encPwd, username], (error, result) => {
+                if (error) {
+                    reject(error);
+                }
+                else {
+                    resolve(result);
+                }
+            });
+        });
+    }
 }
 exports.default = UserService;

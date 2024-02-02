@@ -57,7 +57,11 @@ router.get("/logout", (req: Request, res: Response) => {
   const username = req.query.username;
 
   if (typeof username !== "string") {
-    weasel.error(username, req.socket.remoteAddress, "Failed to load LogOut. [LogOut]");
+    weasel.error(
+      username,
+      req.socket.remoteAddress,
+      "Failed to load LogOut. [LogOut]"
+    );
     res.send("error");
   }
   weasel.log(
@@ -68,14 +72,10 @@ router.get("/logout", (req: Request, res: Response) => {
   res.send("success");
 });
 
-router.get('/all', async (req, res) => {
-  try {
-    const logsData = await logService.getLogsData();
-    res.send(logsData);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: error});
-  }
+router.get("/all", (req, res) => {
+  logService.getYears().then((years) => {
+    res.send(years);
+  });
 });
 
 export = router;
