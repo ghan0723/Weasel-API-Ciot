@@ -109,7 +109,7 @@ class UserService {
     });
   }
 
-  getGrade(username: string): Promise<any> {
+  getGrade(username: any): Promise<any> {
     const query = `select grade from userlist where username = ? `;
 
     return new Promise((resolve, reject) => {

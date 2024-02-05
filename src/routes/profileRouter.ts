@@ -22,11 +22,11 @@ router.get("/edit/:username", (req: Request, res: Response) => {
         grade : user[0].grade,
         mng_ip_ranges: user[0].mng_ip_ranges
       }
-      weasel.log(username, req.socket.remoteAddress, "Success to Load Profile Page [Profile]");
+      weasel.log(username, req.socket.remoteAddress, "Success to Load Profile Page [Pro");
       res.send([newUser]);
     })
     .catch((error) => {
-      weasel.error(username, req.socket.remoteAddress, "Failed to Load Profile Page [Profile]");
+      weasel.error(username, req.socket.remoteAddress, "Failed to Load Profile Page [Pro");
       console.error("profile failed:", error);
       res.status(500).send("Internal Server Error");
     });
@@ -42,17 +42,17 @@ router.post("/update/:username", (req: Request, res: Response) => {
   }
   userService.checkUsername(user.username, oldname).then((result) => {
     if (result.exists) {
-      weasel.error(oldname, req.socket.remoteAddress, "Failed to Update Profile [Profile]");
+      weasel.error(oldname, req.socket.remoteAddress, "Failed to Update Profile [Pro");
       res.status(401).send({ error: result.message });
     } else {
       profileService
         .modUser(newUser, oldname)
         .then((result2) => {
-          weasel.log(oldname, req.socket.remoteAddress, "Success to Update Profile [Profile]");
+          weasel.log(oldname, req.socket.remoteAddress, "Success to Update Profile [Pro");
           res.send(result2.message);
         })
         .catch((error) => {
-          weasel.error(oldname, req.socket.remoteAddress, "Failed to Update Profile [Profile]");
+          weasel.error(oldname, req.socket.remoteAddress, "Failed to Update Profile [Pro");
           res.status(500).send("업데이트 잘못된거 같습니다.");
         });
     }
