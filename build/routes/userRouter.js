@@ -29,46 +29,79 @@ router.post("/login", (req, res) => {
             return;
         }
         else {
-            let decPasswd = cryptoService.getDecryptUltra(user[0].passwd);
-            settingService
-                .getGUITime()
-                .then((cookieTime) => {
-                userService
-                    .checkPwdFreq(username)
-                    .then((freq) => {
-                    if (passwd !== decPasswd) {
-                        log_1.weasel.error(username, req.socket.remoteAddress, "Passwords do not match ");
-                        res.status(401).json({
-                            error: "비밀번호가 일치하지 않습니다",
-                            redirectUrl: `${ipDomain_1.frontIP}/auth/sign-in`,
-                        });
-                        return;
-                    }
-                    else {
-                        if (!freq) {
+            userService.getGrade(username).then((result) => {
+                if (result[0].grade === 1) {
+                    let decPasswd = cryptoService.getDecryptUltra(user[0].passwd);
+                    settingService
+                        .getGUITime()
+                        .then((cookieTime) => {
+                        if (passwd !== decPasswd) {
+                            log_1.weasel.error(username, req.socket.remoteAddress, "Passwords do not match ");
+                            res.status(401).json({
+                                error: "비밀번호가 일치하지 않습니다",
+                                redirectUrl: `${ipDomain_1.frontIP}/auth/sign-in`,
+                            });
+                            return;
+                        }
+                        else {
                             res.cookie("username", user[0].username, {
-                                httpOnly: true,
+                                secure: true,
                                 maxAge: cookieTime * 1000,
                                 path: "/", // 쿠키의 경로 설정
                             });
                             log_1.weasel.log(username, req.socket.remoteAddress, "Success Login ");
-                            res.status(200).send({ username, freq });
+                            res.status(200).send({ username, freq: false });
                         }
-                        else {
-                            //freq 보고 판별
-                            log_1.weasel.log(username, req.socket.remoteAddress, "Please Change Pwd ");
-                            res.status(200).send({ username, freq });
-                        }
-                    }
-                })
-                    .catch((error3) => {
-                    log_1.weasel.error(username, req.socket.remoteAddress, "Failed to get Pwd Freq ");
-                });
-            })
-                .catch((error2) => {
-                log_1.weasel.error(username, req.socket.remoteAddress, "Failed to get cookie time ");
-                console.error("쿠키 타임 가져오기 실패:", error2);
-                res.status(500).send(error2);
+                    })
+                        .catch((error2) => {
+                        log_1.weasel.error(username, req.socket.remoteAddress, "Failed to get cookie time ");
+                        console.error("쿠키 타임 가져오기 실패:", error2);
+                        res.status(500).send(error2);
+                    });
+                }
+                else {
+                    let decPasswd = cryptoService.getDecryptUltra(user[0].passwd);
+                    settingService
+                        .getGUITime()
+                        .then((cookieTime) => {
+                        userService
+                            .checkPwdFreq(username)
+                            .then((freq) => {
+                            if (passwd !== decPasswd) {
+                                log_1.weasel.error(username, req.socket.remoteAddress, "Passwords do not match ");
+                                res.status(401).json({
+                                    error: "비밀번호가 일치하지 않습니다",
+                                    redirectUrl: `${ipDomain_1.frontIP}/auth/sign-in`,
+                                });
+                                return;
+                            }
+                            else {
+                                if (!freq) {
+                                    res.cookie("username", user[0].username, {
+                                        secure: true,
+                                        maxAge: cookieTime * 1000,
+                                        path: "/", // 쿠키의 경로 설정
+                                    });
+                                    log_1.weasel.log(username, req.socket.remoteAddress, "Success Login ");
+                                    res.status(200).send({ username, freq });
+                                }
+                                else {
+                                    //freq 보고 판별
+                                    log_1.weasel.log(username, req.socket.remoteAddress, "Please Change Pwd ");
+                                    res.status(200).send({ username, freq });
+                                }
+                            }
+                        })
+                            .catch((error3) => {
+                            log_1.weasel.error(username, req.socket.remoteAddress, "Failed to get Pwd Freq ");
+                        });
+                    })
+                        .catch((error2) => {
+                        log_1.weasel.error(username, req.socket.remoteAddress, "Failed to get cookie time ");
+                        console.error("쿠키 타임 가져오기 실패:", error2);
+                        res.status(500).send(error2);
+                    });
+                }
             });
         }
     })
@@ -87,70 +120,101 @@ router.post("/add", (req, res) => {
         grade: user.grade,
         mng_ip_ranges: user.range,
     };
-    if (user.cookie !== "admin") {
-        userService
-            .checkUsername(user.username)
-            .then((result) => {
-            if (result.exists) {
-                log_1.weasel.error(user.username, req.socket.remoteAddress, "Failed to Add User By Exist Username ");
-                res.status(401).send({ error: result.message });
-            }
-            else {
-                userService
-                    .getGradeAndMngip(user.cookie)
-                    .then((result2) => {
-                    let IpRange = ipCalcService.parseIPRange(result2[0].mng_ip_ranges);
-                    userService.checkIpRange(user.range, IpRange).then((result3) => {
-                        if (result3.inRange) {
-                            userService
-                                .addUser(newUser)
-                                .then((result4) => {
-                                log_1.weasel.log(user.username, req.socket.remoteAddress, "Success Add User ");
-                                res.send(result4.message);
-                            })
-                                .catch((error) => {
-                                log_1.weasel.error(user.username, req.socket.remoteAddress, "Failed to Add User By Server ");
-                                console.error("회원가입 실패:", error);
-                                res.status(500).send(error);
-                            });
-                        }
-                        else {
-                            log_1.weasel.error(user.username, req.socket.remoteAddress, "Failed to Add User By Incorrect IP Range ");
-                            res.status(401).send({ error: result3.message });
-                        }
+    userService
+        .getGrade(user.cookie)
+        .then((result) => {
+        if (result[0].grade !== 1) {
+            userService
+                .checkUsername(user.username)
+                .then((result) => {
+                if (result.exists) {
+                    log_1.weasel.error(user.username, req.socket.remoteAddress, "Failed to Add User By Exist Username ");
+                    res.status(401).send({ error: result.message });
+                }
+                else {
+                    userService
+                        .getGradeAndMngip(user.cookie)
+                        .then((result2) => {
+                        let IpRange = ipCalcService.parseIPRange(result2[0].mng_ip_ranges);
+                        userService
+                            .checkIpRange(user.range, IpRange)
+                            .then((result3) => {
+                            if (result3.inRange) {
+                                //freq 값 추가
+                                userService
+                                    .getFreq(user.cookie)
+                                    .then((result) => {
+                                    userService
+                                        .addUser(newUser, result[0].pwd_change_freq)
+                                        .then((result4) => {
+                                        log_1.weasel.log(user.username, req.socket.remoteAddress, "Success Add User ");
+                                        res.send(result4.message);
+                                    })
+                                        .catch((error) => {
+                                        log_1.weasel.error(user.username, req.socket.remoteAddress, "Failed to Add User By Server ");
+                                        console.error("회원가입 실패:", error);
+                                        res.status(500).send(error);
+                                    });
+                                })
+                                    .catch((error) => {
+                                    log_1.weasel.error(user.username, req.socket.remoteAddress, "Failed to Get Freq ");
+                                    console.error("회원가입 실패:", error);
+                                    res.status(500).send(error);
+                                });
+                            }
+                            else {
+                                log_1.weasel.error(user.username, req.socket.remoteAddress, "Failed to Add User By Incorrect IP Range ");
+                                res.status(401).send({ error: result3.message });
+                            }
+                        });
+                    })
+                        .catch((error2) => {
+                        log_1.weasel.error(user.username, req.socket.remoteAddress, "Failed to Get Grade & IP Ranges ");
+                        res.send("이거는 쿠키 가지고 grade랑 mngip 가져오는 도중에 발생하는 에러입니다.");
                     });
-                })
-                    .catch((error2) => {
-                    log_1.weasel.error(user.username, req.socket.remoteAddress, "Failed to Get Grade & IP Ranges ");
-                    res.send("이거는 쿠키 가지고 grade랑 mngip 가져오는 도중에 발생하는 에러입니다.");
-                });
-            }
-        })
-            .catch((error) => {
-            log_1.weasel.error(user.username, req.socket.remoteAddress, "Failed to Add User By Exist Username ");
-            res.send("이거는 중복을 검사하는 도중에 발생하는 에러입니다.");
-        });
-    }
-    else {
-        userService.checkUsername(newUser.username).then((result5) => {
-            if (result5.exists) {
+                }
+            })
+                .catch((error) => {
                 log_1.weasel.error(user.username, req.socket.remoteAddress, "Failed to Add User By Exist Username ");
-            }
-            else {
-                userService
-                    .addUser(newUser)
-                    .then((result4) => {
-                    log_1.weasel.log(user.username, req.socket.remoteAddress, "Success Add User By Admin ");
-                    res.send(result4.message);
-                })
-                    .catch((error) => {
-                    log_1.weasel.error(user.username, req.socket.remoteAddress, "Failed to Add User By Admin ");
-                    console.error("회원가입 실패:", error);
-                    res.status(500).send(error);
-                });
-            }
-        });
-    }
+                res.send("이거는 중복을 검사하는 도중에 발생하는 에러입니다.");
+            });
+        }
+        else {
+            userService.checkUsername(newUser.username).then((result5) => {
+                if (result5.exists) {
+                    log_1.weasel.error(user.username, req.socket.remoteAddress, "Failed to Add User By Exist Username ");
+                }
+                else {
+                    //관리자 계정 freq
+                    userService
+                        .getFreq(user.cookie)
+                        .then((result) => {
+                        userService
+                            .addUser(newUser, result[0].pwd_change_freq)
+                            .then((result4) => {
+                            log_1.weasel.log(user.username, req.socket.remoteAddress, "Success Add User ");
+                            res.send(result4.message);
+                        })
+                            .catch((error) => {
+                            log_1.weasel.error(user.username, req.socket.remoteAddress, "Failed to Add User By Server ");
+                            console.error("회원가입 실패:", error);
+                            res.status(500).send(error);
+                        });
+                    })
+                        .catch((error) => {
+                        log_1.weasel.error(user.username, req.socket.remoteAddress, "Failed to Get Freq ");
+                        console.error("회원가입 실패:", error);
+                        res.status(500).send(error);
+                    });
+                }
+            });
+        }
+    })
+        .catch((error) => {
+        log_1.weasel.error(user.username, req.socket.remoteAddress, "Failed to Get Grade");
+        console.error("회원가입 실패:", error);
+        res.status(500).send(error);
+    });
 });
 router.post("/rm", (req, res) => {
     let users = req.body;
@@ -160,42 +224,51 @@ router.post("/rm", (req, res) => {
     userService
         .removeUser(users)
         .then((result) => {
-        if (username !== "admin") {
-            userService
-                .getGradeAndMngip(username)
-                .then((result) => {
-                let IpRange = ipCalcService.parseIPRange(result[0].mng_ip_ranges);
+        userService
+            .getGrade(username)
+            .then((result1) => {
+            if (result1[0].grade !== 1) {
                 userService
-                    .getUserListByGradeAndMngip(result[0].grade, IpRange, category, searchWord)
-                    .then((result2) => {
-                    log_1.weasel.log(username, req.socket.remoteAddress, "Success Remove User ");
-                    res.status(200).send(result2);
+                    .getGradeAndMngip(username)
+                    .then((result) => {
+                    let IpRange = ipCalcService.parseIPRange(result[0].mng_ip_ranges);
+                    userService
+                        .getUserListByGradeAndMngip(result[0].grade, IpRange, category, searchWord)
+                        .then((result2) => {
+                        log_1.weasel.log(username, req.socket.remoteAddress, "Success Remove User ");
+                        res.status(200).send(result2);
+                    })
+                        .catch((error2) => {
+                        log_1.weasel.error(username, req.socket.remoteAddress, "Failed Remove User By Get User List ");
+                        console.error("list를 제대로 못 가져옴:", error2);
+                        res.status(500).send("Internal Server Error");
+                    });
                 })
-                    .catch((error2) => {
-                    log_1.weasel.error(username, req.socket.remoteAddress, "Failed Remove User By Get User List ");
-                    console.error("list를 제대로 못 가져옴:", error2);
+                    .catch((error) => {
+                    log_1.weasel.error(username, req.socket.remoteAddress, "Failed Remove User By Username ");
+                    console.error("user 정보 제대로 못 가져옴:", error);
                     res.status(500).send("Internal Server Error");
                 });
-            })
-                .catch((error) => {
-                log_1.weasel.error(username, req.socket.remoteAddress, "Failed Remove User By Username ");
-                console.error("user 정보 제대로 못 가져옴:", error);
-                res.status(500).send("Internal Server Error");
-            });
-        }
-        else {
-            userService
-                .getUserListAll(category, searchWord)
-                .then((result) => {
-                log_1.weasel.log(username, req.socket.remoteAddress, "Success Remove User By Admin ");
-                res.send(result);
-            })
-                .catch((error) => {
-                log_1.weasel.error(username, req.socket.remoteAddress, "Failed Remove User By Server ");
-                console.error("list 잘못 가져옴:", error);
-                res.status(500).send("Internal Server Error");
-            });
-        }
+            }
+            else {
+                userService
+                    .getUserListAll(category, searchWord)
+                    .then((result) => {
+                    log_1.weasel.log(username, req.socket.remoteAddress, "Success Remove User By Admin ");
+                    res.send(result);
+                })
+                    .catch((error) => {
+                    log_1.weasel.error(username, req.socket.remoteAddress, "Failed Remove User By Server ");
+                    console.error("list 잘못 가져옴:", error);
+                    res.status(500).send("Internal Server Error");
+                });
+            }
+        })
+            .catch((error) => {
+            log_1.weasel.error(username, req.socket.remoteAddress, "Failed to Get Grade");
+            console.error("list 잘못 가져옴:", error);
+            res.status(500).send("Internal Server Error");
+        });
     })
         .catch((error) => {
         log_1.weasel.error(username, req.socket.remoteAddress, "Failed Remove User By Server ");
@@ -234,23 +307,99 @@ router.post("/update/:username", (req, res) => {
         grade: user.grade,
         mng_ip_ranges: user.mngRange,
     };
-    if (user.cookie !== "admin") {
-        userService
-            .checkUsername(user.username, oldname)
-            .then((result) => {
-            if (result.exists) {
-                log_1.weasel.error(oldname, req.socket.remoteAddress, "Failed to Update User Information By Exist Username ");
-                res.status(401).send({ error: result.message });
-            }
-            else {
-                userService
-                    .getGradeAndMngip(user.cookie)
-                    .then((result2) => {
-                    let IpRange = ipCalcService.parseIPRange(result2[0].mng_ip_ranges);
+    userService
+        .getGrade(user.cookie)
+        .then((result) => {
+        if (result[0].grade !== 1) {
+            userService
+                .checkUsername(user.username, oldname)
+                .then((result) => {
+                if (result.exists) {
+                    log_1.weasel.error(oldname, req.socket.remoteAddress, "Failed to Update User Information By Exist Username ");
+                    res.status(401).send({ error: result.message });
+                }
+                else {
                     userService
-                        .checkIpRange(user.mngRange, IpRange)
-                        .then((result3) => {
-                        if (result3.inRange) {
+                        .getGradeAndMngip(user.cookie)
+                        .then((result2) => {
+                        let IpRange = ipCalcService.parseIPRange(result2[0].mng_ip_ranges);
+                        userService
+                            .checkIpRange(user.mngRange, IpRange)
+                            .then((result3) => {
+                            if (result3.inRange) {
+                                //영역별 관리자가 업데이트 할 때 해당 계정의 비밀번호가 변경 되는지 확인
+                                userService.getPwdByUsername(oldname).then((result) => {
+                                    const decOldPwd = cryptoService.getDecryptUltra(result[0].passwd);
+                                    if (decOldPwd === user.passwd) {
+                                        //변경이 안됨 => 주기 초기화 해줄 필요 없음
+                                        userService
+                                            .modUser(newUser, oldname)
+                                            .then((result4) => {
+                                            log_1.weasel.log(oldname, req.socket.remoteAddress, "Success Update User Information ");
+                                            res.send(result4.message);
+                                        })
+                                            .catch((error) => {
+                                            log_1.weasel.error(oldname, req.socket.remoteAddress, "Failed to Update User Information By Server ");
+                                            console.error("업데이트 실패:", error);
+                                            res.status(500).send("Internal Server Error");
+                                        });
+                                    }
+                                    else {
+                                        //변경됨 => 한번 주기 초기화 해줘야함
+                                        userService
+                                            .modUser(newUser, oldname)
+                                            .then((result4) => {
+                                            userService
+                                                .modifyPwdByFreq(user.username, encPasswd)
+                                                .then((result) => {
+                                                log_1.weasel.log(oldname, req.socket.remoteAddress, "Success Update User Information ");
+                                                res.send(result4.message);
+                                            })
+                                                .catch((error) => {
+                                                log_1.weasel.error(user.username, req.socket.remoteAddress, "Failed to Modify Pwd Freq ");
+                                                console.error("업데이트 실패:", error);
+                                                res
+                                                    .status(500)
+                                                    .send("Internal Server Error");
+                                            });
+                                        })
+                                            .catch((error) => {
+                                            log_1.weasel.error(oldname, req.socket.remoteAddress, "Failed to Update User Information By Server ");
+                                            console.error("업데이트 실패:", error);
+                                            res.status(500).send("Internal Server Error");
+                                        });
+                                    }
+                                });
+                            }
+                            else {
+                                log_1.weasel.error(oldname, req.socket.remoteAddress, "Failed to Update User By Incorrect IP Range ");
+                                res.status(401).send({ error: result3.message });
+                            }
+                        });
+                    })
+                        .catch((error2) => {
+                        log_1.weasel.error(oldname, req.socket.remoteAddress, "Failed to Get Grade & IP Ranges ");
+                        res.send("이거는 쿠키 가지고 grade랑 mngip 가져오는 도중에 발생하는 에러입니다.");
+                    });
+                }
+            })
+                .catch((error) => {
+                log_1.weasel.error(oldname, req.socket.remoteAddress, "Failed to Update User Information By Exist Username ");
+                res.send("이거는 중복을 검사하는 도중에 발생하는 에러입니다.");
+            });
+        }
+        else {
+            userService.checkUsername(user.username, oldname).then((result) => {
+                if (result.exists) {
+                    log_1.weasel.error(oldname, req.socket.remoteAddress, "Failed to Update User Information By Exist Username ");
+                    res.status(401).send({ error: result.message });
+                }
+                else {
+                    //관리자 계정으로 업데이트할 때 해당 계정의 비밀번호가 변경되는지 확인
+                    userService.getPwdByUsername(oldname).then((result) => {
+                        const decOldPwd = cryptoService.getDecryptUltra(result[0].passwd);
+                        if (decOldPwd === user.passwd) {
+                            //변경이 안됨 => 주기 초기화 해줄 필요 없음
                             userService
                                 .modUser(newUser, oldname)
                                 .then((result4) => {
@@ -264,55 +413,47 @@ router.post("/update/:username", (req, res) => {
                             });
                         }
                         else {
-                            log_1.weasel.error(oldname, req.socket.remoteAddress, "Failed to Update User By Incorrect IP Range ");
-                            res.status(401).send({ error: result3.message });
+                            //변경됨 => 한번 주기 초기화 해줘야함
+                            userService
+                                .modUser(newUser, oldname)
+                                .then((result4) => {
+                                userService
+                                    .modifyPwdByFreq(user.username, encPasswd)
+                                    .then((result) => {
+                                    log_1.weasel.log(oldname, req.socket.remoteAddress, "Success Update User Information ");
+                                    res.send(result4.message);
+                                })
+                                    .catch((error) => {
+                                    log_1.weasel.error(user.username, req.socket.remoteAddress, "Failed to Modify Pwd Freq ");
+                                    console.error("업데이트 실패:", error);
+                                    res.status(500).send("Internal Server Error");
+                                });
+                            })
+                                .catch((error) => {
+                                log_1.weasel.error(oldname, req.socket.remoteAddress, "Failed to Update User Information By Server ");
+                                console.error("업데이트 실패:", error);
+                                res.status(500).send("Internal Server Error");
+                            });
                         }
                     });
-                })
-                    .catch((error2) => {
-                    log_1.weasel.error(oldname, req.socket.remoteAddress, "Failed to Get Grade & IP Ranges ");
-                    res.send("이거는 쿠키 가지고 grade랑 mngip 가져오는 도중에 발생하는 에러입니다.");
-                });
-            }
-        })
-            .catch((error) => {
-            log_1.weasel.error(oldname, req.socket.remoteAddress, "Failed to Update User Information By Exist Username ");
-            res.send("이거는 중복을 검사하는 도중에 발생하는 에러입니다.");
-        });
-    }
-    else {
-        userService.checkUsername(user.username, oldname).then((result) => {
-            if (result.exists) {
-                log_1.weasel.error(oldname, req.socket.remoteAddress, "Failed to Update User Information By Exist Username ");
-                res.status(401).send({ error: result.message });
-            }
-            else {
-                userService
-                    .modUser(newUser, oldname)
-                    .then((result4) => {
-                    log_1.weasel.log(oldname, req.socket.remoteAddress, "Success Update User Information By Admin ");
-                    res.send(result4.message);
-                })
-                    .catch((error) => {
-                    log_1.weasel.error(oldname, req.socket.remoteAddress, "Failed to Update User Information By Admin ");
-                    console.error("업데이트 실패:", error);
-                    res.status(500).send("Internal Server Error");
-                });
-            }
-        });
-    }
+                }
+            });
+        }
+    })
+        .catch((error) => {
+        log_1.weasel.error(oldname, req.socket.remoteAddress, "Failed to Get Grade");
+        res.send("이거는 쿠키 가지고 grade 가져오는 도중에 발생하는 에러입니다.");
+    });
 });
 router.get("/namecookie", (req, res) => {
     let username = req.cookies.username;
     res.json({ username: username });
 });
 router.get("/grade", (req, res) => {
-    let username = req.query.username;
-    console.log("username : ", username);
+    let username = req.cookies.username;
     userService
         .getGrade(username)
         .then((result) => {
-        console.log("grade : ", result);
         res.send(result);
     })
         .catch((error) => {
@@ -324,42 +465,51 @@ router.get("/all", (req, res) => {
     let username = req.query.username;
     let category = req.query.category;
     let searchWord = req.query.searchWord;
-    if (username !== "admin") {
-        userService
-            .getGradeAndMngip(username)
-            .then((result) => {
-            let IpRange = ipCalcService.parseIPRange(result[0].mng_ip_ranges);
+    userService
+        .getGrade(username)
+        .then((result) => {
+        if (result[0].grade !== 1) {
             userService
-                .getUserListByGradeAndMngip(result[0].grade, IpRange, category, searchWord)
-                .then((result2) => {
-                log_1.weasel.log(username, req.socket.remoteAddress, "Success to Load User Control Page ");
-                res.status(200).send(result2);
+                .getGradeAndMngip(username)
+                .then((result) => {
+                let IpRange = ipCalcService.parseIPRange(result[0].mng_ip_ranges);
+                userService
+                    .getUserListByGradeAndMngip(result[0].grade, IpRange, category, searchWord)
+                    .then((result2) => {
+                    log_1.weasel.log(username, req.socket.remoteAddress, "Success to Load User Control Page ");
+                    res.status(200).send(result2);
+                })
+                    .catch((error2) => {
+                    log_1.weasel.error(username, req.socket.remoteAddress, "Failed to Load User Control Page ");
+                    console.error("list를 제대로 못 가져옴:", error2);
+                    res.status(500).send("Internal Server Error");
+                });
             })
-                .catch((error2) => {
+                .catch((error) => {
                 log_1.weasel.error(username, req.socket.remoteAddress, "Failed to Load User Control Page ");
-                console.error("list를 제대로 못 가져옴:", error2);
+                console.error("user 정보 제대로 못 가져옴:", error);
                 res.status(500).send("Internal Server Error");
             });
-        })
-            .catch((error) => {
-            log_1.weasel.error(username, req.socket.remoteAddress, "Failed to Load User Control Page ");
-            console.error("user 정보 제대로 못 가져옴:", error);
-            res.status(500).send("Internal Server Error");
-        });
-    }
-    else {
-        userService
-            .getUserListAll(category, searchWord)
-            .then((result) => {
-            log_1.weasel.log(username, req.socket.remoteAddress, "Success to Load User Control Page ");
-            res.send(result);
-        })
-            .catch((error) => {
-            log_1.weasel.error(username, req.socket.remoteAddress, "Failed to Load User Control Page ");
-            console.error("list 잘못 가져옴:", error);
-            res.status(500).send("Internal Server Error");
-        });
-    }
+        }
+        else {
+            userService
+                .getUserListAll(category, searchWord)
+                .then((result) => {
+                log_1.weasel.log(username, req.socket.remoteAddress, "Success to Load User Control Page ");
+                res.send(result);
+            })
+                .catch((error) => {
+                log_1.weasel.error(username, req.socket.remoteAddress, "Failed to Load User Control Page ");
+                console.error("list 잘못 가져옴:", error);
+                res.status(500).send("Internal Server Error");
+            });
+        }
+    })
+        .catch((error) => {
+        log_1.weasel.error(username, req.socket.remoteAddress, "Failed to Get Grade");
+        console.error("user 정보 제대로 못 가져옴:", error);
+        res.status(500).send("Internal Server Error");
+    });
 });
 router.get("/check", (req, res) => {
     let username = req.query.username;

@@ -54,7 +54,7 @@ class LogService {
   async getLogContent(year: any, month: any, file: any): Promise<string> {
     try {
       const projectRoot = process.cwd();
-      const filePath = path.join(projectRoot, "logs-err", year, year + "-" + month, file+".log");
+      const filePath = path.join(projectRoot, "logs", year, year + "-" + month, file+".log");
       const content = await fs.readFile(filePath, "utf-8");
       return content;
     } catch (error) {

@@ -40,11 +40,11 @@ class UserService {
             });
         });
     }
-    addUser(user) {
+    addUser(user, freq) {
         let mngip = user.mng_ip_ranges.replace(/(\r\n|\n|\r)/gm, ", ");
         let grade = parseInt(user.grade, 10);
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
-            const query = `insert into userlist (\`username\`, \`passwd\`, \`grade\`, \`enabled\`, \`mng_ip_ranges\`) values ('${user.username}', '${user.passwd}', ${grade}, 1, '${mngip}')`;
+            const query = `insert into userlist (\`username\`, \`passwd\`, \`grade\`, \`enabled\`, \`mng_ip_ranges\`, \`last_pwd_date\`, \`pwd_change_freq\`) values ('${user.username}', '${user.passwd}', ${grade}, 1, '${mngip}', now(), ${freq})`;
             db_1.default.query(query, (error, result) => {
                 if (error) {
                     reject(error);
@@ -134,7 +134,6 @@ class UserService {
     }
     getUserListByGradeAndMngip(grade, ipRanges, category, searchWord) {
         let searchCondition = "";
-        console.log("grade : ", grade);
         if (searchWord !== "" && category !== "") {
             // 여기에서 category에 따라 적절한 검색 조건을 추가합니다.
             switch (category) {
@@ -350,7 +349,6 @@ class UserService {
                     reject(error);
                 }
                 else {
-                    console.log("result : ", result);
                     resolve(result);
                 }
             });
@@ -360,6 +358,19 @@ class UserService {
         return new Promise((resolve, reject) => {
             const query = "update userlist set passwd = ? , last_pwd_date = now() where username = ?";
             db_1.default.query(query, [encPwd, username], (error, result) => {
+                if (error) {
+                    reject(error);
+                }
+                else {
+                    resolve(result);
+                }
+            });
+        });
+    }
+    getFreq(username) {
+        return new Promise((resolve, reject) => {
+            const query = `select pwd_change_freq from userlist where username = ?`;
+            db_1.default.query(query, username, (error, result) => {
                 if (error) {
                     reject(error);
                 }

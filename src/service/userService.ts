@@ -28,16 +28,20 @@ class UserService {
       });
     });
   }
-  addUser(user: {
-    username: string;
-    passwd: any;
-    grade: string;
-    mng_ip_ranges: string;
-  }): Promise<any> {
+
+  addUser(
+    user: {
+      username: string;
+      passwd: any;
+      grade: string;
+      mng_ip_ranges: string;
+    },
+    freq: any
+  ): Promise<any> {
     let mngip = user.mng_ip_ranges.replace(/(\r\n|\n|\r)/gm, ", ");
     let grade: number = parseInt(user.grade, 10);
     return new Promise(async (resolve, reject) => {
-      const query = `insert into userlist (\`username\`, \`passwd\`, \`grade\`, \`enabled\`, \`mng_ip_ranges\`) values ('${user.username}', '${user.passwd}', ${grade}, 1, '${mngip}')`;
+      const query = `insert into userlist (\`username\`, \`passwd\`, \`grade\`, \`enabled\`, \`mng_ip_ranges\`, \`last_pwd_date\`, \`pwd_change_freq\`) values ('${user.username}', '${user.passwd}', ${grade}, 1, '${mngip}', now(), ${freq})`;
       connection.query(query, (error, result) => {
         if (error) {
           reject(error);
@@ -146,7 +150,6 @@ class UserService {
     searchWord: any
   ): Promise<any> {
     let searchCondition = "";
-    console.log("grade : ", grade);
     if (searchWord !== "" && category !== "") {
       // 여기에서 category에 따라 적절한 검색 조건을 추가합니다.
       switch (category) {
@@ -376,7 +379,6 @@ class UserService {
         if (error) {
           reject(error);
         } else {
-          console.log("result : ", result);
           resolve(result);
         }
       });
@@ -388,6 +390,19 @@ class UserService {
       const query =
         "update userlist set passwd = ? , last_pwd_date = now() where username = ?";
       connection.query(query, [encPwd, username], (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      });
+    });
+  }
+
+  getFreq(username: any): Promise<any> {
+    return new Promise((resolve, reject) => {
+      const query = `select pwd_change_freq from userlist where username = ?`;
+      connection.query(query, username, (error, result) => {
         if (error) {
           reject(error);
         } else {
