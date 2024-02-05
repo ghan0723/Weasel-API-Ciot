@@ -534,10 +534,8 @@ router.get("/check", (req: Request, res: Response) => {
 router.post("/pwd", (req: Request, res: Response) => {
   let username = req.query.username;
   let user = req.body;
-  console.log("username : ", username);
-  console.log("user : ", user);
   const encPwd = cryptoService.getEncryptUltra(user.newPwd);
-  console.log("encPwd : ", encPwd);
+  
   userService
     .getPwdByUsername(username)
     .then((result1) => {
