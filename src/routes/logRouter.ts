@@ -17,14 +17,14 @@ router.get("/dashboard", (req: Request, res: Response) => {
     weasel.error(
       username,
       req.socket.remoteAddress,
-      "Failed to load Dashboard Page. [Dashboard]"
+      "Failed to load Dashboard Page. "
     );
     res.send("error");
   }
   weasel.log(
     username,
     req.socket.remoteAddress,
-    `The current Dashboard Page displays data on a ${select}. [Dashboard]`
+    `The current Dashboard Page displays data on a ${select}. `
   );
   res.send("success");
 });
@@ -39,7 +39,7 @@ router.get("/tables", (req: Request, res: Response) => {
     weasel.error(
       username,
       req.socket.remoteAddress,
-      "Failed to load Data-Tables Page. [Data-Tables]"
+      "Failed to load Data-Tables Page. "
     );
     res.send("error");
   }
@@ -48,7 +48,7 @@ router.get("/tables", (req: Request, res: Response) => {
     req.socket.remoteAddress,
     `The current Data-Tables Page displays data on a ${
       contents + " cate : " + category + " sear : " + search
-    }. [Data-Tables]`
+    }. `
   );
   res.send("success");
 });
@@ -60,14 +60,14 @@ router.get("/logout", (req: Request, res: Response) => {
     weasel.error(
       username,
       req.socket.remoteAddress,
-      "Failed to load LogOut. [LogOut]"
+      "Failed to load LogOut. Out]"
     );
     res.send("error");
   }
   weasel.log(
     username,
     req.socket.remoteAddress,
-    `Success to LogOut ${username}. [LogOut]`
+    `Success to LogOut ${username}. Out]`
   );
   res.send("success");
 });
@@ -101,11 +101,49 @@ router.get("/file", (req:Request, res:Response) => {
 
   logService.getLogContent(year, month, file)
   .then((content) => {
-    weasel.log("", req.socket.remoteAddress, `Open Log ${file} [Log File]`);
+    weasel.log("", req.socket.remoteAddress, `Open Log ${file}`);
     res.send([content]);
   })
   .catch((error) => {
-    weasel.error("", req.socket.remoteAddress, "Failed Open Log [Log File]");
+    weasel.error("", req.socket.remoteAddress, "Failed Open Log");
+    res.status(401).send("fail");
+  })
+})
+
+router.get("/error/years", (req: Request, res: Response) => {
+  logService.getErrorYears().then((years) => {
+    res.send(years);
+  });
+});
+
+router.get("/error/months", (req: Request, res: Response) => {
+  let year = req.query.year;
+  logService.getErrorMonths(year).then((months) => {
+    res.send(months);
+  });
+});
+
+router.get("/error/day", (req: Request, res: Response) => {
+  let year = req.query.year;
+  let month = req.query.month;
+  logService.getErrorLogFiles(year, month)
+  .then((files) => {
+    res.send(files);
+  })
+})
+
+router.get("/error/file", (req:Request, res:Response) => {
+  let year = req.query.year;
+  let month = req.query.month;
+  let file = req.query.file;
+
+  logService.getErrorLogContent(year, month, file)
+  .then((content) => {
+    weasel.log("", req.socket.remoteAddress, `Open Log ${file}`);
+    res.send([content]);
+  })
+  .catch((error) => {
+    weasel.error("", req.socket.remoteAddress, "Failed Open Log");
     res.status(401).send("fail");
   })
 })
