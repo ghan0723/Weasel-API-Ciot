@@ -72,7 +72,7 @@ class LogService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const projectRoot = process.cwd();
-                const filePath = path_1.default.join(projectRoot, "logs-err", year, year + "-" + month, file + ".log");
+                const filePath = path_1.default.join(projectRoot, "logs", year, year + "-" + month, file + ".log");
                 const content = yield promises_1.default.readFile(filePath, "utf-8");
                 return content;
             }

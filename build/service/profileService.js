@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const db_1 = __importDefault(require("../db/db"));
 class ProfileService {
     getProfile(username) {
-        const query = "select username, passwd, grade, mng_ip_ranges from userlist where username = ? ";
+        const query = "select username, passwd, grade, mng_ip_ranges, pwd_change_freq from userlist where username = ? ";
         return new Promise((resolve, reject) => {
             db_1.default.query(query, username, (error, result) => {
                 if (error) {
@@ -28,6 +28,20 @@ class ProfileService {
                 }
                 else {
                     console.log("데이터가 성공적으로 업데이트되었습니다.");
+                    resolve(result);
+                }
+            });
+        });
+    }
+    updateFreq(freq) {
+        const query = `update userlist set pwd_change_freq = ${freq}`;
+        return new Promise((resolve, reject) => {
+            db_1.default.query(query, (error, result) => {
+                if (error) {
+                    console.log("데이터 업데이트 중 오류 발생");
+                    reject(error);
+                }
+                else {
                     resolve(result);
                 }
             });
