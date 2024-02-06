@@ -666,7 +666,7 @@ router.get("/all", (req: Request, res: Response) => {
                 weasel.log(
                   username,
                   req.socket.remoteAddress,
-                  "Success to Load User Control Page "
+                  `Success to Load User Control Page category=${category}, searchWord=${searchWord}`
                 );
                 res.status(200).send(result2);
               })
@@ -748,24 +748,34 @@ router.post("/pwd", (req: Request, res: Response) => {
         );
         res.status(401).send("fail");
       } else {
-        userService
-          .modifyPwdByFreq(username, encPwd)
-          .then((result2) => {
-            weasel.log(
-              username,
-              req.socket.remoteAddress,
-              "Success Update Pwd Freq "
-            );
-            res.status(200).send(result2);
-          })
-          .catch((error) => {
-            weasel.error(
-              username,
-              req.socket.remoteAddress,
-              "Failed to Update Pwd Freq By Server "
-            );
-            res.status(500).send("Internal Server Error");
-          });
+        if (user.newPwd !== user.oldPwd) {
+          userService
+            .modifyPwdByFreq(username, encPwd)
+            .then((result2) => {
+              weasel.log(
+                username,
+                req.socket.remoteAddress,
+                "Success Update Pwd Freq "
+              );
+              res.status(200).send(result2);
+            })
+            .catch((error) => {
+              weasel.error(
+                username,
+                req.socket.remoteAddress,
+                "Failed to Update Pwd Freq By Server "
+              );
+              res.status(500).send("Internal Server Error");
+            });
+        } else {
+          weasel.error(
+            username,
+            req.socket.remoteAddress,
+            "Failed to Update Pwd By Old Pwd Equals New Pwd"
+          );
+          res.status(500).send(
+            "The password before the change and the password after the change are the same.");
+        }
       }
     })
     .catch((error2) => {
