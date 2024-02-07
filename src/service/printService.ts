@@ -16,7 +16,7 @@ class PrintService {
     'Printers' : 'printer',            // 6
     'Owners' : 'owner',                // 7
     'Documents' : 'document',          // 8
-    'Copied_Spool_Files' : 'spl_file', // 9
+    'Copied_Spool_Files' : 'spl_file', // 9 => 사용 안함
     'Downloading' : 'spl_file',        // 10
     'Sizes' : 'size',                  // 11
     'Pages' : 'pages',                 // 12
@@ -123,11 +123,11 @@ class PrintService {
     return new Promise((resolve, reject) => {
       const queryStr = grade !== 3 ?
       `select id, time as ${aliasKey[1]}, pcname as ${aliasKey[2]}, agent_ip as ${aliasKey[3]}, process as ${aliasKey[4]}, pid as ${aliasKey[5]}, 
-        printer as ${aliasKey[6]}, owner as ${aliasKey[7]}, document as ${aliasKey[8]}, spl_file as ${aliasKey[9]}, spl_file as ${aliasKey[10]},
+        printer as ${aliasKey[6]}, owner as ${aliasKey[7]}, document as ${aliasKey[8]}, spl_file as ${aliasKey[10]},
         size as ${aliasKey[11]}, pages as ${aliasKey[12]} `
         :
         `select id, time as ${aliasKey[1]}, pcname as ${aliasKey[2]}, agent_ip as ${aliasKey[3]}, process as ${aliasKey[4]}, pid as ${aliasKey[5]}, 
-        printer as ${aliasKey[6]}, owner as ${aliasKey[7]}, document as ${aliasKey[8]}, spl_file as ${aliasKey[9]}, 
+        printer as ${aliasKey[6]}, owner as ${aliasKey[7]}, document as ${aliasKey[8]}, 
         size as ${aliasKey[11]}, pages as ${aliasKey[12]} `;
 
       const query =
