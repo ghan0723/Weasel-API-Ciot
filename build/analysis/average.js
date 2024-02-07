@@ -1,21 +1,26 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class Average {
-    analyzeLeaks(detectFiles) {
-        const leakEventsByHour = detectFiles.reduce((acc, file) => {
-            const hour = new Date(file.time).getHours(); // 사건 발생 시간에서 시간대 추출
-            acc[hour] = (acc[hour] || 0) + 1; // 시간대별 사건 수 집계
+    // 시간대 및 프로세스 기반 파일 유출 분석
+    analyzeLeaksByTimeAndProcess(detectFiles) {
+        const processAnalysis = detectFiles.reduce((acc, file) => {
+            const hour = new Date(file.time).getHours();
+            const process = file.process || 'Unknown';
+            if (!acc[hour])
+                acc[hour] = {};
+            if (!acc[hour][process])
+                acc[hour][process] = { count: 0, files: [] };
+            acc[hour][process].count += 1;
+            acc[hour][process].files.push(file.file);
             return acc;
         }, {});
-        // 시간대별 평균 유출 사건 수 계산
-        const totalHours = Object.keys(leakEventsByHour).length;
-        const totalEvents = Object.values(leakEventsByHour).reduce((sum, count) => sum + count, 0);
-        const averageEventsPerHour = totalEvents / totalHours;
-        // 이상 징후 탐지: 평균 유출 사건 수의 2배를 초과하는 시간대 식별
-        const anomalyHours = Object.entries(leakEventsByHour).filter(([hour, count]) => count > averageEventsPerHour * 2);
-        console.log("시간대별 파일 유출 사건:", leakEventsByHour);
-        console.log("평균 유출 사건 수 (시간대별):", averageEventsPerHour);
-        console.log("이상 징후가 발견된 시간대:", anomalyHours.map(([hour]) => hour));
+        // 분석 결과 출력
+        Object.entries(processAnalysis).forEach(([hour, processes]) => {
+            console.log(`시간대 ${hour}:`);
+            Object.entries(processes).forEach(([process, data]) => {
+                console.log(`  프로세스 ${process}: 유출 사건 ${data.count}건, 파일 목록: ${data.files.join(', ')}`);
+            });
+        });
     }
 }
 exports.default = Average;

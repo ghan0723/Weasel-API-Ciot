@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const db_1 = __importDefault(require("../db/db"));
 class ComplexService {
-    getkData(props, select, ipRanges) {
+    getData(props, select, ipRanges) {
         let table;
         let dayOption;
         let columns;
@@ -51,6 +51,19 @@ class ComplexService {
                         data: result,
                         key: keys
                     });
+                }
+            });
+        });
+    }
+    getAllData() {
+        const query = "select * from detectfiles";
+        return new Promise((resolve, reject) => {
+            db_1.default.query(query, (error, result) => {
+                if (error) {
+                    reject(error);
+                }
+                else {
+                    resolve(result);
                 }
             });
         });

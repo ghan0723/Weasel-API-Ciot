@@ -26,5 +26,7 @@ class Average {
       anomalyHours.map(([hour]) => hour)
     );
   }
+
+  
 }
 export default Average;

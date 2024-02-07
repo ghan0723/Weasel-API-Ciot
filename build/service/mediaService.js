@@ -24,7 +24,7 @@ class MediaService {
             'Process': 'process', // 4
             'Media_Type': 'media_type', // 5
             'Files': 'file', // 6
-            'Copied_files': 'saved_file', // 7
+            'Copied_files': 'saved_file', // 7 => 사용 안함
             'Downloading': 'saved_file', // 8
             'FileSizes': 'file_size', // 9
             'Keywords': 'keywords', // 10
@@ -121,11 +121,11 @@ class MediaService {
         return new Promise((resolve, reject) => {
             const queryStr = grade !== 3 ?
                 `select id, time as ${aliasKey[1]}, pcname as ${aliasKey[2]}, agent_ip as ${aliasKey[3]}, process as ${aliasKey[4]}, media_type as ${aliasKey[5]}, file as ${aliasKey[6]},
-      saved_file as ${aliasKey[7]}, saved_file as ${aliasKey[8]},
+      saved_file as ${aliasKey[8]},
       file_size as ${aliasKey[9]}, keywords as ${aliasKey[10]} `
                 :
                     `select id, time as ${aliasKey[1]}, pcname as ${aliasKey[2]}, agent_ip as ${aliasKey[3]}, process as ${aliasKey[4]}, media_type as ${aliasKey[5]}, file as ${aliasKey[6]},
-        saved_file as ${aliasKey[7]}, file_size as ${aliasKey[9]}, keywords as ${aliasKey[10]} `;
+        file_size as ${aliasKey[9]}, keywords as ${aliasKey[10]} `;
             const query = queryStr +
                 "from detectmediafiles " +
                 whereClause +
