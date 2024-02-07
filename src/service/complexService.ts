@@ -12,10 +12,10 @@ class ComplexService {
       columns = "process ,dst_file";
     } else if (props === "media") {
       table = "detectmediafiles";
-      columns = "process, file";
+      columns = "media_type, file";
     } else if (props === "outlook") {
       table = "outlookpstviewer";
-      columns = "process, receiver";
+      columns = "process, sender";
     } else {
       table = "detectprinteddocuments";
       columns = "printer, document";
