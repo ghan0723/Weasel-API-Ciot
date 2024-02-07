@@ -60,14 +60,14 @@ router.get("/logout", (req: Request, res: Response) => {
     weasel.error(
       username,
       req.socket.remoteAddress,
-      "Failed to load LogOut. Out]"
+      "Failed to load LogOut. "
     );
     res.send("error");
   }
   weasel.log(
     username,
     req.socket.remoteAddress,
-    `Success to LogOut ${username}. Out]`
+    `Success to LogOut ${username}. `
   );
   res.send("success");
 });

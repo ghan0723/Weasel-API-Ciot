@@ -36,10 +36,10 @@ router.get("/tables", (req, res) => {
 router.get("/logout", (req, res) => {
     const username = req.query.username;
     if (typeof username !== "string") {
-        log_1.weasel.error(username, req.socket.remoteAddress, "Failed to load LogOut. Out]");
+        log_1.weasel.error(username, req.socket.remoteAddress, "Failed to load LogOut. ");
         res.send("error");
     }
-    log_1.weasel.log(username, req.socket.remoteAddress, `Success to LogOut ${username}. Out]`);
+    log_1.weasel.log(username, req.socket.remoteAddress, `Success to LogOut ${username}. `);
     res.send("success");
 });
 router.get("/years", (req, res) => {
