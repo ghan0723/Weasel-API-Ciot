@@ -15,7 +15,7 @@ router.get("/all", (req: Request, res: Response) => {
   function fetchData(serviceName: string) {
     return userService.getGradeAndMngip(username).then((result) => {
       let ipRange = ipCalcService.parseIPRange(result[0].mng_ip_ranges);
-      return complexService.getkData(serviceName, select, ipRange);
+      return complexService.getData(serviceName, select, ipRange);
     });
   }
 

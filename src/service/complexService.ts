@@ -2,7 +2,7 @@ import connection from "../db/db";
 import { IpRange } from "../interface/interface";
 
 class ComplexService {
-  getkData(props: any, select: any, ipRanges: IpRange[]): Promise<any> {
+  getData(props: any, select: any, ipRanges: IpRange[]): Promise<any> {
     let table: string;
     let dayOption: string;
     let columns: string;
@@ -51,6 +51,19 @@ class ComplexService {
         }
       });
     });
+  }
+
+  getAllData():Promise<any> {
+    const query = "select * from detectfiles";
+    return new Promise((resolve, reject) => {
+      connection.query(query, (error, result) => {
+        if(error){
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      })
+    })
   }
 }
 
