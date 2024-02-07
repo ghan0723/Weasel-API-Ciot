@@ -145,9 +145,6 @@ class OutlookService {
       const query2 = "select count(*) as count from outlookpstviewer " + whereClause;
       const whereQuery = '%' + search + '%';
 
-      console.log('query : ', query);
-      
-
       Promise.all([
         new Promise<void>((innerResolve, innerReject) => {
           connection.query(query,whereQuery, (error, result) => {

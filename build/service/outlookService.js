@@ -138,7 +138,6 @@ class OutlookService {
                 'LIMIT ' + queryPageSize + ' offset ' + queryPage * queryPageSize;
             const query2 = "select count(*) as count from outlookpstviewer " + whereClause;
             const whereQuery = '%' + search + '%';
-            console.log('query : ', query);
             Promise.all([
                 new Promise((innerResolve, innerReject) => {
                     db_1.default.query(query, whereQuery, (error, result) => {

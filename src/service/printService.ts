@@ -165,11 +165,6 @@ class PrintService {
         new Promise<void>((innerResolve, innerReject) => {
           connection.query(query2,whereQuery, (error, result) => {
 
-            console.log('query2 : ', query2);
-            
-            console.log('result : ', result);
-            
-
             if(result[0].count === 0) {
               result[0].count = 1;
             }
@@ -183,8 +178,6 @@ class PrintService {
         }),
       ])
         .then((values) => {
-          console.log("values : ", values);
-
           resolve(values);
         })
         .catch((error) => reject(error));
