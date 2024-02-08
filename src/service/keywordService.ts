@@ -109,6 +109,37 @@ class KeywordService {
       });
     });
   }
+
+  getKeywordList():Promise<any> {
+    return new Promise((resolve, reject) => {
+      const query = `select clnt_keyword_list from usersettings;`
+      connection.query(query, (error, result) => {
+        if(error) {
+          reject(error);
+        } else {
+          // 패턴: = 문자로 시작하고 &&으로 끝나는 모든 항목을 찾음
+          // ([^=]+)는 '=' 기호 전까지의 모든 문자를 키로 매칭하며, ([^&]+)는 '&' 기호 전까지의 모든 문자를 값으로 매칭합니다.
+          // '&&'는 각 키-값 쌍의 끝을 나타냅니다.
+          const regex = /([^=]+)=([^&]+)&&/g;
+          let matches;
+          const results = [];
+
+          while ((matches = regex.exec(result[0]?.clnt_keyword_list)) !== null) {
+            // matches[1]은 키, matches[2]는 값            
+            results.push({
+              key: matches[1],     // 키
+              // value: matches[2] // 값
+            });
+          }
+
+          const keysResult = results.map(data => data.key);
+          resolve(keysResult);
+        }
+
+      });
+
+    });
+  }
 }
 
 export default KeywordService;

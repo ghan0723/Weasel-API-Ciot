@@ -5,9 +5,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 const complexService_1 = __importDefault(require("../service/complexService"));
 const average_1 = __importDefault(require("../analysis/average"));
 const express_1 = __importDefault(require("express"));
+const keywordService_1 = __importDefault(require("../service/keywordService"));
 const router = express_1.default.Router();
 const average = new average_1.default();
 const complexService = new complexService_1.default();
+const keywordService = new keywordService_1.default();
 router.get('/average', (req, res) => {
     complexService.getAllData()
         .then((result) => {
@@ -16,6 +18,16 @@ router.get('/average', (req, res) => {
     })
         .catch((error) => {
         console.log("실패...");
+    });
+});
+// keywordList
+router.get('/keywordList', (req, res) => {
+    keywordService.getKeywordList()
+        .then(result => {
+        res.send(result);
+    })
+        .catch(error => {
+        console.log(error);
     });
 });
 module.exports = router;
