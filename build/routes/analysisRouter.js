@@ -11,7 +11,7 @@ const complexService = new complexService_1.default();
 router.get('/average', (req, res) => {
     complexService.getAllData()
         .then((result) => {
-        average.analyzeLeaksByTimeAndProcess(result);
+        average.analyzeLeaks(result);
         res.send("바위");
     })
         .catch((error) => {
