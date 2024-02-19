@@ -5,6 +5,7 @@ class PrintService {
   private query1!: number;
   private query2!: number;
 
+  // Old_C
   private columnAlias:any = {
     // alias    table명
     'id' : 'id',                       // 0
@@ -21,6 +22,24 @@ class PrintService {
     'Sizes' : 'size',                  // 11
     'Pages' : 'pages',                 // 12
   };
+
+  // New_C
+  // private columnAlias:any = {
+  //   // alias    table명
+  //   'id' : 'id',                       // 0
+  //   'Time' : 'time',                   // 1
+  //   'PcName' : 'pc_name',               // 2
+  //   'Agent_ip' : 'latest_agent_ip',           // 3
+  //   'Process' : 'proc_name',             // 4
+  //   'PIDs' : 'proc_id',                    // 5
+  //   'Printers' : 'printer',            // 6
+  //   'Owners' : 'doc_owner',                // 7
+  //   'Documents' : 'doc_name',          // 8
+  //   'Copied_Spool_Files' : 'spl_file', // 9 => 사용 안함
+  //   'Downloading' : 'spl_file',        // 10
+  //   'Sizes' : 'file_size',                  // 11
+  //   'Pages' : 'doc_pages',                 // 12
+  // };
 
   getCountAll(select: any, ipRanges: IpRange[]): Promise<any> {
     let dayOption1: string;
@@ -44,8 +63,13 @@ class PrintService {
       .join(" OR ");
 
     return new Promise((resolve, reject) => {
+      // Old_C
       const query = `SELECT COUNT(*) as allprints FROM detectprinteddocuments WHERE time >= DATE_SUB(${dayOption1}) AND (${ipConditions})`;
       const query3 = `SELECT COUNT(*) as beforeprints FROM detectprinteddocuments WHERE time >= DATE_SUB(${dayOption2}) AND time < DATE_SUB(${dayOption1}) AND (${ipConditions})`;
+
+      // New_C
+      // const query = `SELECT COUNT(*) as allprints FROM leakedprintingfiles WHERE time >= DATE_SUB(${dayOption1}) AND (${ipConditions})`;
+      // const query3 = `SELECT COUNT(*) as beforeprints FROM leakedprintingfiles WHERE time >= DATE_SUB(${dayOption2}) AND time < DATE_SUB(${dayOption1}) AND (${ipConditions})`;
 
       Promise.all([
         new Promise<void>((innerResolve, innerReject) => {
@@ -91,6 +115,7 @@ class PrintService {
     let queryDesc:string=desc === 'false' ? 'asc' : 'desc';
     let whereClause = '';
     const aliasKey = Object.keys(this.columnAlias);
+    const aliasValues = this.columnAlias.values;
     const convertColumns = category !== '' && this.columnAlias[category];
 
     if(page !== undefined) {      
@@ -122,22 +147,31 @@ class PrintService {
 
     return new Promise((resolve, reject) => {
       const queryStr = grade !== 3 ?
-      `select id, time as ${aliasKey[1]}, pcname as ${aliasKey[2]}, agent_ip as ${aliasKey[3]}, process as ${aliasKey[4]}, pid as ${aliasKey[5]}, 
-        printer as ${aliasKey[6]}, owner as ${aliasKey[7]}, document as ${aliasKey[8]}, spl_file as ${aliasKey[10]},
-        size as ${aliasKey[11]}, pages as ${aliasKey[12]} `
+      `select ${aliasValues[0]}, ${aliasValues[1]} as ${aliasKey[1]}, ${aliasValues[2]} as ${aliasKey[2]}, ${aliasValues[3]} as ${aliasKey[3]}, ${aliasValues[4]} as ${aliasKey[4]}, ${aliasValues[5]} as ${aliasKey[5]}, 
+      ${aliasValues[6]} as ${aliasKey[6]}, ${aliasValues[7]} as ${aliasKey[7]}, ${aliasValues[8]} as ${aliasKey[8]}, ${aliasValues[10]} as ${aliasKey[10]},
+      ${aliasValues[11]} as ${aliasKey[11]}, ${aliasValues[12]} as ${aliasKey[12]} `
         :
-        `select id, time as ${aliasKey[1]}, pcname as ${aliasKey[2]}, agent_ip as ${aliasKey[3]}, process as ${aliasKey[4]}, pid as ${aliasKey[5]}, 
-        printer as ${aliasKey[6]}, owner as ${aliasKey[7]}, document as ${aliasKey[8]}, 
-        size as ${aliasKey[11]}, pages as ${aliasKey[12]} `;
+        `select ${aliasValues[0]}, ${aliasValues[1]} as ${aliasKey[1]}, ${aliasValues[2]} as ${aliasKey[2]}, ${aliasValues[3]} as ${aliasKey[3]}, ${aliasValues[4]} as ${aliasKey[4]}, ${aliasValues[5]} as ${aliasKey[5]}, 
+        ${aliasValues[6]} as ${aliasKey[6]}, ${aliasValues[7]} as ${aliasKey[7]}, ${aliasValues[8]} as ${aliasKey[8]}, 
+        ${aliasValues[11]} as ${aliasKey[11]}, ${aliasValues[12]} as ${aliasKey[12]} `;
 
       const query =
         queryStr +
+
+        // Old_C
         "from detectprinteddocuments " +
+
+        // New_C
+        "from leakedprintingfiles " +
          whereClause +
         ' order by '+ querySorting + ' ' + queryDesc + ' ' +
         'LIMIT ' + queryPageSize + ' offset ' + queryPage*queryPageSize;
 
+        // Old_C
       const query2 = "select count(*) as count from detectprinteddocuments " + whereClause;
+
+      // New_C
+      // const query2 = "select count(*) as count from leakedprintingfiles " + whereClause;
       const whereQuery = '%' + search + '%';;
 
       Promise.all([
@@ -188,7 +222,11 @@ class PrintService {
   postRemoveData(body:string[]) {
     // 이 부분에서 배열을 문자열로 변환할 때 각 값에 작은따옴표를 추가하는 방식으로 수정
     const idString = body.map((id) => `'${id}'`).join(", ");
+    // Old_C
     const query = `DELETE FROM detectprinteddocuments WHERE id IN (${idString})`;
+
+    // New_C
+    // const query = `DELETE FROM leakedprintingfiles WHERE id IN (${idString})`;
 
     return new Promise((resolve, reject) => {
       connection.query(query, (error, result) => {
@@ -246,7 +284,8 @@ class PrintService {
       } else {
         queryMonthStr = queryMonth.toString();
       }
-      
+
+      // Old_C
       const query = `insert into	detectprinteddocuments (
         time,
       pcname,
@@ -277,6 +316,36 @@ class PrintService {
     '111',
     '0',
     '5');`;
+
+    // New_C
+  //   const query = `insert into	leakedprintingfiles (
+  //     time,
+  //     pc_guid,
+  //     pc_name,
+  //     proc_name,
+  //     proc_id,
+  //     latest_agent_ip,
+  //   printer,
+  //   doc_owner,
+  //   doc_name,
+  //   spl_file,
+  //   file_size,
+  //   doc_pages,
+  //   upload_state)
+  // values (
+  // now(),
+  // 'PCGUID${i+1}',
+  // 'PCname${i+1}',
+  // '${process}',
+  // '2684',
+  // '${agentIp}',
+  // 'Samsung X3220NR',
+  // 'USER',
+  // '퇴직원.pdf',
+  // 'DESKTOP-O14QCIB++2022-08-31 10.00.34++00007.spl',
+  // '452823',
+  // '2',
+  // '111');`;
   
       try {
         const result = await new Promise((resolve, reject) => {

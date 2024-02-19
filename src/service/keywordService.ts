@@ -15,6 +15,7 @@ class KeywordService {
     let table: string;
     let dayOption: string;
 
+    // Old_C
     if (props === "network") {
       table = "detectfiles";
     } else if (props === "media") {
@@ -24,6 +25,17 @@ class KeywordService {
     } else {
       table = "detectprinteddocuments";
     }
+
+    // New_C
+    // if (props === "network") {
+    //   table = "LeakedNetworkFiles";
+    // } else if (props === "media") {
+    //   table = "LeakedMediaFiles";
+    // } else if (props === "outlook") {
+    //   table = "LeakedOutlookFiles";
+    // } else {
+    //   table = "LeakedPrintingFiles";
+    // }
 
     if (select === "day") {
       dayOption = "DATE(time) = CURDATE()";
@@ -40,12 +52,22 @@ class KeywordService {
           `(INET_ATON(agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`
       )
       .join(" OR ");
+
+      // Old_C
     const query = `select pcname, keywords from ${table} where (${dayOption}) AND (${ipConditions}) AND 
     (
       keywords LIKE '%주민번호%' OR
       keywords LIKE '%핸드폰번호%' OR
       keywords LIKE '%이력서%'
     ) `;
+
+    // New_C
+    // const query = `select pc_name, patterns from ${table} where (${dayOption}) AND (${ipConditions}) AND 
+    // (
+    //   patterns LIKE '%주민번호%' OR
+    //   patterns LIKE '%핸드폰번호%' OR
+    //   patterns LIKE '%이력서%'
+    // ) `;
 
     return new Promise<ResultWithCountsItem[]>((resolve, reject) => {
       connection.query(query, (error: any, result: any[]) => {
@@ -112,7 +134,11 @@ class KeywordService {
 
   getKeywordList():Promise<any> {
     return new Promise((resolve, reject) => {
+      // Old_C
       const query = `select clnt_keyword_list from usersettings;`
+
+      // New_C
+      // const query = `select clnt_patterns_list from serversetting;`
       connection.query(query, (error, result) => {
         if(error) {
           reject(error);
