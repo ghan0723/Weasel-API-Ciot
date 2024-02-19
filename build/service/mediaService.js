@@ -113,7 +113,7 @@ class MediaService {
         let queryDesc = desc === 'false' ? 'asc' : 'desc';
         let whereClause = '';
         const aliasKey = Object.keys(this.columnAlias);
-        const aliasValues = this.columnAlias.values;
+        const aliasValues = Object.values(this.columnAlias);
         const convertColumns = category !== '' && this.columnAlias[category];
         if (page !== undefined) {
             queryPage = Number(page);

@@ -9,16 +9,16 @@ class ComplexService {
 
     if (props === "network") {
       table = "leakednetworkfiles";
-      columns = "proc_name ,url";
+      columns = "proc_name ,org_file";
     } else if (props === "media") {
       table = "leakedmediafiles";
-      columns = "media_type, file";
+      columns = "media_type, org_file";
     } else if (props === "outlook") {
       table = "leakedoutlookfiles";
       columns = "proc_name, sender";
     } else {
       table = "leakedprintingfiles";
-      columns = "printer, document";
+      columns = "printer, doc_name";
     }
 
     if (select === "day") {

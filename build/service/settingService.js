@@ -31,7 +31,7 @@ class SettingService {
         const query = "select uid, svr_checkbox_flag, clnt_svr_ip, clnt_svr_port, clnt_svr_conn_interval, clnt_license, clnt_exceptions_list, clnt_patterns_list, svr_port, svr_file_retention_periods, svr_auto_fileupload from serversetting";
         return new Promise((resolve, reject) => {
             db_1.default.query(query, (error, result) => {
-                var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
+                var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x;
                 if (error) {
                     reject(error);
                 }
@@ -56,7 +56,19 @@ class SettingService {
                             }]);
                     }
                     else {
-                        resolve(result);
+                        resolve([{
+                                uid: (_m = result[0]) === null || _m === void 0 ? void 0 : _m.uid,
+                                svr_checkbox_flag: (_o = result[0]) === null || _o === void 0 ? void 0 : _o.svr_checkbox_flag,
+                                clnt_svr_ip: (_p = result[0]) === null || _p === void 0 ? void 0 : _p.clnt_svr_ip,
+                                clnt_svr_port: (_q = result[0]) === null || _q === void 0 ? void 0 : _q.clnt_svr_port,
+                                clnt_svr_conn_interval: (_r = result[0]) === null || _r === void 0 ? void 0 : _r.clnt_svr_conn_interval,
+                                clnt_license: (_s = result[0]) === null || _s === void 0 ? void 0 : _s.clnt_license,
+                                clnt_exceptions_list: (_t = result[0]) === null || _t === void 0 ? void 0 : _t.clnt_patterns_list,
+                                clnt_patterns_list: (_u = result[0]) === null || _u === void 0 ? void 0 : _u.clnt_exceptions_list,
+                                svr_port: (_v = result[0]) === null || _v === void 0 ? void 0 : _v.svr_port,
+                                svr_file_retention_periods: (_w = result[0]) === null || _w === void 0 ? void 0 : _w.svr_file_retention_periods,
+                                svr_auto_fileupload: (_x = result[0]) === null || _x === void 0 ? void 0 : _x.svr_auto_fileupload,
+                            }]);
                     }
                 }
             });
