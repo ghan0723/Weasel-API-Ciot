@@ -128,7 +128,6 @@ class UserService {
                 }
                 else {
                     resolve(result);
-                    console.log("result : ", result);
                 }
             });
         });

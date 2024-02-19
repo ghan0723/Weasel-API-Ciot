@@ -113,7 +113,7 @@ class OutlookService {
     let querySorting:string=sorting === '' ? 'time' : sorting;
     let queryDesc:string=desc === 'false' ? 'asc' : 'desc';
     let whereClause = '';
-    const aliasValues = this.columnAlias.values;
+    const aliasValues = Object.values(this.columnAlias);
     const aliasKey = Object.keys(this.columnAlias);
     const convertColumns = category !== '' && this.columnAlias[category];
 

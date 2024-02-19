@@ -113,7 +113,7 @@ class UserService {
     });
   }
 
-  getPrivilege(username: any): Promise<any> {
+  getPrivilege(username: any): Promise<any> {    
     const query = `select privilege from accountlist where username = ? `;
 
     return new Promise((resolve, reject) => {
@@ -138,7 +138,6 @@ class UserService {
           reject(error);
         } else {
           resolve(result);
-          console.log("result : ", result);
         }
       });
     });

@@ -454,6 +454,7 @@ router.get("/privilege", (req, res) => {
     userService
         .getPrivilege(username)
         .then((result) => {
+        console.log('result', result);
         res.send(result);
     })
         .catch((error) => {
