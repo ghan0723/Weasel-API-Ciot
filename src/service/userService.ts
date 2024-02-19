@@ -138,7 +138,6 @@ class UserService {
           reject(error);
         } else {
           resolve(result);
-          console.log("result : ", result);
         }
       });
     });
