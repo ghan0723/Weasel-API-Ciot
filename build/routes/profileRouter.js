@@ -20,8 +20,8 @@ router.get("/edit/:username", (req, res) => {
         const newUser = {
             username: user[0].username,
             passwd: decPasswd,
-            grade: user[0].grade,
-            mng_ip_ranges: user[0].mng_ip_ranges,
+            privilege: user[0].privilege,
+            ip_ranges: user[0].ip_ranges,
             pwd_change_freq: user[0].pwd_change_freq,
         };
         log_1.weasel.log(username, req.socket.remoteAddress, "Success to Load Profile Page ");
@@ -43,10 +43,10 @@ router.post("/update/:username", (req, res) => {
         passwd: encPasswd,
     };
     userService
-        .getGrade(oldname)
+        .getPrivilege(oldname)
         .then((result) => {
         //관리자 계정이 아니라면
-        if (result[0].grade !== 1) {
+        if (result[0].privilege !== 1) {
             //중복 사용자가 아닌지 판별
             userService
                 .checkUsername(user.username, oldname)
@@ -164,7 +164,7 @@ router.post("/update/:username", (req, res) => {
         }
     })
         .catch((error) => {
-        log_1.weasel.error(oldname, req.socket.remoteAddress, "Failed to Get Grade By Username ");
+        log_1.weasel.error(oldname, req.socket.remoteAddress, "Failed to Get Privilege By Username ");
         res.status(500).send("업데이트 잘못된거 같습니다.");
     });
 });

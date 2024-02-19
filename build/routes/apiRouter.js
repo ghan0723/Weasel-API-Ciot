@@ -28,21 +28,21 @@ router.get("/", (req, res) => {
     const search = req.query.search; // search context
     const username = req.query.username; // username
     let ipRanges;
-    userService.getGradeAndMngip(username)
+    userService.getPrivilegeAndIP(username)
         .then(result => {
         let results;
-        ipRanges = ipCalcService.parseIPRange(result[0].mng_ip_ranges);
+        ipRanges = ipCalcService.parseIPRange(result[0].ip_ranges);
         if (contents === "network") {
-            results = networkService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, result[0].grade);
+            results = networkService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, result[0].privilege);
         }
         else if (contents === "media") {
-            results = mediaService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, result[0].grade);
+            results = mediaService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, result[0].privilege);
         }
         else if (contents === "outlook") {
-            results = outlookService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, result[0].grade);
+            results = outlookService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, result[0].privilege);
         }
         else if (contents === "print") {
-            results = printService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, result[0].grade);
+            results = printService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, result[0].privilege);
         }
         else {
             // Handle the case when param doesn't match any of the expected values
@@ -129,22 +129,22 @@ router.post('/rm', (req, res) => {
 // 송신탐지 외 getApiData Logic
 function getApiDataLogic(contents, page, pageSize, sorting, desc, category, search, username, req, res) {
     let ipRanges;
-    userService.getGradeAndMngip(username)
+    userService.getPrivilegeAndIP(username)
         .then(result => {
         let results;
-        ipRanges = ipCalcService.parseIPRange(result[0].mng_ip_ranges);
+        ipRanges = ipCalcService.parseIPRange(result[0].ip_ranges);
         switch (contents) {
             case 'network':
-                results = networkService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, result[0].grade);
+                results = networkService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, result[0].privilege);
                 break;
             case 'media':
-                results = mediaService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, result[0].grade);
+                results = mediaService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, result[0].privilege);
                 break;
             case 'outlook':
-                results = outlookService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, result[0].grade);
+                results = outlookService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, result[0].privilege);
                 break;
             case 'print':
-                results = printService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, result[0].grade);
+                results = printService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, result[0].privilege);
                 break;
         }
         results === null || results === void 0 ? void 0 : results.then((DataItem) => {

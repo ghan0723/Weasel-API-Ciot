@@ -14,14 +14,14 @@ router.get("/all", (req: Request, res: Response) => {
   let username = req.query.username;
 
   function fetchData(serviceName: string) {
-    return userService.getGradeAndMngip(username).then((result) => {
-      let ipRange = ipCalcService.parseIPRange(result[0].mng_ip_ranges);
+    return userService.getPrivilegeAndIP(username).then((result) => {
+      let ipRange = ipCalcService.parseIPRange(result[0].ip_ranges);
       return keywordService.getKeyword(serviceName, select, ipRange);
     });
   }
 
   function mergeKeywordCounts(
-    dataArray: Array<Array<{ pcname: string; keywordCounts: KeywordCounts }>>
+    dataArray: Array<Array<{ pc_name: string; keywordCounts: KeywordCounts }>>
   ): Array<MergedData> {
     const mergedDataMap: Map<string, KeywordCounts> = new Map();
 
@@ -29,19 +29,19 @@ router.get("/all", (req: Request, res: Response) => {
     dataArray.forEach((data) => {
       // 배열 내의 각 객체에 대해 반복
       data.forEach((item) => {
-        const pcname = item.pcname;
+        const pc_name = item.pc_name;
         const keywordCounts = item.keywordCounts;
 
-        // pcname을 기준으로 keywordCounts를 병합
-        if (mergedDataMap.has(pcname)) {
-          const existingCounts = mergedDataMap.get(pcname) || {};
+        // pc_name을 기준으로 keywordCounts를 병합
+        if (mergedDataMap.has(pc_name)) {
+          const existingCounts = mergedDataMap.get(pc_name) || {};
           Object.keys(keywordCounts).forEach((key) => {
             existingCounts[key] =
               (existingCounts[key] || 0) + keywordCounts[key];
           });
-          mergedDataMap.set(pcname, existingCounts);
+          mergedDataMap.set(pc_name, existingCounts);
         } else {
-          mergedDataMap.set(pcname, { ...keywordCounts });
+          mergedDataMap.set(pc_name, { ...keywordCounts });
         }
       });
     });
@@ -49,8 +49,8 @@ router.get("/all", (req: Request, res: Response) => {
     // Map을 MergedData 객체의 배열로 변환
     const mergedDataArray: Array<MergedData> = Array.from(
       mergedDataMap.entries()
-    ).map(([pcname, keywordCounts]) => ({
-      pcname,
+    ).map(([pc_name, keywordCounts]) => ({
+      pc_name,
       keywordCounts,
       total: Object.values(keywordCounts).reduce(
         (acc, count) => acc + count,

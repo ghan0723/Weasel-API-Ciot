@@ -16,14 +16,14 @@ router.get('/', (req, res) => {
     const select = req.query.select; // 일/주/월
     const username = req.query.username; // 로그인 된 사용자
     let ipRanges;
-    userService.getGradeAndMngip(username)
+    userService.getPrivilegeAndIP(username)
         .then(result => {
         let results;
         if (result.length === 0) {
             console.log("username을 가져오다가 에러 발생:");
             return res.status(500).send();
         }
-        ipRanges = ipCalcService.parseIPRange(result[0].mng_ip_ranges);
+        ipRanges = ipCalcService.parseIPRange(result[0].ip_ranges);
         switch (select) {
             // 일
             case 'day':

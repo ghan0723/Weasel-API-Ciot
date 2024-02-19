@@ -30,19 +30,19 @@ router.get("/", (req: Request, res: Response) => {
   
   let ipRanges:IpRange[];
 
-  userService.getGradeAndMngip(username)
+  userService.getPrivilegeAndIP(username)
   .then(result => {
     let results;
-    ipRanges = ipCalcService.parseIPRange(result[0].mng_ip_ranges);
+    ipRanges = ipCalcService.parseIPRange(result[0].ip_ranges);
 
     if (contents === "network") {
-      results = networkService.getApiData(page,pageSize,sorting,desc,category,search,ipRanges,result[0].grade);
+      results = networkService.getApiData(page,pageSize,sorting,desc,category,search,ipRanges,result[0].privilege);
     } else if (contents === "media") {
-      results = mediaService.getApiData(page,pageSize,sorting,desc,category,search,ipRanges,result[0].grade);
+      results = mediaService.getApiData(page,pageSize,sorting,desc,category,search,ipRanges,result[0].privilege);
     } else if (contents === "outlook") {
-      results = outlookService.getApiData(page,pageSize,sorting,desc,category,search,ipRanges,result[0].grade);
+      results = outlookService.getApiData(page,pageSize,sorting,desc,category,search,ipRanges,result[0].privilege);
     } else if (contents === "print") {
-      results = printService.getApiData(page,pageSize,sorting,desc,category,search,ipRanges,result[0].grade);
+      results = printService.getApiData(page,pageSize,sorting,desc,category,search,ipRanges,result[0].privilege);
     } else {
       // Handle the case when param doesn't match any of the expected values
       console.error("Invalid param:", contents);
@@ -143,23 +143,23 @@ router.post('/rm', (req:Request, res:Response) => {
 function getApiDataLogic(contents:any,page:any,pageSize:any,sorting:any,desc:any,category:any,search:any,username:any,req:Request,res:Response) {
   let ipRanges:IpRange[];
 
-  userService.getGradeAndMngip(username)
+  userService.getPrivilegeAndIP(username)
   .then(result => {
     let results;
-    ipRanges = ipCalcService.parseIPRange(result[0].mng_ip_ranges);
+    ipRanges = ipCalcService.parseIPRange(result[0].ip_ranges);
     
     switch(contents) {
       case 'network' :
-        results = networkService.getApiData(page,pageSize,sorting,desc,category,search,ipRanges,result[0].grade);
+        results = networkService.getApiData(page,pageSize,sorting,desc,category,search,ipRanges,result[0].privilege);
       break;
       case 'media' :
-        results = mediaService.getApiData(page,pageSize,sorting,desc,category,search,ipRanges,result[0].grade);
+        results = mediaService.getApiData(page,pageSize,sorting,desc,category,search,ipRanges,result[0].privilege);
       break;
       case 'outlook' :
-        results = outlookService.getApiData(page,pageSize,sorting,desc,category,search,ipRanges,result[0].grade);
+        results = outlookService.getApiData(page,pageSize,sorting,desc,category,search,ipRanges,result[0].privilege);
       break;
       case 'print' :
-        results = printService.getApiData(page,pageSize,sorting,desc,category,search,ipRanges,result[0].grade);
+        results = printService.getApiData(page,pageSize,sorting,desc,category,search,ipRanges,result[0].privilege);
       break;
     }
 

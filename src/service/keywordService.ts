@@ -2,7 +2,7 @@ import connection from "../db/db";
 import { IpRange, ResultItem } from "../interface/interface";
 
 interface ResultWithCountsItem {
-  pcname: string;
+  pc_name: string;
   keywordCounts: Record<string, number>;
 }
 
@@ -15,15 +15,27 @@ class KeywordService {
     let table: string;
     let dayOption: string;
 
+    // Old_C
     if (props === "network") {
-      table = "detectfiles";
+      table = "leakednetworkfiles";
     } else if (props === "media") {
-      table = "detectmediafiles";
+      table = "leakedmediafiles";
     } else if (props === "outlook") {
-      table = "outlookpstviewer";
+      table = "leakedoutlookfiles";
     } else {
-      table = "detectprinteddocuments";
+      table = "leakedprintingfiles";
     }
+
+    // New_C
+    // if (props === "network") {
+    //   table = "LeakedNetworkFiles";
+    // } else if (props === "media") {
+    //   table = "LeakedMediaFiles";
+    // } else if (props === "outlook") {
+    //   table = "LeakedOutlookFiles";
+    // } else {
+    //   table = "LeakedPrintingFiles";
+    // }
 
     if (select === "day") {
       dayOption = "DATE(time) = CURDATE()";
@@ -37,35 +49,43 @@ class KeywordService {
     const ipConditions = ipRanges
       .map(
         (range) =>
-          `(INET_ATON(agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`
+          `(INET_ATON(latest_agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`
       )
       .join(" OR ");
-    const query = `select pcname, keywords from ${table} where (${dayOption}) AND (${ipConditions}) AND 
+    const query = `select pc_name, patterns from ${table} where (${dayOption}) AND (${ipConditions}) AND 
     (
-      keywords LIKE '%주민번호%' OR
-      keywords LIKE '%핸드폰번호%' OR
-      keywords LIKE '%이력서%'
+      patterns LIKE '%주민번호%' OR
+      patterns LIKE '%핸드폰번호%' OR
+      patterns LIKE '%이력서%'
     ) `;
+
+    // New_C
+    // const query = `select pc_name, patterns from ${table} where (${dayOption}) AND (${ipConditions}) AND 
+    // (
+    //   patterns LIKE '%주민번호%' OR
+    //   patterns LIKE '%핸드폰번호%' OR
+    //   patterns LIKE '%이력서%'
+    // ) `;
 
     return new Promise<ResultWithCountsItem[]>((resolve, reject) => {
       connection.query(query, (error: any, result: any[]) => {
         if (error) {
           reject(error);
         } else {
-          const pcnames = Array.from(
-            new Set(result.map((item: any) => item.pcname))
+          const pc_names = Array.from(
+            new Set(result.map((item: any) => item.pc_name))
           );
-          const resultWithCounts: ResultWithCountsItem[] = pcnames.map(
-            (pcname: string) => {
+          const resultWithCounts: ResultWithCountsItem[] = pc_names.map(
+            (pc_name: string) => {
               const pcResults = result.filter(
-                (item: any) => item.pcname === pcname
+                (item: any) => item.pc_name === pc_name
               );
-              // Create an object to store keyword counts for the current pcname
+              // Create an object to store keyword counts for the current pc_name
               const keywordCountMap: Record<string, number> = {};
 
               pcResults.forEach((item: ResultItem) => {
-                // Extract counts and keywords using regex
-                const matches = item.keywords.match(
+                // Extract counts and patterns using regex
+                const matches = item.patterns.match(
                   /([^\s,()]+)(?:\s*,\s*|\s*\(\s*(\d+)\s*\)\s*)?/g
                 );
 
@@ -79,28 +99,28 @@ class KeywordService {
                   });
                 }
               });
-              // Return an object with pcname and keyword counts
+              // Return an object with pc_name and keyword counts
               return {
-                pcname: pcname,
+                pc_name: pc_name,
                 keywordCounts: keywordCountMap,
               };
             }
           );
-          // Merge results for duplicate pcnames
+          // Merge results for duplicate pc_names
           const mergedResult: ResultWithCountsItem[] = [];
           resultWithCounts.forEach((item) => {
             const existingIndex = mergedResult.findIndex(
-              (mergedItem) => mergedItem.pcname === item.pcname
+              (mergedItem) => mergedItem.pc_name === item.pc_name
             );
             if (existingIndex !== -1) {
-              // Merge keyword counts for duplicate pcnames
+              // Merge keyword counts for duplicate pc_names
               Object.entries(item.keywordCounts).forEach(([keyword, count]) => {
                 mergedResult[existingIndex].keywordCounts[keyword] =
                   (mergedResult[existingIndex].keywordCounts[keyword] || 0) +
                   count;
               });
             } else {
-              // Add unique pcname to the merged result
+              // Add unique pc_name to the merged result
               mergedResult.push(item);
             }
           });
@@ -112,7 +132,7 @@ class KeywordService {
 
   getKeywordList():Promise<any> {
     return new Promise((resolve, reject) => {
-      const query = `select clnt_keyword_list from usersettings;`
+      const query = `select clnt_patterns_list from serversetting;`
       connection.query(query, (error, result) => {
         if(error) {
           reject(error);
@@ -124,7 +144,7 @@ class KeywordService {
           let matches;
           const results = [];
 
-          while ((matches = regex.exec(result[0]?.clnt_keyword_list)) !== null) {
+          while ((matches = regex.exec(result[0]?.clnt_patterns_list)) !== null) {
             // matches[1]은 키, matches[2]는 값            
             results.push({
               key: matches[1],     // 키

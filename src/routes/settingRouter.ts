@@ -26,12 +26,12 @@ router.get("/servers", (req: Request, res: Response) => {
   settingService
     .getServerSetting()
     .then((result) => {
-        const newAuto = result[0].svr_autodownload === 1 ? true : false;
+        const newAuto = result[0].svr_auto_fileupload === 1 ? true : false;
         const newResult = {
-            serverPort:result[0].svr_server_port,
-            ret:result[0].svr_retention_period,
+            serverPort:result[0].svr_port,
+            ret:result[0].svr_file_retention_periods,
             auto:newAuto,
-            interval:result[0].svr_update_interval
+            interval:result[0].svr_ui_refresh_interval
         }
       weasel.log(username, req.socket.remoteAddress, "Success to Get Server Information ");  
       res.send(newResult);

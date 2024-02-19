@@ -5,22 +5,42 @@ class OutlookService {
   private query1!: number;
   private query2!: number;
 
+  // Old_C
+  // private columnAlias:any = {
+  //   // alias    table명
+  //   'id' : 'id',                    // 0
+  //   'Time' : 'time',                // 1
+  //   'PcName' : 'pc_name',            // 2
+  //   'Agent_ip' : 'latest_agent_ip',        // 3
+  //   'Process' : 'proc_name',          // 4
+  //   'PIDS' : 'pid',                 // 5
+  //   'Mail_Subjects' : 'subject',    // 6
+  //   'Sender' : 'sender',            // 7
+  //   'Receiver' : 'receiver',        // 8
+  //   'AttachedFiles' : 'attachment', // 9
+  //   'CopiedFiles' : 'asked_file',   // 10
+  //   'Downloading' : 'saved_file',   // 11
+  //   'FileSizes' : 'file_size',      // 12
+  //   'Keywords' : 'patterns',        // 13
+  // };
+
+    // New_C
   private columnAlias:any = {
     // alias    table명
     'id' : 'id',                    // 0
     'Time' : 'time',                // 1
-    'PcName' : 'pcname',            // 2
-    'Agent_ip' : 'agent_ip',        // 3
-    'Process' : 'process',          // 4
-    'PIDS' : 'pid',                 // 5
+    'PcName' : 'pc_name',            // 2
+    'Agent_ip' : 'latest_agent_ip',        // 3
+    'Process' : 'proc_name',          // 4
+    'PIDS' : 'proc_id',                 // 5
     'Mail_Subjects' : 'subject',    // 6
     'Sender' : 'sender',            // 7
-    'Receiver' : 'receiver',        // 8
-    'AttachedFiles' : 'attachment', // 9
-    'CopiedFiles' : 'asked_file',   // 10
-    'Downloading' : 'saved_file',   // 11
+    'Receiver' : 'receivers',        // 8
+    'AttachedFiles' : 'attachments', // 9
+    'CopiedFiles' : 'backup_file',   // 10
+    'Downloading' : 'backup_file',   // 11
     'FileSizes' : 'file_size',      // 12
-    'Keywords' : 'keywords',        // 13
+    'Keywords' : 'patterns',        // 13
   };
 
   getCountAll(select: any, ipRanges: IpRange[]): Promise<any> {
@@ -42,13 +62,13 @@ class OutlookService {
     const ipConditions = ipRanges
       .map(
         (range) =>
-          `(INET_ATON(agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`
+          `(INET_ATON(latest_agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`
       )
       .join(" OR ");
 
     return new Promise((resolve, reject) => {
-      const query = `SELECT COUNT(*) as alloutlooks FROM outlookpstviewer WHERE time >= DATE_SUB(${dayOption1}) AND (${ipConditions})`;
-      const query3 = `SELECT COUNT(*) as beforeoutlooks FROM outlookpstviewer WHERE time >= DATE_SUB(${dayOption2}) AND time < DATE_SUB(${dayOption1}) AND (${ipConditions})`;
+      const query = `SELECT COUNT(*) as alloutlooks FROM leakedoutlookfiles WHERE time >= DATE_SUB(${dayOption1}) AND (${ipConditions})`;
+      const query3 = `SELECT COUNT(*) as beforeoutlooks FROM leakedoutlookfiles WHERE time >= DATE_SUB(${dayOption2}) AND time < DATE_SUB(${dayOption1}) AND (${ipConditions})`;
 
       Promise.all([
         new Promise<void>((innerResolve, innerReject) => {
@@ -87,12 +107,13 @@ class OutlookService {
     });
   }
 
-  getApiData(page: any, pageSize: any,sorting:any,desc:any,category:any,search:any, ipRanges: IpRange[],grade:any): Promise<any> {
+  getApiData(page: any, pageSize: any,sorting:any,desc:any,category:any,search:any, ipRanges: IpRange[],privilege:any): Promise<any> {
     let queryPage:number=0;
     let queryPageSize:number=0;
     let querySorting:string=sorting === '' ? 'time' : sorting;
     let queryDesc:string=desc === 'false' ? 'asc' : 'desc';
     let whereClause = '';
+    const aliasValues = this.columnAlias.values;
     const aliasKey = Object.keys(this.columnAlias);
     const convertColumns = category !== '' && this.columnAlias[category];
 
@@ -113,7 +134,7 @@ class OutlookService {
     const ipConditions = ipRanges
       .map(
         (range) =>
-          `(INET_ATON(agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`
+          `(INET_ATON(latest_agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`
       )
       .join(" OR ");
 
@@ -124,25 +145,25 @@ class OutlookService {
     }
 
     return new Promise((resolve, reject) => {
-      const queryStr = grade !== 3 ? 
-      `select id, time as ${aliasKey[1]}, pcname as ${aliasKey[2]}, agent_ip as ${aliasKey[3]}, process as ${aliasKey[4]}, 
-      pid as ${aliasKey[5]}, subject as ${aliasKey[6]}, sender as ${aliasKey[7]}, receiver as ${aliasKey[8]}, 
-      attachment as ${aliasKey[9]}, asked_file as ${aliasKey[10]}, saved_file as ${aliasKey[11]}, 
-      file_size as ${aliasKey[12]}, keywords as ${aliasKey[13]} `
+      const queryStr = privilege !== 3 ? 
+      `select ${aliasValues[0]}, ${aliasValues[1]} as ${aliasKey[1]}, ${aliasValues[2]} as ${aliasKey[2]}, ${aliasValues[3]} as ${aliasKey[3]}, ${aliasValues[4]} as ${aliasKey[4]}, 
+      ${aliasValues[5]} as ${aliasKey[5]}, ${aliasValues[6]} as ${aliasKey[6]}, ${aliasValues[7]} as ${aliasKey[7]}, ${aliasValues[8]} as ${aliasKey[8]}, 
+      ${aliasValues[9]} as ${aliasKey[9]}, ${aliasValues[10]} as ${aliasKey[10]}, ${aliasValues[11]} as ${aliasKey[11]}, 
+      ${aliasValues[12]} as ${aliasKey[12]}, ${aliasValues[13]} as ${aliasKey[13]} `
       :
-      `select id, time as ${aliasKey[1]}, pcname as ${aliasKey[2]}, agent_ip as ${aliasKey[3]}, process as ${aliasKey[4]}, 
-        pid as ${aliasKey[5]}, subject as ${aliasKey[6]}, sender as ${aliasKey[7]}, receiver as ${aliasKey[8]}, 
-        attachment as ${aliasKey[9]}, asked_file as ${aliasKey[10]}, 
-        file_size as ${aliasKey[12]}, keywords as ${aliasKey[13]} `
+      `select ${aliasValues[0]}, ${aliasValues[1]} as ${aliasKey[1]}, ${aliasValues[2]} as ${aliasKey[2]}, ${aliasValues[3]} as ${aliasKey[3]}, ${aliasValues[4]} as ${aliasKey[4]}, 
+      ${aliasValues[5]} as ${aliasKey[5]}, ${aliasValues[6]} as ${aliasKey[6]}, ${aliasValues[7]} as ${aliasKey[7]}, ${aliasValues[8]} as ${aliasKey[8]}, 
+      ${aliasValues[9]} as ${aliasKey[9]}, ${aliasValues[10]} as ${aliasKey[10]}, 
+      ${aliasValues[12]} as ${aliasKey[12]}, ${aliasValues[13]} as ${aliasKey[13]} `
 
       const query =
         queryStr +
-        "from outlookpstviewer " +
+        "from leakedoutlookfiles " +
          whereClause +
         ' order by '+ querySorting + ' ' + queryDesc + ' ' +
         'LIMIT ' + queryPageSize + ' offset ' + queryPage*queryPageSize;
 
-      const query2 = "select count(*) as count from outlookpstviewer " + whereClause;
+      const query2 = "select count(*) as count from leakedoutlookfiles " + whereClause;
       const whereQuery = '%' + search + '%';
 
       Promise.all([
@@ -150,7 +171,7 @@ class OutlookService {
           connection.query(query,whereQuery, (error, result) => {
             const excludedKeys = ['Downloading'];
 
-            const filteredKeys = grade !== 3 ? aliasKey : aliasKey.filter(key => !excludedKeys.includes(key));
+            const filteredKeys = privilege !== 3 ? aliasKey : aliasKey.filter(key => !excludedKeys.includes(key));
             
 
             // 검색 결과가 없을 경우의 처리
@@ -195,7 +216,7 @@ class OutlookService {
   postRemoveData(body:string[]) {
     // 이 부분에서 배열을 문자열로 변환할 때 각 값에 작은따옴표를 추가하는 방식으로 수정
     const idString = body.map((id) => `'${id}'`).join(", ");
-    const query = `DELETE FROM outlookpstviewer WHERE id IN (${idString})`;
+    const query = `DELETE FROM leakedoutlookfiles WHERE id IN (${idString})`;
 
     return new Promise((resolve, reject) => {
       connection.query(query, (error, result) => {
@@ -220,18 +241,18 @@ class OutlookService {
     let queryMonthStr:string;
     let queryYearStr:string;
     let agentIp;
-    let process;
+    let proc_name;
     
     for(let i=0; i < count; i++) {
       if(i%3 === 0) {
         agentIp = '10.10.10.157'
-        process = 'process1'
+        proc_name = 'proc_name1'
       } else if(i%3 === 1) {
         agentIp = '192.168.1.54'
-        process = 'process2'
+        proc_name = 'proc_name2'
       } else {
         agentIp = '10.10.10.126'
-        process = 'process3'
+        proc_name = 'proc_name3'
       }
       // 날짜 계산
       date.setDate(date.getDate() - 1);
@@ -253,26 +274,26 @@ class OutlookService {
         queryMonthStr = queryMonth.toString();
       }
       
-      const query = `insert into outlookpstviewer (
+      const query = `insert into leakedoutlookfiles (
         time,
-        pcname,
-        process,
+        pc_name,
+        proc_name,
         pid,
-        agent_ip,
+        latest_agent_ip,
         subject,
         sender,
         receiver,
         attachment,
         saved_file,
         file_size,
-        keywords,
+        patterns,
         down_state,
         isprinted,
         asked_file)
       values 
       (now(),
       'PCname${i+1}',
-      '${process}',
+      '${proc_name}',
       '23564',
       '${agentIp}',
       'FW: F5 웹방화벽 장애 원인분석 및 조치결과 보고서',
@@ -285,6 +306,38 @@ class OutlookService {
       '111',
       '0',
       '5');`;
+
+      // New_C
+      // const query = `insert into outlookpstviewer (
+      //   time,
+      //   pc_guid
+      //   pc_name,
+      //   proc_name,
+      //   proc_id,
+      //   latest_agent_ip,
+      //   subject,
+      //   sender,
+      //   receivers,
+      //   attachments,
+      //   backup_file,
+      //   file_size,
+      //   patterns,
+      //   upload_state)
+      // values 
+      // (now(),
+      // 'PCGUID${i+1}',
+      // 'PCname${i+1}',      
+      // '${process}',
+      // '23564',
+      // '${agentIp}',
+      // 'FW: F5 웹방화벽 장애 원인분석 및 조치결과 보고서',
+      // 'smlee@stemsoft.co.kr',
+      // 'smlee@stemsoft.co.kr;',
+      // 'image001.png, (220721) F5 웹방화벽 장애 원인분석 및 조치결과 보고서.docx',
+      // 'DESKTOP-O14QCIB++2022-08-17 09.38.00++UP++(220721) F5 웹방화벽 장애 원인분석 및 조치결과 보고서.docx',
+      // '39630',
+      // 'Keyword${i+1}',
+      // '111');`;
   
       try {
         const result = await new Promise((resolve, reject) => {

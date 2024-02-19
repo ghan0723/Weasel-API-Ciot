@@ -26,8 +26,8 @@ router.post("/login", (req: Request, res: Response) => {
         });
         return;
       } else {
-        userService.getGrade(username).then((result) => {
-          if (result[0].grade === 1) {
+        userService.getPrivilege(username).then((result) => {
+          if (result[0].privilege === 1) {
             let decPasswd = cryptoService.getDecryptUltra(user[0].passwd);
             settingService
               .getGUITime()
@@ -143,13 +143,13 @@ router.post("/add", (req: Request, res: Response) => {
   const newUser = {
     username: user.username,
     passwd: encPasswd,
-    grade: user.grade,
-    mng_ip_ranges: user.range,
+    privilege: user.privilege,
+    ip_ranges: user.range,
   };
   userService
-    .getGrade(user.cookie)
+    .getPrivilege(user.cookie)
     .then((result) => {
-      if (result[0].grade !== 1) {
+      if (result[0].privilege !== 1) {
         userService
           .checkUsername(user.username)
           .then((result) => {
@@ -162,10 +162,10 @@ router.post("/add", (req: Request, res: Response) => {
               res.status(401).send({ error: result.message });
             } else {
               userService
-                .getGradeAndMngip(user.cookie)
+                .getPrivilegeAndIP(user.cookie)
                 .then((result2) => {
                   let IpRange = ipCalcService.parseIPRange(
-                    result2[0].mng_ip_ranges
+                    result2[0].ip_ranges
                   );
                   userService
                     .checkIpRange(user.range, IpRange)
@@ -218,10 +218,10 @@ router.post("/add", (req: Request, res: Response) => {
                   weasel.error(
                     user.username,
                     req.socket.remoteAddress,
-                    "Failed to Get Grade & IP Ranges "
+                    "Failed to Get Privilege & IP Ranges "
                   );
                   res.send(
-                    "이거는 쿠키 가지고 grade랑 mngip 가져오는 도중에 발생하는 에러입니다."
+                    "이거는 쿠키 가지고 privilege랑 mngip 가져오는 도중에 발생하는 에러입니다."
                   );
                 });
             }
@@ -284,7 +284,7 @@ router.post("/add", (req: Request, res: Response) => {
       weasel.error(
         user.username,
         req.socket.remoteAddress,
-        "Failed to Get Grade"
+        "Failed to Get Privilege"
       );
       console.error("회원가입 실패:", error);
       res.status(500).send(error);
@@ -300,18 +300,18 @@ router.post("/rm", (req: Request, res: Response) => {
     .removeUser(users)
     .then((result) => {
       userService
-        .getGrade(username)
+        .getPrivilege(username)
         .then((result1) => {
-          if (result1[0].grade !== 1) {
+          if (result1[0].privilege !== 1) {
             userService
-              .getGradeAndMngip(username)
+              .getPrivilegeAndIP(username)
               .then((result) => {
                 let IpRange = ipCalcService.parseIPRange(
-                  result[0].mng_ip_ranges
+                  result[0].ip_ranges
                 );
                 userService
-                  .getUserListByGradeAndMngip(
-                    result[0].grade,
+                  .getUserListByPrivilegeAndIP(
+                    result[0].privilege,
                     IpRange,
                     category,
                     searchWord
@@ -369,7 +369,7 @@ router.post("/rm", (req: Request, res: Response) => {
           weasel.error(
             username,
             req.socket.remoteAddress,
-            "Failed to Get Grade"
+            "Failed to Get Privilege"
           );
           console.error("list 잘못 가져옴:", error);
           res.status(500).send("Internal Server Error");
@@ -395,8 +395,8 @@ router.get("/modify/:username", (req: Request, res: Response) => {
       let newUser = {
         username: result[0].username,
         passwd: decPasswd,
-        grade: result[0].grade,
-        mng_ip_ranges: result[0].mng_ip_ranges,
+        privilege: result[0].privilege,
+        ip_ranges: result[0].ip_ranges,
       };
       weasel.log(
         username,
@@ -423,13 +423,13 @@ router.post("/update/:username", (req: Request, res: Response) => {
   const newUser = {
     username: user.username,
     passwd: encPasswd,
-    grade: user.grade,
-    mng_ip_ranges: user.mngRange,
+    privilege: user.privilege,
+    ip_ranges: user.mngRange,
   };
   userService
-    .getGrade(user.cookie)
+    .getPrivilege(user.cookie)
     .then((result) => {
-      if (result[0].grade !== 1) {
+      if (result[0].privilege !== 1) {
         userService
           .checkUsername(user.username, oldname)
           .then((result) => {
@@ -442,10 +442,10 @@ router.post("/update/:username", (req: Request, res: Response) => {
               res.status(401).send({ error: result.message });
             } else {
               userService
-                .getGradeAndMngip(user.cookie)
+                .getPrivilegeAndIP(user.cookie)
                 .then((result2) => {
                   let IpRange = ipCalcService.parseIPRange(
-                    result2[0].mng_ip_ranges
+                    result2[0].ip_ranges
                   );
                   userService
                     .checkIpRange(user.mngRange, IpRange)
@@ -529,10 +529,10 @@ router.post("/update/:username", (req: Request, res: Response) => {
                   weasel.error(
                     oldname,
                     req.socket.remoteAddress,
-                    "Failed to Get Grade & IP Ranges "
+                    "Failed to Get Privilege & IP Ranges "
                   );
                   res.send(
-                    "이거는 쿠키 가지고 grade랑 mngip 가져오는 도중에 발생하는 에러입니다."
+                    "이거는 쿠키 가지고 privilege랑 mngip 가져오는 도중에 발생하는 에러입니다."
                   );
                 });
             }
@@ -620,8 +620,8 @@ router.post("/update/:username", (req: Request, res: Response) => {
       }
     })
     .catch((error) => {
-      weasel.error(oldname, req.socket.remoteAddress, "Failed to Get Grade");
-      res.send("이거는 쿠키 가지고 grade 가져오는 도중에 발생하는 에러입니다.");
+      weasel.error(oldname, req.socket.remoteAddress, "Failed to Get Privilege");
+      res.send("이거는 쿠키 가지고 privilege 가져오는 도중에 발생하는 에러입니다.");
     });
 });
 
@@ -630,15 +630,15 @@ router.get("/namecookie", (req: Request, res: Response) => {
   res.json({ username: username });
 });
 
-router.get("/grade", (req: Request, res: Response) => {
+router.get("/privilege", (req: Request, res: Response) => {
   let username = req.cookies.username;
   userService
-    .getGrade(username)
+    .getPrivilege(username)
     .then((result) => {
       res.send(result);
     })
     .catch((error) => {
-      console.error("grade 보내기 실패:", error);
+      console.error("privilege 보내기 실패:", error);
       res.status(500).send("Internal Server Error");
     });
 });
@@ -648,16 +648,16 @@ router.get("/all", (req: Request, res: Response) => {
   let category = req.query.category;
   let searchWord = req.query.searchWord;
   userService
-    .getGrade(username)
+    .getPrivilege(username)
     .then((result) => {
-      if (result[0].grade !== 1) {
+      if (result[0].privilege !== 1) {
         userService
-          .getGradeAndMngip(username)
+          .getPrivilegeAndIP(username)
           .then((result) => {
-            let IpRange = ipCalcService.parseIPRange(result[0].mng_ip_ranges);
+            let IpRange = ipCalcService.parseIPRange(result[0].ip_ranges);
             userService
-              .getUserListByGradeAndMngip(
-                result[0].grade,
+              .getUserListByPrivilegeAndIP(
+                result[0].privilege,
                 IpRange,
                 category,
                 searchWord
@@ -712,7 +712,7 @@ router.get("/all", (req: Request, res: Response) => {
       }
     })
     .catch((error) => {
-      weasel.error(username, req.socket.remoteAddress, "Failed to Get Grade");
+      weasel.error(username, req.socket.remoteAddress, "Failed to Get Privilege");
       console.error("user 정보 제대로 못 가져옴:", error);
       res.status(500).send("Internal Server Error");
     });
@@ -721,12 +721,12 @@ router.get("/all", (req: Request, res: Response) => {
 router.get("/check", (req: Request, res: Response) => {
   let username = req.query.username;
   userService
-    .getGradeAndMngip(username)
+    .getPrivilegeAndIP(username)
     .then((result) => {
       res.send(result);
     })
     .catch((error) => {
-      console.error("grade 보내기 실패:", error);
+      console.error("privilege 보내기 실패:", error);
       res.status(500).send("Internal Server Error");
     });
 });

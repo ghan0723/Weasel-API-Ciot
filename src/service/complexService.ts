@@ -8,16 +8,16 @@ class ComplexService {
     let columns: string;
 
     if (props === "network") {
-      table = "detectfiles";
-      columns = "process ,dst_file";
+      table = "leakednetworkfiles";
+      columns = "proc_name ,url";
     } else if (props === "media") {
-      table = "detectmediafiles";
+      table = "leakedmediafiles";
       columns = "media_type, file";
     } else if (props === "outlook") {
-      table = "outlookpstviewer";
-      columns = "process, sender";
+      table = "leakedoutlookfiles";
+      columns = "proc_name, sender";
     } else {
-      table = "detectprinteddocuments";
+      table = "leakedprintingfiles";
       columns = "printer, document";
     }
 
@@ -33,10 +33,10 @@ class ComplexService {
     const ipConditions = ipRanges
       .map(
         (range) =>
-          `(INET_ATON(agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`
+          `(INET_ATON(latest_agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`
       )
       .join(" OR ");
-    const query = `select pcname, ${columns} from ${table} where (${dayOption}) AND (${ipConditions}) order by time desc limit 5;`;
+    const query = `select pc_name, ${columns} from ${table} where (${dayOption}) AND (${ipConditions}) order by time desc limit 5;`;
     return new Promise((resolve, reject) => {
       connection.query(query, (error, result) => {
         if (error) {
@@ -54,7 +54,7 @@ class ComplexService {
   }
 
   getAllData():Promise<any> {
-    const query = "select * from detectfiles";
+    const query = "select * from leakednetworkfiles";
     return new Promise((resolve, reject) => {
       connection.query(query, (error, result) => {
         if(error){

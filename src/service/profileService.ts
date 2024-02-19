@@ -3,7 +3,7 @@ import connection from "../db/db";
 class ProfileService {
   getProfile(username: string): Promise<any> {
     const query =
-      "select username, passwd, grade, mng_ip_ranges, pwd_change_freq from userlist where username = ? ";
+      "select username, passwd, privilege, ip_ranges, pwd_change_freq from accountlist where username = ? ";
 
     return new Promise((resolve, reject) => {
       connection.query(query, username, (error, result) => {
@@ -20,7 +20,7 @@ class ProfileService {
     user: { username: string; passwd: string },
     oldname: string
   ): Promise<any> {
-    const query = `UPDATE userlist SET username = '${user.username}', passwd = '${user.passwd}' WHERE username = '${oldname}'`;
+    const query = `UPDATE accountlist SET username = '${user.username}', passwd = '${user.passwd}' WHERE username = '${oldname}'`;
 
     return new Promise((resolve, reject) => {
       connection.query(query, (error, result) => {
@@ -36,7 +36,7 @@ class ProfileService {
   }
 
   updateFreq(freq: any): Promise<any> {
-    const query = `update userlist set pwd_change_freq = ${freq}`;
+    const query = `update accountlist set pwd_change_freq = ${freq}`;
     return new Promise((resolve, reject) => {
       connection.query(query, (error, result) => {
         if (error) {

@@ -8,18 +8,29 @@ class KeywordService {
     getKeyword(props, select, ipRanges) {
         let table;
         let dayOption;
+        // Old_C
         if (props === "network") {
-            table = "detectfiles";
+            table = "leakednetworkfiles";
         }
         else if (props === "media") {
-            table = "detectmediafiles";
+            table = "leakedmediafiles";
         }
         else if (props === "outlook") {
-            table = "outlookpstviewer";
+            table = "leakedoutlookfiles";
         }
         else {
-            table = "detectprinteddocuments";
+            table = "leakedprintingfiles";
         }
+        // New_C
+        // if (props === "network") {
+        //   table = "LeakedNetworkFiles";
+        // } else if (props === "media") {
+        //   table = "LeakedMediaFiles";
+        // } else if (props === "outlook") {
+        //   table = "LeakedOutlookFiles";
+        // } else {
+        //   table = "LeakedPrintingFiles";
+        // }
         if (select === "day") {
             dayOption = "DATE(time) = CURDATE()";
         }
@@ -31,28 +42,35 @@ class KeywordService {
         }
         // IP 범위 조건들을 생성
         const ipConditions = ipRanges
-            .map((range) => `(INET_ATON(agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`)
+            .map((range) => `(INET_ATON(latest_agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`)
             .join(" OR ");
-        const query = `select pcname, keywords from ${table} where (${dayOption}) AND (${ipConditions}) AND 
+        const query = `select pc_name, patterns from ${table} where (${dayOption}) AND (${ipConditions}) AND 
     (
-      keywords LIKE '%주민번호%' OR
-      keywords LIKE '%핸드폰번호%' OR
-      keywords LIKE '%이력서%'
+      patterns LIKE '%주민번호%' OR
+      patterns LIKE '%핸드폰번호%' OR
+      patterns LIKE '%이력서%'
     ) `;
+        // New_C
+        // const query = `select pc_name, patterns from ${table} where (${dayOption}) AND (${ipConditions}) AND 
+        // (
+        //   patterns LIKE '%주민번호%' OR
+        //   patterns LIKE '%핸드폰번호%' OR
+        //   patterns LIKE '%이력서%'
+        // ) `;
         return new Promise((resolve, reject) => {
             db_1.default.query(query, (error, result) => {
                 if (error) {
                     reject(error);
                 }
                 else {
-                    const pcnames = Array.from(new Set(result.map((item) => item.pcname)));
-                    const resultWithCounts = pcnames.map((pcname) => {
-                        const pcResults = result.filter((item) => item.pcname === pcname);
-                        // Create an object to store keyword counts for the current pcname
+                    const pc_names = Array.from(new Set(result.map((item) => item.pc_name)));
+                    const resultWithCounts = pc_names.map((pc_name) => {
+                        const pcResults = result.filter((item) => item.pc_name === pc_name);
+                        // Create an object to store keyword counts for the current pc_name
                         const keywordCountMap = {};
                         pcResults.forEach((item) => {
-                            // Extract counts and keywords using regex
-                            const matches = item.keywords.match(/([^\s,()]+)(?:\s*,\s*|\s*\(\s*(\d+)\s*\)\s*)?/g);
+                            // Extract counts and patterns using regex
+                            const matches = item.patterns.match(/([^\s,()]+)(?:\s*,\s*|\s*\(\s*(\d+)\s*\)\s*)?/g);
                             if (matches) {
                                 matches.forEach((match) => {
                                     const [keyword, count] = match.split(/\s*\(\s*|\s*\)\s*/);
@@ -63,18 +81,18 @@ class KeywordService {
                                 });
                             }
                         });
-                        // Return an object with pcname and keyword counts
+                        // Return an object with pc_name and keyword counts
                         return {
-                            pcname: pcname,
+                            pc_name: pc_name,
                             keywordCounts: keywordCountMap,
                         };
                     });
-                    // Merge results for duplicate pcnames
+                    // Merge results for duplicate pc_names
                     const mergedResult = [];
                     resultWithCounts.forEach((item) => {
-                        const existingIndex = mergedResult.findIndex((mergedItem) => mergedItem.pcname === item.pcname);
+                        const existingIndex = mergedResult.findIndex((mergedItem) => mergedItem.pc_name === item.pc_name);
                         if (existingIndex !== -1) {
-                            // Merge keyword counts for duplicate pcnames
+                            // Merge keyword counts for duplicate pc_names
                             Object.entries(item.keywordCounts).forEach(([keyword, count]) => {
                                 mergedResult[existingIndex].keywordCounts[keyword] =
                                     (mergedResult[existingIndex].keywordCounts[keyword] || 0) +
@@ -82,7 +100,7 @@ class KeywordService {
                             });
                         }
                         else {
-                            // Add unique pcname to the merged result
+                            // Add unique pc_name to the merged result
                             mergedResult.push(item);
                         }
                     });
@@ -93,7 +111,7 @@ class KeywordService {
     }
     getKeywordList() {
         return new Promise((resolve, reject) => {
-            const query = `select clnt_keyword_list from usersettings;`;
+            const query = `select clnt_patterns_list from serversetting;`;
             db_1.default.query(query, (error, result) => {
                 var _a;
                 if (error) {
@@ -106,7 +124,7 @@ class KeywordService {
                     const regex = /([^=]+)=([^&]+)&&/g;
                     let matches;
                     const results = [];
-                    while ((matches = regex.exec((_a = result[0]) === null || _a === void 0 ? void 0 : _a.clnt_keyword_list)) !== null) {
+                    while ((matches = regex.exec((_a = result[0]) === null || _a === void 0 ? void 0 : _a.clnt_patterns_list)) !== null) {
                         // matches[1]은 키, matches[2]는 값            
                         results.push({
                             key: matches[1], // 키

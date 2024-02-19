@@ -29,18 +29,18 @@ router.get("/dwn", async (req: Request, res: Response) => {
       const search = req.query.search;
       const username = req.query.username;
   
-      const result = await userService.getGradeAndMngip(username);
-      const ipRanges: IpRange[] = ipCalcService.parseIPRange(result[0].mng_ip_ranges);
+      const result = await userService.getPrivilegeAndIP(username);
+      const ipRanges: IpRange[] = ipCalcService.parseIPRange(result[0].ip_ranges);
   
       let results;
       if (contents === "network") {
-        results = await networkService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges,result[0].grade);
+        results = await networkService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges,result[0].privilege);
       } else if (contents === "media") {
-        results = await mediaService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges,result[0].grade);
+        results = await mediaService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges,result[0].privilege);
       } else if (contents === "outlook") {
-        results = await outlookService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges,result[0].grade);
+        results = await outlookService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges,result[0].privilege);
       } else if (contents === "print") {
-        results = await printService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges,result[0].grade);
+        results = await printService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges,result[0].privilege);
       } else {
         console.error("Invalid param:", contents);
         res.status(400).send("Invalid param");

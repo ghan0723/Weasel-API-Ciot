@@ -16,7 +16,7 @@ router.get('/', (req:Request, res:Response) => {
     const username = req.query.username; // 로그인 된 사용자
     let ipRanges:IpRange[];
 
-    userService.getGradeAndMngip(username)
+    userService.getPrivilegeAndIP(username)
     .then(result => {
         let results:Promise<any> | undefined;
         if(result.length === 0) {
@@ -24,7 +24,7 @@ router.get('/', (req:Request, res:Response) => {
             return res.status(500).send();
         }
         
-        ipRanges = ipCalcService.parseIPRange(result[0].mng_ip_ranges);
+        ipRanges = ipCalcService.parseIPRange(result[0].ip_ranges);
 
         switch(select) {
             // 일

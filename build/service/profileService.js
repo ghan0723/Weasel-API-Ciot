@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const db_1 = __importDefault(require("../db/db"));
 class ProfileService {
     getProfile(username) {
-        const query = "select username, passwd, grade, mng_ip_ranges, pwd_change_freq from userlist where username = ? ";
+        const query = "select username, passwd, privilege, ip_ranges, pwd_change_freq from accountlist where username = ? ";
         return new Promise((resolve, reject) => {
             db_1.default.query(query, username, (error, result) => {
                 if (error) {
@@ -19,7 +19,7 @@ class ProfileService {
         });
     }
     modUser(user, oldname) {
-        const query = `UPDATE userlist SET username = '${user.username}', passwd = '${user.passwd}' WHERE username = '${oldname}'`;
+        const query = `UPDATE accountlist SET username = '${user.username}', passwd = '${user.passwd}' WHERE username = '${oldname}'`;
         return new Promise((resolve, reject) => {
             db_1.default.query(query, (error, result) => {
                 if (error) {
@@ -34,7 +34,7 @@ class ProfileService {
         });
     }
     updateFreq(freq) {
-        const query = `update userlist set pwd_change_freq = ${freq}`;
+        const query = `update accountlist set pwd_change_freq = ${freq}`;
         return new Promise((resolve, reject) => {
             db_1.default.query(query, (error, result) => {
                 if (error) {
