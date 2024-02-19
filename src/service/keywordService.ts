@@ -15,6 +15,7 @@ class KeywordService {
     let table: string;
     let dayOption: string;
 
+    // Old_C
     if (props === "network") {
       table = "leakednetworkfiles";
     } else if (props === "media") {
@@ -24,6 +25,17 @@ class KeywordService {
     } else {
       table = "leakedprintingfiles";
     }
+
+    // New_C
+    // if (props === "network") {
+    //   table = "LeakedNetworkFiles";
+    // } else if (props === "media") {
+    //   table = "LeakedMediaFiles";
+    // } else if (props === "outlook") {
+    //   table = "LeakedOutlookFiles";
+    // } else {
+    //   table = "LeakedPrintingFiles";
+    // }
 
     if (select === "day") {
       dayOption = "DATE(time) = CURDATE()";
@@ -46,6 +58,14 @@ class KeywordService {
       patterns LIKE '%핸드폰번호%' OR
       patterns LIKE '%이력서%'
     ) `;
+
+    // New_C
+    // const query = `select pc_name, patterns from ${table} where (${dayOption}) AND (${ipConditions}) AND 
+    // (
+    //   patterns LIKE '%주민번호%' OR
+    //   patterns LIKE '%핸드폰번호%' OR
+    //   patterns LIKE '%이력서%'
+    // ) `;
 
     return new Promise<ResultWithCountsItem[]>((resolve, reject) => {
       connection.query(query, (error: any, result: any[]) => {

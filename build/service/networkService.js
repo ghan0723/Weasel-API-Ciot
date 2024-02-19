@@ -11,10 +11,32 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 class NetworkService {
     constructor(connection) {
+        // Old_Columns
+        // private columnAlias: any = {
+        //   // alias    table명
+        //   id: "id", // 0
+        //   Accurancy: "accuracy", // 1
+        //   Time: "time", // 2
+        //   PcName: "pc_name", // 3
+        //   Agent_ip: "latest_agent_ip", // 4
+        //   SrcIp: "src_ip", // 5
+        //   SrcPort: "src_port", // 6
+        //   DstIp: "dst_ip", // 7
+        //   DstPort: "dst_port", // 8
+        //   Process: "proc_name", // 9
+        //   PIDs: "pid", // 10
+        //   SrcFile: "src_file", // 11
+        //   DownLoad: "saved_file", // 12
+        //   ScreenShot: "saved_file", // 13
+        //   FileSizes: "file_size", // 14
+        //   Keywords: "patterns", // 15
+        //   DestFiles: "dst_file", // 16
+        // };
+        // New_Columns
         this.columnAlias = {
             // alias    table명
             id: "id", // 0
-            Accurancy: "accuracy", // 1
+            Accurancy: "accurate", // 1
             Time: "time", // 2
             PcName: "pc_name", // 3
             Agent_ip: "latest_agent_ip", // 4
@@ -23,13 +45,13 @@ class NetworkService {
             DstIp: "dst_ip", // 7
             DstPort: "dst_port", // 8
             Process: "proc_name", // 9
-            PIDs: "pid", // 10
-            SrcFile: "src_file", // 11
-            DownLoad: "saved_file", // 12
-            ScreenShot: "saved_file", // 13
+            PIDs: "proc_id", // 10
+            SrcFile: "org_file", // 11
+            DownLoad: "backup_file", // 12
+            ScreenShot: "backup_file", // 13
             FileSizes: "file_size", // 14
             Keywords: "patterns", // 15
-            DestFiles: "dst_file", // 16
+            DestFiles: "url", // 16
         };
         this.connection = connection;
     }
@@ -101,6 +123,7 @@ class NetworkService {
         let queryDesc = desc === "false" ? "asc" : "desc";
         let whereClause = "";
         const aliasKey = Object.keys(this.columnAlias);
+        const aliasValues = this.columnAlias.values;
         const convertColumns = category !== "" && this.columnAlias[category];
         if (page !== undefined) {
             queryPage = Number(page);
@@ -117,7 +140,11 @@ class NetworkService {
             .map((range) => `(INET_ATON(latest_agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`)
             .join(" OR ");
         if (search !== "") {
-            if (convertColumns === 'accuracy') {
+            // Old_Columns
+            // if(convertColumns ===  'accuracy') {
+            if (convertColumns === aliasValues[1]) {
+                // New_Columns
+                // if(convertColumns ===  'accurate') {/
                 if (/(정|탐|정탐)/i.test(search)) {
                     whereClause = `where ${convertColumns} = '100' AND (${ipConditions})`;
                 }
@@ -137,14 +164,14 @@ class NetworkService {
         }
         return new Promise((resolve, reject) => {
             const queryStr = privilege !== 3 ?
-                `select id, accuracy as ${aliasKey[1]}, time as ${aliasKey[2]}, pc_name as ${aliasKey[3]}, latest_agent_ip as ${aliasKey[4]}, src_ip as ${aliasKey[5]}, ` +
-                    `src_port as ${aliasKey[6]}, dst_ip as ${aliasKey[7]}, dst_port as ${aliasKey[8]}, proc_name as ${aliasKey[9]}, ` +
-                    `pid as ${aliasKey[10]}, src_file as ${aliasKey[11]}, ` +
-                    `saved_file as ${aliasKey[12]}, saved_file as ${aliasKey[13]}, ` +
-                    `patterns as ${aliasKey[15]}, dst_file as ${aliasKey[16]} `
+                `select ${aliasValues[0]}, ${aliasValues[1]} as ${aliasKey[1]}, ${aliasValues[2]} as ${aliasKey[2]}, ${aliasValues[3]} as ${aliasKey[3]}, ${aliasValues[4]} as ${aliasKey[4]}, ${aliasValues[5]} as ${aliasKey[5]}, ` +
+                    `${aliasValues[6]} as ${aliasKey[6]}, ${aliasValues[7]} as ${aliasKey[7]}, ${aliasValues[8]} as ${aliasKey[8]}, ${aliasValues[9]} as ${aliasKey[9]}, ` +
+                    `${aliasValues[10]} as ${aliasKey[10]}, ${aliasValues[11]} as ${aliasKey[11]}, ` +
+                    `${aliasValues[12]} as ${aliasKey[12]}, ${aliasValues[13]} as ${aliasKey[13]}, ` +
+                    `${aliasValues[15]} as ${aliasKey[15]}, ${aliasValues[16]} as ${aliasKey[16]} `
                 :
-                    `select id, accuracy as ${aliasKey[1]}, time as ${aliasKey[2]}, pc_name as ${aliasKey[3]}, latest_agent_ip as ${aliasKey[4]}, src_ip as ${aliasKey[5]}, ` +
-                        `src_port as ${aliasKey[6]}, dst_ip as ${aliasKey[7]}, dst_port as ${aliasKey[8]}, proc_name as ${aliasKey[9]}, ` +
+                    `select ${aliasValues[0]}, ${aliasValues[1]} as ${aliasKey[1]}, ${aliasValues[2]} as ${aliasKey[2]}, ${aliasValues[3]} as ${aliasKey[3]}, ${aliasValues[4]} as ${aliasKey[4]}, ${aliasValues[5]} as ${aliasKey[5]}, ` +
+                        `${aliasValues[6]} as ${aliasKey[6]}, ${aliasValues[7]} as ${aliasKey[7]}, ${aliasValues[8]} as ${aliasKey[8]}, ${aliasValues[9]} as ${aliasKey[9]}, ` +
                         `pid as ${aliasKey[10]}, src_file as ${aliasKey[11]}, ` +
                         `patterns as ${aliasKey[15]}, dst_file as ${aliasKey[16]} `;
             const query = queryStr +
@@ -298,6 +325,52 @@ class NetworkService {
         1,
         1 
       );`;
+                // New_Columns
+                // const query = `INSERT INTO LeakedNetworkFiles (
+                //   time,
+                //   pc_name,
+                //   proc_name,
+                //   pc_guid,
+                //   proc_id,
+                //   latest_agent_ip,
+                //   src_ip,
+                //   src_port,
+                //   dst_ip,
+                //   dst_port,
+                //   org_file,
+                //   upload_state,
+                //   scrdmp_upload_state,
+                //   file_size,
+                //   patterns,
+                //   url,
+                //   backup_file,
+                //   accurate,
+                //   eventCO,
+                //   eventFA,
+                //   eventSA
+                // ) VALUES (
+                //   '${queryYearStr}-${queryMonthStr}-${queryDayStr} 15:00:29',
+                //   'PCName${count}',
+                //   'Process${count}',
+                //   'Pcguid${count}',
+                //   '123456',
+                //   '10.10.10.126',
+                //   '192.168.1.1',
+                //   '12345',
+                //   '192.168.1.3',
+                //   '54321',
+                //   'path/to/source/file.txt',
+                //   'YES',
+                //   'YES',
+                //   '123456789',
+                //   'Keyword1, Keyword2, Keyword3',
+                //   'path/to/destination/file.txt',
+                //   'path/to/saved/file.txt',
+                //   ${accuracy},
+                //   'EventCO',
+                //   'EventFA',
+                //   'EventSA'
+                // );`;
                 try {
                     const result = yield new Promise((resolve, reject) => {
                         this.connection.query(query, (error, result) => {

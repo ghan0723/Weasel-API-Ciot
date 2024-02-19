@@ -15,6 +15,24 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const db_1 = __importDefault(require("../db/db"));
 class PrintService {
     constructor() {
+        // Old_C
+        // private columnAlias:any = {
+        //   // alias    table명
+        //   'id' : 'id',                       // 0
+        //   'Time' : 'time',                   // 1
+        //   'PcName' : 'pc_name',               // 2
+        //   'Agent_ip' : 'latest_agent_ip',           // 3
+        //   'Process' : 'proc_name',             // 4
+        //   'PIDs' : 'pid',                    // 5
+        //   'Printers' : 'printer',            // 6
+        //   'Owners' : 'owner',                // 7
+        //   'Documents' : 'document',          // 8
+        //   'Copied_Spool_Files' : 'spl_file', // 9 => 사용 안함
+        //   'Downloading' : 'spl_file',        // 10
+        //   'Sizes' : 'size',                  // 11
+        //   'Pages' : 'pages',                 // 12
+        // };
+        // New_C
         this.columnAlias = {
             // alias    table명
             'id': 'id', // 0
@@ -22,14 +40,14 @@ class PrintService {
             'PcName': 'pc_name', // 2
             'Agent_ip': 'latest_agent_ip', // 3
             'Process': 'proc_name', // 4
-            'PIDs': 'pid', // 5
+            'PIDs': 'proc_id', // 5
             'Printers': 'printer', // 6
-            'Owners': 'owner', // 7
-            'Documents': 'document', // 8
+            'Owners': 'doc_owner', // 7
+            'Documents': 'doc_name', // 8
             'Copied_Spool_Files': 'spl_file', // 9 => 사용 안함
             'Downloading': 'spl_file', // 10
-            'Sizes': 'size', // 11
-            'Pages': 'pages', // 12
+            'Sizes': 'file_size', // 11
+            'Pages': 'doc_pages', // 12
         };
     }
     getCountAll(select, ipRanges) {
@@ -98,6 +116,7 @@ class PrintService {
         let queryDesc = desc === 'false' ? 'asc' : 'desc';
         let whereClause = '';
         const aliasKey = Object.keys(this.columnAlias);
+        const aliasValues = this.columnAlias.values;
         const convertColumns = category !== '' && this.columnAlias[category];
         if (page !== undefined) {
             queryPage = Number(page);
@@ -121,13 +140,13 @@ class PrintService {
         }
         return new Promise((resolve, reject) => {
             const queryStr = privilege !== 3 ?
-                `select id, time as ${aliasKey[1]}, pc_name as ${aliasKey[2]}, latest_agent_ip as ${aliasKey[3]}, proc_name as ${aliasKey[4]}, pid as ${aliasKey[5]}, 
-        printer as ${aliasKey[6]}, owner as ${aliasKey[7]}, document as ${aliasKey[8]}, spl_file as ${aliasKey[10]},
-        size as ${aliasKey[11]}, pages as ${aliasKey[12]} `
+                `select ${aliasValues[0]}, ${aliasValues[1]} as ${aliasKey[1]}, ${aliasValues[2]} as ${aliasKey[2]}, ${aliasValues[3]} as ${aliasKey[3]}, ${aliasValues[4]} as ${aliasKey[4]}, ${aliasValues[5]} as ${aliasKey[5]}, 
+      ${aliasValues[6]} as ${aliasKey[6]}, ${aliasValues[7]} as ${aliasKey[7]}, ${aliasValues[8]} as ${aliasKey[8]}, ${aliasValues[10]} as ${aliasKey[10]},
+      ${aliasValues[11]} as ${aliasKey[11]}, ${aliasValues[12]} as ${aliasKey[12]} `
                 :
-                    `select id, time as ${aliasKey[1]}, pc_name as ${aliasKey[2]}, latest_agent_ip as ${aliasKey[3]}, proc_name as ${aliasKey[4]}, pid as ${aliasKey[5]}, 
-        printer as ${aliasKey[6]}, owner as ${aliasKey[7]}, document as ${aliasKey[8]}, 
-        size as ${aliasKey[11]}, pages as ${aliasKey[12]} `;
+                    `select ${aliasValues[0]}, ${aliasValues[1]} as ${aliasKey[1]}, ${aliasValues[2]} as ${aliasKey[2]}, ${aliasValues[3]} as ${aliasKey[3]}, ${aliasValues[4]} as ${aliasKey[4]}, ${aliasValues[5]} as ${aliasKey[5]}, 
+        ${aliasValues[6]} as ${aliasKey[6]}, ${aliasValues[7]} as ${aliasKey[7]}, ${aliasValues[8]} as ${aliasKey[8]}, 
+        ${aliasValues[11]} as ${aliasKey[11]}, ${aliasValues[12]} as ${aliasKey[12]} `;
             const query = queryStr +
                 "from leakedprintingfiles " +
                 whereClause +
@@ -268,6 +287,35 @@ class PrintService {
     '111',
     '0',
     '5');`;
+                // New_C
+                //   const query = `insert into	leakedprintingfiles (
+                //     time,
+                //     pc_guid,
+                //     pc_name,
+                //     proc_name,
+                //     proc_id,
+                //     latest_agent_ip,
+                //   printer,
+                //   doc_owner,
+                //   doc_name,
+                //   spl_file,
+                //   file_size,
+                //   doc_pages,
+                //   upload_state)
+                // values (
+                // now(),
+                // 'PCGUID${i+1}',
+                // 'PCname${i+1}',
+                // '${process}',
+                // '2684',
+                // '${agentIp}',
+                // 'Samsung X3220NR',
+                // 'USER',
+                // '퇴직원.pdf',
+                // 'DESKTOP-O14QCIB++2022-08-31 10.00.34++00007.spl',
+                // '452823',
+                // '2',
+                // '111');`;
                 try {
                     const result = yield new Promise((resolve, reject) => {
                         db_1.default.query(query, (error, result) => {
