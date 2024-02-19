@@ -14,9 +14,9 @@ const ipCalcService = new ipCalcService_1.default();
 router.get('/all', (req, res) => {
     let select = req.query.select;
     let username = req.query.username;
-    userService.getGradeAndMngip(username)
+    userService.getPrivilegeAndIP(username)
         .then((result) => {
-        let ipRange = ipCalcService.parseIPRange(result[0].mng_ip_ranges);
+        let ipRange = ipCalcService.parseIPRange(result[0].ip_ranges);
         networkService.getCountAll(select, ipRange)
             .then((allfiles) => {
             res.send(allfiles);

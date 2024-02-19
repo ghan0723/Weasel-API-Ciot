@@ -7,10 +7,10 @@ const moment_1 = __importDefault(require("moment"));
 class LineChartsService {
     constructor(connection) {
         this.contents = [
-            "detectfiles",
-            "detectmediafiles",
-            "outlookpstviewer",
-            "detectprinteddocuments",
+            "leakednetworkfiles",
+            "leakedmediafiles",
+            "leakedoutlookfiles",
+            "leakedprintingfiles",
         ];
         this.yearArray = [];
         this.monthArray = [];
@@ -113,7 +113,7 @@ class LineChartsService {
     getTableMonth(num, ipRanges) {
         // IP 범위 조건들을 생성
         const ipConditions = ipRanges
-            .map((range) => `(INET_ATON(agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`)
+            .map((range) => `(INET_ATON(latest_agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`)
             .join(" OR ");
         return new Promise((resolve, reject) => {
             let str = "";
@@ -186,7 +186,7 @@ class LineChartsService {
     getTableWeek(num, ipRanges) {
         // IP 범위 조건들을 생성
         const ipConditions = ipRanges
-            .map((range) => `(INET_ATON(agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`)
+            .map((range) => `(INET_ATON(latest_agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`)
             .join(" OR ");
         return new Promise((resolve, reject) => {
             let query = `SELECT 
@@ -282,7 +282,7 @@ class LineChartsService {
     getTableDay(num, ipRanges) {
         // IP 범위 조건들을 생성
         const ipConditions = ipRanges
-            .map((range) => `(INET_ATON(agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`)
+            .map((range) => `(INET_ATON(latest_agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`)
             .join(" OR ");
         return new Promise((resolve, reject) => {
             let str = "";

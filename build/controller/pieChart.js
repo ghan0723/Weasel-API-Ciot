@@ -5,13 +5,13 @@ var router = express.Router();
 router.get('/count', function (req, res) {
     let data = [];
     const connection = req.app.locals.connection;
-    connection.query('select process, count(process) as count from detectfiles group by process', (err, rows) => {
+    connection.query('select proc_name, count(proc_name) as count from leakednetworkfiles group by proc_name', (err, rows) => {
         if (err) {
             console.error('에러 발생 : ', err);
             return res.status(500).send('fucking');
         }
         // console.log("rows : ",rows);
-        connection.query('select count(*) as totalCount from detectfiles', (err2, row2) => {
+        connection.query('select count(*) as totalCount from leakednetworkfiles', (err2, row2) => {
             if (err2) {
                 console.error("두번째 쿼리에서 에러 발생 :", err2);
                 return res.status(500).send('fucking');
@@ -21,7 +21,7 @@ router.get('/count', function (req, res) {
                 let count = (rows[index].count / row2[0].totalCount) * 100;
                 // console.log('hcount : ', count);            
                 data.push({
-                    process: rows[index].process,
+                    proc_name: rows[index].proc_name,
                     count: rows[index].count,
                     hcount: Math.floor(count),
                     day: Date.now()

@@ -10,19 +10,19 @@ class ComplexService {
         let dayOption;
         let columns;
         if (props === "network") {
-            table = "detectfiles";
-            columns = "process ,dst_file";
+            table = "leakednetworkfiles";
+            columns = "proc_name ,url";
         }
         else if (props === "media") {
-            table = "detectmediafiles";
+            table = "leakedmediafiles";
             columns = "media_type, file";
         }
         else if (props === "outlook") {
-            table = "outlookpstviewer";
-            columns = "process, sender";
+            table = "leakedoutlookfiles";
+            columns = "proc_name, sender";
         }
         else {
-            table = "detectprinteddocuments";
+            table = "leakedprintingfiles";
             columns = "printer, document";
         }
         if (select === "day") {
@@ -36,9 +36,9 @@ class ComplexService {
         }
         // IP 범위 조건들을 생성
         const ipConditions = ipRanges
-            .map((range) => `(INET_ATON(agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`)
+            .map((range) => `(INET_ATON(latest_agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`)
             .join(" OR ");
-        const query = `select pcname, ${columns} from ${table} where (${dayOption}) AND (${ipConditions}) order by time desc limit 5;`;
+        const query = `select pc_name, ${columns} from ${table} where (${dayOption}) AND (${ipConditions}) order by time desc limit 5;`;
         return new Promise((resolve, reject) => {
             db_1.default.query(query, (error, result) => {
                 if (error) {
@@ -56,7 +56,7 @@ class ComplexService {
         });
     }
     getAllData() {
-        const query = "select * from detectfiles";
+        const query = "select * from leakednetworkfiles";
         return new Promise((resolve, reject) => {
             db_1.default.query(query, (error, result) => {
                 if (error) {

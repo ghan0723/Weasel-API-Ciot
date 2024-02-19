@@ -9,16 +9,16 @@ class BarService {
         let table;
         let dayOption;
         if (props === "network") {
-            table = "detectfiles";
+            table = "leakednetworkfiles";
         }
         else if (props === "media") {
-            table = "detectmediafiles";
+            table = "leakedmediafiles";
         }
         else if (props === "outlook") {
-            table = "outlookpstviewer";
+            table = "leakedoutlookfiles";
         }
         else {
-            table = "detectprinteddocuments";
+            table = "leakedprintingfiles";
         }
         if (param === "day") {
             dayOption = "DATE(time) = CURDATE()";
@@ -33,9 +33,9 @@ class BarService {
         }
         // IP 범위 조건들을 생성
         const ipConditions = ipRanges
-            .map((range) => `(INET_ATON(agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`)
+            .map((range) => `(INET_ATON(latest_agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`)
             .join(" OR ");
-        let query = `select agent_ip, count(distinct id) as totalCount from ${table} where (${dayOption}) AND (${ipConditions}) group by agent_ip order by totalCount desc limit 5`;
+        let query = `select latest_agent_ip, count(distinct id) as totalCount from ${table} where (${dayOption}) AND (${ipConditions}) group by latest_agent_ip order by totalCount desc limit 5`;
         return new Promise((resolve, reject) => {
             db_1.default.query(query, (error, result) => {
                 if (error) {
@@ -44,7 +44,7 @@ class BarService {
                 else {
                     // 가공된 데이터 생성
                     const data = result.map((item) => ({
-                        agentip: item.agent_ip,
+                        agentip: item.latest_agent_ip,
                         totalCount: item.totalCount,
                     }));
                     // 최종 결과물 반환

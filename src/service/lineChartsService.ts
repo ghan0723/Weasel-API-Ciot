@@ -21,10 +21,10 @@ interface ResultDay {
 class LineChartsService {
   private connection: Connection;
   private contents = [
-    "detectfiles",
-    "detectmediafiles",
-    "outlookpstviewer",
-    "detectprinteddocuments",
+    "leakednetworkfiles",
+    "leakedmediafiles",
+    "leakedoutlookfiles",
+    "leakedprintingfiles",
   ];
   private yearArray: string[] = [];
   private monthArray: number[] = [];
@@ -156,7 +156,7 @@ class LineChartsService {
     const ipConditions = ipRanges
     .map(
         (range) =>
-        `(INET_ATON(agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`
+        `(INET_ATON(latest_agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`
     )
     .join(" OR ");
 
@@ -248,7 +248,7 @@ class LineChartsService {
     const ipConditions = ipRanges
       .map(
         (range) =>
-          `(INET_ATON(agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`
+          `(INET_ATON(latest_agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`
       )
       .join(" OR ");
 
@@ -362,7 +362,7 @@ class LineChartsService {
     const ipConditions = ipRanges
       .map(
         (range) =>
-          `(INET_ATON(agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`
+          `(INET_ATON(latest_agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`
       )
       .join(" OR ");
 

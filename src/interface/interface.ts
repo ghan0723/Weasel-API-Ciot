@@ -3,13 +3,13 @@ export interface IpRange {
   end: string;
 }
 export interface ResultItem {
-  pcname: string;
-  keywords: string;
+  pc_name: string;
+  patterns: string;
 }
 
 export interface ResultWithCountsItem {
-  pcname: string;
-  keywords: Record<string, number>;
+  pc_name: string;
+  patterns: Record<string, number>;
 }
 
 export interface KeywordCounts {
@@ -17,7 +17,7 @@ export interface KeywordCounts {
 }
 
 export interface MergedData {
-  pcname: string;
+  pc_name: string;
   keywordCounts: KeywordCounts;
   total?: number; // total 속성을 추가합니다.
 }

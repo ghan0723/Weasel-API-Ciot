@@ -9,9 +9,9 @@ class PrintService {
     // alias    table명
     'id' : 'id',                       // 0
     'Time' : 'time',                   // 1
-    'PcName' : 'pcname',               // 2
-    'Agent_ip' : 'agent_ip',           // 3
-    'Process' : 'process',             // 4
+    'PcName' : 'pc_name',               // 2
+    'Agent_ip' : 'latest_agent_ip',           // 3
+    'Process' : 'proc_name',             // 4
     'PIDs' : 'pid',                    // 5
     'Printers' : 'printer',            // 6
     'Owners' : 'owner',                // 7
@@ -39,13 +39,13 @@ class PrintService {
     const ipConditions = ipRanges
       .map(
         (range) =>
-          `(INET_ATON(agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`
+          `(INET_ATON(latest_agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`
       )
       .join(" OR ");
 
     return new Promise((resolve, reject) => {
-      const query = `SELECT COUNT(*) as allprints FROM detectprinteddocuments WHERE time >= DATE_SUB(${dayOption1}) AND (${ipConditions})`;
-      const query3 = `SELECT COUNT(*) as beforeprints FROM detectprinteddocuments WHERE time >= DATE_SUB(${dayOption2}) AND time < DATE_SUB(${dayOption1}) AND (${ipConditions})`;
+      const query = `SELECT COUNT(*) as allprints FROM leakedprintingfiles WHERE time >= DATE_SUB(${dayOption1}) AND (${ipConditions})`;
+      const query3 = `SELECT COUNT(*) as beforeprints FROM leakedprintingfiles WHERE time >= DATE_SUB(${dayOption2}) AND time < DATE_SUB(${dayOption1}) AND (${ipConditions})`;
 
       Promise.all([
         new Promise<void>((innerResolve, innerReject) => {
@@ -84,7 +84,7 @@ class PrintService {
     });
   }
 
-  getApiData(page: any, pageSize: any,sorting:any,desc:any,category:any,search:any, ipRanges: IpRange[],grade:any): Promise<any> {
+  getApiData(page: any, pageSize: any,sorting:any,desc:any,category:any,search:any, ipRanges: IpRange[],privilege:any): Promise<any> {
     let queryPage:number=0;
     let queryPageSize:number=0;
     let querySorting:string=sorting === '' ? 'time' : sorting;
@@ -110,7 +110,7 @@ class PrintService {
     const ipConditions = ipRanges
       .map(
         (range) =>
-          `(INET_ATON(agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`
+          `(INET_ATON(latest_agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`
       )
       .join(" OR ");
 
@@ -121,23 +121,23 @@ class PrintService {
     }
 
     return new Promise((resolve, reject) => {
-      const queryStr = grade !== 3 ?
-      `select id, time as ${aliasKey[1]}, pcname as ${aliasKey[2]}, agent_ip as ${aliasKey[3]}, process as ${aliasKey[4]}, pid as ${aliasKey[5]}, 
+      const queryStr = privilege !== 3 ?
+      `select id, time as ${aliasKey[1]}, pc_name as ${aliasKey[2]}, latest_agent_ip as ${aliasKey[3]}, proc_name as ${aliasKey[4]}, pid as ${aliasKey[5]}, 
         printer as ${aliasKey[6]}, owner as ${aliasKey[7]}, document as ${aliasKey[8]}, spl_file as ${aliasKey[10]},
         size as ${aliasKey[11]}, pages as ${aliasKey[12]} `
         :
-        `select id, time as ${aliasKey[1]}, pcname as ${aliasKey[2]}, agent_ip as ${aliasKey[3]}, process as ${aliasKey[4]}, pid as ${aliasKey[5]}, 
+        `select id, time as ${aliasKey[1]}, pc_name as ${aliasKey[2]}, latest_agent_ip as ${aliasKey[3]}, proc_name as ${aliasKey[4]}, pid as ${aliasKey[5]}, 
         printer as ${aliasKey[6]}, owner as ${aliasKey[7]}, document as ${aliasKey[8]}, 
         size as ${aliasKey[11]}, pages as ${aliasKey[12]} `;
 
       const query =
         queryStr +
-        "from detectprinteddocuments " +
+        "from leakedprintingfiles " +
          whereClause +
         ' order by '+ querySorting + ' ' + queryDesc + ' ' +
         'LIMIT ' + queryPageSize + ' offset ' + queryPage*queryPageSize;
 
-      const query2 = "select count(*) as count from detectprinteddocuments " + whereClause;
+      const query2 = "select count(*) as count from leakedprintingfiles " + whereClause;
       const whereQuery = '%' + search + '%';;
 
       Promise.all([
@@ -145,7 +145,7 @@ class PrintService {
           connection.query(query,whereQuery, (error, result) => {
             const excludedKeys = ['Downloading'];
 
-            const filteredKeys = grade !== 3 ? aliasKey : aliasKey.filter(key => !excludedKeys.includes(key));
+            const filteredKeys = privilege !== 3 ? aliasKey : aliasKey.filter(key => !excludedKeys.includes(key));
 
             // 검색 결과가 없을 경우의 처리
             if(result.length === 0) {
@@ -188,7 +188,7 @@ class PrintService {
   postRemoveData(body:string[]) {
     // 이 부분에서 배열을 문자열로 변환할 때 각 값에 작은따옴표를 추가하는 방식으로 수정
     const idString = body.map((id) => `'${id}'`).join(", ");
-    const query = `DELETE FROM detectprinteddocuments WHERE id IN (${idString})`;
+    const query = `DELETE FROM leakedprintingfiles WHERE id IN (${idString})`;
 
     return new Promise((resolve, reject) => {
       connection.query(query, (error, result) => {
@@ -213,18 +213,18 @@ class PrintService {
     let queryMonthStr:string;
     let queryYearStr:string;
     let agentIp;
-    let process;
+    let proc_name;
     
     for(let i=0; i < count; i++) {
       if(i%3 === 0) {
         agentIp = '10.10.10.157'
-        process = 'process1'
+        proc_name = 'proc_name1'
       } else if(i%3 === 1) {
         agentIp = '192.168.1.55'
-        process = 'process2'
+        proc_name = 'proc_name2'
       } else {
         agentIp = '10.10.10.127'
-        process = 'process3'
+        proc_name = 'proc_name3'
       }
 
       // 날짜 계산
@@ -247,12 +247,12 @@ class PrintService {
         queryMonthStr = queryMonth.toString();
       }
       
-      const query = `insert into	detectprinteddocuments (
+      const query = `insert into	leakedprintingfiles (
         time,
-      pcname,
-      process,
+      pc_name,
+      proc_name,
       pid,
-      agent_ip,
+      latest_agent_ip,
       printer,
       owner,
       document,
@@ -265,7 +265,7 @@ class PrintService {
     values (
     now(),
     'PCname${i+1}',
-    '${process}',
+    '${proc_name}',
     '2684',
     '${agentIp}',
     'Samsung X3220NR',

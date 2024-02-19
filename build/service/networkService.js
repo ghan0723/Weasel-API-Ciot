@@ -16,19 +16,19 @@ class NetworkService {
             id: "id", // 0
             Accurancy: "accuracy", // 1
             Time: "time", // 2
-            PcName: "pcname", // 3
-            Agent_ip: "agent_ip", // 4
+            PcName: "pc_name", // 3
+            Agent_ip: "latest_agent_ip", // 4
             SrcIp: "src_ip", // 5
             SrcPort: "src_port", // 6
             DstIp: "dst_ip", // 7
             DstPort: "dst_port", // 8
-            Process: "process", // 9
+            Process: "proc_name", // 9
             PIDs: "pid", // 10
             SrcFile: "src_file", // 11
             DownLoad: "saved_file", // 12
             ScreenShot: "saved_file", // 13
             FileSizes: "file_size", // 14
-            Keywords: "keywords", // 15
+            Keywords: "patterns", // 15
             DestFiles: "dst_file", // 16
         };
         this.connection = connection;
@@ -51,11 +51,11 @@ class NetworkService {
         }
         // IP 범위 조건들을 생성
         const ipConditions = ipRanges
-            .map((range) => `(INET_ATON(agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`)
+            .map((range) => `(INET_ATON(latest_agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`)
             .join(" OR ");
         return new Promise((resolve, reject) => {
-            const query3 = `SELECT COUNT(*) as allfiles FROM detectfiles WHERE time >= DATE_SUB(${dayOption1}) AND (${ipConditions})`;
-            const query4 = `SELECT COUNT(*) as beforefiles FROM detectfiles WHERE time >= DATE_SUB(${dayOption2}) AND time < DATE_SUB(${dayOption1}) AND (${ipConditions})`;
+            const query3 = `SELECT COUNT(*) as allfiles FROM leakednetworkfiles WHERE time >= DATE_SUB(${dayOption1}) AND (${ipConditions})`;
+            const query4 = `SELECT COUNT(*) as beforefiles FROM leakednetworkfiles WHERE time >= DATE_SUB(${dayOption2}) AND time < DATE_SUB(${dayOption1}) AND (${ipConditions})`;
             Promise.all([
                 new Promise((innerResolve, innerReject) => {
                     this.connection.query(query3, (error, result) => {
@@ -94,7 +94,7 @@ class NetworkService {
         });
     }
     // 송신탐지내역 테이블
-    getApiData(page, pageSize, sorting, desc, category, search, ipRanges, grade) {
+    getApiData(page, pageSize, sorting, desc, category, search, ipRanges, privilege) {
         let queryPage = 0;
         let queryPageSize = 0;
         let querySorting = sorting === "" ? "time" : sorting;
@@ -114,7 +114,7 @@ class NetworkService {
         }
         // IP 범위 조건들을 생성
         const ipConditions = ipRanges
-            .map((range) => `(INET_ATON(agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`)
+            .map((range) => `(INET_ATON(latest_agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`)
             .join(" OR ");
         if (search !== "") {
             if (convertColumns === 'accuracy') {
@@ -136,19 +136,19 @@ class NetworkService {
             whereClause = `where ${ipConditions}`;
         }
         return new Promise((resolve, reject) => {
-            const queryStr = grade !== 3 ?
-                `select id, accuracy as ${aliasKey[1]}, time as ${aliasKey[2]}, pcname as ${aliasKey[3]}, agent_ip as ${aliasKey[4]}, src_ip as ${aliasKey[5]}, ` +
-                    `src_port as ${aliasKey[6]}, dst_ip as ${aliasKey[7]}, dst_port as ${aliasKey[8]}, process as ${aliasKey[9]}, ` +
+            const queryStr = privilege !== 3 ?
+                `select id, accuracy as ${aliasKey[1]}, time as ${aliasKey[2]}, pc_name as ${aliasKey[3]}, latest_agent_ip as ${aliasKey[4]}, src_ip as ${aliasKey[5]}, ` +
+                    `src_port as ${aliasKey[6]}, dst_ip as ${aliasKey[7]}, dst_port as ${aliasKey[8]}, proc_name as ${aliasKey[9]}, ` +
                     `pid as ${aliasKey[10]}, src_file as ${aliasKey[11]}, ` +
                     `saved_file as ${aliasKey[12]}, saved_file as ${aliasKey[13]}, ` +
-                    `keywords as ${aliasKey[15]}, dst_file as ${aliasKey[16]} `
+                    `patterns as ${aliasKey[15]}, dst_file as ${aliasKey[16]} `
                 :
-                    `select id, accuracy as ${aliasKey[1]}, time as ${aliasKey[2]}, pcname as ${aliasKey[3]}, agent_ip as ${aliasKey[4]}, src_ip as ${aliasKey[5]}, ` +
-                        `src_port as ${aliasKey[6]}, dst_ip as ${aliasKey[7]}, dst_port as ${aliasKey[8]}, process as ${aliasKey[9]}, ` +
+                    `select id, accuracy as ${aliasKey[1]}, time as ${aliasKey[2]}, pc_name as ${aliasKey[3]}, latest_agent_ip as ${aliasKey[4]}, src_ip as ${aliasKey[5]}, ` +
+                        `src_port as ${aliasKey[6]}, dst_ip as ${aliasKey[7]}, dst_port as ${aliasKey[8]}, proc_name as ${aliasKey[9]}, ` +
                         `pid as ${aliasKey[10]}, src_file as ${aliasKey[11]}, ` +
-                        `keywords as ${aliasKey[15]}, dst_file as ${aliasKey[16]} `;
+                        `patterns as ${aliasKey[15]}, dst_file as ${aliasKey[16]} `;
             const query = queryStr +
-                "from detectfiles " +
+                "from leakednetworkfiles " +
                 whereClause +
                 " order by " +
                 querySorting +
@@ -159,13 +159,13 @@ class NetworkService {
                 queryPageSize +
                 " offset " +
                 queryPage * queryPageSize;
-            const query2 = "select count(*) as count from detectfiles " + whereClause;
+            const query2 = "select count(*) as count from leakednetworkfiles " + whereClause;
             const whereQuery = "%" + search + "%";
             Promise.all([
                 new Promise((innerResolve, innerReject) => {
                     this.connection.query(query, whereQuery, (error, result) => {
                         const excludedKeys = ['DownLoad', 'ScreenShot'];
-                        const filteredKeys = grade !== 3 ? aliasKey : aliasKey.filter(key => !excludedKeys.includes(key));
+                        const filteredKeys = privilege !== 3 ? aliasKey : aliasKey.filter(key => !excludedKeys.includes(key));
                         // 검색 결과가 없을 경우의 처리
                         if (result.length === 0) {
                             result[0] = filteredKeys.reduce((obj, key) => {
@@ -207,7 +207,7 @@ class NetworkService {
     postRemoveData(body) {
         // 이 부분에서 배열을 문자열로 변환할 때 각 값에 작은따옴표를 추가하는 방식으로 수정
         const idString = body.map((id) => `'${id}'`).join(", ");
-        const query = `DELETE FROM detectfiles WHERE id IN (${idString})`;
+        const query = `DELETE FROM leakednetworkfiles WHERE id IN (${idString})`;
         return new Promise((resolve, reject) => {
             this.connection.query(query, (error, result) => {
                 if (error) {
@@ -251,12 +251,12 @@ class NetworkService {
                 else {
                     queryMonthStr = queryMonth.toString();
                 }
-                const query = `INSERT INTO detectfiles (
+                const query = `INSERT INTO leakednetworkfiles (
         time,
-        pcname,
-        process,
+        pc_name,
+        proc_name,
         pid,
-        agent_ip,
+        latest_agent_ip,
         src_ip,
         src_port,
         dst_ip,
@@ -265,7 +265,7 @@ class NetworkService {
         down_state,
         scrshot_downloaded,
         file_size,
-        keywords,
+        patterns,
         dst_file,
         saved_file,
         accuracy,

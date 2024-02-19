@@ -10,16 +10,16 @@ class PieChartService {
         let table;
         let dayOption;
         if (id === 'Network') {
-            table = 'detectfiles';
+            table = 'leakednetworkfiles';
         }
         else if (id === 'Media') {
-            table = 'detectmediafiles';
+            table = 'leakedmediafiles';
         }
         else if (id === 'Outlook') {
-            table = 'outlookpstviewer';
+            table = 'leakedoutlookfiles';
         }
         else {
-            table = 'detectprinteddocuments';
+            table = 'leakedprintingfiles';
         }
         if (day === 'day') {
             dayOption = 'DATE(time) = CURDATE()';
@@ -32,9 +32,9 @@ class PieChartService {
         }
         // IP 범위 조건들을 생성
         const ipConditions = ipRanges
-            .map((range) => `(INET_ATON(agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`)
+            .map((range) => `(INET_ATON(latest_agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`)
             .join(" OR ");
-        let queryNet1 = `select process, count(process) as count from ${table} where ${dayOption} AND (${ipConditions}) group by process order by count(process) desc limit 4`;
+        let queryNet1 = `select proc_name, count(proc_name) as count from ${table} where ${dayOption} AND (${ipConditions}) group by proc_name order by count(proc_name) desc limit 4`;
         let queryNet2 = `select count(*) as totalCount from ${table} where ${dayOption} AND (${ipConditions})`;
         return new Promise((resolve, reject) => {
             db_1.default.query(queryNet1, (error, result1) => {
@@ -49,7 +49,7 @@ class PieChartService {
                         const data = result1.map((item) => {
                             const count = (item.count / result2[0].totalCount) * 100;
                             return {
-                                process: item.process,
+                                proc_name: item.proc_name,
                                 count: item.count,
                                 hcount: parseFloat(count.toFixed(1))
                             };

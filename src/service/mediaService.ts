@@ -9,15 +9,15 @@ class MediaService {
     // alias    table명
     'id' : 'id',                   // 0
     'Time' : 'time',               // 1
-    'PcName' : 'pcname',           // 2
-    'Agent_ip' : 'agent_ip',       // 3
-    'Process' : 'process',         // 4
+    'PcName' : 'pc_name',           // 2
+    'Agent_ip' : 'latest_agent_ip',       // 3
+    'Process' : 'proc_name',         // 4
     'Media_Type' : 'media_type',   // 5
     'Files' : 'file',              // 6
     'Copied_files' : 'saved_file', // 7 => 사용 안함
     'Downloading' : 'saved_file',  // 8
     'FileSizes' : 'file_size',     // 9
-    'Keywords' : 'keywords',       // 10
+    'Keywords' : 'patterns',       // 10
   };
 
   getMediaAll(select: any, ipRanges: IpRange[]): Promise<any> {
@@ -39,13 +39,13 @@ class MediaService {
     const ipConditions = ipRanges
       .map(
         (range) =>
-          `(INET_ATON(agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`
+          `(INET_ATON(latest_agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`
       )
       .join(" OR ");
 
     return new Promise((resolve, reject) => {
-      const query = `SELECT COUNT(*) as allmedias FROM detectmediafiles WHERE time >= DATE_SUB(${dayOption1}) AND (${ipConditions})`;
-      const query3 = `SELECT COUNT(*) as beforemedias FROM detectmediafiles WHERE time >= DATE_SUB(${dayOption2}) AND time < DATE_SUB(${dayOption1}) AND (${ipConditions})`;
+      const query = `SELECT COUNT(*) as allmedias FROM leakedmediafiles WHERE time >= DATE_SUB(${dayOption1}) AND (${ipConditions})`;
+      const query3 = `SELECT COUNT(*) as beforemedias FROM leakedmediafiles WHERE time >= DATE_SUB(${dayOption2}) AND time < DATE_SUB(${dayOption1}) AND (${ipConditions})`;
 
       Promise.all([
         new Promise<void>((innerResolve, innerReject) => {
@@ -85,7 +85,7 @@ class MediaService {
   }
 
   // 송신탐지내역 테이블
-  getApiData(page: any, pageSize: any,sorting:any,desc:any,category:any,search:any, ipRanges: IpRange[],grade:any): Promise<any> {
+  getApiData(page: any, pageSize: any,sorting:any,desc:any,category:any,search:any, ipRanges: IpRange[],privilege:any): Promise<any> {
     let queryPage:number=0;
     let queryPageSize:number=0;
     let querySorting:string=sorting === '' ? 'time' : sorting;
@@ -111,7 +111,7 @@ class MediaService {
     const ipConditions = ipRanges
       .map(
         (range) =>
-          `(INET_ATON(agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`
+          `(INET_ATON(latest_agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`
       )
       .join(" OR ");
 
@@ -122,22 +122,22 @@ class MediaService {
     }
 
     return new Promise((resolve, reject) => {
-      const queryStr = grade !== 3 ?
-      `select id, time as ${aliasKey[1]}, pcname as ${aliasKey[2]}, agent_ip as ${aliasKey[3]}, process as ${aliasKey[4]}, media_type as ${aliasKey[5]}, file as ${aliasKey[6]},
+      const queryStr = privilege !== 3 ?
+      `select id, time as ${aliasKey[1]}, pc_name as ${aliasKey[2]}, latest_agent_ip as ${aliasKey[3]}, proc_name as ${aliasKey[4]}, media_type as ${aliasKey[5]}, file as ${aliasKey[6]},
       saved_file as ${aliasKey[8]},
-      file_size as ${aliasKey[9]}, keywords as ${aliasKey[10]} `
+      file_size as ${aliasKey[9]}, patterns as ${aliasKey[10]} `
       :
-      `select id, time as ${aliasKey[1]}, pcname as ${aliasKey[2]}, agent_ip as ${aliasKey[3]}, process as ${aliasKey[4]}, media_type as ${aliasKey[5]}, file as ${aliasKey[6]},
-        file_size as ${aliasKey[9]}, keywords as ${aliasKey[10]} `;
+      `select id, time as ${aliasKey[1]}, pc_name as ${aliasKey[2]}, latest_agent_ip as ${aliasKey[3]}, proc_name as ${aliasKey[4]}, media_type as ${aliasKey[5]}, file as ${aliasKey[6]},
+        file_size as ${aliasKey[9]}, patterns as ${aliasKey[10]} `;
 
       const query =
         queryStr +
-        "from detectmediafiles " +
+        "from leakedmediafiles " +
          whereClause +
         ' order by '+ querySorting + ' ' + queryDesc + ' ' +
         'LIMIT ' + queryPageSize + ' offset ' + queryPage*queryPageSize;
 
-      const query2 = "select count(*) as count from detectmediafiles " + whereClause;
+      const query2 = "select count(*) as count from leakedmediafiles " + whereClause;
       const whereQuery = '%' + search + '%';
 
       Promise.all([
@@ -145,7 +145,7 @@ class MediaService {
           connection.query(query, whereQuery, (error, result) => {
             const excludedKeys = ['Downloading'];
 
-            const filteredKeys = grade !== 3 ? aliasKey : aliasKey.filter(key => !excludedKeys.includes(key));
+            const filteredKeys = privilege !== 3 ? aliasKey : aliasKey.filter(key => !excludedKeys.includes(key));
 
             // 검색 결과가 없을 경우의 처리
             if(result.length === 0) {
@@ -189,7 +189,7 @@ class MediaService {
   postRemoveData(body:string[]) {
     // 이 부분에서 배열을 문자열로 변환할 때 각 값에 작은따옴표를 추가하는 방식으로 수정
     const idString = body.map((id) => `'${id}'`).join(", ");
-    const query = `DELETE FROM detectmediafiles WHERE id IN (${idString})`;
+    const query = `DELETE FROM leakedmediafiles WHERE id IN (${idString})`;
 
     return new Promise((resolve, reject) => {
       connection.query(query, (error, result) => {
@@ -236,17 +236,17 @@ class MediaService {
       }
       
       const query = `insert
-      into detectmediafiles
+      into leakedmediafiles
        (time,
-      pcname,
-      process,
+      pc_name,
+      proc_name,
       pid,
-      agent_ip,
+      latest_agent_ip,
       media_type,
       file,
       saved_file,
       file_size,
-      keywords,
+      patterns,
       down_state,
       isprinted,
       asked_file)

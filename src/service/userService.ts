@@ -5,7 +5,7 @@ class UserService {
   getLogin(username: string): Promise<any> {
     return new Promise((resolve, reject) => {
       const query =
-        "SELECT username, passwd, grade, mng_ip_ranges FROM userlist WHERE username = ?";
+        "SELECT username, passwd, privilege, ip_ranges FROM accountlist WHERE username = ?";
       connection.query(query, [username], (error, results) => {
         if (error) {
           reject(error);
@@ -16,9 +16,9 @@ class UserService {
     });
   }
 
-  getUserList(grade: any): Promise<any> {
+  getUserList(privilege: any): Promise<any> {
     return new Promise((resolve, reject) => {
-      const query = `select username, grade, enabled, mng_ip_ranges from userlist where grade > ${grade}`;
+      const query = `select username, privilege, enabled, ip_ranges from accountlist where privilege > ${privilege}`;
       connection.query(query, (error, result) => {
         if (error) {
           reject(error);
@@ -33,15 +33,15 @@ class UserService {
     user: {
       username: string;
       passwd: any;
-      grade: string;
-      mng_ip_ranges: string;
+      privilege: string;
+      ip_ranges: string;
     },
     freq: any
   ): Promise<any> {
-    let mngip = user.mng_ip_ranges.replace(/(\r\n|\n|\r)/gm, ", ");
-    let grade: number = parseInt(user.grade, 10);
+    let mngip = user.ip_ranges.replace(/(\r\n|\n|\r)/gm, ", ");
+    let privilege: number = parseInt(user.privilege, 10);
     return new Promise(async (resolve, reject) => {
-      const query = `insert into userlist (\`username\`, \`passwd\`, \`grade\`, \`enabled\`, \`mng_ip_ranges\`, \`last_pwd_date\`, \`pwd_change_freq\`) values ('${user.username}', '${user.passwd}', ${grade}, 1, '${mngip}', now(), ${freq})`;
+      const query = `insert into accountlist (\`username\`, \`passwd\`, \`privilege\`, \`enabled\`, \`ip_ranges\`, \`last_pwd_date\`, \`pwd_change_freq\`) values ('${user.username}', '${user.passwd}', ${privilege}, 1, '${mngip}', now(), ${freq})`;
       connection.query(query, (error, result) => {
         if (error) {
           reject(error);
@@ -57,7 +57,7 @@ class UserService {
     const usernameString = users.map((username) => `'${username}'`).join(", ");
 
     // IN 절을 괄호로 감싸고 수정
-    const query = `DELETE FROM userlist WHERE username IN (${usernameString})`;
+    const query = `DELETE FROM accountlist WHERE username IN (${usernameString})`;
 
     return new Promise((resolve, reject) => {
       connection.query(query, (error, result) => {
@@ -73,7 +73,7 @@ class UserService {
   }
 
   getUser(username: string): Promise<any> {
-    const query = `select username, passwd, grade, mng_ip_ranges from userlist where username = ? `;
+    const query = `select username, passwd, privilege, ip_ranges from accountlist where username = ? `;
 
     return new Promise((resolve, reject) => {
       connection.query(query, username, (error, result) => {
@@ -91,14 +91,14 @@ class UserService {
     user: {
       username: string;
       passwd: string;
-      grade: string;
-      mng_ip_ranges: string;
+      privilege: string;
+      ip_ranges: string;
     },
     oldname: string
   ): Promise<any> {
-    let mngip = user.mng_ip_ranges.replace(/(\r\n|\n|\r)/gm, ", ");
-    let grade: number = parseInt(user.grade, 10);
-    const query = `UPDATE userlist SET username = '${user.username}', passwd = '${user.passwd}', grade = ${grade}, mng_ip_ranges = '${mngip}' WHERE username = '${oldname}'`;
+    let mngip = user.ip_ranges.replace(/(\r\n|\n|\r)/gm, ", ");
+    let privilege: number = parseInt(user.privilege, 10);
+    const query = `UPDATE accountlist SET username = '${user.username}', passwd = '${user.passwd}', privilege = ${privilege}, ip_ranges = '${mngip}' WHERE username = '${oldname}'`;
 
     return new Promise((resolve, reject) => {
       connection.query(query, (error, result) => {
@@ -113,13 +113,13 @@ class UserService {
     });
   }
 
-  getGrade(username: any): Promise<any> {
-    const query = `select grade from userlist where username = ? `;
+  getPrivilege(username: any): Promise<any> {
+    const query = `select privilege from accountlist where username = ? `;
 
     return new Promise((resolve, reject) => {
       connection.query(query, username, (error, result) => {
         if (error) {
-          console.log("grade 가져오다가 사고남");
+          console.log("privilege 가져오다가 사고남");
           reject(error);
         } else {
           resolve(result);
@@ -128,13 +128,13 @@ class UserService {
     });
   }
 
-  getGradeAndMngip(username: any): Promise<any> {
-    const query = `select grade, mng_ip_ranges from userlist where username = ? `;
+  getPrivilegeAndIP(username: any): Promise<any> {
+    const query = `select privilege, ip_ranges from accountlist where username = ? `;
 
     return new Promise((resolve, reject) => {
       connection.query(query, username, (error, result) => {
         if (error) {
-          console.log("grade 가져오다가 사고남");
+          console.log("privilege 가져오다가 사고남");
           reject(error);
         } else {
           resolve(result);
@@ -143,8 +143,8 @@ class UserService {
     });
   }
 
-  getUserListByGradeAndMngip(
-    grade: any,
+  getUserListByPrivilegeAndIP(
+    privilege: any,
     ipRanges: IpRange[],
     category: any,
     searchWord: any
@@ -157,17 +157,17 @@ class UserService {
           searchCondition = `where username LIKE '%${searchWord}%'`;
           break;
         // 다른 카테고리에 대한 추가적인 case문을 필요에 따라 추가한다.
-        case "grade":
+        case "privilege":
           if (
             /(영역별\s*관리자|영역|영|역|별|관|리|자|관리|관리자|리자|자|리|다)/i.test(
               searchWord
             )
           ) {
-            searchCondition = "where grade = 2";
+            searchCondition = "where privilege = 2";
           } else if (/(모니터|모|모니|니|니터|터|모터)/i.test(searchWord)) {
-            searchCondition = `where grade = 3`;
+            searchCondition = `where privilege = 3`;
           } else {
-            searchCondition = `where grade = '${searchWord}'`;
+            searchCondition = `where privilege = '${searchWord}'`;
           }
           break;
         case "enabled":
@@ -179,8 +179,8 @@ class UserService {
             searchCondition = `where enabled = '${searchWord}'`;
           }
           break;
-        case "mng_ip_ranges":
-          searchCondition = `where mng_ip_ranges LIKE '%${searchWord}%'`;
+        case "ip_ranges":
+          searchCondition = `where ip_ranges LIKE '%${searchWord}%'`;
         default:
           break;
       }
@@ -189,22 +189,22 @@ class UserService {
     const ipConditions = ipRanges
       .map(
         (range) =>
-          `(INET_ATON(mng_ip_ranges) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`
+          `(INET_ATON(ip_ranges) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`
       )
       .join(" OR ");
 
     // SQL 쿼리 생성
     const query = `
-        SELECT username, grade, enabled, mng_ip_ranges FROM userlist WHERE grade > ${grade} AND (${ipConditions}) 
+        SELECT username, privilege, enabled, ip_ranges FROM accountlist WHERE privilege > ${privilege} AND (${ipConditions}) 
       `;
     return new Promise((resolve, reject) => {
-      const query2 = `select username, grade, enabled, mng_ip_ranges from (${query}) AS userTable ${searchCondition}`;
+      const query2 = `select username, privilege, enabled, ip_ranges from (${query}) AS userTable ${searchCondition}`;
       // 쿼리 실행
       connection.query(query2, (error, result) => {
         if (error) {
           reject(error);
         } else {
-          if (grade !== 3) {
+          if (privilege !== 3) {
             resolve(result);
           } else {
             reject("error");
@@ -215,7 +215,7 @@ class UserService {
   }
 
   getUserListAll(category: any, searchWord: any): Promise<any> {
-    let searchCondition = "grade > 1";
+    let searchCondition = "privilege > 1";
 
     if (searchWord !== "" && category !== "") {
       // 여기에서 category에 따라 적절한 검색 조건을 추가합니다.
@@ -224,17 +224,17 @@ class UserService {
           searchCondition += ` AND username LIKE '%${searchWord}%'`;
           break;
         // 다른 카테고리에 대한 추가적인 case문을 필요에 따라 추가한다.
-        case "grade":
+        case "privilege":
           if (
             /(영역별\s*관리자|영역|영|역|별|관|리|자|관리|관리자|리자|자|리|다)/i.test(
               searchWord
             )
           ) {
-            searchCondition += " AND grade = 2";
+            searchCondition += " AND privilege = 2";
           } else if (/(모니터|모|모니|니|니터|터|모터)/i.test(searchWord)) {
-            searchCondition += ` AND grade = 3`;
+            searchCondition += ` AND privilege = 3`;
           } else {
-            searchCondition += ` AND grade = '${searchWord}'`;
+            searchCondition += ` AND privilege = '${searchWord}'`;
           }
           break;
         case "enabled":
@@ -246,15 +246,15 @@ class UserService {
             searchCondition += ` AND enabled = '${searchWord}'`;
           }
           break;
-        case "mng_ip_ranges":
-          searchCondition += ` AND mng_ip_ranges LIKE '%${searchWord}%'`;
+        case "ip_ranges":
+          searchCondition += ` AND ip_ranges LIKE '%${searchWord}%'`;
         default:
           break;
       }
     }
 
     return new Promise((resolve, reject) => {
-      const query = `select username, grade, enabled, mng_ip_ranges from userlist where ${searchCondition}`;
+      const query = `select username, privilege, enabled, ip_ranges from accountlist where ${searchCondition}`;
       connection.query(query, (error, result) => {
         if (error) {
           reject(error);
@@ -269,7 +269,7 @@ class UserService {
     return new Promise((resolve, reject) => {
       if (username !== oldname) {
         const query =
-          "SELECT COUNT(*) as count FROM userlist WHERE username = ?";
+          "SELECT COUNT(*) as count FROM accountlist WHERE username = ?";
         connection.query(query, [username], (error, result) => {
           if (error) {
             reject(error);
@@ -338,7 +338,7 @@ class UserService {
   }
 
   checkPwdFreq(username: any): Promise<boolean> {
-    const query = `SELECT last_pwd_date, pwd_change_freq FROM userlist WHERE username = ?`;
+    const query = `SELECT last_pwd_date, pwd_change_freq FROM accountlist WHERE username = ?`;
 
     return new Promise((resolve, reject) => {
       connection.query(query, [username], (error, result) => {
@@ -374,7 +374,7 @@ class UserService {
 
   getPwdByUsername(username: any): Promise<any> {
     return new Promise((resolve, reject) => {
-      const query = "select passwd from userlist where username = ?";
+      const query = "select passwd from accountlist where username = ?";
       connection.query(query, [username], (error, result) => {
         if (error) {
           reject(error);
@@ -388,7 +388,7 @@ class UserService {
   modifyPwdByFreq(username: any, encPwd: any): Promise<any> {
     return new Promise((resolve, reject) => {
       const query =
-        "update userlist set passwd = ? , last_pwd_date = now() where username = ?";
+        "update accountlist set passwd = ? , last_pwd_date = now() where username = ?";
       connection.query(query, [encPwd, username], (error, result) => {
         if (error) {
           reject(error);
@@ -401,7 +401,7 @@ class UserService {
 
   getFreq(username: any): Promise<any> {
     return new Promise((resolve, reject) => {
-      const query = `select pwd_change_freq from userlist where username = ?`;
+      const query = `select pwd_change_freq from accountlist where username = ?`;
       connection.query(query, username, (error, result) => {
         if (error) {
           reject(error);

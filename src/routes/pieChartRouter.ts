@@ -13,9 +13,9 @@ router.get('/count/:select', (req: Request, res: Response) => {
   let day = req.query.day;
   let username = req.query.username;
 
-  userService.getGradeAndMngip(username)
+  userService.getPrivilegeAndIP(username)
     .then((result) => {
-        let ipRange = ipCalcService.parseIPRange(result[0].mng_ip_ranges);
+        let ipRange = ipCalcService.parseIPRange(result[0].ip_ranges);
         pieChartService
         .getPieDataToday(id, day, ipRange)
         .then((pieData) => {

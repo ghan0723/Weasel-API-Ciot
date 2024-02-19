@@ -14,9 +14,9 @@ router.get('/all', (req, res) => {
     let select = req.query.select;
     let username = req.query.username;
     userService
-        .getGradeAndMngip(username)
+        .getPrivilegeAndIP(username)
         .then((result) => {
-        let ipRange = ipCalcService.parseIPRange(result[0].mng_ip_ranges);
+        let ipRange = ipCalcService.parseIPRange(result[0].ip_ranges);
         outlookService
             .getCountAll(select, ipRange)
             .then((allmedias) => {

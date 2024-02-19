@@ -16,9 +16,9 @@ router.get("/count", (req: Request, res: Response) => {
     // Function to fetch data for each service
     function fetchData(serviceName: string) {
       return userService
-        .getGradeAndMngip(username)
+        .getPrivilegeAndIP(username)
         .then((result) => {
-          let ipRange = ipCalcService.parseIPRange(result[0].mng_ip_ranges);
+          let ipRange = ipCalcService.parseIPRange(result[0].ip_ranges);
           return barService.getBarData(serviceName, select, ipRange);
         });
     }

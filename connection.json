@@ -1,6 +1,6 @@
 {
     "password" : "Aa111111",
-    "SCHEMA": "weaseldb",
-    "HOST" : "172.31.168.112",
+    "SCHEMA": "weaselserver",
+    "HOST" : "localhost",
     "USER" : "root"
 }

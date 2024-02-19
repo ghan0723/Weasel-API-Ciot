@@ -38,20 +38,20 @@ router.get("/dwn", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         const category = req.query.category;
         const search = req.query.search;
         const username = req.query.username;
-        const result = yield userService.getGradeAndMngip(username);
-        const ipRanges = ipCalcService.parseIPRange(result[0].mng_ip_ranges);
+        const result = yield userService.getPrivilegeAndIP(username);
+        const ipRanges = ipCalcService.parseIPRange(result[0].ip_ranges);
         let results;
         if (contents === "network") {
-            results = yield networkService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, result[0].grade);
+            results = yield networkService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, result[0].privilege);
         }
         else if (contents === "media") {
-            results = yield mediaService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, result[0].grade);
+            results = yield mediaService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, result[0].privilege);
         }
         else if (contents === "outlook") {
-            results = yield outlookService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, result[0].grade);
+            results = yield outlookService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, result[0].privilege);
         }
         else if (contents === "print") {
-            results = yield printService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, result[0].grade);
+            results = yield printService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, result[0].privilege);
         }
         else {
             console.error("Invalid param:", contents);
