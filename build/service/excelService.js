@@ -37,9 +37,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const Excel = __importStar(require("exceljs"));
 const moment_1 = __importDefault(require("moment"));
-const headerWidths = [
-    15, 20, 24, 24, 24, 24, 20, 24, 15, 20, 15, 40, 40, 40, 20, 24,
-];
 class ExcelService {
     constructor() {
         this.styleHeaderCell = (cell) => {
