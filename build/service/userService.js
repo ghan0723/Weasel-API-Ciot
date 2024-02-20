@@ -380,5 +380,19 @@ class UserService {
             });
         });
     }
+    getPopupNotice() {
+        return new Promise((resolve, reject) => {
+            const query = `select count(description) as count, description from popupnotice`;
+            db_1.default.query(query, (error, result) => {
+                if (error) {
+                    reject(error);
+                }
+                else {
+                    resolve(result);
+                    console.log("result : ", result);
+                }
+            });
+        });
+    }
 }
 exports.default = UserService;

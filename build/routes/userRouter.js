@@ -44,13 +44,40 @@ router.post("/login", (req, res) => {
                             return;
                         }
                         else {
-                            res.cookie("username", user[0].username, {
-                                secure: true,
-                                maxAge: cookieTime * 1000,
-                                path: "/", // 쿠키의 경로 설정
+                            userService
+                                .getPopupNotice()
+                                .then((popup) => {
+                                var _a;
+                                if (((_a = popup[0]) === null || _a === void 0 ? void 0 : _a.count) > 0) {
+                                    //띄울 팝업이 존재한다면
+                                    res.cookie("username", user[0].username, {
+                                        secure: true,
+                                        maxAge: cookieTime * 1000,
+                                        path: "/", // 쿠키의 경로 설정
+                                    });
+                                    log_1.weasel.log(username, req.socket.remoteAddress, "Success Login ");
+                                    res
+                                        .status(200)
+                                        .send({ username, freq: false, notice: true, popup });
+                                }
+                                else {
+                                    //팝업이 존재하지 않는다면
+                                    res.cookie("username", user[0].username, {
+                                        secure: true,
+                                        maxAge: cookieTime * 1000,
+                                        path: "/", // 쿠키의 경로 설정
+                                    });
+                                    log_1.weasel.log(username, req.socket.remoteAddress, "Success Login ");
+                                    res
+                                        .status(200)
+                                        .send({ username, freq: false, notice: false });
+                                }
+                            })
+                                .catch((error5) => {
+                                log_1.weasel.error(username, req.socket.remoteAddress, "Failed to get PopupNotice ");
+                                console.error("PopupNotice 가져오기 실패:", error5);
+                                res.status(500).send(error5);
                             });
-                            log_1.weasel.log(username, req.socket.remoteAddress, "Success Login ");
-                            res.status(200).send({ username, freq: false });
                         }
                     })
                         .catch((error2) => {
@@ -77,13 +104,34 @@ router.post("/login", (req, res) => {
                             }
                             else {
                                 if (!freq) {
-                                    res.cookie("username", user[0].username, {
-                                        secure: true,
-                                        maxAge: cookieTime * 1000,
-                                        path: "/", // 쿠키의 경로 설정
+                                    userService
+                                        .getPopupNotice()
+                                        .then((popup) => {
+                                        var _a;
+                                        if (((_a = popup[0]) === null || _a === void 0 ? void 0 : _a.count) > 0) {
+                                            res.cookie("username", user[0].username, {
+                                                secure: true,
+                                                maxAge: cookieTime * 1000,
+                                                path: "/", // 쿠키의 경로 설정
+                                            });
+                                            log_1.weasel.log(username, req.socket.remoteAddress, "Success Login ");
+                                            res.status(200).send({ username, freq, notice: true, popup });
+                                        }
+                                        else {
+                                            res.cookie("username", user[0].username, {
+                                                secure: true,
+                                                maxAge: cookieTime * 1000,
+                                                path: "/", // 쿠키의 경로 설정
+                                            });
+                                            log_1.weasel.log(username, req.socket.remoteAddress, "Success Login ");
+                                            res.status(200).send({ username, freq, notice: false });
+                                        }
+                                    })
+                                        .catch((error5) => {
+                                        log_1.weasel.error(username, req.socket.remoteAddress, "Failed to get PopupNotice ");
+                                        console.error("PopupNotice 가져오기 실패:", error5);
+                                        res.status(500).send(error5);
                                     });
-                                    log_1.weasel.log(username, req.socket.remoteAddress, "Success Login ");
-                                    res.status(200).send({ username, freq });
                                 }
                                 else {
                                     //freq 보고 판별
@@ -454,7 +502,7 @@ router.get("/privilege", (req, res) => {
     userService
         .getPrivilege(username)
         .then((result) => {
-        console.log('result', result);
+        console.log("result", result);
         res.send(result);
     })
         .catch((error) => {
@@ -551,7 +599,9 @@ router.post("/pwd", (req, res) => {
             }
             else {
                 log_1.weasel.error(username, req.socket.remoteAddress, "Failed to Update Pwd By Old Pwd Equals New Pwd");
-                res.status(500).send("The password before the change and the password after the change are the same.");
+                res
+                    .status(500)
+                    .send("The password before the change and the password after the change are the same.");
             }
         }
     })
