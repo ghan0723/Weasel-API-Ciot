@@ -58,7 +58,7 @@ router.post("/login", (req, res) => {
                                     log_1.weasel.log(username, req.socket.remoteAddress, "Success Login ");
                                     res
                                         .status(200)
-                                        .send({ username, freq: false, notice: true, popup });
+                                        .send({ username, freq: false, notice: true });
                                 }
                                 else {
                                     //팝업이 존재하지 않는다면
@@ -115,7 +115,7 @@ router.post("/login", (req, res) => {
                                                 path: "/", // 쿠키의 경로 설정
                                             });
                                             log_1.weasel.log(username, req.socket.remoteAddress, "Success Login ");
-                                            res.status(200).send({ username, freq, notice: true, popup });
+                                            res.status(200).send({ username, freq, notice: true });
                                         }
                                         else {
                                             res.cookie("username", user[0].username, {

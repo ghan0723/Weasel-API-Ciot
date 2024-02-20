@@ -3,10 +3,6 @@ import { saveAs } from "file-saver";
 import { promises as fsPromises } from "fs";
 import moment from "moment";
 
-const headerWidths: number[] = [
-  15, 20, 24, 24, 24, 24, 20, 24, 15, 20, 15, 40, 40, 40, 20, 24,
-];
-
 class ExcelService {
   async getExcelFile(fileData: any[], fileName: string) {
     const workbook = new Excel.Workbook();

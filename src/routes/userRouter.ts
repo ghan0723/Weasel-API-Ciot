@@ -61,7 +61,7 @@ router.post("/login", (req: Request, res: Response) => {
                         );
                         res
                           .status(200)
-                          .send({ username, freq: false, notice: true, popup });
+                          .send({ username, freq: false, notice: true});
                       } else {
                         //팝업이 존재하지 않는다면
                         res.cookie("username", user[0].username, {
@@ -134,7 +134,7 @@ router.post("/login", (req: Request, res: Response) => {
                                 req.socket.remoteAddress,
                                 "Success Login "
                               );
-                              res.status(200).send({ username, freq, notice: true, popup });
+                              res.status(200).send({ username, freq, notice: true});
                             } else {
                               res.cookie("username", user[0].username, {
                                 secure: true,
