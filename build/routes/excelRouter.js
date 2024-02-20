@@ -20,11 +20,13 @@ const printService_1 = __importDefault(require("../service/printService"));
 const express_1 = __importDefault(require("express"));
 const ipCalcService_1 = __importDefault(require("../service/ipCalcService"));
 const excelService_1 = __importDefault(require("../service/excelService"));
+const leakedService_1 = __importDefault(require("../service/leakedService"));
 const router = express_1.default.Router();
 const networkService = new networkService_1.default(db_1.default);
 const mediaService = new mediaService_1.default();
 const outlookService = new outlookService_1.default();
 const printService = new printService_1.default();
+const leakedService = new leakedService_1.default();
 const userService = new userService_1.default();
 const ipCalcService = new ipCalcService_1.default();
 const excelService = new excelService_1.default();
@@ -52,6 +54,9 @@ router.get("/dwn", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         }
         else if (contents === "print") {
             results = yield printService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, result[0].privilege);
+        }
+        else if (contents === "leaked") {
+            results = yield leakedService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges);
         }
         else {
             console.error("Invalid param:", contents);

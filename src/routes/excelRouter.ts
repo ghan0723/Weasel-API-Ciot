@@ -8,12 +8,14 @@ import PrintService from "../service/printService";
 import express, { Request, Response, Router } from "express";
 import IpCalcService from "../service/ipCalcService";
 import ExcelService from "../service/excelService";
+import LeakedService from "../service/leakedService";
 
 const router: Router = express.Router();
 const networkService: NetworkService = new NetworkService(connection);
 const mediaService: MediaService = new MediaService();
 const outlookService: OutlookService = new OutlookService();
 const printService: PrintService = new PrintService();
+const leakedService:LeakedService = new LeakedService();
 const userService: UserService = new UserService();
 const ipCalcService = new IpCalcService();
 const excelService: ExcelService = new ExcelService();
@@ -41,6 +43,8 @@ router.get("/dwn", async (req: Request, res: Response) => {
         results = await outlookService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges,result[0].privilege);
       } else if (contents === "print") {
         results = await printService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges,result[0].privilege);
+      } else if (contents === "leaked") {
+        results = await leakedService.getApiData(page,pageSize,sorting,desc,category,search,ipRanges);
       } else {
         console.error("Invalid param:", contents);
         res.status(400).send("Invalid param");
