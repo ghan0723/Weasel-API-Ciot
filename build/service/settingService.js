@@ -13,7 +13,7 @@ class SettingService {
     modAgentSetting(agent) {
         var _a, _b;
         let excip = (_a = agent.exceptionList) === null || _a === void 0 ? void 0 : _a.replace(/(\r\n|\n|\r)/gm, ", ");
-        let kewordRef = (_b = agent.keywordList) === null || _b === void 0 ? void 0 : _b.replace(/(\r\n|\n|\r)/gm, "&&");
+        let kewordRef = (_b = agent.keywordList) === null || _b === void 0 ? void 0 : _b.replace(/(\r\n|\n|\r)/gm, "@@");
         const query = `update serversetting set uid=${agent.uid}, clnt_svr_ip="${agent.serverIP}", clnt_svr_port=${agent.serverPort}, clnt_svr_conn_interval=${agent.serverInterval}, 
     clnt_license="${agent.licenseDist}", clnt_exceptions_list="${excip}", clnt_patterns_list="${kewordRef}", svr_checkbox_flag=${agent.flag}`;
         return new Promise((resolve, reject) => {
@@ -38,10 +38,11 @@ class SettingService {
                 else {
                     const clntKeywordList = (_a = result[0]) === null || _a === void 0 ? void 0 : _a.clnt_patterns_list;
                     const clntExceptionList = (_b = result[0]) === null || _b === void 0 ? void 0 : _b.clnt_exceptions_list;
-                    if (clntKeywordList && clntKeywordList.includes("&&")) {
-                        const modifiedKeywordList = clntKeywordList.replace(/&&/g, "\n");
+                    if (clntKeywordList && clntKeywordList.includes("@@")) {
+                        const modifiedKeywordList = clntKeywordList.replace(/@@/g, "\n");
                         const modifiedExcepIP = clntExceptionList.replace(/,\s*/gm, "\n");
-                        resolve([{
+                        resolve([
+                            {
                                 uid: (_c = result[0]) === null || _c === void 0 ? void 0 : _c.uid,
                                 svr_checkbox_flag: (_d = result[0]) === null || _d === void 0 ? void 0 : _d.svr_checkbox_flag,
                                 clnt_svr_ip: (_e = result[0]) === null || _e === void 0 ? void 0 : _e.clnt_svr_ip,
@@ -53,10 +54,12 @@ class SettingService {
                                 svr_port: (_j = result[0]) === null || _j === void 0 ? void 0 : _j.svr_port,
                                 svr_file_retention_periods: (_k = result[0]) === null || _k === void 0 ? void 0 : _k.svr_file_retention_periods,
                                 svr_auto_fileupload: (_l = result[0]) === null || _l === void 0 ? void 0 : _l.svr_auto_fileupload,
-                            }]);
+                            },
+                        ]);
                     }
                     else {
-                        resolve([{
+                        resolve([
+                            {
                                 uid: (_m = result[0]) === null || _m === void 0 ? void 0 : _m.uid,
                                 svr_checkbox_flag: (_o = result[0]) === null || _o === void 0 ? void 0 : _o.svr_checkbox_flag,
                                 clnt_svr_ip: (_p = result[0]) === null || _p === void 0 ? void 0 : _p.clnt_svr_ip,
@@ -68,7 +71,8 @@ class SettingService {
                                 svr_port: (_v = result[0]) === null || _v === void 0 ? void 0 : _v.svr_port,
                                 svr_file_retention_periods: (_w = result[0]) === null || _w === void 0 ? void 0 : _w.svr_file_retention_periods,
                                 svr_auto_fileupload: (_x = result[0]) === null || _x === void 0 ? void 0 : _x.svr_auto_fileupload,
-                            }]);
+                            },
+                        ]);
                     }
                 }
             });
@@ -124,6 +128,45 @@ class SettingService {
     }
     getIntervalTime() {
         const query = "select svr_ui_refresh_interval from serversetting;";
+        return new Promise((resolve, reject) => {
+            db_1.default.query(query, (error, result) => {
+                if (error) {
+                    reject(error);
+                }
+                else {
+                    resolve(result);
+                }
+            });
+        });
+    }
+    getProcessAccuracy() {
+        const query = "select * from processaccuracy";
+        return new Promise((resolve, reject) => {
+            db_1.default.query(query, (error, result) => {
+                if (error) {
+                    reject(error);
+                }
+                else {
+                    resolve(result);
+                }
+            });
+        });
+    }
+    addProcessAccuracy(procName) {
+        const query = `insert into processaccuracy (proc_name) values ('${procName}')`;
+        return new Promise((resolve, reject) => {
+            db_1.default.query(query, (error, result) => {
+                if (error) {
+                    reject(error);
+                }
+                else {
+                    resolve(result);
+                }
+            });
+        });
+    }
+    deleteProcessAccuracy(procName) {
+        const query = `delete from processaccuracy where proc_name = '${procName}'`;
         return new Promise((resolve, reject) => {
             db_1.default.query(query, (error, result) => {
                 if (error) {

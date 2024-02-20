@@ -44,17 +44,50 @@ router.post("/login", (req: Request, res: Response) => {
                   });
                   return;
                 } else {
-                  res.cookie("username", user[0].username, {
-                    secure: true,
-                    maxAge: cookieTime * 1000,
-                    path: "/", // 쿠키의 경로 설정
-                  });
-                  weasel.log(
-                    username,
-                    req.socket.remoteAddress,
-                    "Success Login "
-                  );
-                  res.status(200).send({ username, freq: false });
+                  userService
+                    .getPopupNotice()
+                    .then((popup) => {
+                      if (popup[0]?.count > 0) {
+                        //띄울 팝업이 존재한다면
+                        res.cookie("username", user[0].username, {
+                          secure: true,
+                          maxAge: cookieTime * 1000,
+                          path: "/", // 쿠키의 경로 설정
+                        });
+                        weasel.log(
+                          username,
+                          req.socket.remoteAddress,
+                          "Success Login "
+                        );
+                        res
+                          .status(200)
+                          .send({ username, freq: false, notice: true, popup });
+                      } else {
+                        //팝업이 존재하지 않는다면
+                        res.cookie("username", user[0].username, {
+                          secure: true,
+                          maxAge: cookieTime * 1000,
+                          path: "/", // 쿠키의 경로 설정
+                        });
+                        weasel.log(
+                          username,
+                          req.socket.remoteAddress,
+                          "Success Login "
+                        );
+                        res
+                          .status(200)
+                          .send({ username, freq: false, notice: false });
+                      }
+                    })
+                    .catch((error5) => {
+                      weasel.error(
+                        username,
+                        req.socket.remoteAddress,
+                        "Failed to get PopupNotice "
+                      );
+                      console.error("PopupNotice 가져오기 실패:", error5);
+                      res.status(500).send(error5);
+                    });
                 }
               })
               .catch((error2) => {
@@ -87,17 +120,44 @@ router.post("/login", (req: Request, res: Response) => {
                       return;
                     } else {
                       if (!freq) {
-                        res.cookie("username", user[0].username, {
-                          secure: true,
-                          maxAge: cookieTime * 1000,
-                          path: "/", // 쿠키의 경로 설정
-                        });
-                        weasel.log(
-                          username,
-                          req.socket.remoteAddress,
-                          "Success Login "
-                        );
-                        res.status(200).send({ username, freq });
+                        userService
+                          .getPopupNotice()
+                          .then((popup) => {
+                            if (popup[0]?.count > 0) {
+                              res.cookie("username", user[0].username, {
+                                secure: true,
+                                maxAge: cookieTime * 1000,
+                                path: "/", // 쿠키의 경로 설정
+                              });
+                              weasel.log(
+                                username,
+                                req.socket.remoteAddress,
+                                "Success Login "
+                              );
+                              res.status(200).send({ username, freq, notice: true, popup });
+                            } else {
+                              res.cookie("username", user[0].username, {
+                                secure: true,
+                                maxAge: cookieTime * 1000,
+                                path: "/", // 쿠키의 경로 설정
+                              });
+                              weasel.log(
+                                username,
+                                req.socket.remoteAddress,
+                                "Success Login "
+                              );
+                              res.status(200).send({ username, freq, notice: false });
+                            }
+                          })
+                          .catch((error5) => {
+                            weasel.error(
+                              username,
+                              req.socket.remoteAddress,
+                              "Failed to get PopupNotice "
+                            );
+                            console.error("PopupNotice 가져오기 실패:", error5);
+                            res.status(500).send(error5);
+                          });
                       } else {
                         //freq 보고 판별
                         weasel.log(
@@ -306,9 +366,7 @@ router.post("/rm", (req: Request, res: Response) => {
             userService
               .getPrivilegeAndIP(username)
               .then((result) => {
-                let IpRange = ipCalcService.parseIPRange(
-                  result[0].ip_ranges
-                );
+                let IpRange = ipCalcService.parseIPRange(result[0].ip_ranges);
                 userService
                   .getUserListByPrivilegeAndIP(
                     result[0].privilege,
@@ -620,8 +678,14 @@ router.post("/update/:username", (req: Request, res: Response) => {
       }
     })
     .catch((error) => {
-      weasel.error(oldname, req.socket.remoteAddress, "Failed to Get Privilege");
-      res.send("이거는 쿠키 가지고 privilege 가져오는 도중에 발생하는 에러입니다.");
+      weasel.error(
+        oldname,
+        req.socket.remoteAddress,
+        "Failed to Get Privilege"
+      );
+      res.send(
+        "이거는 쿠키 가지고 privilege 가져오는 도중에 발생하는 에러입니다."
+      );
     });
 });
 
@@ -635,8 +699,8 @@ router.get("/privilege", (req: Request, res: Response) => {
   userService
     .getPrivilege(username)
     .then((result) => {
-      console.log('result',result);
-      
+      console.log("result", result);
+
       res.send(result);
     })
     .catch((error) => {
@@ -714,7 +778,11 @@ router.get("/all", (req: Request, res: Response) => {
       }
     })
     .catch((error) => {
-      weasel.error(username, req.socket.remoteAddress, "Failed to Get Privilege");
+      weasel.error(
+        username,
+        req.socket.remoteAddress,
+        "Failed to Get Privilege"
+      );
       console.error("user 정보 제대로 못 가져옴:", error);
       res.status(500).send("Internal Server Error");
     });
@@ -775,8 +843,11 @@ router.post("/pwd", (req: Request, res: Response) => {
             req.socket.remoteAddress,
             "Failed to Update Pwd By Old Pwd Equals New Pwd"
           );
-          res.status(500).send(
-            "The password before the change and the password after the change are the same.");
+          res
+            .status(500)
+            .send(
+              "The password before the change and the password after the change are the same."
+            );
         }
       }
     })

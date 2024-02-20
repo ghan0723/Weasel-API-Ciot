@@ -19,7 +19,7 @@ class SettingService {
     flag: number;
   }): Promise<any> {
     let excip = agent.exceptionList?.replace(/(\r\n|\n|\r)/gm, ", ");
-    let kewordRef = agent.keywordList?.replace(/(\r\n|\n|\r)/gm, "&&");
+    let kewordRef = agent.keywordList?.replace(/(\r\n|\n|\r)/gm, "@@");
     const query = `update serversetting set uid=${agent.uid}, clnt_svr_ip="${agent.serverIP}", clnt_svr_port=${agent.serverPort}, clnt_svr_conn_interval=${agent.serverInterval}, 
     clnt_license="${agent.licenseDist}", clnt_exceptions_list="${excip}", clnt_patterns_list="${kewordRef}", svr_checkbox_flag=${agent.flag}`;
     return new Promise((resolve, reject) => {
@@ -43,36 +43,42 @@ class SettingService {
         } else {
           const clntKeywordList = result[0]?.clnt_patterns_list;
           const clntExceptionList = result[0]?.clnt_exceptions_list;
-          if (clntKeywordList && clntKeywordList.includes("&&")) {
-            const modifiedKeywordList = clntKeywordList.replace(/&&/g, "\n");
+          if (clntKeywordList && clntKeywordList.includes("@@")) {
+            const modifiedKeywordList = clntKeywordList.replace(/@@/g, "\n");
             const modifiedExcepIP = clntExceptionList.replace(/,\s*/gm, "\n");
-            resolve([{
-              uid:result[0]?.uid,
-              svr_checkbox_flag:result[0]?.svr_checkbox_flag,
-              clnt_svr_ip:result[0]?.clnt_svr_ip,
-              clnt_svr_port:result[0]?.clnt_svr_port,
-              clnt_svr_conn_interval:result[0]?.clnt_svr_conn_interval,
-              clnt_license:result[0]?.clnt_license,
-              clnt_exceptions_list:modifiedExcepIP,
-              clnt_patterns_list:modifiedKeywordList,
-              svr_port:result[0]?.svr_port,
-              svr_file_retention_periods:result[0]?.svr_file_retention_periods,
-              svr_auto_fileupload:result[0]?.svr_auto_fileupload,
-            }])
+            resolve([
+              {
+                uid: result[0]?.uid,
+                svr_checkbox_flag: result[0]?.svr_checkbox_flag,
+                clnt_svr_ip: result[0]?.clnt_svr_ip,
+                clnt_svr_port: result[0]?.clnt_svr_port,
+                clnt_svr_conn_interval: result[0]?.clnt_svr_conn_interval,
+                clnt_license: result[0]?.clnt_license,
+                clnt_exceptions_list: modifiedExcepIP,
+                clnt_patterns_list: modifiedKeywordList,
+                svr_port: result[0]?.svr_port,
+                svr_file_retention_periods:
+                  result[0]?.svr_file_retention_periods,
+                svr_auto_fileupload: result[0]?.svr_auto_fileupload,
+              },
+            ]);
           } else {
-            resolve([{
-              uid:result[0]?.uid,
-              svr_checkbox_flag:result[0]?.svr_checkbox_flag,
-              clnt_svr_ip:result[0]?.clnt_svr_ip,
-              clnt_svr_port:result[0]?.clnt_svr_port,
-              clnt_svr_conn_interval:result[0]?.clnt_svr_conn_interval,
-              clnt_license:result[0]?.clnt_license,
-              clnt_exceptions_list:result[0]?.clnt_patterns_list,
-              clnt_patterns_list:result[0]?.clnt_exceptions_list,
-              svr_port:result[0]?.svr_port,
-              svr_file_retention_periods:result[0]?.svr_file_retention_periods,
-              svr_auto_fileupload:result[0]?.svr_auto_fileupload,
-            }]);
+            resolve([
+              {
+                uid: result[0]?.uid,
+                svr_checkbox_flag: result[0]?.svr_checkbox_flag,
+                clnt_svr_ip: result[0]?.clnt_svr_ip,
+                clnt_svr_port: result[0]?.clnt_svr_port,
+                clnt_svr_conn_interval: result[0]?.clnt_svr_conn_interval,
+                clnt_license: result[0]?.clnt_license,
+                clnt_exceptions_list: result[0]?.clnt_patterns_list,
+                clnt_patterns_list: result[0]?.clnt_exceptions_list,
+                svr_port: result[0]?.svr_port,
+                svr_file_retention_periods:
+                  result[0]?.svr_file_retention_periods,
+                svr_auto_fileupload: result[0]?.svr_auto_fileupload,
+              },
+            ]);
           }
         }
       });
@@ -136,6 +142,45 @@ class SettingService {
 
   getIntervalTime(): Promise<any> {
     const query = "select svr_ui_refresh_interval from serversetting;";
+    return new Promise((resolve, reject) => {
+      connection.query(query, (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      });
+    });
+  }
+
+  getProcessAccuracy(): Promise<any> {
+    const query = "select * from processaccuracy";
+    return new Promise((resolve, reject) => {
+      connection.query(query, (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      });
+    });
+  }
+
+  addProcessAccuracy(procName: any): Promise<any> {
+    const query = `insert into processaccuracy (proc_name) values ('${procName}')`;
+    return new Promise((resolve, reject) => {
+      connection.query(query, (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      });
+    });
+  }
+
+  deleteProcessAccuracy(procName: any): Promise<any> {
+    const query = `delete from processaccuracy where proc_name = '${procName}'`;
     return new Promise((resolve, reject) => {
       connection.query(query, (error, result) => {
         if (error) {
