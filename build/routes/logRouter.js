@@ -33,6 +33,17 @@ router.get("/tables", (req, res) => {
     log_1.weasel.log(username, req.socket.remoteAddress, `The current Data-Tables Page displays data on a ${contents + " cate : " + category + " sear : " + search}. `);
     res.send("success");
 });
+router.get("/leaked", (req, res) => {
+    const username = req.query.username;
+    const category = req.query.category;
+    const search = req.query.search;
+    if (typeof username !== "string") {
+        log_1.weasel.error(username, req.socket.remoteAddress, "Failed to load Data-Tables Page. ");
+        res.send("error");
+    }
+    log_1.weasel.log(username, req.socket.remoteAddress, `The current Data-Tables Page displays data on a ${"leaked cate : " + category + " sear : " + search}. `);
+    res.send("success");
+});
 router.get("/logout", (req, res) => {
     const username = req.query.username;
     if (typeof username !== "string") {

@@ -32,7 +32,7 @@ router.get("/servers", (req, res) => {
             serverPort: result[0].svr_port,
             ret: result[0].svr_file_retention_periods,
             auto: newAuto,
-            interval: result[0].svr_ui_refresh_interval
+            interval: result[0].svr_ui_refresh_interval,
         };
         log_1.weasel.log(username, req.socket.remoteAddress, "Success to Get Server Information ");
         res.send(newResult);
@@ -81,6 +81,45 @@ router.get("/intervalTime", (req, res) => {
         .catch((error) => {
         console.error("intervalTime get 에러 : ", error);
         res.status(500).send("intervalTime get 에러");
+    });
+});
+router.get("/process", (req, res) => {
+    settingService
+        .getProcessAccuracy()
+        .then((result) => {
+        res.send(result);
+    })
+        .catch((error) => {
+        console.error("get process 에러 : ", error);
+        res.status(500).send("get process 에러");
+    });
+});
+router.post("/process", (req, res) => {
+    const newProcName = req.body.procName;
+    const username = req.query.username;
+    settingService
+        .addProcessAccuracy(newProcName)
+        .then((result) => {
+        log_1.weasel.log(username, req.socket.remoteAddress, "Success to Add ProcessAccuracy");
+        res.send(result);
+    })
+        .catch((error) => {
+        log_1.weasel.error(username, req.socket.remoteAddress, "Failed to Add ProcessAccuracy");
+        res.status(500).send("Add ProcessAccuracy 하다가 에러났어요");
+    });
+});
+router.post("/delete", (req, res) => {
+    const username = req.query.username;
+    const procName = req.body.procName;
+    settingService
+        .deleteProcessAccuracy(procName)
+        .then((result) => {
+        log_1.weasel.log(username, req.socket.remoteAddress, "Success to Delete ProcessAccuracy");
+        res.send(result);
+    })
+        .catch((error) => {
+        log_1.weasel.error(username, req.socket.remoteAddress, "Failed to Delete ProcessAccuracy");
+        res.status(500).send("Delete ProcessAccuracy 하다가 에러났어요");
     });
 });
 module.exports = router;

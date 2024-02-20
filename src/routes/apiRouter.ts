@@ -7,6 +7,7 @@ import express, { Request, Response, Router } from "express";
 import IpCalcService from "../service/ipCalcService";
 import UserService from "../service/userService";
 import { IpRange } from "../interface/interface";
+import LeakedService from "../service/leakedService";
 
 const router: Router = express.Router();
 const networkService: NetworkService = new NetworkService(connection);
@@ -15,6 +16,7 @@ const outlookService: OutlookService = new OutlookService();
 const printService: PrintService = new PrintService();
 const userService = new UserService();
 const ipCalcService:IpCalcService = new IpCalcService();
+const leakedService:LeakedService = new LeakedService();
 
 // 송신테이블 호출
 router.get("/", (req: Request, res: Response) => {
@@ -88,6 +90,9 @@ router.get('/dummy', (req:Request, res:Response) => {
     break;
     case 'print':
       results =printService.getDummyData(count);
+    break;
+    case 'leaked':
+      results =leakedService.getDummyData(count);
     break;
   }
 
@@ -173,6 +178,36 @@ function getApiDataLogic(contents:any,page:any,pageSize:any,sorting:any,desc:any
       });
   });
 }
+
+// 송신테이블 호출
+router.get("/leaked", (req: Request, res: Response) => {
+  const page = req.query.page;         // page count
+  const pageSize = req.query.pageSize; // page 갯수
+  const sorting = req.query.sorting;   // sort column
+  const desc = req.query.desc;         // desc : false, asc : true, undefined
+  const category = req.query.category; // search column
+  const search = req.query.search;     // search context
+  const username = req.query.username; // username
+  
+  let ipRanges:IpRange[];
+
+  userService.getPrivilegeAndIP(username)
+  .then(result => {
+    ipRanges = ipCalcService.parseIPRange(result[0].ip_ranges);
+  
+    leakedService.getApiData(page,pageSize,sorting,desc,category,search,ipRanges)
+      ?.then((DataItem) => {
+        res.send(DataItem);
+      })
+      .catch((error) => {
+        console.error(error + " : leaked");
+        res.status(500).send("server error");
+      });
+  })
+  .catch(error => {
+    console.error("ipRange error : ", error);
+  });
+});
 
 
 export = router;

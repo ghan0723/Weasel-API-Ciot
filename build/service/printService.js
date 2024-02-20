@@ -287,35 +287,6 @@ class PrintService {
     '111',
     '0',
     '5');`;
-                // New_C
-                //   const query = `insert into	leakedprintingfiles (
-                //     time,
-                //     pc_guid,
-                //     pc_name,
-                //     proc_name,
-                //     proc_id,
-                //     latest_agent_ip,
-                //   printer,
-                //   doc_owner,
-                //   doc_name,
-                //   spl_file,
-                //   file_size,
-                //   doc_pages,
-                //   upload_state)
-                // values (
-                // now(),
-                // 'PCGUID${i+1}',
-                // 'PCname${i+1}',
-                // '${process}',
-                // '2684',
-                // '${agentIp}',
-                // 'Samsung X3220NR',
-                // 'USER',
-                // '퇴직원.pdf',
-                // 'DESKTOP-O14QCIB++2022-08-31 10.00.34++00007.spl',
-                // '452823',
-                // '2',
-                // '111');`;
                 try {
                     const result = yield new Promise((resolve, reject) => {
                         db_1.default.query(query, (error, result) => {

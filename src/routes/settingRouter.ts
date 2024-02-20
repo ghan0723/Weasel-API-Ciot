@@ -11,11 +11,19 @@ router.post("/server", (req: Request, res: Response) => {
   settingService
     .modServerSetting(server)
     .then((result) => {
-      weasel.log(username, req.socket.remoteAddress, "Success to Update Server Setting ");
+      weasel.log(
+        username,
+        req.socket.remoteAddress,
+        "Success to Update Server Setting "
+      );
       res.send("업데이트 성공했습니다.");
     })
     .catch((error) => {
-      weasel.error(username, req.socket.remoteAddress, "Failed to Update Server Setting ");
+      weasel.error(
+        username,
+        req.socket.remoteAddress,
+        "Failed to Update Server Setting "
+      );
       console.error("update 에러 : ", error);
       res.status(500).send("update 하다가 에러났어요");
     });
@@ -26,18 +34,26 @@ router.get("/servers", (req: Request, res: Response) => {
   settingService
     .getServerSetting()
     .then((result) => {
-        const newAuto = result[0].svr_auto_fileupload === 1 ? true : false;
-        const newResult = {
-            serverPort:result[0].svr_port,
-            ret:result[0].svr_file_retention_periods,
-            auto:newAuto,
-            interval:result[0].svr_ui_refresh_interval
-        }
-      weasel.log(username, req.socket.remoteAddress, "Success to Get Server Information ");  
+      const newAuto = result[0].svr_auto_fileupload === 1 ? true : false;
+      const newResult = {
+        serverPort: result[0].svr_port,
+        ret: result[0].svr_file_retention_periods,
+        auto: newAuto,
+        interval: result[0].svr_ui_refresh_interval,
+      };
+      weasel.log(
+        username,
+        req.socket.remoteAddress,
+        "Success to Get Server Information "
+      );
       res.send(newResult);
     })
     .catch((error) => {
-      weasel.error(username, req.socket.remoteAddress, "Failed to Get Server Information ");
+      weasel.error(
+        username,
+        req.socket.remoteAddress,
+        "Failed to Get Server Information "
+      );
       console.error("update get 에러 : ", error);
       res.status(500).send("update get 하다가 에러났어요");
     });
@@ -49,12 +65,20 @@ router.post("/agent", (req: Request, res: Response) => {
   settingService
     .modAgentSetting(agent)
     .then((result) => {
-      weasel.log(username, req.socket.remoteAddress, "Success to Update Agent Setting ");
+      weasel.log(
+        username,
+        req.socket.remoteAddress,
+        "Success to Update Agent Setting "
+      );
       res.send(result);
     })
     .catch((error) => {
       // console.error("agent setting post 에러 : ", error);
-      weasel.error(username, req.socket.remoteAddress, "Failed to Update Agent Setting ");
+      weasel.error(
+        username,
+        req.socket.remoteAddress,
+        "Failed to Update Agent Setting "
+      );
       res.status(500).send("agent setting post 하다가 에러났어요");
     });
 });
@@ -64,17 +88,25 @@ router.get("/agents", (req: Request, res: Response) => {
   settingService
     .getAgentSetting()
     .then((result) => {
-      weasel.log(username, req.socket.remoteAddress, "Success to Get Agent Information ");
+      weasel.log(
+        username,
+        req.socket.remoteAddress,
+        "Success to Get Agent Information "
+      );
       res.send(result);
     })
     .catch((error) => {
-      weasel.error(username, req.socket.remoteAddress, "Failed to Get Agent Information ");
+      weasel.error(
+        username,
+        req.socket.remoteAddress,
+        "Failed to Get Agent Information "
+      );
       console.error("agent setting get 에러 : ", error);
       res.status(500).send("agent setting get 하다가 에러났어요");
     });
 });
 
-router.get("/intervalTime", (req:Request, res:Response) => {
+router.get("/intervalTime", (req: Request, res: Response) => {
   settingService
     .getIntervalTime()
     .then((result) => {
@@ -84,7 +116,64 @@ router.get("/intervalTime", (req:Request, res:Response) => {
       console.error("intervalTime get 에러 : ", error);
       res.status(500).send("intervalTime get 에러");
     });
-  
+});
+
+router.get("/process", (req: Request, res: Response) => {
+  settingService
+    .getProcessAccuracy()
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => {
+      console.error("get process 에러 : ", error);
+      res.status(500).send("get process 에러");
+    });
+});
+
+router.post("/process", (req: Request, res: Response) => {
+  const newProcName = req.body.procName;
+  const username = req.query.username;
+  settingService
+    .addProcessAccuracy(newProcName)
+    .then((result) => {
+      weasel.log(
+        username,
+        req.socket.remoteAddress,
+        "Success to Add ProcessAccuracy"
+      );
+      res.send(result);
+    })
+    .catch((error) => {
+      weasel.error(
+        username,
+        req.socket.remoteAddress,
+        "Failed to Add ProcessAccuracy"
+      );
+      res.status(500).send("Add ProcessAccuracy 하다가 에러났어요");
+    });
+});
+
+router.post("/delete", (req: Request, res: Response) => {
+  const username = req.query.username;
+  const procName = req.body.procName;
+  settingService
+    .deleteProcessAccuracy(procName)
+    .then((result) => {
+      weasel.log(
+        username,
+        req.socket.remoteAddress,
+        "Success to Delete ProcessAccuracy"
+      );
+      res.send(result);
+    })
+    .catch((error) => {
+      weasel.error(
+        username,
+        req.socket.remoteAddress,
+        "Failed to Delete ProcessAccuracy"
+      );
+      res.status(500).send("Delete ProcessAccuracy 하다가 에러났어요");
+    });
 });
 
 export = router;

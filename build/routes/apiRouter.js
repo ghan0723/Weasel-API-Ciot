@@ -10,6 +10,7 @@ const printService_1 = __importDefault(require("../service/printService"));
 const express_1 = __importDefault(require("express"));
 const ipCalcService_1 = __importDefault(require("../service/ipCalcService"));
 const userService_1 = __importDefault(require("../service/userService"));
+const leakedService_1 = __importDefault(require("../service/leakedService"));
 const router = express_1.default.Router();
 const networkService = new networkService_1.default(db_1.default);
 const mediaService = new mediaService_1.default();
@@ -17,6 +18,7 @@ const outlookService = new outlookService_1.default();
 const printService = new printService_1.default();
 const userService = new userService_1.default();
 const ipCalcService = new ipCalcService_1.default();
+const leakedService = new leakedService_1.default();
 // 송신테이블 호출
 router.get("/", (req, res) => {
     const contents = req.query.contents;
@@ -84,6 +86,9 @@ router.get('/dummy', (req, res) => {
             break;
         case 'print':
             results = printService.getDummyData(count);
+            break;
+        case 'leaked':
+            results = leakedService.getDummyData(count);
             break;
     }
     results === null || results === void 0 ? void 0 : results.then(() => {
@@ -155,4 +160,29 @@ function getApiDataLogic(contents, page, pageSize, sorting, desc, category, sear
         });
     });
 }
+// 송신테이블 호출
+router.get("/leaked", (req, res) => {
+    const page = req.query.page; // page count
+    const pageSize = req.query.pageSize; // page 갯수
+    const sorting = req.query.sorting; // sort column
+    const desc = req.query.desc; // desc : false, asc : true, undefined
+    const category = req.query.category; // search column
+    const search = req.query.search; // search context
+    const username = req.query.username; // username
+    let ipRanges;
+    userService.getPrivilegeAndIP(username)
+        .then(result => {
+        var _a;
+        ipRanges = ipCalcService.parseIPRange(result[0].ip_ranges);
+        (_a = leakedService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges)) === null || _a === void 0 ? void 0 : _a.then((DataItem) => {
+            res.send(DataItem);
+        }).catch((error) => {
+            console.error(error + " : leaked");
+            res.status(500).send("server error");
+        });
+    })
+        .catch(error => {
+        console.error("ipRange error : ", error);
+    });
+});
 module.exports = router;
