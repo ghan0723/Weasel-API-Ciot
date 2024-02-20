@@ -23,6 +23,7 @@ var complexRouter = require('./routes/complexRouter.js');
 var keywordRouter = require('./routes/keywordRouter.js');
 var logRouter = require('./routes/logRouter.js');
 var analysisRouter = require('./routes/analysisRouter.js');
+var noticeRouter = require('./routes/noticeRouter.js');
 const lineChartsRouter = require("./routes/lineChartsRouter.js");
 var app = express();
 const fs = require("fs");
@@ -75,6 +76,7 @@ app.use('/complex', complexRouter);
 app.use('/keyword', keywordRouter);
 app.use('/log', logRouter);
 app.use('/analysis', analysisRouter);
+app.use('/notice', noticeRouter);
 app.use("/lineCharts", lineChartsRouter);
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
