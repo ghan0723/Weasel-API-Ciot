@@ -39,8 +39,8 @@ class SettingService {
                     const clntKeywordList = (_a = result[0]) === null || _a === void 0 ? void 0 : _a.clnt_patterns_list;
                     const clntExceptionList = (_b = result[0]) === null || _b === void 0 ? void 0 : _b.clnt_exceptions_list;
                     if (clntKeywordList && clntKeywordList.includes("@@")) {
-                        const modifiedKeywordList = clntKeywordList.replace(/@@/g, "\n");
-                        const modifiedExcepIP = clntExceptionList.replace(/,\s*/gm, "\n");
+                        const modifiedKeywordList = clntKeywordList === null || clntKeywordList === void 0 ? void 0 : clntKeywordList.replace(/@@/g, "\n");
+                        const modifiedExcepIP = clntExceptionList === null || clntExceptionList === void 0 ? void 0 : clntExceptionList.replace(/,\s*/gm, "\n");
                         resolve([
                             {
                                 uid: (_c = result[0]) === null || _c === void 0 ? void 0 : _c.uid,

@@ -43,9 +43,10 @@ class SettingService {
         } else {
           const clntKeywordList = result[0]?.clnt_patterns_list;
           const clntExceptionList = result[0]?.clnt_exceptions_list;
+          
           if (clntKeywordList && clntKeywordList.includes("@@")) {
-            const modifiedKeywordList = clntKeywordList.replace(/@@/g, "\n");
-            const modifiedExcepIP = clntExceptionList.replace(/,\s*/gm, "\n");
+            const modifiedKeywordList = clntKeywordList?.replace(/@@/g, "\n");
+            const modifiedExcepIP = clntExceptionList?.replace(/,\s*/gm, "\n");
             resolve([
               {
                 uid: result[0]?.uid,
