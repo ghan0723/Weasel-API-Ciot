@@ -39,10 +39,8 @@ router.get("/keywordList", (req: Request, res: Response) => {
 router.post("/select", (req: Request, res: Response) => {
   const startDate = req.body.startDate;
   const endDate = req.body.endDate;
-  const ipRange = req.body.ipRange;
 
-  let ipRanges = ipCalcService.parseIPRange(ipRange);
-  analysis.settingDateAndRange(startDate, endDate, ipRanges).then((result) => {
+  analysis.settingDateAndRange(startDate, endDate).then((result) => {
     const averageResult = average.analyzeLeaks(result);
     res.send(averageResult);
   });
