@@ -43,7 +43,7 @@ router.post("/select", (req: Request, res: Response) => {
 
   let ipRanges = ipCalcService.parseIPRange(ipRange);
   analysis.settingDateAndRange(startDate, endDate, ipRanges).then((result) => {
-    console.log("result : ", result);
+    average.analyzeLeaks(result);
     res.send(result);
   });
 });
