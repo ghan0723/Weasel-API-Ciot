@@ -43,42 +43,82 @@ class SettingService {
         } else {
           const clntKeywordList = result[0]?.clnt_patterns_list;
           const clntExceptionList = result[0]?.clnt_exceptions_list;
+          
           if (clntKeywordList && clntKeywordList.includes("@@")) {
             const modifiedKeywordList = clntKeywordList.replace(/@@/g, "\n");
-            const modifiedExcepIP = clntExceptionList.replace(/,\s*/gm, "\n");
-            resolve([
-              {
-                uid: result[0]?.uid,
-                svr_checkbox_flag: result[0]?.svr_checkbox_flag,
-                clnt_svr_ip: result[0]?.clnt_svr_ip,
-                clnt_svr_port: result[0]?.clnt_svr_port,
-                clnt_svr_conn_interval: result[0]?.clnt_svr_conn_interval,
-                clnt_license: result[0]?.clnt_license,
-                clnt_exceptions_list: modifiedExcepIP,
-                clnt_patterns_list: modifiedKeywordList,
-                svr_port: result[0]?.svr_port,
-                svr_file_retention_periods:
-                  result[0]?.svr_file_retention_periods,
-                svr_auto_fileupload: result[0]?.svr_auto_fileupload,
-              },
-            ]);
+            if (clntExceptionList) {
+              const modifiedExcepIP = clntExceptionList.replace(/,\s*/gm, "\n");
+              resolve([
+                {
+                  uid: result[0]?.uid,
+                  svr_checkbox_flag: result[0]?.svr_checkbox_flag,
+                  clnt_svr_ip: result[0]?.clnt_svr_ip,
+                  clnt_svr_port: result[0]?.clnt_svr_port,
+                  clnt_svr_conn_interval: result[0]?.clnt_svr_conn_interval,
+                  clnt_license: result[0]?.clnt_license,
+                  clnt_exceptions_list: modifiedExcepIP,
+                  clnt_patterns_list: modifiedKeywordList,
+                  svr_port: result[0]?.svr_port,
+                  svr_file_retention_periods:
+                    result[0]?.svr_file_retention_periods,
+                  svr_auto_fileupload: result[0]?.svr_auto_fileupload,
+                },
+              ]);
+            } else {
+              resolve([
+                {
+                  uid: result[0]?.uid,
+                  svr_checkbox_flag: result[0]?.svr_checkbox_flag,
+                  clnt_svr_ip: result[0]?.clnt_svr_ip,
+                  clnt_svr_port: result[0]?.clnt_svr_port,
+                  clnt_svr_conn_interval: result[0]?.clnt_svr_conn_interval,
+                  clnt_license: result[0]?.clnt_license,
+                  clnt_exceptions_list: result[0]?.clnt_exceptions_list,
+                  clnt_patterns_list: modifiedKeywordList,
+                  svr_port: result[0]?.svr_port,
+                  svr_file_retention_periods:
+                    result[0]?.svr_file_retention_periods,
+                  svr_auto_fileupload: result[0]?.svr_auto_fileupload,
+                },
+              ]);
+            }
           } else {
-            resolve([
-              {
-                uid: result[0]?.uid,
-                svr_checkbox_flag: result[0]?.svr_checkbox_flag,
-                clnt_svr_ip: result[0]?.clnt_svr_ip,
-                clnt_svr_port: result[0]?.clnt_svr_port,
-                clnt_svr_conn_interval: result[0]?.clnt_svr_conn_interval,
-                clnt_license: result[0]?.clnt_license,
-                clnt_exceptions_list: result[0]?.clnt_patterns_list,
-                clnt_patterns_list: result[0]?.clnt_exceptions_list,
-                svr_port: result[0]?.svr_port,
-                svr_file_retention_periods:
-                  result[0]?.svr_file_retention_periods,
-                svr_auto_fileupload: result[0]?.svr_auto_fileupload,
-              },
-            ]);
+            if (clntExceptionList) {
+              const modifiedExcepIP = clntExceptionList.replace(/,\s*/gm, "\n");
+              resolve([
+                {
+                  uid: result[0]?.uid,
+                  svr_checkbox_flag: result[0]?.svr_checkbox_flag,
+                  clnt_svr_ip: result[0]?.clnt_svr_ip,
+                  clnt_svr_port: result[0]?.clnt_svr_port,
+                  clnt_svr_conn_interval: result[0]?.clnt_svr_conn_interval,
+                  clnt_license: result[0]?.clnt_license,
+                  clnt_exceptions_list: modifiedExcepIP,
+                  clnt_patterns_list: result[0]?.clnt_patterns_list,
+                  svr_port: result[0]?.svr_port,
+                  svr_file_retention_periods:
+                    result[0]?.svr_file_retention_periods,
+                  svr_auto_fileupload: result[0]?.svr_auto_fileupload,
+                },
+              ]);
+            } else {
+              resolve([
+                {
+                  uid: result[0]?.uid,
+                  svr_checkbox_flag: result[0]?.svr_checkbox_flag,
+                  clnt_svr_ip: result[0]?.clnt_svr_ip,
+                  clnt_svr_port: result[0]?.clnt_svr_port,
+                  clnt_svr_conn_interval: result[0]?.clnt_svr_conn_interval,
+                  clnt_license: result[0]?.clnt_license,
+                  clnt_exceptions_list: result[0]?.clnt_exceptions_list,
+                  clnt_patterns_list: result[0]?.clnt_patterns_list,
+                  svr_port: result[0]?.svr_port,
+                  svr_file_retention_periods:
+                    result[0]?.svr_file_retention_periods,
+                  svr_auto_fileupload: result[0]?.svr_auto_fileupload,
+                },
+              ]);
+            }
           }
         }
       });
