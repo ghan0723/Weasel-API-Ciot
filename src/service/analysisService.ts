@@ -1,7 +1,7 @@
 import { IpRange } from "../interface/interface";
 import connection from "../db/db";
 
-class Analysis {
+class AnalysisService {
   settingDateAndRange(
     startDate: any,
     endDate: any,
@@ -24,4 +24,4 @@ class Analysis {
     });
   }
 }
-export default Analysis;
+export default AnalysisService;

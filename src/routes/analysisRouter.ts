@@ -2,15 +2,13 @@ import ComplexService from "../service/complexService";
 import Average from "../analysis/average";
 import express, { Request, Response, Router } from "express";
 import KeywordService from "../service/keywordService";
-import Analysis from "../analysis/analysis";
-import IpCalcService from "../service/ipCalcService";
+import Analysis from "../service/analysisService";
 
 const router: Router = express.Router();
 const average: Average = new Average();
 const analysis: Analysis = new Analysis();
 const complexService: ComplexService = new ComplexService();
 const keywordService: KeywordService = new KeywordService();
-const ipCalcService = new IpCalcService();
 
 router.get("/average", (req: Request, res: Response) => {
   complexService
