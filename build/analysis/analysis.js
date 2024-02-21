@@ -15,7 +15,7 @@ class Analysis {
         const ipConditions = ipRanges
             .map((range) => `(INET_ATON(latest_agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`)
             .join(" OR ");
-        const query = `select count(*) as count from leakednetworkfiles where (${dayOption}) AND (${ipConditions})`;
+        const query = `select * from leakednetworkfiles where (${dayOption}) AND (${ipConditions})`;
         return new Promise((resolve, reject) => {
             db_1.default.query(query, (error, result) => {
                 if (error) {
