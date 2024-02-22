@@ -2,29 +2,15 @@
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-const complexService_1 = __importDefault(require("../service/complexService"));
 const average_1 = __importDefault(require("../analysis/average"));
 const express_1 = __importDefault(require("express"));
 const keywordService_1 = __importDefault(require("../service/keywordService"));
-const analysis_1 = __importDefault(require("../analysis/analysis"));
-const ipCalcService_1 = __importDefault(require("../service/ipCalcService"));
+const analysisService_1 = __importDefault(require("../service/analysisService"));
+const generateRandom_1 = require("../interface/generateRandom");
 const router = express_1.default.Router();
 const average = new average_1.default();
-const analysis = new analysis_1.default();
-const complexService = new complexService_1.default();
+const analysis = new analysisService_1.default();
 const keywordService = new keywordService_1.default();
-const ipCalcService = new ipCalcService_1.default();
-router.get("/average", (req, res) => {
-    complexService
-        .getAllData()
-        .then((result) => {
-        average.analyzeLeaks(result);
-        res.send("바위");
-    })
-        .catch((error) => {
-        console.log("실패...");
-    });
-});
 // keywordList
 router.get("/keywordList", (req, res) => {
     keywordService
@@ -36,14 +22,18 @@ router.get("/keywordList", (req, res) => {
         console.log(error);
     });
 });
+// analysis
 router.post("/select", (req, res) => {
     const startDate = req.body.startDate;
     const endDate = req.body.endDate;
-    const ipRange = req.body.ipRange;
-    let ipRanges = ipCalcService.parseIPRange(ipRange);
-    analysis.settingDateAndRange(startDate, endDate, ipRanges).then((result) => {
-        const averageResult = average.analyzeLeaks(result);
+    analysis.settingDateAndRange(startDate, endDate).then((result) => {
+        const averageResult = average.analyzeFileSize(result);
         res.send(averageResult);
     });
+});
+router.get('/insert', (req, res) => {
+    const detectFiles = (0, generateRandom_1.generateDetectFiles)(100);
+    (0, generateRandom_1.insertDetectFiles)(detectFiles);
+    res.send("샤샷");
 });
 module.exports = router;

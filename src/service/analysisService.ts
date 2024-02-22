@@ -1,28 +1,18 @@
 import { IpRange } from "../interface/interface";
 import connection from "../db/db";
 
-class Analysis {
+class AnalysisService {
   settingDateAndRange(
     startDate: any,
     endDate: any,
-    ipRanges: IpRange[]
   ): Promise<any> {
     // startDate와 endDate가 주어졌는지 확인
-    if (!startDate || !endDate || !ipRanges) {
+    if (!startDate || !endDate) {
       throw new Error("startDate와 endDate와 ipRanges는 필수 매개변수입니다.");
     }
-
     const dayOption = `time >= '${startDate}' AND time <= '${endDate}'`;
 
-    // IP 범위 조건들을 생성
-    const ipConditions = ipRanges
-      .map(
-        (range) =>
-          `(INET_ATON(latest_agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`
-      )
-      .join(" OR ");
-
-    const query = `select * from leakednetworkfiles where (${dayOption}) AND (${ipConditions})`;
+    const query = `select * from leakednetworkfiles where (${dayOption})`;
     return new Promise((resolve, reject) => {
       connection.query(query, (error, result) => {
         if (error) {
@@ -34,4 +24,4 @@ class Analysis {
     });
   }
 }
-export default Analysis;
+export default AnalysisService;

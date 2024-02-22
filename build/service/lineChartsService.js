@@ -224,6 +224,7 @@ class LineChartsService {
                 this.getTableDay(3, ipRanges),
             ])
                 .then((values) => {
+                console.log(values);
                 values.push(this.oneWeekDates);
                 resolve(values);
             })
