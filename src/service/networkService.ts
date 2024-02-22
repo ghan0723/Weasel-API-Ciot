@@ -247,7 +247,7 @@ class NetworkService {
           });
         }),
       ])
-        .then((values) => {
+        .then((values) => {          
           resolve(values);
         })
         .catch((error) => {
