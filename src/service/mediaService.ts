@@ -196,7 +196,6 @@ class MediaService {
         }),
       ])
         .then((values) => {
-
           resolve(values);
         })
         .catch((error) => reject(error));

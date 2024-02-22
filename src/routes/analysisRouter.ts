@@ -21,6 +21,7 @@ router.get("/keywordList", (req: Request, res: Response) => {
     });
 });
 
+// analysis
 router.post("/select", (req: Request, res: Response) => {
   const startDate = req.body.startDate;
   const endDate = req.body.endDate;
