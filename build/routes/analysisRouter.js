@@ -38,17 +38,13 @@ router.post("/select", (req, res) => {
             .then((result) => {
             if (dateRange.includes('week')) {
                 const averageResult = average.analyzeEventsByWeek(result);
-                const averageResult2 = average.analyzeFileSizeByWeek(result);
+                // patterns
+                const patterns = average.analyzePatternsDBSort(result, Object.keys(keywords));
+                console.log('patterns', patterns);
                 res.send(averageResult);
             }
             else if (dateRange.includes('month')) {
                 const averageResult = average.analyzeEventsByMonth(result, numericValue);
-                const averageResult2 = average.analyzeFileSizeByMonth(result, numericValue);
-                res.send(averageResult);
-            }
-            else if (dateRange.includes('year')) {
-                const averageResult = average.analyzeEventsByYear(result, numericValue);
-                const averageResult2 = average.analyzeFileSizeByMonth(result, 12);
                 res.send(averageResult);
             }
         });
