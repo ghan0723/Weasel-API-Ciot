@@ -25,20 +25,30 @@ router.get("/keywordList", (req: Request, res: Response) => {
 router.post("/select", (req: Request, res: Response) => {
   const startDate = req.body.startDate;
   const endDate = req.body.endDate;
+  const keywords = req.body.keywords;
   const dateRange = analysis.formatPeriod(startDate, endDate);
   console.log("dateRange : ", dateRange);
+
+  console.log('keywords',keywords);
+  
   // 정규식을 사용하여 숫자 값을 추출합니다.
   const matchResult = dateRange.match(/\d+/);
   if (matchResult) {
     const numericValue = parseInt(matchResult[0]);
 
     analysis.settingDateAndRange(startDate, endDate)
-    .then((result) => {
+    .then((result : any) => {
       if(dateRange.includes('week')){
         const averageResult = average.analyzeEventsByWeek(result);
-        res.send(averageResult);
+        const averageResult2 = average.analyzeFileSizeByWeek(result);
+        res.send(averageResult); 
       } else if(dateRange.includes('month')){
         const averageResult = average.analyzeEventsByMonth(result, numericValue);
+        const averageResult2 = average.analyzeFileSizeByMonth(result, numericValue);
+        res.send(averageResult);
+      } else if(dateRange.includes('year')){
+        const averageResult = average.analyzeEventsByYear(result, numericValue);
+        const averageResult2 = average.analyzeFileSizeByMonth(result, 12);
         res.send(averageResult);
       }
     });
