@@ -23,5 +23,30 @@ class AnalysisService {
             });
         });
     }
+    formatPeriod(startDateStr, endDateStr) {
+        // 문자열을 Date 객체로 변환
+        const startDate = new Date(startDateStr);
+        const endDate = new Date(endDateStr);
+        const msPerDay = 24 * 60 * 60 * 1000;
+        const diffInMs = endDate.getTime() - startDate.getTime();
+        const diffInDays = Math.round(diffInMs / msPerDay);
+        // 윤년 계산
+        const isLeapYear = (year) => year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+        // 2월의 일수 계산
+        const febDays = isLeapYear(startDate.getFullYear()) ? 29 : 28;
+        // 주, 달, 년 계산
+        if (diffInDays < 7) {
+            return `${diffInDays} day${diffInDays > 1 ? 's' : ''}`;
+        }
+        else if (diffInDays < febDays) {
+            return `${Math.floor(diffInDays / 7)} week${Math.floor(diffInDays / 7) > 1 ? 's' : ''}`;
+        }
+        else if (diffInDays < 365) {
+            return `${Math.floor(diffInDays / 30)} month${Math.floor(diffInDays / 30) > 1 ? 's' : ''}`;
+        }
+        else {
+            return `${Math.floor(diffInDays / 365)} year${Math.floor(diffInDays / 365) > 1 ? 's' : ''}`;
+        }
+    }
 }
 exports.default = AnalysisService;
