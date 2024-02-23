@@ -327,6 +327,26 @@ class Average {
     console.log("sortedFileSizeByPc : ", sortedFileSizeByPc);
     return sortedFileSizeByPc;
   }
+
+  analyzePatternsDBSort(detectFiles: any, keywords : any): { [pcGuid: string]: number } {
+    const patternsByPc: { [pcGuid: string]: number } = {};
+    console.log('keywords',keywords);
+    
+
+    detectFiles.forEach((file: any) => {
+      const { pc_guid, patterns } = file;
+
+      const findKeywords = keywords.includes(patterns);
+      // console.log('findKeywords', findKeywords);
+      
+      // console.log('data',patterns);
+      // console.log('file',file);
+      
+      // const foundKeywords = keywords.filter(keyword => data.patt)
+    });
+
+    return patternsByPc;
+  }
 }
 
 export default Average;

@@ -26,8 +26,10 @@ router.get("/keywordList", (req, res) => {
 router.post("/select", (req, res) => {
     const startDate = req.body.startDate;
     const endDate = req.body.endDate;
+    const keywords = req.body.keywords;
     const dateRange = analysis.formatPeriod(startDate, endDate);
     console.log("dateRange : ", dateRange);
+    console.log('keywords', keywords);
     // 정규식을 사용하여 숫자 값을 추출합니다.
     const matchResult = dateRange.match(/\d+/);
     if (matchResult) {
