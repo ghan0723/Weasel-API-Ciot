@@ -24,8 +24,8 @@ router.get("/keywordList", (req, res) => {
 });
 // analysis
 router.post("/select", (req, res) => {
-    const startDate = req.body.startDate;
-    const endDate = req.body.endDate;
+    const startDate = req.body.startDate + " 00:00:00";
+    const endDate = req.body.endDate + " 23:59:59";
     const keywords = req.body.keywords;
     const dateRange = analysis.formatPeriod(startDate, endDate);
     console.log("dateRange : ", dateRange);
