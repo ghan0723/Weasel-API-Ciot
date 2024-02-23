@@ -26,8 +26,8 @@ class Average {
             anomalyHours,
         };
     }
-    analyzeEvents(detectFiles) {
-        // PC 별로 유출 빈도 수가 특정 이상이 될 경우 counting 할 객체
+    analyzeEventsByWeek(detectFiles) {
+        // PC 별로 유출 빈도 수를 counting 할 객체
         const eventByPc = {};
         // 배열을 확인하면서 pc 별 빈도수를 계산한다.
         detectFiles.forEach((file) => {
@@ -40,19 +40,107 @@ class Average {
                 eventByPc[pc_guid] = 1;
             }
         });
-        // 유출 횟수를 기준으로 내림차순 정렬
-        const sortedEventByPc = Object.fromEntries(Object.entries(eventByPc).sort(([, a], [, b]) => b - a));
-        // 결과 출력 및 점수 부여
+        // 결과에 맞게 점수를 부여한다.(주간 일때는 건당 2점)
         console.log("PC 별 파일 유출 빈도:");
-        const maxScore = sortedEventByPc.length; // 배열의 길이가 최고 점수
-        let rank = 1;
-        Object.keys(sortedEventByPc).forEach((pcGuid, index) => {
-            const score = maxScore - index;
-            eventByPc[pcGuid] = score;
-            console.log(`${pcGuid}: ${eventByPc[pcGuid]}`);
+        Object.keys(eventByPc).forEach((pcGuid, index) => {
+            if (eventByPc[pcGuid] >= 50) {
+                eventByPc[pcGuid] = 100;
+            }
+            else if (eventByPc[pcGuid] >= 40) {
+                eventByPc[pcGuid] = 80;
+            }
+            else if (eventByPc[pcGuid] >= 20) {
+                eventByPc[pcGuid] = 40;
+            }
+            else if (eventByPc[pcGuid] >= 10) {
+                eventByPc[pcGuid] = 20;
+            }
+            else if (eventByPc[pcGuid] >= 5) {
+                eventByPc[pcGuid] = 10;
+            }
+            else {
+                eventByPc[pcGuid] = 0;
+            }
         });
-        console.log("eventByPc : ", eventByPc);
-        return eventByPc;
+        // 점수를 기준으로 내림차순 정렬
+        const sortedEventByPc = Object.fromEntries(Object.entries(eventByPc).sort(([, a], [, b]) => b - a));
+        console.log("sortedEventByPc : ", sortedEventByPc);
+        return sortedEventByPc;
+    }
+    analyzeEventsByMonth(detectFiles, count) {
+        // PC 별로 유출 빈도 수를 counting 할 객체
+        const eventByPc = {};
+        // 배열을 확인하면서 pc 별 빈도수를 계산한다.
+        detectFiles.forEach((file) => {
+            const { pc_guid } = file;
+            // 해당 PC의 빈도수를 증가시킨다.
+            if (eventByPc[pc_guid]) {
+                eventByPc[pc_guid]++;
+            }
+            else {
+                eventByPc[pc_guid] = 1;
+            }
+        });
+        // 결과에 맞게 점수를 부여한다.(주간 일때는 건당 2점)
+        console.log("PC 별 파일 유출 빈도:");
+        Object.keys(eventByPc).forEach((pcGuid, index) => {
+            if (count > 0) {
+                if (eventByPc[pcGuid] >= 100 * count) {
+                    eventByPc[pcGuid] = 100;
+                }
+                else if (eventByPc[pcGuid] >= 80 * count) {
+                    eventByPc[pcGuid] = 80;
+                }
+                else if (eventByPc[pcGuid] >= 60 * count) {
+                    eventByPc[pcGuid] = 60;
+                }
+                else if (eventByPc[pcGuid] >= 40 * count) {
+                    eventByPc[pcGuid] = 40;
+                }
+                else if (eventByPc[pcGuid] >= 20 * count) {
+                    eventByPc[pcGuid] = 20;
+                }
+                else if (eventByPc[pcGuid] >= 10 * count) {
+                    eventByPc[pcGuid] = 10;
+                }
+                else if (eventByPc[pcGuid] >= 5 * count) {
+                    eventByPc[pcGuid] = 5;
+                }
+                else {
+                    eventByPc[pcGuid] = 0;
+                }
+            }
+            else {
+                if (eventByPc[pcGuid] >= 100) {
+                    eventByPc[pcGuid] = 100;
+                }
+                else if (eventByPc[pcGuid] >= 80) {
+                    eventByPc[pcGuid] = 80;
+                }
+                else if (eventByPc[pcGuid] >= 60) {
+                    eventByPc[pcGuid] = 60;
+                }
+                else if (eventByPc[pcGuid] >= 40) {
+                    eventByPc[pcGuid] = 40;
+                }
+                else if (eventByPc[pcGuid] >= 20) {
+                    eventByPc[pcGuid] = 20;
+                }
+                else if (eventByPc[pcGuid] >= 10) {
+                    eventByPc[pcGuid] = 10;
+                }
+                else if (eventByPc[pcGuid] >= 5) {
+                    eventByPc[pcGuid] = 5;
+                }
+                else {
+                    eventByPc[pcGuid] = 0;
+                }
+            }
+        });
+        // 점수를 기준으로 내림차순 정렬
+        const sortedEventByPc = Object.fromEntries(Object.entries(eventByPc).sort(([, a], [, b]) => b - a));
+        console.log("sortedEventByPc : ", sortedEventByPc);
+        return sortedEventByPc;
     }
     analyzeFileSize(detectFiles) {
         // PC 별로 파일 크기가 일정 양을 넘을 시 counting 할 객체
