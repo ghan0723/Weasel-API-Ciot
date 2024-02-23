@@ -33,12 +33,18 @@ router.post("/select", (req: Request, res: Response) => {
     const numericValue = parseInt(matchResult[0]);
 
     analysis.settingDateAndRange(startDate, endDate)
-    .then((result) => {
+    .then((result : any) => {
       if(dateRange.includes('week')){
         const averageResult = average.analyzeEventsByWeek(result);
-        res.send(averageResult);
+        const averageResult2 = average.analyzeFileSizeByWeek(result);
+        res.send(averageResult); 
       } else if(dateRange.includes('month')){
         const averageResult = average.analyzeEventsByMonth(result, numericValue);
+        const averageResult2 = average.analyzeFileSizeByMonth(result, numericValue);
+        res.send(averageResult);
+      } else if(dateRange.includes('year')){
+        const averageResult = average.analyzeEventsByYear(result, numericValue);
+        const averageResult2 = average.analyzeFileSizeByMonth(result, 12);
         res.send(averageResult);
       }
     });
