@@ -27,6 +27,10 @@ class AnalysisService {
         // 문자열을 Date 객체로 변환
         const startDate = new Date(startDateStr);
         const endDate = new Date(endDateStr);
+        console.log('startDateStr', startDateStr);
+        console.log('endDateStr', endDateStr);
+        console.log('startDate', startDate);
+        console.log('endDate', endDate);
         const msPerDay = 24 * 60 * 60 * 1000;
         const diffInMs = endDate.getTime() - startDate.getTime();
         const diffInDays = Math.round(diffInMs / msPerDay);
