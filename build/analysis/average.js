@@ -41,7 +41,6 @@ class Average {
             }
         });
         // 결과에 맞게 점수를 부여한다.(주간 일때는 건당 2점)
-        console.log("PC 별 파일 유출 빈도:");
         Object.keys(eventByPc).forEach((pcGuid, index) => {
             if (eventByPc[pcGuid] >= 50) {
                 eventByPc[pcGuid] = 100;
@@ -64,7 +63,6 @@ class Average {
         });
         // 점수를 기준으로 내림차순 정렬
         const sortedEventByPc = Object.fromEntries(Object.entries(eventByPc).sort(([, a], [, b]) => b - a));
-        console.log("sortedEventByPc : ", sortedEventByPc);
         return sortedEventByPc;
     }
     analyzeEventsByMonth(detectFiles, count) {
@@ -82,7 +80,6 @@ class Average {
             }
         });
         // 결과에 맞게 점수를 부여한다.(주간 일때는 건당 2점)
-        console.log("PC 별 파일 유출 빈도:");
         Object.keys(eventByPc).forEach((pcGuid, index) => {
             if (count > 0) {
                 if (eventByPc[pcGuid] >= 100 * count) {
@@ -139,7 +136,6 @@ class Average {
         });
         // 점수를 기준으로 내림차순 정렬
         const sortedEventByPc = Object.fromEntries(Object.entries(eventByPc).sort(([, a], [, b]) => b - a));
-        console.log("sortedEventByPc : ", sortedEventByPc);
         return sortedEventByPc;
     }
     analyzeEventsByYear(detectFiles, count) {
@@ -214,7 +210,6 @@ class Average {
         });
         // 점수를 기준으로 내림차순 정렬
         const sortedEventByPc = Object.fromEntries(Object.entries(eventByPc).sort(([, a], [, b]) => b - a));
-        console.log("sortedEventByPc : ", sortedEventByPc);
         return sortedEventByPc;
     }
     analyzeFileSizeByWeek(detectFiles) {
@@ -279,7 +274,6 @@ class Average {
         });
         // 점수를 기준으로 내림차순 정렬
         const sortedFileSizeByPc = Object.fromEntries(Object.entries(fileSizeByPc).sort(([, a], [, b]) => b - a));
-        console.log("sortedFileSizeByPc : ", sortedFileSizeByPc);
         return sortedFileSizeByPc;
     }
     analyzeFileSizeByMonth(detectFiles, count) {
@@ -349,7 +343,6 @@ class Average {
         });
         // 점수를 기준으로 내림차순 정렬
         const sortedFileSizeByPc = Object.fromEntries(Object.entries(fileSizeByPc).sort(([, a], [, b]) => b - a));
-        console.log("sortedFileSizeByPc : ", sortedFileSizeByPc);
         return sortedFileSizeByPc;
     }
     analyzePatternsDBSort(detectFiles, keywords) {

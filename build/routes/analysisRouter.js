@@ -24,12 +24,10 @@ router.get("/keywordList", (req, res) => {
 });
 // analysis
 router.post("/select", (req, res) => {
-    const startDate = req.body.startDate;
-    const endDate = req.body.endDate;
+    const startDate = req.body.startDate + " 00:00:00";
+    const endDate = req.body.endDate + " 23:59:59";
     const keywords = req.body.keywords;
     const dateRange = analysis.formatPeriod(startDate, endDate);
-    console.log("dateRange : ", dateRange);
-    console.log('keywords', keywords);
     // 정규식을 사용하여 숫자 값을 추출합니다.
     const matchResult = dateRange.match(/\d+/);
     if (matchResult) {
@@ -39,17 +37,20 @@ router.post("/select", (req, res) => {
             if (dateRange.includes('week')) {
                 const averageResult = average.analyzeEventsByWeek(result);
                 const averageResult2 = average.analyzeFileSizeByWeek(result);
-                res.send(averageResult);
+                const scoringPoint = analysis.scoringRiskPoint(averageResult, averageResult2);
+                res.send(scoringPoint);
             }
             else if (dateRange.includes('month')) {
                 const averageResult = average.analyzeEventsByMonth(result, numericValue);
                 const averageResult2 = average.analyzeFileSizeByMonth(result, numericValue);
-                res.send(averageResult);
+                const scoringPoint = analysis.scoringRiskPoint(averageResult, averageResult2);
+                res.send(scoringPoint);
             }
             else if (dateRange.includes('year')) {
                 const averageResult = average.analyzeEventsByYear(result, numericValue);
                 const averageResult2 = average.analyzeFileSizeByMonth(result, 12);
-                res.send(averageResult);
+                const scoringPoint = analysis.scoringRiskPoint(averageResult, averageResult2);
+                res.send(scoringPoint);
             }
         });
     }

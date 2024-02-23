@@ -8,7 +8,6 @@ class KeywordService {
     getKeyword(props, select, ipRanges) {
         let table;
         let dayOption;
-        // Old_C
         if (props === "network") {
             table = "leakednetworkfiles";
         }
@@ -21,16 +20,6 @@ class KeywordService {
         else {
             table = "leakedprintingfiles";
         }
-        // New_C
-        // if (props === "network") {
-        //   table = "LeakedNetworkFiles";
-        // } else if (props === "media") {
-        //   table = "LeakedMediaFiles";
-        // } else if (props === "outlook") {
-        //   table = "LeakedOutlookFiles";
-        // } else {
-        //   table = "LeakedPrintingFiles";
-        // }
         if (select === "day") {
             dayOption = "DATE(time) = CURDATE()";
         }
@@ -50,13 +39,6 @@ class KeywordService {
       patterns LIKE '%핸드폰번호%' OR
       patterns LIKE '%이력서%'
     ) `;
-        // New_C
-        // const query = `select pc_name, patterns from ${table} where (${dayOption}) AND (${ipConditions}) AND 
-        // (
-        //   patterns LIKE '%주민번호%' OR
-        //   patterns LIKE '%핸드폰번호%' OR
-        //   patterns LIKE '%이력서%'
-        // ) `;
         return new Promise((resolve, reject) => {
             db_1.default.query(query, (error, result) => {
                 if (error) {
@@ -70,10 +52,10 @@ class KeywordService {
                         const keywordCountMap = {};
                         pcResults.forEach((item) => {
                             // Extract counts and patterns using regex
-                            const matches = item.patterns.match(/([^\s,()]+)(?:\s*,\s*|\s*\(\s*(\d+)\s*\)\s*)?/g);
+                            const matches = item.patterns.match(/([^\s:,]+):(\d+)/g);
                             if (matches) {
                                 matches.forEach((match) => {
-                                    const [keyword, count] = match.split(/\s*\(\s*|\s*\)\s*/);
+                                    const [keyword, count] = match.split(":");
                                     const numericCount = parseInt(count, 10) || 1;
                                     // Add the count to the existing count for the keyword
                                     keywordCountMap[keyword] =
