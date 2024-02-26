@@ -10,14 +10,28 @@ function generateDetectFiles(numFiles) {
     const pcGuids = ['PC1', 'PC2', 'PC3', 'PC4', 'PC5'];
     const procNames = ['Process1', 'Process2', 'Process3', 'Process4', 'Process5'];
     const orgFiles = ['file1.txt', 'file2.txt', 'file3.txt', 'file4.txt', 'file5.txt'];
-    const patterns = ['Pattern1', 'Pattern2', 'Pattern3', 'Pattern4', 'Pattern5'];
+    const patterns = ['주민번호', '핸드폰번호', '입사지원서', ''];
     const uploadStates = ['Y', 'N'];
     const scrdmpUploadStates = ['Y', 'N'];
     const eventCodes = ['CO_EVENT', 'FA_EVENT', 'SA_EVENT'];
+    let patternsValue = '';
     for (let i = 0; i < numFiles; i++) {
+        const pcguidName = pcGuids[Math.floor(Math.random() * pcGuids.length)];
+        const patternName = patterns[Math.floor(Math.random() * patterns.length)];
+        if (patternName === '') {
+            patternsValue = '';
+        }
+        else {
+            if (pcguidName === 'PC4' || pcguidName === 'PC5') {
+                patternsValue = '';
+            }
+            else {
+                patternsValue = patternName + ':' + Math.floor(Math.random() * 999 + 1).toString();
+            }
+        }
         const file = {
             time: generateRandomDateTime(),
-            pc_guid: pcGuids[Math.floor(Math.random() * pcGuids.length)],
+            pc_guid: `${pcguidName}`,
             pc_name: `PC_Name_${i + 1}`,
             proc_name: procNames[Math.floor(Math.random() * procNames.length)],
             proc_id: Math.random().toString(36).substring(2, 8).toUpperCase(),
@@ -30,7 +44,7 @@ function generateDetectFiles(numFiles) {
             upload_state: uploadStates[Math.floor(Math.random() * uploadStates.length)],
             scrdmp_upload_state: scrdmpUploadStates[Math.floor(Math.random() * scrdmpUploadStates.length)],
             file_size: Math.floor(Math.random() * 1000000).toString(),
-            patterns: `${patterns[Math.floor(Math.random() * patterns.length)]}, ${patterns[Math.floor(Math.random() * patterns.length)]}`,
+            patterns: `${patternsValue}`,
             url: `http://example.com/file${i + 1}`,
             backup_file: `backup_file_${i + 1}.txt`,
             accurate: Math.floor(Math.random() * 2),

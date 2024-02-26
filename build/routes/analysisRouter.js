@@ -29,7 +29,7 @@ router.post("/select", (req, res) => {
     const keywords = req.body.keywords;
     const dateRange = analysis.formatPeriod(startDate, endDate);
     console.log("dateRange : ", dateRange);
-    console.log('keywords', keywords);
+    console.log('keywords', Object.keys(keywords).length);
     // 정규식을 사용하여 숫자 값을 추출합니다.
     const matchResult = dateRange.match(/\d+/);
     if (matchResult) {
@@ -39,6 +39,13 @@ router.post("/select", (req, res) => {
             if (dateRange.includes('week')) {
                 const averageResult = average.analyzeEventsByWeek(result);
                 const averageResult2 = average.analyzeFileSizeByWeek(result);
+                // pattern
+                if (Object.keys(keywords).length !== 0) {
+                    console.log('keywords', keywords);
+                    const patternsScore = {};
+                    const patternsDB = average.analyzePatternsDBSort(result, keywords, patternsScore);
+                    console.log('patternsDB', patternsDB);
+                }
                 res.send(averageResult);
             }
             else if (dateRange.includes('month')) {
