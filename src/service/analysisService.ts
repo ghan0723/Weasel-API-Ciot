@@ -1,5 +1,6 @@
 import { IpRange } from "../interface/interface";
 import connection from "../db/db";
+import Average from "../analysis/average";
 
 class AnalysisService {
   settingDateAndRange(startDate: any, endDate: any): Promise<any> {
@@ -73,9 +74,50 @@ class AnalysisService {
       // PC별 정보 저장
       riskPointsByPc[pcGuid] = { sum, event: eventPoint, file_size: fileSizePoint };
     });
-    console.log("riskPointsByPc : ", riskPointsByPc);
+    // console.log("riskPointsByPc : ", riskPointsByPc);
     // 결과 반환
     return riskPointsByPc;
   }
+
+  analyzePatterns(detectFiles: any, keywords : any): { [pcGuid: string]: number } {
+    const patternsResult: { [pcGuid: string]: number  } = {};
+    const average: Average = new Average();
+    const keywordsList:any = {};
+    const patternsList:any = {};
+
+    // 키워드/건수 구분
+    Object.keys(keywords).map(data => {
+      // 키워드
+      if(keywords[data]?.check === true) {
+        keywordsList[data] = keywords[data];
+      } else {
+        // 건수
+        patternsList[data] = keywords[data];
+      }
+    });    
+
+    // DB Sort
+    const patternsDB = average.analyzePatternsDBSort(detectFiles,keywords);
+
+    // 아무 패턴도 없는 것에 대한 scoring 및 제거
+    Object.keys(patternsDB).map(data => {
+      if(patternsDB[data] === '') {
+        patternsResult[data] = 0;
+        delete patternsDB[data];
+      }
+    });
+
+    // 키워드/건수에 대한 scoring
+    const keywordsScoring = average.analyzeKeywordsListScoring(patternsDB,keywordsList);
+    const patternsScoring = average.analyzePatternsListScoring(patternsDB,patternsList);
+
+    Object.keys(keywordsScoring).map(guid => {
+      patternsResult[guid] = (keywordsScoring[guid] + patternsScoring[guid]);
+    });
+
+    return patternsResult;
+  }
+
+
 }
 export default AnalysisService;

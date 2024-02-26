@@ -345,7 +345,7 @@ class Average {
         const sortedFileSizeByPc = Object.fromEntries(Object.entries(fileSizeByPc).sort(([, a], [, b]) => b - a));
         return sortedFileSizeByPc;
     }
-    analyzePatternsDBSort(detectFiles, keywords, patternsScore) {
+    analyzePatternsDBSort(detectFiles, keywords) {
         const patternsSummary = {};
         detectFiles.forEach((file) => {
             const { pc_guid, patterns } = file;
@@ -370,6 +370,74 @@ class Average {
             result[pcGuid] = summaryString;
         });
         return result;
+    }
+    calculatePatternScore(patternCount, riskLevel) {
+        const baseScorePerPattern = 1; // 패턴당 기본 점수
+        const maxPatternCount = 1000; // 최대 발견 가능한 패턴 수
+        const maxScore = 200; // 최대 점수
+        const minPatternCount = 10; // 최소 패턴 발견 수
+        const minRiskLevel = 1; // 최소 위험도
+        // 패턴당 점수 계산
+        let patternScore = Math.min(patternCount, maxPatternCount) / 10 * baseScorePerPattern;
+        console.log('patternScore---', patternScore);
+        console.log('riskLevel', riskLevel);
+        // 위험도에 따른 가중치 적용
+        patternScore *= (1 + riskLevel / 10);
+        console.log('patternCount', patternCount);
+        console.log('patternScore', patternScore);
+        // 최대 점수 제한
+        patternScore = Math.min(patternScore, maxScore);
+        return Math.round(patternScore);
+    }
+    analyzeKeywordsListScoring(patternsDB, keywordList) {
+        const keywordsResult = {};
+        // patternsDB 객체를 순회합니다.
+        Object.entries(patternsDB).forEach(([pcGuid, patternStr]) => {
+            let score = 0;
+            // patternStr을 콤마로 분리하여 각 패턴을 배열로 변환합니다.
+            const patterns = patternStr.split(', ');
+            // 각 패턴에 대해 반복하며 keywordList에 존재하는지 확인합니다.
+            patterns.forEach(pattern => {
+                var _a;
+                const [keyword, countStr] = pattern.split(':');
+                if (keywordList[keyword]) {
+                    // keywordList에 정의된 키워드의 level 값으로 점수를 계산합니다.
+                    score = ((_a = keywordList[keyword]) === null || _a === void 0 ? void 0 : _a.level) * 10;
+                }
+            });
+            // 최종 계산된 점수를 keywordsResult 객체에 저장합니다.      
+            if (keywordsResult[pcGuid] < score || keywordsResult[pcGuid] === undefined || keywordsResult[pcGuid] === null) {
+                keywordsResult[pcGuid] = score;
+            }
+        });
+        return keywordsResult;
+    }
+    analyzePatternsListScoring(patternsDB, keywordList) {
+        const keywordsResult = {};
+        // patternsDB 객체를 순회합니다.
+        Object.entries(patternsDB).forEach(([pcGuid, patternStr]) => {
+            let score = 0.0;
+            // patternStr을 콤마로 분리하여 각 패턴을 배열로 변환합니다.
+            const patterns = patternStr.split(', ');
+            // 각 패턴에 대해 반복하며 keywordList에 존재하는지 확인합니다.
+            patterns.forEach(pattern => {
+                var _a;
+                const [keyword, countStr] = pattern.split(':');
+                const count = parseInt(countStr, 10);
+                // 1000건 이상일 경우 무조건 1000건으로 설정
+                if (count > 1000)
+                    count === 1000;
+                if (keywordList[keyword]) {
+                    // keywordList에 정의된 키워드의 level 값으로 점수를 계산합니다.
+                    score = this.calculatePatternScore(count, +((_a = keywordList[keyword]) === null || _a === void 0 ? void 0 : _a.level));
+                }
+            });
+            // 최종 계산된 점수를 keywordsResult 객체에 저장합니다.      
+            if (keywordsResult[pcGuid] < score || keywordsResult[pcGuid] === undefined || keywordsResult[pcGuid] === null) {
+                keywordsResult[pcGuid] = score;
+            }
+        });
+        return keywordsResult;
     }
 }
 exports.default = Average;

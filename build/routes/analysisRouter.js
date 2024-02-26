@@ -44,8 +44,7 @@ router.post("/select", (req, res) => {
                 // pattern
                 if (Object.keys(keywords).length !== 0) {
                     console.log('keywords', keywords);
-                    const patternsScore = {};
-                    const patternsDB = average.analyzePatternsDBSort(result, keywords, patternsScore);
+                    const patternsResult = analysis.analyzePatterns(result, keywords);
                 }
             }
             else if (dateRange.includes('month')) {

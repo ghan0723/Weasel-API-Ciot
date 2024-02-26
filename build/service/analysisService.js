@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const db_1 = __importDefault(require("../db/db"));
+const average_1 = __importDefault(require("../analysis/average"));
 class AnalysisService {
     settingDateAndRange(startDate, endDate) {
         // startDate와 endDate가 주어졌는지 확인
@@ -60,9 +61,47 @@ class AnalysisService {
             // PC별 정보 저장
             riskPointsByPc[pcGuid] = { sum, event: eventPoint, file_size: fileSizePoint };
         });
-        console.log("riskPointsByPc : ", riskPointsByPc);
+        // console.log("riskPointsByPc : ", riskPointsByPc);
         // 결과 반환
         return riskPointsByPc;
+    }
+    analyzePatterns(detectFiles, keywords) {
+        const patternsResult = {};
+        const average = new average_1.default();
+        const keywordsList = {};
+        const patternsList = {};
+        // 키워드/건수 구분
+        Object.keys(keywords).map(data => {
+            var _a;
+            // 키워드
+            if (((_a = keywords[data]) === null || _a === void 0 ? void 0 : _a.check) === true) {
+                keywordsList[data] = keywords[data];
+            }
+            else {
+                // 건수
+                patternsList[data] = keywords[data];
+            }
+        });
+        // DB Sort
+        const patternsDB = average.analyzePatternsDBSort(detectFiles, keywords);
+        // 아무 패턴도 없는 것에 대한 scoring 및 제거
+        Object.keys(patternsDB).map(data => {
+            if (patternsDB[data] === '') {
+                patternsResult[data] = 0;
+                delete patternsDB[data];
+            }
+        });
+        // 키워드/건수에 대한 scoring
+        const keywordsScoring = average.analyzeKeywordsListScoring(patternsDB, keywordsList);
+        const patternsScoring = average.analyzePatternsListScoring(patternsDB, patternsList);
+        Object.keys(keywordsScoring).map(guid => {
+            patternsResult[guid] = (keywordsScoring[guid] + patternsScoring[guid]);
+        });
+        console.log('changepattern', patternsDB);
+        console.log('keywordsScoring', keywordsScoring);
+        console.log('patternsScoring', patternsScoring);
+        console.log('patternsResult', patternsResult);
+        return patternsResult;
     }
 }
 exports.default = AnalysisService;

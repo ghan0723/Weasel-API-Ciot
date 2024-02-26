@@ -28,9 +28,6 @@ router.post("/select", (req: Request, res: Response) => {
   const keywords = req.body.keywords;
 
   const dateRange = analysis.formatPeriod(startDate, endDate);
-  console.log("dateRange : ", dateRange);
-
-  console.log('keywords',Object.keys(keywords).length);
   
   // 정규식을 사용하여 숫자 값을 추출합니다.
   const matchResult = dateRange.match(/\d+/);
@@ -49,9 +46,7 @@ router.post("/select", (req: Request, res: Response) => {
         // pattern
         if(Object.keys(keywords).length !== 0) {
           console.log('keywords',keywords);
-          const patternsScore:{[pcGuid: string]: number} = {};
-          const patternsDB = average.analyzePatternsDBSort(result,keywords,patternsScore);
-          
+          const patternsResult = analysis.analyzePatterns(result,keywords);
         }
         
       } else if(dateRange.includes('month')){
