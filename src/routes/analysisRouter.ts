@@ -40,7 +40,7 @@ router.post("/select", (req: Request, res: Response) => {
     .then((result : any) => {
       if(dateRange.includes('week')){
         const averageResult = average.analyzeEventsByWeek(result);
-        const averageResult2 = average.analyzeFileSizeByWeek(result);
+        const averageResult2 = average.analyzeFileSizeByWeek(result); 
 
 
         // pattern
