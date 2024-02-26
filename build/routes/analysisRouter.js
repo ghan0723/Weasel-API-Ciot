@@ -32,29 +32,30 @@ router.post("/select", (req, res) => {
     const matchResult = dateRange.match(/\d+/);
     if (matchResult) {
         const numericValue = parseInt(matchResult[0]);
+        let patternsResult = {};
         analysis.settingDateAndRange(startDate, endDate)
             .then((result) => {
+            // pattern
+            if (Object.keys(keywords).length !== 0) {
+                console.log('keywords', keywords);
+                patternsResult = analysis.analyzePatterns(result, keywords);
+            }
             if (dateRange.includes('week')) {
                 const averageResult = average.analyzeEventsByWeek(result);
                 const averageResult2 = average.analyzeFileSizeByWeek(result);
-                const scoringPoint = analysis.scoringRiskPoint(averageResult, averageResult2);
+                const scoringPoint = analysis.scoringRiskPoint(averageResult, averageResult2, patternsResult);
                 res.send(scoringPoint);
-                // pattern
-                if (Object.keys(keywords).length !== 0) {
-                    console.log('keywords', keywords);
-                    const patternsResult = analysis.analyzePatterns(result, keywords);
-                }
             }
             else if (dateRange.includes('month')) {
                 const averageResult = average.analyzeEventsByMonth(result, numericValue);
                 const averageResult2 = average.analyzeFileSizeByMonth(result, numericValue);
-                const scoringPoint = analysis.scoringRiskPoint(averageResult, averageResult2);
+                const scoringPoint = analysis.scoringRiskPoint(averageResult, averageResult2, patternsResult);
                 res.send(scoringPoint);
             }
             else if (dateRange.includes('year')) {
                 const averageResult = average.analyzeEventsByYear(result, numericValue);
                 const averageResult2 = average.analyzeFileSizeByMonth(result, 12);
-                const scoringPoint = analysis.scoringRiskPoint(averageResult, averageResult2);
+                const scoringPoint = analysis.scoringRiskPoint(averageResult, averageResult2, patternsResult);
                 res.send(scoringPoint);
             }
         });
