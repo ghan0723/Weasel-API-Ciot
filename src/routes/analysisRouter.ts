@@ -31,30 +31,29 @@ router.post("/select", (req: Request, res: Response) => {
   const matchResult = dateRange.match(/\d+/);
   if (matchResult) {
     const numericValue = parseInt(matchResult[0]);
+    let patternsResult:{ [pcGuid: string]: number } = {};
 
     analysis.settingDateAndRange(startDate, endDate)
     .then((result) => {
+      // pattern
+      if(Object.keys(keywords).length !== 0) {
+        patternsResult = analysis.analyzePatterns(result,keywords);
+      }
+
       if(dateRange.includes('week')){
         const averageResult = average.analyzeEventsByWeek(result);
         const averageResult2 = average.analyzeFileSizeByWeek(result); 
-        const scoringPoint = analysis.scoringRiskPoint(averageResult, averageResult2);
-        res.send(scoringPoint); 
-
-
-        // pattern
-        if(Object.keys(keywords).length !== 0) {
-          const patternsResult = analysis.analyzePatterns(result,keywords);
-        }
-        
+        const scoringPoint = analysis.scoringRiskPoint(averageResult, averageResult2,patternsResult);
+        res.send(scoringPoint);
       } else if(dateRange.includes('month')){
         const averageResult = average.analyzeEventsByMonth(result, numericValue);
         const averageResult2 = average.analyzeFileSizeByMonth(result, numericValue);
-        const scoringPoint = analysis.scoringRiskPoint(averageResult, averageResult2);
+        const scoringPoint = analysis.scoringRiskPoint(averageResult, averageResult2,patternsResult);
         res.send(scoringPoint);
       } else if(dateRange.includes('year')){
         const averageResult = average.analyzeEventsByYear(result, numericValue);
         const averageResult2 = average.analyzeFileSizeByMonth(result, 12);
-        const scoringPoint = analysis.scoringRiskPoint(averageResult, averageResult2);
+        const scoringPoint = analysis.scoringRiskPoint(averageResult, averageResult2,patternsResult);
         res.send(scoringPoint);
       }
 

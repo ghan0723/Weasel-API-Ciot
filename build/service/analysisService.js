@@ -56,16 +56,17 @@ class AnalysisService {
         Object.keys(sortedEventByPc).forEach((pcGuid) => {
             const eventPoint = sortedEventByPc[pcGuid] || 0;
             const fileSizePoint = sortedFileSizeByPc[pcGuid] || 0;
+            const patternPoint = sortedPatternsByPc !== undefined && sortedPatternsByPc[pcGuid] || 0;
             // 리스크 포인트 계산
-            const sum = eventPoint + fileSizePoint * 2;
+            const sum = eventPoint + fileSizePoint * 2 + patternPoint;
             // PC별 정보 저장
-            riskPointsByPc[pcGuid] = { sum, event: eventPoint, file_size: fileSizePoint };
+            riskPointsByPc[pcGuid] = { sum, event: eventPoint, file_size: fileSizePoint, pattern: patternPoint };
         });
         // 결과를 담을 배열 초기화
         let riskPointsArray = [];
         // 객체를 배열로 변환하고 원하는 형식의 문자열을 추가하여 결과 배열에 추가
         Object.keys(riskPointsByPc).forEach((pcGuid) => {
-            const { sum, event, file_size } = riskPointsByPc[pcGuid];
+            const { sum, event, file_size, pattern } = riskPointsByPc[pcGuid];
             let text = '';
             let progress = (sum / Math.max(...Object.values(riskPointsByPc).map(({ sum }) => sum))) * 100; // progress 계산
             // 특정 조건에 따라 텍스트 추가
