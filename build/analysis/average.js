@@ -379,12 +379,8 @@ class Average {
         const minRiskLevel = 1; // 최소 위험도
         // 패턴당 점수 계산
         let patternScore = Math.min(patternCount, maxPatternCount) / 10 * baseScorePerPattern;
-        console.log('patternScore---', patternScore);
-        console.log('riskLevel', riskLevel);
         // 위험도에 따른 가중치 적용
         patternScore *= (1 + riskLevel / 10);
-        console.log('patternCount', patternCount);
-        console.log('patternScore', patternScore);
         // 최대 점수 제한
         patternScore = Math.min(patternScore, maxScore);
         return Math.round(patternScore);

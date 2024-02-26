@@ -28,8 +28,6 @@ router.post("/select", (req, res) => {
     const endDate = req.body.endDate + " 23:59:59";
     const keywords = req.body.keywords;
     const dateRange = analysis.formatPeriod(startDate, endDate);
-    console.log("dateRange : ", dateRange);
-    console.log('keywords', Object.keys(keywords).length);
     // 정규식을 사용하여 숫자 값을 추출합니다.
     const matchResult = dateRange.match(/\d+/);
     if (matchResult) {
