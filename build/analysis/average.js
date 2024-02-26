@@ -345,18 +345,31 @@ class Average {
         const sortedFileSizeByPc = Object.fromEntries(Object.entries(fileSizeByPc).sort(([, a], [, b]) => b - a));
         return sortedFileSizeByPc;
     }
-    analyzePatternsDBSort(detectFiles, keywords) {
-        const patternsByPc = {};
-        console.log('keywords', keywords);
+    analyzePatternsDBSort(detectFiles, keywords, patternsScore) {
+        const patternsSummary = {};
         detectFiles.forEach((file) => {
             const { pc_guid, patterns } = file;
-            const findKeywords = keywords.includes(patterns);
-            console.log('findKeywords', findKeywords);
-            console.log('data', patterns);
-            // console.log('file',file);
-            // const foundKeywords = keywords.filter(keyword => data.patt)
+            if (!patternsSummary[pc_guid])
+                patternsSummary[pc_guid] = {};
+            if (patterns !== '') {
+                const patternEntries = patterns.split(", ").map((pattern) => {
+                    const [keyword, count] = pattern.split(":");
+                    return { keyword, count: parseInt(count, 10) };
+                });
+                patternEntries.forEach(({ keyword, count }) => {
+                    patternsSummary[pc_guid][keyword] = (patternsSummary[pc_guid][keyword] || 0) + count;
+                });
+            }
         });
-        return patternsByPc;
+        // 최종 문자열 형태로 변환
+        const result = {};
+        Object.entries(patternsSummary).forEach(([pcGuid, keywordCounts]) => {
+            const summaryString = Object.entries(keywordCounts)
+                .map(([keyword, count]) => `${keyword}:${count}`)
+                .join(", ");
+            result[pcGuid] = summaryString;
+        });
+        return result;
     }
 }
 exports.default = Average;
