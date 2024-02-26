@@ -24,8 +24,8 @@ router.get("/keywordList", (req, res) => {
 });
 // analysis
 router.post("/select", (req, res) => {
-    const startDate = req.body.startDate;
-    const endDate = req.body.endDate;
+    const startDate = req.body.startDate + " 00:00:00";
+    const endDate = req.body.endDate + " 23:59:59";
     const keywords = req.body.keywords;
     const dateRange = analysis.formatPeriod(startDate, endDate);
     console.log("dateRange : ", dateRange);
@@ -39,24 +39,26 @@ router.post("/select", (req, res) => {
             if (dateRange.includes('week')) {
                 const averageResult = average.analyzeEventsByWeek(result);
                 const averageResult2 = average.analyzeFileSizeByWeek(result);
+                const scoringPoint = analysis.scoringRiskPoint(averageResult, averageResult2);
+                res.send(scoringPoint);
                 // pattern
                 if (Object.keys(keywords).length !== 0) {
                     console.log('keywords', keywords);
                     const patternsScore = {};
                     const patternsDB = average.analyzePatternsDBSort(result, keywords, patternsScore);
-                    console.log('patternsDB', patternsDB);
                 }
-                res.send(averageResult);
             }
             else if (dateRange.includes('month')) {
                 const averageResult = average.analyzeEventsByMonth(result, numericValue);
                 const averageResult2 = average.analyzeFileSizeByMonth(result, numericValue);
-                res.send(averageResult);
+                const scoringPoint = analysis.scoringRiskPoint(averageResult, averageResult2);
+                res.send(scoringPoint);
             }
             else if (dateRange.includes('year')) {
                 const averageResult = average.analyzeEventsByYear(result, numericValue);
                 const averageResult2 = average.analyzeFileSizeByMonth(result, 12);
-                res.send(averageResult);
+                const scoringPoint = analysis.scoringRiskPoint(averageResult, averageResult2);
+                res.send(scoringPoint);
             }
         });
     }

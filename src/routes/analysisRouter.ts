@@ -23,9 +23,10 @@ router.get("/keywordList", (req: Request, res: Response) => {
 
 // analysis
 router.post("/select", (req: Request, res: Response) => {
-  const startDate = req.body.startDate;
-  const endDate = req.body.endDate;
+  const startDate = req.body.startDate + " 00:00:00";
+  const endDate = req.body.endDate + " 23:59:59";
   const keywords = req.body.keywords;
+
   const dateRange = analysis.formatPeriod(startDate, endDate);
   console.log("dateRange : ", dateRange);
 
@@ -37,10 +38,12 @@ router.post("/select", (req: Request, res: Response) => {
     const numericValue = parseInt(matchResult[0]);
 
     analysis.settingDateAndRange(startDate, endDate)
-    .then((result : any) => {
+    .then((result) => {
       if(dateRange.includes('week')){
         const averageResult = average.analyzeEventsByWeek(result);
         const averageResult2 = average.analyzeFileSizeByWeek(result); 
+        const scoringPoint = analysis.scoringRiskPoint(averageResult, averageResult2);
+        res.send(scoringPoint); 
 
 
         // pattern
@@ -51,18 +54,19 @@ router.post("/select", (req: Request, res: Response) => {
           
         }
         
-
-
-        res.send(averageResult); 
       } else if(dateRange.includes('month')){
         const averageResult = average.analyzeEventsByMonth(result, numericValue);
         const averageResult2 = average.analyzeFileSizeByMonth(result, numericValue);
-        res.send(averageResult);
+        const scoringPoint = analysis.scoringRiskPoint(averageResult, averageResult2);
+        res.send(scoringPoint);
       } else if(dateRange.includes('year')){
         const averageResult = average.analyzeEventsByYear(result, numericValue);
         const averageResult2 = average.analyzeFileSizeByMonth(result, 12);
-        res.send(averageResult);
+        const scoringPoint = analysis.scoringRiskPoint(averageResult, averageResult2);
+        res.send(scoringPoint);
       }
+
+
     });
   } else {
     // 숫자 값을 추출할 수 없는 경우에 대한 처리
