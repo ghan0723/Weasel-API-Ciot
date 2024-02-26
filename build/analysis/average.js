@@ -351,8 +351,8 @@ class Average {
         detectFiles.forEach((file) => {
             const { pc_guid, patterns } = file;
             const findKeywords = keywords.includes(patterns);
-            // console.log('findKeywords', findKeywords);
-            // console.log('data',patterns);
+            console.log('findKeywords', findKeywords);
+            console.log('data', patterns);
             // console.log('file',file);
             // const foundKeywords = keywords.filter(keyword => data.patt)
         });

@@ -34,12 +34,15 @@ router.post("/select", (req: Request, res: Response) => {
     const numericValue = parseInt(matchResult[0]);
 
     analysis.settingDateAndRange(startDate, endDate)
-    .then((result : any) => {
+    .then((result) => {
       if(dateRange.includes('week')){
         const averageResult = average.analyzeEventsByWeek(result);
         const averageResult2 = average.analyzeFileSizeByWeek(result);
         const scoringPoint = analysis.scoringRiskPoint(averageResult, averageResult2);
         res.send(scoringPoint); 
+        // patterns
+        const patterns = average.analyzePatternsDBSort(result,Object.keys(keywords));
+        console.log('patterns',patterns);
       } else if(dateRange.includes('month')){
         const averageResult = average.analyzeEventsByMonth(result, numericValue);
         const averageResult2 = average.analyzeFileSizeByMonth(result, numericValue);

@@ -39,6 +39,9 @@ router.post("/select", (req, res) => {
                 const averageResult2 = average.analyzeFileSizeByWeek(result);
                 const scoringPoint = analysis.scoringRiskPoint(averageResult, averageResult2);
                 res.send(scoringPoint);
+                // patterns
+                const patterns = average.analyzePatternsDBSort(result, Object.keys(keywords));
+                console.log('patterns', patterns);
             }
             else if (dateRange.includes('month')) {
                 const averageResult = average.analyzeEventsByMonth(result, numericValue);
