@@ -57,8 +57,9 @@ class AnalysisService {
 
   scoringRiskPoint(
     sortedEventByPc: { [pcGuid: string]: number },
-    sortedFileSizeByPc: { [pcGuid: string]: number }
-  ): { [pc_guid: string]: { sum: number, event: number, file_size: number } } {
+    sortedFileSizeByPc: { [pcGuid: string]: number },
+    sortedPatternsByPc?: { [pcGuid: string]: number }
+  ): { pcGuid: string, sum: number, text: string }[] {
     // PC별 정보를 저장할 객체 초기화
     const riskPointsByPc: { [pc_guid: string]: { sum: number, event: number, file_size: number } } = {};
   
@@ -73,9 +74,21 @@ class AnalysisService {
       // PC별 정보 저장
       riskPointsByPc[pcGuid] = { sum, event: eventPoint, file_size: fileSizePoint };
     });
-    console.log("riskPointsByPc : ", riskPointsByPc);
+  
+    // 결과를 담을 배열 초기화
+    let riskPointsArray:any[] = [];
+  
+    // 객체를 배열로 변환하고 원하는 형식의 문자열을 추가하여 결과 배열에 추가
+    Object.keys(riskPointsByPc).forEach((pcGuid) => {
+      const { sum, event, file_size } = riskPointsByPc[pcGuid];
+      const text = `event=${event}+file_size=${file_size}`;
+      riskPointsArray.push({ pcGuid, status:sum, text, progress:sum });
+    });
+  
+    console.log("riskPointsArray : ", riskPointsArray);
     // 결과 반환
-    return riskPointsByPc;
+    return riskPointsArray;
   }
+  
 }
 export default AnalysisService;
