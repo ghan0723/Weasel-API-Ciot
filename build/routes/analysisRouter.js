@@ -41,7 +41,6 @@ router.post("/select", (req, res) => {
                 res.send(scoringPoint);
                 // pattern
                 if (Object.keys(keywords).length !== 0) {
-                    console.log('keywords', keywords);
                     const patternsResult = analysis.analyzePatterns(result, keywords);
                 }
             }

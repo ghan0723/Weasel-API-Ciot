@@ -66,9 +66,32 @@ class AnalysisService {
         // 객체를 배열로 변환하고 원하는 형식의 문자열을 추가하여 결과 배열에 추가
         Object.keys(riskPointsByPc).forEach((pcGuid) => {
             const { sum, event, file_size } = riskPointsByPc[pcGuid];
-            const text = `event=${event}+file_size=${file_size}`;
-            riskPointsArray.push({ pcGuid, status: sum, text, progress: sum });
+            let text = '';
+            let progress = (sum / Math.max(...Object.values(riskPointsByPc).map(({ sum }) => sum))) * 100; // progress 계산
+            // 특정 조건에 따라 텍스트 추가
+            if (event >= 80) {
+                text += '빈도수는 위험';
+            }
+            else if (event >= 40) {
+                text += '빈도수는 중간';
+            }
+            else if (event >= 0) {
+                text += '빈도수는 기본';
+            }
+            if (file_size >= 80) {
+                text += ', 파일 사이즈는 위험';
+            }
+            else if (file_size >= 40) {
+                text += ', 파일 사이즈는 중간';
+            }
+            else if (file_size >= 0) {
+                text += ', 파일 사이즈는 기본';
+            }
+            // 결과 배열에 객체 추가
+            riskPointsArray.push({ pcGuid, status: sum, text, progress });
         });
+        // status가 높은 순서대로 정렬
+        riskPointsArray.sort((a, b) => b.sum - a.sum);
         console.log("riskPointsArray : ", riskPointsArray);
         // 결과 반환
         return riskPointsArray;
