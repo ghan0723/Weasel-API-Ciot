@@ -3,14 +3,18 @@ import connection from "../db/db";
 import Average from "../analysis/average";
 
 class AnalysisService {
-  settingDateAndRange(startDate: any, endDate: any): Promise<any> {
+  settingDateAndRange(startDate: any, endDate: any, pcGuid?: any): Promise<any> {
     // startDate와 endDate가 주어졌는지 확인
     if (!startDate || !endDate) {
       throw new Error("startDate와 endDate와 ipRanges는 필수 매개변수입니다.");
     }
     const dayOption = `time >= '${startDate}' AND time <= '${endDate}'`;
 
-    const query = `select * from leakednetworkfiles where (${dayOption})`;
+    let query = `select * from leakednetworkfiles where (${dayOption})`;
+    if(pcGuid !== undefined) {
+      query = `select * from leakednetworkfiles where (${dayOption}) AND pc_guid = '${pcGuid}'`
+    }
+    
     return new Promise((resolve, reject) => {
       connection.query(query, (error, result) => {
         if (error) {
@@ -163,7 +167,7 @@ class AnalysisService {
     });    
 
     // DB Sort
-    const patternsDB = average.analyzePatternsDBSort(detectFiles,keywords);
+    const patternsDB = average.analyzePatternsDBSort(detectFiles);
 
     // 아무 패턴도 없는 것에 대한 scoring 및 제거
     Object.keys(patternsDB).map(data => {
@@ -182,6 +186,36 @@ class AnalysisService {
     });
 
     return patternsResult;
+  }
+
+  analyzeDetailPatterns(detectFiles: any, pc_guid:any):any {
+    const average: Average = new Average();
+    // DB Sort
+    const patternsDB = average.analyzePatternsDBSort(detectFiles);
+    const result:any = {};
+
+    const patternObject:any = [];
+    const patterns = patternsDB[pc_guid].split(', '); // 문자열을 ', '로 분리하여 배열로 변환
+    let   totalCount = 0;
+  
+    patterns.forEach(pattern => {
+      const [key, value] = pattern.split(':'); // 각 패턴을 ':'로 분리
+      // 키는 공백 제거 후 사용, 값은 정수로 변환하여 할당
+      patternObject.push({[key] : parseInt(value, 10)});
+      totalCount += parseInt(value, 10);
+    });
+
+    // 숫자가 높은 것부터 정렬
+    patternObject.sort((a:any, b:any) => {
+      const aValue:any = Object.values(a); // a 객체의 첫 번째 값
+      const bValue:any = Object.values(b); // b 객체의 첫 번째 값
+      return bValue - aValue; // 내림차순 정렬
+    });
+
+    result['keywords'] = patternObject;
+    result['totalCount'] = totalCount;
+    
+    return result;
   }
 
   transformAgentInfo(agentInfoArray: any[]): { [pcGuid: string]: { pcName: string, latestAgentIp: string } } {

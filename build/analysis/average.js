@@ -344,7 +344,7 @@ class Average {
         const sortedFileSizeByPc = Object.fromEntries(Object.entries(fileSizeByPc).sort(([, a], [, b]) => b - a));
         return sortedFileSizeByPc;
     }
-    analyzePatternsDBSort(detectFiles, keywords) {
+    analyzePatternsDBSort(detectFiles) {
         const patternsSummary = {};
         detectFiles.forEach((file) => {
             const { pc_guid, patterns } = file;

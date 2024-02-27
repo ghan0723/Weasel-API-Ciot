@@ -320,7 +320,7 @@ class Average {
     return sortedFileSizeByPc;
   }
 
-  analyzePatternsDBSort(detectFiles: any, keywords : any): { [pcGuid: string]: string } {
+  analyzePatternsDBSort(detectFiles: any): { [pcGuid: string]: string } {
     const patternsSummary: { [pcGuid: string]: { [keyword: string]: number } } = {};
 
     detectFiles.forEach((file:any) => {
