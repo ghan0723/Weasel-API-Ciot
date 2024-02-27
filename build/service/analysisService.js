@@ -168,11 +168,14 @@ class AnalysisService {
         const patternObject = [];
         const patterns = patternsDB[pc_guid].split(', '); // 문자열을 ', '로 분리하여 배열로 변환
         let totalCount = 0;
+        // 들어온 데이터를 객체 배열로 형성
         patterns.forEach(pattern => {
-            const [key, value] = pattern.split(':'); // 각 패턴을 ':'로 분리
-            // 키는 공백 제거 후 사용, 값은 정수로 변환하여 할당
-            patternObject.push({ [key]: parseInt(value, 10) });
-            totalCount += parseInt(value, 10);
+            if (pattern.includes(':')) {
+                const [key, value] = pattern.split(':'); // 각 패턴을 ':'로 분리
+                // 키는 공백 제거 후 사용, 값은 정수로 변환하여 할당
+                patternObject.push({ [key]: parseInt(value, 10) });
+                totalCount += parseInt(value, 10);
+            }
         });
         // 숫자가 높은 것부터 정렬
         patternObject.sort((a, b) => {
@@ -180,8 +183,15 @@ class AnalysisService {
             const bValue = Object.values(b); // b 객체의 첫 번째 값
             return bValue - aValue; // 내림차순 정렬
         });
-        result['keywords'] = patternObject;
-        result['totalCount'] = totalCount;
+        // 각 객체의 값을 천 단위 구분 기호를 포함하는 문자열로 변환
+        const formattedPatternObject = patternObject.map((obj) => {
+            const key = Object.keys(obj)[0]; // 객체의 키 추출
+            const value = Object.values(obj)[0]; // 객체의 값 추출
+            const formattedValue = value.toLocaleString(); // 값에 천 단위 구분 기호 추가
+            return { [key]: formattedValue }; // 변환된 값으로 새 객체 생성
+        });
+        result['keywords'] = formattedPatternObject;
+        result['totalCount'] = totalCount.toLocaleString();
         return result;
     }
     transformAgentInfo(agentInfoArray) {

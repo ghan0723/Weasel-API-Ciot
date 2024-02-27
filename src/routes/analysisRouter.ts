@@ -84,6 +84,7 @@ router.post("/detail", (req: Request, res: Response) => {
   const endDate = req.body.endDate + " 23:59:59";
   const pc_guid = req.body.pc_guid;
   const dateRange = analysis.formatPeriod(startDate, endDate);
+  const resultValues:any = [];
   // 정규식을 사용하여 숫자 값을 추출합니다.
   const matchResult = dateRange.match(/\d+/);
   if (matchResult) {
@@ -94,8 +95,10 @@ router.post("/detail", (req: Request, res: Response) => {
     .then((result) => {
       detail.getAnalysisLineDateByPcGuid(pc_guid, dateRange, startDate, endDate, numericValue)
       .then((result2) => {
-        res.send(result2)
-        //alsdkjfa;lksdjfoqiwl;kznlv;i;l
+        const patternResult = analysis.analyzeDetailPatterns(result,pc_guid);
+        resultValues.push(patternResult);
+        resultValues.push(result2);
+        res.send({result:resultValues})
       })
       .catch((error2) => {
         res.status(400).send("Unable to extract numeric value from dateRange Detail");
