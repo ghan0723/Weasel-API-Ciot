@@ -83,25 +83,25 @@ router.post("/detail", (req: Request, res: Response) => {
   const startDate = req.body.startDate + " 00:00:00";
   const endDate = req.body.endDate + " 23:59:59";
   const pc_guid = req.body.pc_guid;
-  // const keywords = req.body.keywords;
-  const resultValues:any = [];
   const dateRange = analysis.formatPeriod(startDate, endDate);
-  //Range가 추출되겠지?
-  //
   // 정규식을 사용하여 숫자 값을 추출합니다.
   const matchResult = dateRange.match(/\d+/);
   if (matchResult) {
     const numericValue = parseInt(matchResult[0]);
-    // let patternsResult:{ [pcGuid: string]: number } = {};
 
-    analysis.settingDateAndRange(startDate, endDate,pc_guid)
-    .then((result:any) => {
-      const returnValue = detail.getAnalysisLineDateByPcGuid(pc_guid, result, dateRange, startDate, endDate);      // pattern
-        const patternResult = analysis.analyzeDetailPatterns(result,pc_guid);        
-        resultValues.push(patternResult);        
-        res.send({result:resultValues});
+
+    analysis.settingDateAndRange(startDate, endDate, pc_guid)
+    .then((result) => {
+      detail.getAnalysisLineDateByPcGuid(pc_guid, dateRange, startDate, endDate, numericValue)
+      .then((result2) => {
+        res.send(result2)
+        //alsdkjfa;lksdjfoqiwl;kznlv;i;l
+      })
+      .catch((error2) => {
+        res.status(400).send("Unable to extract numeric value from dateRange Detail");
+      })
+        
     });
-
     
   } else {
     // 숫자 값을 추출할 수 없는 경우에 대한 처리

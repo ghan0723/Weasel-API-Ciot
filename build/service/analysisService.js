@@ -16,7 +16,6 @@ class AnalysisService {
         if (pcGuid !== undefined) {
             query = `select * from leakednetworkfiles where (${dayOption}) AND pc_guid = '${pcGuid}'`;
         }
-        console.log('query', query);
         return new Promise((resolve, reject) => {
             db_1.default.query(query, (error, result) => {
                 if (error) {
