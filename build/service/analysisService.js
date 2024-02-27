@@ -24,6 +24,24 @@ class AnalysisService {
             });
         });
     }
+    getAgentInfo(startDate, endDate) {
+        // startDate와 endDate가 주어졌는지 확인
+        if (!startDate || !endDate) {
+            throw new Error("startDate와 endDate와 ipRanges는 필수 매개변수입니다.");
+        }
+        const dayOption = `time >= '${startDate}' AND time <= '${endDate}'`;
+        const query = `SELECT * FROM agentinfo WHERE pc_guid IN (SELECT DISTINCT pc_guid FROM leakednetworkfiles WHERE (${dayOption}))`;
+        return new Promise((resolve, reject) => {
+            db_1.default.query(query, (error, result) => {
+                if (error) {
+                    reject(error);
+                }
+                else {
+                    resolve(result);
+                }
+            });
+        });
+    }
     formatPeriod(startDateStr, endDateStr) {
         // 문자열을 Date 객체로 변환
         const startDate = new Date(startDateStr);
@@ -49,7 +67,7 @@ class AnalysisService {
             return `${Math.floor(diffInDays / 365)} year${Math.floor(diffInDays / 365) > 1 ? "s" : ""}`;
         }
     }
-    scoringRiskPoint(sortedEventByPc, sortedFileSizeByPc, sortedPatternsByPc) {
+    scoringRiskPoint(sortedEventByPc, sortedFileSizeByPc, agentinfo, sortedPatternsByPc) {
         // PC별 정보를 저장할 객체 초기화
         const riskPointsByPc = {};
         // 각 PC별로 파일 유출 빈도 점수와 파일 크기 점수를 가져와서 리스크 포인트 계산
@@ -88,12 +106,20 @@ class AnalysisService {
             else if (file_size >= 0) {
                 text += ', 파일 사이즈는 기본';
             }
+            // pcName 및 latestAgentIp 가져오기
+            const { pcName, latestAgentIp } = agentinfo[pcGuid];
             // 결과 배열에 객체 추가
-            riskPointsArray.push({ pcGuid, status: sum, text, progress });
+            riskPointsArray.push({ pcGuid, pcName: `${pcName}(${latestAgentIp})}`, status: sum, text, progress });
         });
-        // status가 높은 순서대로 정렬
-        riskPointsArray.sort((a, b) => b.sum - a.sum);
-        console.log("riskPointsArray : ", riskPointsArray);
+        // status가 동일한 경우에는 이벤트 빈도수를 기준으로 내림차순으로 정렬
+        riskPointsArray.sort((a, b) => {
+            if (b.status !== a.status) {
+                return b.status - a.status; // status가 다를 때는 status로 정렬
+            }
+            else {
+                return b.event - a.event; // status가 동일할 때는 이벤트 빈도수로 정렬
+            }
+        });
         // 결과 반환
         return riskPointsArray;
     }
@@ -130,6 +156,16 @@ class AnalysisService {
             patternsResult[guid] = (keywordsScoring[guid] + patternsScoring[guid]);
         });
         return patternsResult;
+    }
+    transformAgentInfo(agentInfoArray) {
+        const transformedAgentInfo = {};
+        for (const rowData of agentInfoArray) {
+            const pcGuid = rowData.pc_guid;
+            const pcName = rowData.pc_name;
+            const latestAgentIp = rowData.latest_agent_ip;
+            transformedAgentInfo[pcGuid] = { pcName, latestAgentIp };
+        }
+        return transformedAgentInfo;
     }
 }
 exports.default = AnalysisService;

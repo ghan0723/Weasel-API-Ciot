@@ -35,29 +35,35 @@ router.post("/select", (req, res) => {
         let patternsResult = {};
         analysis.settingDateAndRange(startDate, endDate)
             .then((result) => {
-            // pattern
-            if (Object.keys(keywords).length !== 0) {
-                console.log('keywords', keywords);
-                patternsResult = analysis.analyzePatterns(result, keywords);
-            }
-            if (dateRange.includes('week')) {
-                const averageResult = average.analyzeEventsByWeek(result);
-                const averageResult2 = average.analyzeFileSizeByWeek(result);
-                const scoringPoint = analysis.scoringRiskPoint(averageResult, averageResult2, patternsResult);
-                res.send(scoringPoint);
-            }
-            else if (dateRange.includes('month')) {
-                const averageResult = average.analyzeEventsByMonth(result, numericValue);
-                const averageResult2 = average.analyzeFileSizeByMonth(result, numericValue);
-                const scoringPoint = analysis.scoringRiskPoint(averageResult, averageResult2, patternsResult);
-                res.send(scoringPoint);
-            }
-            else if (dateRange.includes('year')) {
-                const averageResult = average.analyzeEventsByYear(result, numericValue);
-                const averageResult2 = average.analyzeFileSizeByMonth(result, 12);
-                const scoringPoint = analysis.scoringRiskPoint(averageResult, averageResult2, patternsResult);
-                res.send(scoringPoint);
-            }
+            analysis.getAgentInfo(startDate, endDate)
+                .then((result2) => {
+                const agnetInfo = analysis.transformAgentInfo(result2);
+                // pattern
+                if (Object.keys(keywords).length !== 0) {
+                    patternsResult = analysis.analyzePatterns(result, keywords);
+                }
+                if (dateRange.includes('week')) {
+                    const averageResult = average.analyzeEventsByWeek(result);
+                    const averageResult2 = average.analyzeFileSizeByWeek(result);
+                    const scoringPoint = analysis.scoringRiskPoint(averageResult, averageResult2, agnetInfo, patternsResult);
+                    res.send(scoringPoint);
+                }
+                else if (dateRange.includes('month')) {
+                    const averageResult = average.analyzeEventsByMonth(result, numericValue);
+                    const averageResult2 = average.analyzeFileSizeByMonth(result, numericValue);
+                    const scoringPoint = analysis.scoringRiskPoint(averageResult, averageResult2, agnetInfo, patternsResult);
+                    res.send(scoringPoint);
+                }
+                else if (dateRange.includes('year')) {
+                    const averageResult = average.analyzeEventsByYear(result, numericValue);
+                    const averageResult2 = average.analyzeFileSizeByMonth(result, 12);
+                    const scoringPoint = analysis.scoringRiskPoint(averageResult, averageResult2, agnetInfo, patternsResult);
+                    res.send(scoringPoint);
+                }
+            })
+                .catch((error) => {
+                res.status(500).send("실패~");
+            });
         });
     }
     else {

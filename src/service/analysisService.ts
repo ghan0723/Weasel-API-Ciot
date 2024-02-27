@@ -22,6 +22,26 @@ class AnalysisService {
     });
   }
 
+  getAgentInfo(startDate: any, endDate: any): Promise<any>{
+    // startDate와 endDate가 주어졌는지 확인
+    if (!startDate || !endDate) {
+      throw new Error("startDate와 endDate와 ipRanges는 필수 매개변수입니다.");
+    }
+    const dayOption = `time >= '${startDate}' AND time <= '${endDate}'`;
+
+
+    const query = `SELECT * FROM agentinfo WHERE pc_guid IN (SELECT DISTINCT pc_guid FROM leakednetworkfiles WHERE (${dayOption}))`;
+    return new Promise((resolve, reject) => {
+      connection.query(query, (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      });
+    })
+  }
+
   formatPeriod(startDateStr: string, endDateStr: string): string {
     // 문자열을 Date 객체로 변환
     const startDate = new Date(startDateStr);
@@ -59,8 +79,10 @@ class AnalysisService {
   scoringRiskPoint(
     sortedEventByPc: { [pcGuid: string]: number },
     sortedFileSizeByPc: { [pcGuid: string]: number },
-    sortedPatternsByPc?: { [pcGuid: string]: number }
+    agentinfo: { [pcGuid: string]: { pcName: string, latestAgentIp: string } },
+    sortedPatternsByPc?: { [pcGuid: string]: number },
   ): { pcGuid: string, sum: number, text: string }[] {
+    
     // PC별 정보를 저장할 객체 초기화
     const riskPointsByPc: { [pc_guid: string]: { sum: number, event: number, file_size: number, pattern:number } } = {};
   
@@ -102,15 +124,22 @@ class AnalysisService {
       } else if (file_size >= 0){
         text += ', 파일 사이즈는 기본';
       }
-      
+            
+      // pcName 및 latestAgentIp 가져오기
+      const { pcName, latestAgentIp } = agentinfo[pcGuid];
+
       // 결과 배열에 객체 추가
-      riskPointsArray.push({ pcGuid, status: sum, text, progress });
+      riskPointsArray.push({ pcGuid, pcName:`${pcName}(${latestAgentIp})}`,  status: sum, text, progress });
     });
 
-    // status가 높은 순서대로 정렬
-    riskPointsArray.sort((a, b) => b.sum - a.sum);
-
-    console.log("riskPointsArray : ", riskPointsArray);
+    // status가 동일한 경우에는 이벤트 빈도수를 기준으로 내림차순으로 정렬
+    riskPointsArray.sort((a, b) => {
+      if (b.status !== a.status) {
+        return b.status - a.status; // status가 다를 때는 status로 정렬
+      } else {
+        return b.event - a.event; // status가 동일할 때는 이벤트 빈도수로 정렬
+      }
+    });
 
     // 결과 반환
     return riskPointsArray;
@@ -155,6 +184,18 @@ class AnalysisService {
     return patternsResult;
   }
 
-
+  transformAgentInfo(agentInfoArray: any[]): { [pcGuid: string]: { pcName: string, latestAgentIp: string } } {
+    const transformedAgentInfo: { [pcGuid: string]: { pcName: string, latestAgentIp: string } } = {};
+  
+    for (const rowData of agentInfoArray) {
+      const pcGuid: string = rowData.pc_guid;
+      const pcName: string = rowData.pc_name;
+      const latestAgentIp: string = rowData.latest_agent_ip;
+  
+      transformedAgentInfo[pcGuid] = { pcName, latestAgentIp };
+    }
+  
+    return transformedAgentInfo;
+  }
 }
 export default AnalysisService;

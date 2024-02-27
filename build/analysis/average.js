@@ -153,7 +153,6 @@ class Average {
             }
         });
         // 결과에 맞게 점수를 부여한다.(주간 일때는 건당 2점)
-        console.log("PC 별 파일 유출 빈도:");
         Object.keys(eventByPc).forEach((pcGuid, index) => {
             if (count > 0) {
                 if (eventByPc[pcGuid] >= 100 * count * 12) {

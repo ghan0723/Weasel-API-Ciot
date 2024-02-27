@@ -35,29 +35,34 @@ router.post("/select", (req: Request, res: Response) => {
 
     analysis.settingDateAndRange(startDate, endDate)
     .then((result) => {
-      // pattern
-      if(Object.keys(keywords).length !== 0) {
-        patternsResult = analysis.analyzePatterns(result,keywords);
-      }
+      analysis.getAgentInfo(startDate, endDate)
+      .then((result2) => {
+          const agnetInfo = analysis.transformAgentInfo(result2);
+          // pattern
+          if(Object.keys(keywords).length !== 0) {
+            patternsResult = analysis.analyzePatterns(result,keywords);
+          }
 
-      if(dateRange.includes('week')){
-        const averageResult = average.analyzeEventsByWeek(result);
-        const averageResult2 = average.analyzeFileSizeByWeek(result); 
-        const scoringPoint = analysis.scoringRiskPoint(averageResult, averageResult2,patternsResult);
-        res.send(scoringPoint);
-      } else if(dateRange.includes('month')){
-        const averageResult = average.analyzeEventsByMonth(result, numericValue);
-        const averageResult2 = average.analyzeFileSizeByMonth(result, numericValue);
-        const scoringPoint = analysis.scoringRiskPoint(averageResult, averageResult2,patternsResult);
-        res.send(scoringPoint);
-      } else if(dateRange.includes('year')){
-        const averageResult = average.analyzeEventsByYear(result, numericValue);
-        const averageResult2 = average.analyzeFileSizeByMonth(result, 12);
-        const scoringPoint = analysis.scoringRiskPoint(averageResult, averageResult2,patternsResult);
-        res.send(scoringPoint);
-      }
-
-
+          if(dateRange.includes('week')){
+            const averageResult = average.analyzeEventsByWeek(result);
+            const averageResult2 = average.analyzeFileSizeByWeek(result); 
+            const scoringPoint = analysis.scoringRiskPoint(averageResult, averageResult2, agnetInfo,patternsResult);
+            res.send(scoringPoint);
+          } else if(dateRange.includes('month')){
+            const averageResult = average.analyzeEventsByMonth(result, numericValue);
+            const averageResult2 = average.analyzeFileSizeByMonth(result, numericValue);
+            const scoringPoint = analysis.scoringRiskPoint(averageResult, averageResult2, agnetInfo,patternsResult);
+            res.send(scoringPoint);
+          } else if(dateRange.includes('year')){
+            const averageResult = average.analyzeEventsByYear(result, numericValue);
+            const averageResult2 = average.analyzeFileSizeByMonth(result, 12);
+            const scoringPoint = analysis.scoringRiskPoint(averageResult, averageResult2, agnetInfo,patternsResult);
+            res.send(scoringPoint);
+          }
+      })
+      .catch((error) => {
+        res.status(500).send("실패~");
+      })
     });
   } else {
     // 숫자 값을 추출할 수 없는 경우에 대한 처리
