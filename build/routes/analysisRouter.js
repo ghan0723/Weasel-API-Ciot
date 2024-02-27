@@ -95,11 +95,9 @@ router.post("/detail", (req, res) => {
         // let patternsResult:{ [pcGuid: string]: number } = {};
         analysis.settingDateAndRange(startDate, endDate, pc_guid)
             .then((result) => {
-            const returnValue = detail.getAnalysisLineDateByPcGuid(pc_guid, result, dateRange, startDate, endDate);
-            // pattern
+            const returnValue = detail.getAnalysisLineDateByPcGuid(pc_guid, result, dateRange, startDate, endDate); // pattern
             const patternResult = analysis.analyzeDetailPatterns(result, pc_guid);
             resultValues.push(patternResult);
-            console.log('patternResult', patternResult);
             res.send({ result: resultValues });
         });
     }

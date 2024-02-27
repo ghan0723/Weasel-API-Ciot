@@ -30,7 +30,6 @@ class Detail {
             }
 
         }
-        console.log("제발  : ", result);
         return result;
     }
     
