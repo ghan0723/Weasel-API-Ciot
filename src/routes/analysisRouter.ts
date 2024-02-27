@@ -74,6 +74,26 @@ router.get('/insert', (req:Request, res:Response) => {
   const detectFiles = generateDetectFiles(100);
   insertDetectFiles(detectFiles);
   res.send("샤샷");
-})
+});
+
+// detail
+router.post("/detail", (req: Request, res: Response) => {
+  const startDate = req.body.startDate + " 00:00:00";
+  const endDate = req.body.endDate + " 23:59:59";
+    
+  const dateRange = analysis.formatPeriod(startDate, endDate);
+  // 정규식을 사용하여 숫자 값을 추출합니다.
+  const matchResult = dateRange.match(/\d+/);
+  if (matchResult) {
+    const numericValue = parseInt(matchResult[0]);
+    // let patternsResult:{ [pcGuid: string]: number } = {};
+
+    analysis.settingDateAndRange(startDate, endDate)
+    .then((result:any) => {
+
+    })
+  }
+});
+
 
 export = router;
