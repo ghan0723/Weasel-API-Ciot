@@ -6,13 +6,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const db_1 = __importDefault(require("../db/db"));
 const average_1 = __importDefault(require("../analysis/average"));
 class AnalysisService {
-    settingDateAndRange(startDate, endDate) {
+    settingDateAndRange(startDate, endDate, pcGuid) {
         // startDate와 endDate가 주어졌는지 확인
         if (!startDate || !endDate) {
             throw new Error("startDate와 endDate와 ipRanges는 필수 매개변수입니다.");
         }
         const dayOption = `time >= '${startDate}' AND time <= '${endDate}'`;
-        const query = `select * from leakednetworkfiles where (${dayOption})`;
+        let query = `select * from leakednetworkfiles where (${dayOption})`;
+        if (pcGuid !== undefined) {
+            query = `select * from leakednetworkfiles where (${dayOption}) AND pc_guid = '${pcGuid}'`;
+        }
+        console.log('query', query);
         return new Promise((resolve, reject) => {
             db_1.default.query(query, (error, result) => {
                 if (error) {
@@ -141,7 +145,7 @@ class AnalysisService {
             }
         });
         // DB Sort
-        const patternsDB = average.analyzePatternsDBSort(detectFiles, keywords);
+        const patternsDB = average.analyzePatternsDBSort(detectFiles);
         // 아무 패턴도 없는 것에 대한 scoring 및 제거
         Object.keys(patternsDB).map(data => {
             if (patternsDB[data] === '') {
@@ -156,6 +160,30 @@ class AnalysisService {
             patternsResult[guid] = (keywordsScoring[guid] + patternsScoring[guid]);
         });
         return patternsResult;
+    }
+    analyzeDetailPatterns(detectFiles, pc_guid) {
+        const average = new average_1.default();
+        // DB Sort
+        const patternsDB = average.analyzePatternsDBSort(detectFiles);
+        const result = {};
+        const patternObject = [];
+        const patterns = patternsDB[pc_guid].split(', '); // 문자열을 ', '로 분리하여 배열로 변환
+        let totalCount = 0;
+        patterns.forEach(pattern => {
+            const [key, value] = pattern.split(':'); // 각 패턴을 ':'로 분리
+            // 키는 공백 제거 후 사용, 값은 정수로 변환하여 할당
+            patternObject.push({ [key]: parseInt(value, 10) });
+            totalCount += parseInt(value, 10);
+        });
+        // 숫자가 높은 것부터 정렬
+        patternObject.sort((a, b) => {
+            const aValue = Object.values(a); // a 객체의 첫 번째 값
+            const bValue = Object.values(b); // b 객체의 첫 번째 값
+            return bValue - aValue; // 내림차순 정렬
+        });
+        result['keywords'] = patternObject;
+        result['totalCount'] = totalCount;
+        return result;
     }
     transformAgentInfo(agentInfoArray) {
         const transformedAgentInfo = {};

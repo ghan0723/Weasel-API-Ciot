@@ -82,7 +82,9 @@ router.get('/insert', (req, res) => {
 router.post("/detail", (req, res) => {
     const startDate = req.body.startDate + " 00:00:00";
     const endDate = req.body.endDate + " 23:59:59";
-    const pcGuid = '2792ebee-fb0d-49f5-a32e-38e504a8c5db';
+    const pc_guid = req.body.pc_guid;
+    // const keywords = req.body.keywords;
+    const resultValues = [];
     const dateRange = analysis.formatPeriod(startDate, endDate);
     //Range가 추출되겠지?
     //
@@ -91,10 +93,19 @@ router.post("/detail", (req, res) => {
     if (matchResult) {
         const numericValue = parseInt(matchResult[0]);
         // let patternsResult:{ [pcGuid: string]: number } = {};
-        analysis.settingDateAndRange(startDate, endDate)
+        analysis.settingDateAndRange(startDate, endDate, pc_guid)
             .then((result) => {
-            const returnValue = detail.getAnalysisLineDateByPcGuid(pcGuid, result, dateRange, startDate, endDate);
+            const returnValue = detail.getAnalysisLineDateByPcGuid(pc_guid, result, dateRange, startDate, endDate);
+            // pattern
+            const patternResult = analysis.analyzeDetailPatterns(result, pc_guid);
+            resultValues.push(patternResult);
+            console.log('patternResult', patternResult);
+            res.send({ result: resultValues });
         });
+    }
+    else {
+        // 숫자 값을 추출할 수 없는 경우에 대한 처리
+        res.status(400).send("Unable to extract numeric value from dateRange Detail");
     }
 });
 module.exports = router;
