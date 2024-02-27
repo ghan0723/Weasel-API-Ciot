@@ -107,11 +107,15 @@ class AnalysisService {
       riskPointsArray.push({ pcGuid, status: sum, text, progress });
     });
 
-    // status가 높은 순서대로 정렬
-    riskPointsArray.sort((a, b) => b.sum - a.sum);
-
-    console.log("riskPointsArray : ", riskPointsArray);
-
+    // status가 동일한 경우에는 이벤트 빈도수를 기준으로 내림차순으로 정렬
+    riskPointsArray.sort((a, b) => {
+      if (b.status !== a.status) {
+        return b.status - a.status; // status가 다를 때는 status로 정렬
+      } else {
+        return b.event - a.event; // status가 동일할 때는 이벤트 빈도수로 정렬
+      }
+    });
+    
     // 결과 반환
     return riskPointsArray;
   }

@@ -37,7 +37,6 @@ router.post("/select", (req, res) => {
             .then((result) => {
             // pattern
             if (Object.keys(keywords).length !== 0) {
-                console.log('keywords', keywords);
                 patternsResult = analysis.analyzePatterns(result, keywords);
             }
             if (dateRange.includes('week')) {
@@ -69,5 +68,20 @@ router.get('/insert', (req, res) => {
     const detectFiles = (0, generateRandom_1.generateDetectFiles)(100);
     (0, generateRandom_1.insertDetectFiles)(detectFiles);
     res.send("샤샷");
+});
+// detail
+router.post("/detail", (req, res) => {
+    const startDate = req.body.startDate + " 00:00:00";
+    const endDate = req.body.endDate + " 23:59:59";
+    const dateRange = analysis.formatPeriod(startDate, endDate);
+    // 정규식을 사용하여 숫자 값을 추출합니다.
+    const matchResult = dateRange.match(/\d+/);
+    if (matchResult) {
+        const numericValue = parseInt(matchResult[0]);
+        // let patternsResult:{ [pcGuid: string]: number } = {};
+        analysis.settingDateAndRange(startDate, endDate)
+            .then((result) => {
+        });
+    }
 });
 module.exports = router;
