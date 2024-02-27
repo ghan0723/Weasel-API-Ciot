@@ -7,10 +7,12 @@ const express_1 = __importDefault(require("express"));
 const keywordService_1 = __importDefault(require("../service/keywordService"));
 const analysisService_1 = __importDefault(require("../service/analysisService"));
 const generateRandom_1 = require("../interface/generateRandom");
+const detail_1 = __importDefault(require("../analysis/detail"));
 const router = express_1.default.Router();
 const average = new average_1.default();
 const analysis = new analysisService_1.default();
 const keywordService = new keywordService_1.default();
+const detail = new detail_1.default();
 // keywordList
 router.get("/keywordList", (req, res) => {
     keywordService
@@ -80,7 +82,10 @@ router.get('/insert', (req, res) => {
 router.post("/detail", (req, res) => {
     const startDate = req.body.startDate + " 00:00:00";
     const endDate = req.body.endDate + " 23:59:59";
+    const pcGuid = '2792ebee-fb0d-49f5-a32e-38e504a8c5db';
     const dateRange = analysis.formatPeriod(startDate, endDate);
+    //Range가 추출되겠지?
+    //
     // 정규식을 사용하여 숫자 값을 추출합니다.
     const matchResult = dateRange.match(/\d+/);
     if (matchResult) {
@@ -88,6 +93,7 @@ router.post("/detail", (req, res) => {
         // let patternsResult:{ [pcGuid: string]: number } = {};
         analysis.settingDateAndRange(startDate, endDate)
             .then((result) => {
+            const returnValue = detail.getAnalysisLineDateByPcGuid(pcGuid, result, dateRange, startDate, endDate);
         });
     }
 });

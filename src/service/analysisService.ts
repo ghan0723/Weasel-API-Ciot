@@ -1,4 +1,3 @@
-import { IpRange } from "../interface/interface";
 import connection from "../db/db";
 import Average from "../analysis/average";
 
@@ -129,7 +128,7 @@ class AnalysisService {
       const { pcName, latestAgentIp } = agentinfo[pcGuid];
 
       // 결과 배열에 객체 추가
-      riskPointsArray.push({ pcGuid, pcName:`${pcName}(${latestAgentIp})}`,  status: sum, text, progress });
+      riskPointsArray.push({ pcGuid, pcName:`${pcName}(${latestAgentIp})`,  status: sum, text, progress });
     });
 
     // status가 동일한 경우에는 이벤트 빈도수를 기준으로 내림차순으로 정렬
