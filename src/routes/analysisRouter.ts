@@ -52,11 +52,6 @@ router.post("/detail", (req: Request, res: Response) => {
   const pc_guid = req.body.pc_guid;
   const dateRange = analysis.formatPeriod(startDate, endDate);
   const resultValues:any = [];
-  console.log('startDate',startDate);
-  console.log('endDate',endDate);
-  
-  console.log('dateRange',dateRange);
-  
   // 정규식을 사용하여 숫자 값을 추출합니다.
   const matchResult = dateRange.match(/\d+/);
   if (matchResult) {

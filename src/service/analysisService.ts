@@ -109,30 +109,51 @@ class AnalysisService {
     Object.keys(riskPointsByPc).forEach((pcGuid) => {
       const { sum, event, file_size, pattern } = riskPointsByPc[pcGuid];
       let text = '';
+      let level = 0;
       let progress = (sum / Math.max(...Object.values(riskPointsByPc).map(({ sum }) => sum))) * 100; // progress 계산
       
       // 특정 조건에 따라 텍스트 추가
       if (event >= 80) {
-        text += '빈도수는 위험';
-      } else if (event >= 40){
-        text += '빈도수는 중간';
-      } else if(event >= 0){
-        text += '빈도수는 기본';
+        text += '빈도수:매우 위험';
+        level = Math.max(level, 5); // 현재 레벨과 비교하여 더 높은 레벨 선택
+      } else if (event >= 60){
+        text += '빈도수:위험';
+        level = Math.max(level, 4); // 현재 레벨과 비교하여 더 높은 레벨 선택
+      } else if(event >= 40){
+        text += '빈도수:경고';
+        level = Math.max(level, 3); // 현재 레벨과 비교하여 더 높은 레벨 선택
+      } else if (event >= 20){
+        text += '빈도수:주의';
+        level = Math.max(level, 2); // 현재 레벨과 비교하여 더 높은 레벨 선택
+      } else if (event >= 0){
+        text += '빈도수:관심';
+        level = Math.max(level, 1); // 현재 레벨과 비교하여 더 높은 레벨 선택
       }
 
-      if (file_size >= 80) {
-        text += ', 파일 사이즈는 위험';
+      if (file_size >= 160) {
+        text += ', 파일 사이즈:매우 위험';
+        level = Math.max(level, 5); // 현재 레벨과 비교하여 더 높은 레벨 선택
+      } else if (file_size >= 120){
+        text += ', 파일 사이즈:위험';
+        level = Math.max(level, 4); // 현재 레벨과 비교하여 더 높은 레벨 선택
+      } else if(file_size >= 80){
+        text += ', 파일 사이즈:경고';
+        level = Math.max(level, 3); // 현재 레벨과 비교하여 더 높은 레벨 선택
       } else if (file_size >= 40){
-        text += ', 파일 사이즈는 중간';
+        text += ', 파일 사이즈:주의';
+        level = Math.max(level, 2); // 현재 레벨과 비교하여 더 높은 레벨 선택
       } else if (file_size >= 0){
-        text += ', 파일 사이즈는 기본';
+        text += ', 파일 사이즈:관심';
+        level = Math.max(level, 1); // 현재 레벨과 비교하여 더 높은 레벨 선택
       }
+
+
             
       // pcName 및 latestAgentIp 가져오기
       const { pcName, latestAgentIp } = agentinfo[pcGuid];
 
       // 결과 배열에 객체 추가
-      riskPointsArray.push({ pcGuid, pcName:`${pcName}(${latestAgentIp})`,  status: sum, text, progress });
+      riskPointsArray.push({ pcGuid, level , pcName:`${pcName}(${latestAgentIp})`,  status: sum, text, progress});
     });
 
     // status가 동일한 경우에는 이벤트 빈도수를 기준으로 내림차순으로 정렬
