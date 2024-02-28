@@ -22,7 +22,8 @@ class Detail {
             if (dateRange.includes("week")) {
                 result[pcGuid] = { date: [], data: [] };
                 result["average"] = { date: [], data: [] };
-                for (let date = new Date(startDate); date <= new Date(endDate); date = new Date(date.getTime() + 86400000)) {
+                for (let date = new Date(startDate); date <= new Date(endDate); date = new Date(date.getTime() + 86400000) // 86400000 : 하루치 ms
+                ) {
                     try {
                         const result2 = yield this.getCountForDate(date, pcGuid, false);
                         // 결과 처리
@@ -32,7 +33,7 @@ class Detail {
                         const result3 = yield this.getCountForDate(date, pcGuid, true);
                         const count2 = result3[0].count;
                         const result4 = yield this.getDistinctGuid(date, pcGuid);
-                        const averageData = (count2 / result4.length) || 0;
+                        const averageData = count2 / result4.length || 0;
                         result["average"].date.push(this.dateFormat(date).split("-")[2] + "일"); // 날짜를 date 배열에 추가
                         result["average"].data.push(parseFloat(averageData.toFixed(2))); // count를 data 배열에 추가
                     }
@@ -42,14 +43,15 @@ class Detail {
                     }
                 }
             }
-            else if ((dateRange.includes("month") && numericValue === 1) || (dateRange.includes("month") && numericValue === 3)) {
+            else if ((dateRange.includes("month") && numericValue === 1) ||
+                (dateRange.includes("month") && numericValue === 3)) {
                 result[pcGuid] = { date: [], data: [] };
                 result["average"] = { date: [], data: [] };
                 const endDateObj = new Date(endDate);
                 let currentDate = new Date(startDate);
                 while (currentDate <= endDateObj) {
                     let currentDatePlus3 = new Date(currentDate);
-                    currentDatePlus3.setDate(currentDatePlus3.getDate() + (3 * numericValue));
+                    currentDatePlus3.setDate(currentDatePlus3.getDate() + 3 * numericValue);
                     try {
                         const result2 = yield this.getCountForMonth(currentDate, currentDatePlus3, pcGuid, false);
                         const count = result2[0].count;
@@ -58,18 +60,20 @@ class Detail {
                         const result3 = yield this.getCountForMonth(currentDate, currentDatePlus3, pcGuid, true);
                         const count2 = result3[0].count;
                         const result4 = yield this.getDistinctGuidByMonth(currentDate, currentDatePlus3, pcGuid);
-                        const averageData = (count2 / result4.length) || 0;
-                        result["average"].date.push(this.dateFormat(currentDate).split("-")[1] + "/" + this.dateFormat(currentDate).split("-")[2]);
+                        const averageData = count2 / result4.length || 0;
+                        result["average"].date.push(this.dateFormat(currentDate).split("-")[1] +
+                            "/" +
+                            this.dateFormat(currentDate).split("-")[2]);
                         result["average"].data.push(parseFloat(averageData.toFixed(2)));
                     }
                     catch (error) {
                         console.error(error);
                     }
                     // 현재 날짜에 3일을 더함
-                    currentDate.setDate(currentDate.getDate() + (3 * numericValue));
+                    currentDate.setDate(currentDate.getDate() + 3 * numericValue);
                 }
             }
-            else if ((dateRange.includes('year'))) {
+            else if (dateRange.includes("year")) {
                 result[pcGuid] = { date: [], data: [] };
                 result["average"] = { date: [], data: [] };
                 const endDateObj = new Date(endDate);
@@ -85,7 +89,7 @@ class Detail {
                         const result3 = yield this.getCountForMonth(currentDate, currentDatePlus, pcGuid, true);
                         const count2 = result3[0].count;
                         const result4 = yield this.getDistinctGuidByMonth(currentDate, currentDatePlus, pcGuid);
-                        const averageData = (count2 / result4.length) || 0;
+                        const averageData = count2 / result4.length || 0;
                         result["average"].date.push(this.dateFormat(currentDatePlus).split("-")[1] + "월");
                         result["average"].data.push(parseFloat(averageData.toFixed(2)));
                     }
@@ -96,7 +100,7 @@ class Detail {
                     currentDate.setMonth(currentDate.getMonth() + 1);
                 }
             }
-            else if ((dateRange.includes('month') && numericValue === 6)) {
+            else if (dateRange.includes("month") && numericValue === 6) {
                 result[pcGuid] = { date: [], data: [] };
                 result["average"] = { date: [], data: [] };
                 const endDateObj = new Date(endDate);
@@ -112,8 +116,10 @@ class Detail {
                         const result3 = yield this.getCountForMonth(currentDate, currentDatePlus3, pcGuid, true);
                         const count2 = result3[0].count;
                         const result4 = yield this.getDistinctGuidByMonth(currentDate, currentDatePlus3, pcGuid);
-                        const averageData = (count2 / result4.length) || 0;
-                        result["average"].date.push(this.dateFormat(currentDate).split("-")[1] + "/" + this.dateFormat(currentDate).split("-")[2]);
+                        const averageData = count2 / result4.length || 0;
+                        result["average"].date.push(this.dateFormat(currentDate).split("-")[1] +
+                            "/" +
+                            this.dateFormat(currentDate).split("-")[2]);
                         result["average"].data.push(parseFloat(averageData.toFixed(2)));
                     }
                     catch (error) {
@@ -206,6 +212,22 @@ class Detail {
                     resolve(result);
                 }
             });
+        });
+    }
+    //여기서부터는 파일 사이즈 관련된 코드
+    getCountFileSizeByWeek(pcGuid, dateRange, startDate, endDate, numericValue) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // 최종 결과를 저장할 객체
+            let result = {};
+            // dateRange가 'week'인 경우
+            if (dateRange.includes("week")) {
+                //객체를 저장할 방식 작성
+                result[pcGuid] = { date: [], data: [] };
+                result["average"] = { date: [], data: [] };
+                //for문으로 지정한 날짜만큼 반복해서 만들어야징
+                for (let date = new Date(startDate); date <= new Date(endDate); date = new Date(date.getTime() + 86400000)) {
+                }
+            }
         });
     }
 }

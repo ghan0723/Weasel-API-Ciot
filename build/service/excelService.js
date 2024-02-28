@@ -95,7 +95,6 @@ class ExcelService {
             });
             fileData.forEach((item) => {
                 const rowData = Object.values(item);
-                console.log("rowData : ", rowData);
                 const appendRow = sheet.addRow(rowData);
                 appendRow.eachCell((cell, colNum) => {
                     var _a, _b, _c;

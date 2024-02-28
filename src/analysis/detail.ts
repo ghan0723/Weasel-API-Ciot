@@ -19,7 +19,7 @@ class Detail {
       for (
         let date = new Date(startDate);
         date <= new Date(endDate);
-        date = new Date(date.getTime() + 86400000)
+        date = new Date(date.getTime() + 86400000) // 86400000 : 하루치 ms
       ) {
         try {
           const result2 = await this.getCountForDate(date, pcGuid, false);

@@ -16,7 +16,6 @@ class ExcelService {
 
     fileData.forEach((item) => {
         const rowData: any[] = Object.values(item);
-        console.log("rowData : ", rowData);
         const appendRow = sheet.addRow(rowData);
         appendRow.eachCell((cell, colNum) => {
           this.styleDataCell(cell);

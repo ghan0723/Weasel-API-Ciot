@@ -21,6 +21,7 @@ const express_1 = __importDefault(require("express"));
 const ipCalcService_1 = __importDefault(require("../service/ipCalcService"));
 const excelService_1 = __importDefault(require("../service/excelService"));
 const leakedService_1 = __importDefault(require("../service/leakedService"));
+const analysisService_1 = __importDefault(require("../service/analysisService"));
 const router = express_1.default.Router();
 const networkService = new networkService_1.default(db_1.default);
 const mediaService = new mediaService_1.default();
@@ -30,6 +31,7 @@ const leakedService = new leakedService_1.default();
 const userService = new userService_1.default();
 const ipCalcService = new ipCalcService_1.default();
 const excelService = new excelService_1.default();
+const analysis = new analysisService_1.default();
 router.get("/dwn", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const contents = req.query.contents;
@@ -71,6 +73,32 @@ router.get("/dwn", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         const excelBuffer = yield excelService.getExcelFile(results[0], `${contents}`);
         res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         res.setHeader("Content-Disposition", `attachment; filename=${contents}.xlsx`);
+        res.send(excelBuffer);
+    }
+    catch (error) {
+        console.error("Error:", error);
+        res.status(500).send("Server error");
+    }
+}));
+router.post("/analytics", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const startDate = req.body.startDate + " 00:00:00";
+        const endDate = req.body.endDate + " 23:59:59";
+        const keywords = req.body.keywords;
+        console.log('들어옴?');
+        const results = yield analysis.riskScoring(startDate, endDate, keywords);
+        for (let i = 0; i < results.length; i++) {
+            delete results[i].pcGuid;
+            delete results[i].progress;
+        }
+        if (!results) {
+            console.error("No data found");
+            res.status(404).send("No data found");
+            return;
+        }
+        const excelBuffer = yield excelService.getExcelFile(results, 'analytics');
+        res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        res.setHeader("Content-Disposition", `attachment; filename=analytics.xlsx`);
         res.send(excelBuffer);
     }
     catch (error) {
