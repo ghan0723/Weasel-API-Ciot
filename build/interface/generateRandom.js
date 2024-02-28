@@ -7,7 +7,7 @@ exports.insertDetectFiles = exports.generateDetectFiles = void 0;
 const db_1 = __importDefault(require("../db/db"));
 function generateDetectFiles(numFiles) {
     const detectFiles = [];
-    const pcGuids = ['PC1', 'PC2', 'PC3', 'PC4', 'PC5'];
+    const pcGuids = ['PC11', 'PC22', 'PC33', 'PC44', 'PC55', 'PC17', 'PC27', 'PC37', 'PC47', 'PC57'];
     const procNames = ['Process1', 'Process2', 'Process3', 'Process4', 'Process5'];
     const orgFiles = ['file1.txt', 'file2.txt', 'file3.txt', 'file4.txt', 'file5.txt'];
     const patterns = ['주민번호', '핸드폰번호', '입사지원서', ''];
@@ -26,7 +26,7 @@ function generateDetectFiles(numFiles) {
                 patternsValue = '';
             }
             else {
-                patternsValue = patternName + ':' + Math.floor(Math.random() * 999 + 1).toString();
+                patternsValue = patternName + ':' + Math.floor(Math.random() * 99 + 1).toString();
             }
         }
         const file = {
