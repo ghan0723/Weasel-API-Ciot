@@ -26,7 +26,7 @@ interface DetectFile {
 
 export function generateDetectFiles(numFiles: number): DetectFile[] {
     const detectFiles: DetectFile[] = [];
-    const pcGuids: string[] = ['PC1', 'PC2', 'PC3', 'PC4', 'PC5'];
+    const pcGuids: string[] = ['PC11', 'PC22', 'PC33', 'PC44', 'PC55','PC17', 'PC27', 'PC37', 'PC47', 'PC57'];
     const procNames: string[] = ['Process1', 'Process2', 'Process3', 'Process4', 'Process5'];
     const orgFiles: string[] = ['file1.txt', 'file2.txt', 'file3.txt', 'file4.txt', 'file5.txt'];
     const patterns: string[] = ['주민번호', '핸드폰번호', '입사지원서',''];
@@ -44,7 +44,7 @@ export function generateDetectFiles(numFiles: number): DetectFile[] {
             if(pcguidName === 'PC4' || pcguidName === 'PC5') {
                 patternsValue =  '';
             } else {
-                patternsValue =  patternName + ':' + Math.floor(Math.random() * 999 + 1).toString();
+                patternsValue =  patternName + ':' + Math.floor(Math.random() * 99 + 1).toString();
             }
         }
 
