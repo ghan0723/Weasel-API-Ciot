@@ -96,7 +96,33 @@ class Detail {
                     currentDate.setMonth(currentDate.getMonth() + 1);
                 }
             }
-            console.log("제발  : ", result);
+            else if ((dateRange.includes('month') && numericValue === 6)) {
+                result[pcGuid] = { date: [], data: [] };
+                result["average"] = { date: [], data: [] };
+                const endDateObj = new Date(endDate);
+                let currentDate = new Date(startDate);
+                while (currentDate <= endDateObj) {
+                    let currentDatePlus3 = new Date(currentDate);
+                    currentDatePlus3.setDate(currentDatePlus3.getDate() + 14);
+                    try {
+                        const result2 = yield this.getCountForMonth(currentDate, currentDatePlus3, pcGuid, false);
+                        const count = result2[0].count;
+                        result[pcGuid].date.push(this.dateFormat(currentDate));
+                        result[pcGuid].data.push(count);
+                        const result3 = yield this.getCountForMonth(currentDate, currentDatePlus3, pcGuid, true);
+                        const count2 = result3[0].count;
+                        const result4 = yield this.getDistinctGuidByMonth(currentDate, currentDatePlus3, pcGuid);
+                        const averageData = (count2 / result4.length) || 0;
+                        result["average"].date.push(this.dateFormat(currentDate).split("-")[1] + "/" + this.dateFormat(currentDate).split("-")[2]);
+                        result["average"].data.push(parseFloat(averageData.toFixed(2)));
+                    }
+                    catch (error) {
+                        console.error(error);
+                    }
+                    // 현재 날짜에 3일을 더함
+                    currentDate.setDate(currentDate.getDate() + 14);
+                }
+            }
             return result;
         });
     }
