@@ -93,10 +93,18 @@ router.post("/detail", (req, res) => {
             .then((result) => {
             detail.getAnalysisLineDateByPcGuid(pc_guid, dateRange, startDate, endDate, numericValue)
                 .then((result2) => {
-                const patternResult = analysis.analyzeDetailPatterns(result, pc_guid);
-                resultValues.push(patternResult);
-                resultValues.push(result2);
-                res.send({ result: resultValues });
+                detail.getCountFileSize(pc_guid, dateRange, startDate, endDate, numericValue)
+                    .then((result3) => {
+                    const patternResult = analysis.analyzeDetailPatterns(result, pc_guid);
+                    resultValues.push(patternResult);
+                    resultValues.push(result2);
+                    resultValues.push(result3);
+                    resultValues.push({ startDate, endDate });
+                    res.send({ result: resultValues });
+                })
+                    .catch((error3) => {
+                    res.status(400).send("Detail file size fail");
+                });
             })
                 .catch((error2) => {
                 res.status(400).send("Unable to extract numeric value from dateRange Detail");

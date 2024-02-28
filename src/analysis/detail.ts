@@ -94,40 +94,39 @@ class Detail {
       const endDateObj = new Date(endDate);
       let currentDate = new Date(startDate);
       while (currentDate <= endDateObj) {
-        let currentDatePlus = new Date(currentDate);
-        currentDatePlus.setMonth(currentDatePlus.getMonth() + 1);
+        let currentDateMinus = new Date(currentDate);
+        currentDateMinus.setMonth(currentDateMinus.getMonth() - 1);
         try {
           const result2 = await this.getCountForMonth(
+            currentDateMinus,
             currentDate,
-            currentDatePlus,
             pcGuid,
             false
           );
           const count = result2[0].count;
-          result[pcGuid].date.push(this.dateFormat(currentDatePlus));
+          result[pcGuid].date.push(this.dateFormat(currentDate));
           result[pcGuid].data.push(count);
           const result3 = await this.getCountForMonth(
+            currentDateMinus,
             currentDate,
-            currentDatePlus,
             pcGuid,
             true
           );
           const count2 = result3[0].count;
           const result4 = await this.getDistinctGuidByMonth(
+            currentDateMinus,
             currentDate,
-            currentDatePlus,
             pcGuid
           );
           const averageData = count2 / result4.length || 0;
           result["average"].date.push(
-            this.dateFormat(currentDatePlus).split("-")[1] + "월"
+            this.dateFormat(currentDate).split("-")[1] + "월"
           );
           result["average"].data.push(parseFloat(averageData.toFixed(2)));
         } catch (error) {
           console.error(error);
         }
 
-        // 현재 날짜에 3일을 더함
         currentDate.setMonth(currentDate.getMonth() + 1);
       }
     } else if (dateRange.includes("month") && numericValue === 6) {
@@ -175,6 +174,7 @@ class Detail {
         currentDate.setDate(currentDate.getDate() + 14);
       }
     }
+    console.log("라인 확인용 : ", result);
     return result;
   }
 
@@ -266,19 +266,219 @@ class Detail {
   }
 
   //여기서부터는 파일 사이즈 관련된 코드
-  async getCountFileSizeByWeek(pcGuid: any, dateRange: any, startDate: any, endDate: any, numericValue: any) {
+  async getCountFileSize(pcGuid: any, dateRange: any, startDate: any, endDate: any, numericValue: any) {
     // 최종 결과를 저장할 객체
     let result: any = {};
+    // 압축 파일 확장자
+    const validExtensions = ['.zip', '.zipx', '.gz', '.z', '.egg', '.7z', '.ar', '.lz', '.lz4', '.ace', '.alz', '.lzh', '.lha', '.rar', '.bz2'];
     // dateRange가 'week'인 경우
     if (dateRange.includes("week")) {
-      //객체를 저장할 방식 작성
-      result[pcGuid] = { date: [], data: [] };
-      result["average"] = { date: [], data: [] };
-      //for문으로 지정한 날짜만큼 반복해서 만들어야징
-      for(let date = new Date(startDate); date <= new Date(endDate); date = new Date(date.getTime() + 86400000)){
-        
+        // 배열 초기화
+        let dates = [];
+        let org_file_sizes = [];
+        let comp_file_sizes = [];
+        // for문으로 지정한 날짜만큼 반복해서 만들어야함
+        for(let date = new Date(startDate); date <= new Date(endDate); date = new Date(date.getTime() + 86400000)){
+            try {
+                const result2 = await this.getFileSizeForGuid(date, date, pcGuid);
+                // 해당 날짜의 결과를 저장할 객체
+                let dailyResult: any = { date: this.dateFormat(date).split("-")[2]+"일", org_file_size: 0, comp_file_size: 0 };
+                // 가져온 파일들을 하나하나 보고 만들어야함
+                result2.forEach((file:any) => {
+                    const { file_size, org_file } = file;
+                    // 파일 경로를 기준으로 마지막 점을 찾는다.
+                    const lastDotIndex = org_file.lastIndexOf(".");
+                    // 파일 경로에서 확장자를 추출
+                    const extension = org_file.substring(lastDotIndex + 1).toLowerCase(); // 확장자를 소문자로 변환하여 비교
+                    // 문자열을 숫자로 변환하여 파일 크기를 더함
+                    const fileSize = parseInt(file_size, 10);
+                    // 압축 파일인지 판별함
+                    if(validExtensions.includes("." + extension)){
+                        // 압축 파일의 사이즈를 더한다.
+                        dailyResult.comp_file_size += fileSize;
+                    } else {
+                        // 일반 파일 사이즈를 더한다.
+                        dailyResult.org_file_size += fileSize;
+                    }
+                });
+                // 최종 결과에 해당 날짜의 결과를 추가
+                dates.push(dailyResult.date);
+                org_file_sizes.push(dailyResult.org_file_size);
+                comp_file_sizes.push(dailyResult.comp_file_size);
+            } catch (error) {
+                console.error(error);
+            }
+        }
+        // 최종 결과를 구성
+        result[pcGuid] = {
+            date: dates,
+            org_file_size: org_file_sizes,
+            comp_file_size: comp_file_sizes
+        };
+    } else if ((dateRange.includes("month") && numericValue === 1) || (dateRange.includes("month") && numericValue === 3)){
+              // 배열 초기화
+              let dates = [];
+              let org_file_sizes = [];
+              let comp_file_sizes = [];
+              // while문으로 지정한 날짜만큼 반복
+              const endDateObj = new Date(endDate);
+              let currentDate = new Date(startDate);
+              while (currentDate <= endDateObj) {
+                let currentDatePlus3 = new Date(currentDate);
+                currentDatePlus3.setDate(currentDatePlus3.getDate() + 3 * numericValue);
+                  try {
+                      const result2 = await this.getFileSizeForGuid(currentDate, currentDatePlus3, pcGuid);
+                      // 해당 날짜의 결과를 저장할 객체
+                      let dailyResult: any = { date: this.dateFormat(currentDate).split("-")[1] + "/" + this.dateFormat(currentDate).split("-")[2], org_file_size: 0, comp_file_size: 0 };
+                      // 가져온 파일들을 하나하나 보고 만들어야함
+                      result2.forEach((file:any) => {
+                          const { file_size, org_file } = file;
+                          // 파일 경로를 기준으로 마지막 점을 찾는다.
+                          const lastDotIndex = org_file.lastIndexOf(".");
+                          // 파일 경로에서 확장자를 추출
+                          const extension = org_file.substring(lastDotIndex + 1).toLowerCase(); // 확장자를 소문자로 변환하여 비교
+                          // 문자열을 숫자로 변환하여 파일 크기를 더함
+                          const fileSize = parseInt(file_size, 10);
+                          // 압축 파일인지 판별함
+                          if(validExtensions.includes("." + extension)){
+                              // 압축 파일의 사이즈를 더한다.
+                              dailyResult.comp_file_size += fileSize;
+                          } else {
+                              // 일반 파일 사이즈를 더한다.
+                              dailyResult.org_file_size += fileSize;
+                          }
+                      });
+                      // 최종 결과에 해당 날짜의 결과를 추가
+                      dates.push(dailyResult.date);
+                      org_file_sizes.push(dailyResult.org_file_size);
+                      comp_file_sizes.push(dailyResult.comp_file_size);
+                  } catch (error) {
+                      console.error(error);
+                  }
+                  currentDate.setDate(currentDate.getDate() + 3 * numericValue);
+              }
+              // 최종 결과를 구성
+              result[pcGuid] = {
+                  date: dates,
+                  org_file_size: org_file_sizes,
+                  comp_file_size: comp_file_sizes
+              };
+    } else if (dateRange.includes("month") && numericValue === 6){
+      // 배열 초기화
+      let dates = [];
+      let org_file_sizes = [];
+      let comp_file_sizes = [];
+      // while문으로 지정한 날짜만큼 반복
+      const endDateObj = new Date(endDate);
+      let currentDate = new Date(startDate);
+      while (currentDate <= endDateObj) {
+        let currentDatePlus3 = new Date(currentDate);
+        currentDatePlus3.setDate(currentDatePlus3.getDate() + 14);
+          try {
+              const result2 = await this.getFileSizeForGuid(currentDate, currentDatePlus3, pcGuid);
+              // 해당 날짜의 결과를 저장할 객체
+              let dailyResult: any = { date: this.dateFormat(currentDate).split("-")[1] + "/" + this.dateFormat(currentDate).split("-")[2], org_file_size: 0, comp_file_size: 0 };
+              // 가져온 파일들을 하나하나 보고 만들어야함
+              result2.forEach((file:any) => {
+                  const { file_size, org_file } = file;
+                  // 파일 경로를 기준으로 마지막 점을 찾는다.
+                  const lastDotIndex = org_file.lastIndexOf(".");
+                  // 파일 경로에서 확장자를 추출
+                  const extension = org_file.substring(lastDotIndex + 1).toLowerCase(); // 확장자를 소문자로 변환하여 비교
+                  // 문자열을 숫자로 변환하여 파일 크기를 더함
+                  const fileSize = parseInt(file_size, 10);
+                  // 압축 파일인지 판별함
+                  if(validExtensions.includes("." + extension)){
+                      // 압축 파일의 사이즈를 더한다.
+                      dailyResult.comp_file_size += fileSize;
+                  } else {
+                      // 일반 파일 사이즈를 더한다.
+                      dailyResult.org_file_size += fileSize;
+                  }
+              });
+              // 최종 결과에 해당 날짜의 결과를 추가
+              dates.push(dailyResult.date);
+              org_file_sizes.push(dailyResult.org_file_size);
+              comp_file_sizes.push(dailyResult.comp_file_size);
+          } catch (error) {
+              console.error(error);
+          }
+          currentDate.setDate(currentDate.getDate() + 14);
       }
-    }
+      // 최종 결과를 구성
+      result[pcGuid] = {
+          date: dates,
+          org_file_size: org_file_sizes,
+          comp_file_size: comp_file_sizes
+      };
+} else if (dateRange.includes("year")){
+  // 배열 초기화
+  let dates = [];
+  let org_file_sizes = [];
+  let comp_file_sizes = [];
+  // while문으로 지정한 날짜만큼 반복
+  const endDateObj = new Date(endDate);
+  let currentDate = new Date(startDate);
+  while (currentDate <= endDateObj) {
+    let currentDateMinus = new Date(currentDate);
+    currentDateMinus.setMonth(currentDateMinus.getMonth() - 1);
+      try {
+          const result2 = await this.getFileSizeForGuid(currentDateMinus, currentDate, pcGuid);
+          // 해당 날짜의 결과를 저장할 객체
+          let dailyResult: any = { date: this.dateFormat(currentDate).split("-")[1] + "월", org_file_size: 0, comp_file_size: 0 };
+          // 가져온 파일들을 하나하나 보고 만들어야함
+          result2.forEach((file:any) => {
+              const { file_size, org_file } = file;
+              // 파일 경로를 기준으로 마지막 점을 찾는다.
+              const lastDotIndex = org_file.lastIndexOf(".");
+              // 파일 경로에서 확장자를 추출
+              const extension = org_file.substring(lastDotIndex + 1).toLowerCase(); // 확장자를 소문자로 변환하여 비교
+              // 문자열을 숫자로 변환하여 파일 크기를 더함
+              const fileSize = parseInt(file_size, 10);
+              // 압축 파일인지 판별함
+              if(validExtensions.includes("." + extension)){
+                  // 압축 파일의 사이즈를 더한다.
+                  dailyResult.comp_file_size += fileSize;
+              } else {
+                  // 일반 파일 사이즈를 더한다.
+                  dailyResult.org_file_size += fileSize;
+              }
+          });
+          // 최종 결과에 해당 날짜의 결과를 추가
+          dates.push(dailyResult.date);
+          org_file_sizes.push(dailyResult.org_file_size);
+          comp_file_sizes.push(dailyResult.comp_file_size);
+      } catch (error) {
+          console.error(error);
+      }
+      currentDate.setMonth(currentDate.getMonth() + 1);
+  }
+  // 최종 결과를 구성
+  result[pcGuid] = {
+      date: dates,
+      org_file_size: org_file_sizes,
+      comp_file_size: comp_file_sizes
+  };
+}
+    console.log("파일 사이즈 제발.. : ", result);
+    return result;
+}
+
+
+  getFileSizeForGuid(date1:any, date2:any, pcGuid:any):Promise<any>{
+    const day1 = this.dateFormat(date1) + " 00:00:00";
+    const day2 = this.dateFormat(date2) + " 23:59:59";
+    const dayOption = `time >= '${day1}' AND time <= '${day2}'`;
+    let query = `select file_size, org_file from leakednetworkfiles where pc_guid = '${pcGuid}' And (${dayOption})`;
+    return new Promise((resolve, reject) => {
+      connection.query(query, (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      });
+    })
   }
 }
 export default Detail;
