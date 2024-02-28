@@ -22,7 +22,8 @@ class Detail {
             if (dateRange.includes("week")) {
                 result[pcGuid] = { date: [], data: [] };
                 result["average"] = { date: [], data: [] };
-                for (let date = new Date(startDate); date <= new Date(endDate); date = new Date(date.getTime() + 86400000)) {
+                for (let date = new Date(startDate); date <= new Date(endDate); date = new Date(date.getTime() + 86400000) // 86400000 : 하루치 ms
+                ) {
                     try {
                         const result2 = yield this.getCountForDate(date, pcGuid, false);
                         // 결과 처리

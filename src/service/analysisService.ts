@@ -84,7 +84,7 @@ class AnalysisService {
     sortedFileSizeByPc: { [pcGuid: string]: number },
     agentinfo: { [pcGuid: string]: { pcName: string, latestAgentIp: string } },
     sortedPatternsByPc?: { [pcGuid: string]: number },
-  ): { pcGuid: string, sum: number, text: string }[] {
+  ) {
     
     // PC별 정보를 저장할 객체 초기화
     const riskPointsByPc: { [pc_guid: string]: { sum: number, event: number, file_size: number, pattern:number } } = {};
@@ -241,5 +241,63 @@ class AnalysisService {
   
     return transformedAgentInfo;
   }
+
+  riskScoring(startDate:any, endDate:any, keywords:any):Promise<any> {
+    let scoringPoint:any;
+    const dateRange = this.formatPeriod(startDate, endDate);
+    const average:Average = new Average();
+
+    // 정규식을 사용하여 숫자 값을 추출합니다.
+    const matchResult = dateRange.match(/\d+/);
+
+    return new Promise((resolve, reject) => {
+      if (matchResult) {
+        const numericValue = parseInt(matchResult[0]);
+        let patternsResult:{ [pcGuid: string]: number } = {};
+    
+        this.settingDateAndRange(startDate, endDate)
+        .then((result) => {
+          this.getAgentInfo(startDate, endDate)
+          .then((result2) => {
+              const agnetInfo = this.transformAgentInfo(result2);
+              // pattern
+              if(Object.keys(keywords).length !== 0) {
+                patternsResult = this.analyzePatterns(result,keywords);
+              }
+    
+              if(dateRange.includes('week')){
+                const averageResult = average.analyzeEventsByWeek(result);
+                const averageResult2 = average.analyzeFileSizeByWeek(result); 
+                scoringPoint = this.scoringRiskPoint(averageResult, averageResult2, agnetInfo,patternsResult);
+              } else if(dateRange.includes('month')){
+                const averageResult = average.analyzeEventsByMonth(result, numericValue);
+                const averageResult2 = average.analyzeFileSizeByMonth(result, numericValue);
+                scoringPoint = this.scoringRiskPoint(averageResult, averageResult2, agnetInfo,patternsResult);
+              } else if(dateRange.includes('year')){
+                const averageResult = average.analyzeEventsByYear(result, numericValue);
+                const averageResult2 = average.analyzeFileSizeByMonth(result, 12);
+                scoringPoint = this.scoringRiskPoint(averageResult, averageResult2, agnetInfo,patternsResult);
+              }
+  
+              resolve(scoringPoint);
+          })
+          .catch((error) => {
+            reject({
+              status : 400,
+              error : error
+                  });
+          })
+        });
+      } else {
+        // 숫자 값을 추출할 수 없는 경우에 대한 처리
+        reject({
+          status : 500,
+          error : "Unable to extract numeric value from dateRange"
+        });
+      }
+    });
+  }
+
+
 }
 export default AnalysisService;

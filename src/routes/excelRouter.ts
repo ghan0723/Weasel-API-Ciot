@@ -9,6 +9,7 @@ import express, { Request, Response, Router } from "express";
 import IpCalcService from "../service/ipCalcService";
 import ExcelService from "../service/excelService";
 import LeakedService from "../service/leakedService";
+import AnalysisService from "../service/analysisService";
 
 const router: Router = express.Router();
 const networkService: NetworkService = new NetworkService(connection);
@@ -19,6 +20,7 @@ const leakedService:LeakedService = new LeakedService();
 const userService: UserService = new UserService();
 const ipCalcService = new IpCalcService();
 const excelService: ExcelService = new ExcelService();
+const analysis:AnalysisService = new AnalysisService();
 
 router.get("/dwn", async (req: Request, res: Response) => {
     try {
@@ -65,4 +67,37 @@ router.get("/dwn", async (req: Request, res: Response) => {
       res.status(500).send("Server error");
     }
   });
+
+  router.post("/analytics", async (req: Request, res: Response) => {
+    try {
+      const startDate = req.body.startDate + " 00:00:00";
+      const endDate = req.body.endDate + " 23:59:59";
+      const keywords = req.body.keywords;
+
+      console.log('들어옴?');
+      
+
+      
+      const results = await analysis.riskScoring(startDate,endDate,keywords);
+      for(let i=0; i < results.length; i++) {
+        delete results[i].pcGuid;
+        delete results[i].progress;
+      }
+  
+      if (!results) {
+        console.error("No data found");
+        res.status(404).send("No data found");
+        return;
+      }
+      const excelBuffer = await excelService.getExcelFile(results, 'analytics');
+      res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+      res.setHeader("Content-Disposition", `attachment; filename=analytics.xlsx`);
+      res.send(excelBuffer);
+
+    } catch (error) {
+      console.error("Error:", error);
+      res.status(500).send("Server error");
+    }
+  });
+  
 export = router;
