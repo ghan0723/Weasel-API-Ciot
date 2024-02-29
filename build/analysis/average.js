@@ -379,9 +379,15 @@ class Average {
         // 패턴당 점수 계산
         let patternScore = Math.min(patternCount, maxPatternCount) / 10 * baseScorePerPattern;
         // 위험도에 따른 가중치 적용
-        patternScore *= (1 + riskLevel / 10);
+        patternScore *= (riskLevel / 10);
+        patternScore *= 2;
         // 최대 점수 제한
-        patternScore = Math.min(patternScore, maxScore);
+        if (riskLevel === 0) {
+            patternScore = 0;
+        }
+        else {
+            patternScore = Math.min(patternScore, maxScore);
+        }
         return Math.round(patternScore);
     }
     analyzeKeywordsListScoring(patternsDB, keywordList) {
@@ -400,9 +406,16 @@ class Average {
                     score = ((_a = keywordList[keyword]) === null || _a === void 0 ? void 0 : _a.level) * 10;
                 }
             });
+            if (keywordsResult[pcGuid] === undefined || keywordsResult[pcGuid] === null) {
+                keywordsResult[pcGuid] = {
+                    score: 0,
+                    patternLevel: 0
+                };
+            }
             // 최종 계산된 점수를 keywordsResult 객체에 저장합니다.      
-            if (keywordsResult[pcGuid] < score || keywordsResult[pcGuid] === undefined || keywordsResult[pcGuid] === null) {
-                keywordsResult[pcGuid] = score;
+            if (keywordsResult[pcGuid].score < score) {
+                keywordsResult[pcGuid].score = score;
+                keywordsResult[pcGuid].patternLevel = this.analyzePatternsLevel(score, true);
             }
         });
         return keywordsResult;
@@ -427,12 +440,44 @@ class Average {
                     score = this.calculatePatternScore(count, +((_a = keywordList[keyword]) === null || _a === void 0 ? void 0 : _a.level));
                 }
             });
+            if (keywordsResult[pcGuid] === undefined || keywordsResult[pcGuid] === null) {
+                keywordsResult[pcGuid] = {
+                    score: 0,
+                    patternLevel: 0
+                };
+            }
             // 최종 계산된 점수를 keywordsResult 객체에 저장합니다.      
-            if (keywordsResult[pcGuid] < score || keywordsResult[pcGuid] === undefined || keywordsResult[pcGuid] === null) {
-                keywordsResult[pcGuid] = score;
+            if (keywordsResult[pcGuid].score < score) {
+                keywordsResult[pcGuid].score = score;
+                keywordsResult[pcGuid].patternLevel = this.analyzePatternsLevel(score, false);
             }
         });
         return keywordsResult;
+    }
+    analyzePatternsLevel(score, keywordFlag) {
+        // keywordFlag : 키워드(true), 건수(false)
+        let w = 1;
+        let level = 0;
+        if (keywordFlag === false) {
+            w = 2;
+        }
+        ;
+        if (score >= 0 && score <= (20 * w)) {
+            level = 1;
+        }
+        else if (score > (20 * w) && score <= (40 * w)) {
+            level = 2;
+        }
+        else if (score > (40 * w) && score <= (60 * w)) {
+            level = 3;
+        }
+        else if (score > (60 * w) && score <= (80 * w)) {
+            level = 4;
+        }
+        else if (score > (80 * w) && score <= (100 * w)) {
+            level = 5;
+        }
+        return level;
     }
 }
 exports.default = Average;

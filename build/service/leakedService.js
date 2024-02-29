@@ -14,7 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const db_1 = __importDefault(require("../db/db"));
 class LeakedService {
-    getApiData(page, pageSize, sorting, desc, category, search, ipRanges) {
+    getApiData(page, pageSize, sorting, desc, category, search, ipRanges, excelCheck) {
         let queryPage = 0;
         let queryPageSize = 0;
         let querySorting = sorting === "" ? "time" : sorting;
@@ -65,6 +65,16 @@ class LeakedService {
                             innerReject(error);
                         }
                         else {
+                            if (excelCheck) {
+                                for (let i = 0; i < result.length; i++) {
+                                    result[i]['업데이트 시각'] = result[i]['time'];
+                                    delete result[i].time;
+                                    result[i]['PC명'] = result[i]['pc_name'];
+                                    delete result[i].pc_name;
+                                    result[i]['AGENT IP'] = result[i]['latest_agent_ip'];
+                                    delete result[i].latest_agent_ip;
+                                }
+                            }
                             innerResolve(result); // 빈 인수로 호출
                         }
                     });

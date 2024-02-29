@@ -31,7 +31,6 @@ router.post("/select", (req, res) => {
     const keywords = req.body.keywords;
     analysis.riskScoring(startDate, endDate, keywords)
         .then(result => {
-        console.log('result', result);
         res.send(result);
     })
         .catch(error => {

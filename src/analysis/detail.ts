@@ -460,7 +460,6 @@ class Detail {
       comp_file_size: comp_file_sizes
   };
 }
-    console.log("파일 사이즈 제발.. : ", result);
     return result;
 }
 

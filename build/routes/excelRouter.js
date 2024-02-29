@@ -58,7 +58,7 @@ router.get("/dwn", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             results = yield printService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, result[0].privilege, true);
         }
         else if (contents === "leaked") {
-            results = yield leakedService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges);
+            results = yield leakedService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, true);
         }
         else {
             console.error("Invalid param:", contents);
@@ -85,7 +85,6 @@ router.post("/analytics", (req, res) => __awaiter(void 0, void 0, void 0, functi
         const startDate = req.body.startDate + " 00:00:00";
         const endDate = req.body.endDate + " 23:59:59";
         const keywords = req.body.keywords;
-        console.log('들어옴?');
         const results = yield analysis.riskScoring(startDate, endDate, keywords);
         for (let i = 0; i < results.length; i++) {
             results[i]['PC명(IP주소)'] = results[i]['pcName'];
