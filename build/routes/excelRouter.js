@@ -88,8 +88,30 @@ router.post("/analytics", (req, res) => __awaiter(void 0, void 0, void 0, functi
         console.log('들어옴?');
         const results = yield analysis.riskScoring(startDate, endDate, keywords);
         for (let i = 0; i < results.length; i++) {
+            results[i]['PC명(IP주소)'] = results[i]['pcName'];
+            if (results[i]['level'] === 1) {
+                results[i]['등급'] = '관심';
+            }
+            else if (results[i]['level'] === 2) {
+                results[i]['등급'] = '주의';
+            }
+            else if (results[i]['level'] === 3) {
+                results[i]['등급'] = '경고';
+            }
+            else if (results[i]['level'] === 4) {
+                results[i]['등급'] = '위험';
+            }
+            else {
+                results[i]['등급'] = '매우 위험';
+            }
+            results[i]['위험도 수치'] = results[i]['status'];
+            results[i]['설명'] = results[i]['text'];
             delete results[i].pcGuid;
             delete results[i].progress;
+            delete results[i].pcName;
+            delete results[i].level;
+            delete results[i].status;
+            delete results[i].text;
         }
         if (!results) {
             console.error("No data found");

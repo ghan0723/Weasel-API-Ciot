@@ -174,7 +174,7 @@ class Detail {
         currentDate.setDate(currentDate.getDate() + 14);
       }
     }
-    console.log("라인 확인용 : ", result);
+    
     return result;
   }
 
