@@ -38,13 +38,13 @@ router.get("/dwn", async (req: Request, res: Response) => {
   
       let results;
       if (contents === "network") {
-        results = await networkService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges,result[0].privilege);
+        results = await networkService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges,result[0].privilege, true);
       } else if (contents === "media") {
-        results = await mediaService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges,result[0].privilege);
+        results = await mediaService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges,result[0].privilege, true);
       } else if (contents === "outlook") {
-        results = await outlookService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges,result[0].privilege);
+        results = await outlookService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges,result[0].privilege, true);
       } else if (contents === "print") {
-        results = await printService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges,result[0].privilege);
+        results = await printService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges,result[0].privilege, true);
       } else if (contents === "leaked") {
         results = await leakedService.getApiData(page,pageSize,sorting,desc,category,search,ipRanges);
       } else {
@@ -74,10 +74,6 @@ router.get("/dwn", async (req: Request, res: Response) => {
       const endDate = req.body.endDate + " 23:59:59";
       const keywords = req.body.keywords;
 
-      console.log('들어옴?');
-      
-
-      
       const results = await analysis.riskScoring(startDate,endDate,keywords);
       for(let i=0; i < results.length; i++) {
         delete results[i].pcGuid;
@@ -89,6 +85,7 @@ router.get("/dwn", async (req: Request, res: Response) => {
         res.status(404).send("No data found");
         return;
       }
+      
       const excelBuffer = await excelService.getExcelFile(results, 'analytics');
       res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
       res.setHeader("Content-Disposition", `attachment; filename=analytics.xlsx`);

@@ -10,27 +10,27 @@ class NetworkService {
     this.connection = connection;
   }
 
-  // Old_Columns
-  // private columnAlias: any = {
-  //   // alias    table명
-  //   id: "id", // 0
-  //   Accurancy: "accuracy", // 1
-  //   Time: "time", // 2
-  //   PcName: "pc_name", // 3
-  //   Agent_ip: "latest_agent_ip", // 4
-  //   SrcIp: "src_ip", // 5
-  //   SrcPort: "src_port", // 6
-  //   DstIp: "dst_ip", // 7
-  //   DstPort: "dst_port", // 8
-  //   Process: "proc_name", // 9
-  //   PIDs: "pid", // 10
-  //   SrcFile: "src_file", // 11
-  //   DownLoad: "saved_file", // 12
-  //   ScreenShot: "saved_file", // 13
-  //   FileSizes: "file_size", // 14
-  //   Keywords: "patterns", // 15
-  //   DestFiles: "dst_file", // 16
-  // };
+  // Ko_Columns
+  private columnAliasKo: any = {
+      // alias    table명
+    id: "id", // 0
+    정확도: "accurate", // 1
+    탐지시각: "time", // 2
+    Pc명: "pc_name", // 3
+    AgentIP: "latest_agent_ip", // 4
+    출발지IP: "src_ip", // 5
+    출발지PORT: "src_port", // 6
+    목적지IP: "dst_ip", // 7
+    목적지PORT: "dst_port", // 8
+    프로세스명: "proc_name", // 9
+    PID: "proc_id", // 10
+    유출파일명: "org_file", // 11
+    파일다운로드: "backup_file", // 12
+    스크린샷: "backup_file", // 13
+    파일용량: "file_size", // 14
+    탐지패턴: "patterns", // 15
+    URL: "url", // 16
+  };
 
   // New_Columns
   private columnAlias: any = {
@@ -128,17 +128,26 @@ class NetworkService {
     category: any,
     search: any,
     ipRanges: IpRange[],
-    privilege:any
+    privilege: any,
+    excel?:any
   ): Promise<any> {
     let queryPage: number = 0;
     let queryPageSize: number = 0;
     let querySorting: string = sorting === "" ? "time" : sorting;
     let queryDesc: string = desc === "false" ? "asc" : "desc";
     let whereClause = "";
-    const aliasKey = Object.keys(this.columnAlias);
-    const aliasValues = Object.values(this.columnAlias);
-    const convertColumns = category !== "" && this.columnAlias[category];
-
+    let aliasKey:any; 
+    let aliasValues:any; 
+    let convertColumns:any; 
+    if(!excel){
+      aliasKey = Object.keys(this.columnAlias);
+      aliasValues = Object.values(this.columnAlias);
+      convertColumns = category !== "" && this.columnAlias[category];
+    }else{
+      aliasKey = Object.keys(this.columnAliasKo);
+      aliasValues = Object.values(this.columnAliasKo);
+      convertColumns = category !== "" && this.columnAliasKo[category];
+    }
     if (page !== undefined) {
       queryPage = Number(page);
     }
@@ -160,17 +169,18 @@ class NetworkService {
       )
       .join(" OR ");
 
-      
     if (search !== "") {
       // Old_Columns
       // if(convertColumns ===  'accuracy') {
-      if(convertColumns ===  aliasValues[1]) {
-      // New_Columns
-      // if(convertColumns ===  'accurate') {/
-      
-        if(/(정|탐|정탐)/i.test(search)) {
+      if (convertColumns === aliasValues[1]) {
+        // New_Columns
+        // if(convertColumns ===  'accurate') {/
+
+        if (/(정|탐|정탐)/i.test(search)) {
           whereClause = `where ${convertColumns} = '100' AND (${ipConditions})`;
-        } else if(/(확|인|필|요|확인|인필|필요|확인필|인필요|확인필요)/i.test(search)) {
+        } else if (
+          /(확|인|필|요|확인|인필|필요|확인필|인필요|확인필요)/i.test(search)
+        ) {
           whereClause = `where ${convertColumns} != '100' AND (${ipConditions})`;
         } else {
           whereClause = `where ${convertColumns} > '100' AND (${ipConditions})`;
@@ -178,23 +188,22 @@ class NetworkService {
       } else {
         whereClause = `where ${convertColumns} like ? AND (${ipConditions})`;
       }
-      
     } else {
       whereClause = `where ${ipConditions}`;
     }
-    
+
     return new Promise((resolve, reject) => {
-      const queryStr = privilege !== 3 ?
-      `select ${aliasValues[0]}, ${aliasValues[1]} as ${aliasKey[1]}, ${aliasValues[2]} as ${aliasKey[2]}, ${aliasValues[3]} as ${aliasKey[3]}, ${aliasValues[4]} as ${aliasKey[4]}, ${aliasValues[5]} as ${aliasKey[5]}, ` +
-      `${aliasValues[6]} as ${aliasKey[6]}, ${aliasValues[7]} as ${aliasKey[7]}, ${aliasValues[8]} as ${aliasKey[8]}, ${aliasValues[9]} as ${aliasKey[9]}, ` +
-      `${aliasValues[10]} as ${aliasKey[10]}, ${aliasValues[11]} as ${aliasKey[11]}, ` +
-      `${aliasValues[12]} as ${aliasKey[12]}, ${aliasValues[13]} as ${aliasKey[13]}, ` +
-      `${aliasValues[15]} as ${aliasKey[15]}, ${aliasValues[16]} as ${aliasKey[16]} ` 
-      : 
-      `select ${aliasValues[0]}, ${aliasValues[1]} as ${aliasKey[1]}, ${aliasValues[2]} as ${aliasKey[2]}, ${aliasValues[3]} as ${aliasKey[3]}, ${aliasValues[4]} as ${aliasKey[4]}, ${aliasValues[5]} as ${aliasKey[5]}, ` +
-      `${aliasValues[6]} as ${aliasKey[6]}, ${aliasValues[7]} as ${aliasKey[7]}, ${aliasValues[8]} as ${aliasKey[8]}, ${aliasValues[9]} as ${aliasKey[9]}, ` +
-      `pid as ${aliasKey[10]}, src_file as ${aliasKey[11]}, ` +
-      `patterns as ${aliasKey[15]}, dst_file as ${aliasKey[16]} `;
+      const queryStr =
+        privilege !== 3
+          ? `select ${aliasValues[0]}, ${aliasValues[1]} as ${aliasKey[1]}, ${aliasValues[2]} as ${aliasKey[2]}, ${aliasValues[3]} as ${aliasKey[3]}, ${aliasValues[4]} as ${aliasKey[4]}, ${aliasValues[5]} as ${aliasKey[5]}, ` +
+            `${aliasValues[6]} as ${aliasKey[6]}, ${aliasValues[7]} as ${aliasKey[7]}, ${aliasValues[8]} as ${aliasKey[8]}, ${aliasValues[9]} as ${aliasKey[9]}, ` +
+            `${aliasValues[10]} as ${aliasKey[10]}, ${aliasValues[11]} as ${aliasKey[11]}, ` +
+            `${aliasValues[12]} as ${aliasKey[12]}, ${aliasValues[13]} as ${aliasKey[13]}, ` +
+            `${aliasValues[15]} as ${aliasKey[15]}, ${aliasValues[16]} as ${aliasKey[16]} `
+          : `select ${aliasValues[0]}, ${aliasValues[1]} as ${aliasKey[1]}, ${aliasValues[2]} as ${aliasKey[2]}, ${aliasValues[3]} as ${aliasKey[3]}, ${aliasValues[4]} as ${aliasKey[4]}, ${aliasValues[5]} as ${aliasKey[5]}, ` +
+            `${aliasValues[6]} as ${aliasKey[6]}, ${aliasValues[7]} as ${aliasKey[7]}, ${aliasValues[8]} as ${aliasKey[8]}, ${aliasValues[9]} as ${aliasKey[9]}, ` +
+            `pid as ${aliasKey[10]}, src_file as ${aliasKey[11]}, ` +
+            `patterns as ${aliasKey[15]}, dst_file as ${aliasKey[16]} `;
 
       const query =
         queryStr +
@@ -210,20 +219,24 @@ class NetworkService {
         " offset " +
         queryPage * queryPageSize;
 
-      const query2 = "select count(*) as count from leakednetworkfiles " + whereClause;
+      const query2 =
+        "select count(*) as count from leakednetworkfiles " + whereClause;
       const whereQuery = "%" + search + "%";
 
       Promise.all([
         new Promise<void>((innerResolve, innerReject) => {
           this.connection.query(query, whereQuery, (error, result) => {
-            const excludedKeys = ['DownLoad', 'ScreenShot'];
+            const excludedKeys = ["DownLoad", "ScreenShot"];
 
-            const filteredKeys = privilege !== 3 ? aliasKey : aliasKey.filter(key => !excludedKeys.includes(key));
+            const filteredKeys =
+              privilege !== 3
+                ? aliasKey
+                : aliasKey.filter((key:any) => !excludedKeys.includes(key));
 
             // 검색 결과가 없을 경우의 처리
             if (result.length === 0) {
               result[0] = filteredKeys.reduce((obj: any, key: any) => {
-                 obj[key] = "";                
+                obj[key] = "";
                 return obj;
               }, {});
             }
@@ -247,7 +260,7 @@ class NetworkService {
           });
         }),
       ])
-        .then((values) => {          
+        .then((values) => {
           resolve(values);
         })
         .catch((error) => {
@@ -422,7 +435,6 @@ class NetworkService {
       }
     }
   }
-
 }
 
 export default NetworkService;

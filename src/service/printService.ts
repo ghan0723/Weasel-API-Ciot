@@ -6,22 +6,22 @@ class PrintService {
   private query2!: number;
 
   // Old_C
-  // private columnAlias:any = {
-  //   // alias    table명
-  //   'id' : 'id',                       // 0
-  //   'Time' : 'time',                   // 1
-  //   'PcName' : 'pc_name',               // 2
-  //   'Agent_ip' : 'latest_agent_ip',           // 3
-  //   'Process' : 'proc_name',             // 4
-  //   'PIDs' : 'pid',                    // 5
-  //   'Printers' : 'printer',            // 6
-  //   'Owners' : 'owner',                // 7
-  //   'Documents' : 'document',          // 8
-  //   'Copied_Spool_Files' : 'spl_file', // 9 => 사용 안함
-  //   'Downloading' : 'spl_file',        // 10
-  //   'Sizes' : 'size',                  // 11
-  //   'Pages' : 'pages',                 // 12
-  // };
+  private columnAliasKo:any = {
+    // alias    table명
+    'id' : 'id',                       // 0
+    탐지시각 : 'time',                   // 1
+    PC명 : 'pc_name',               // 2
+    AGENTIP : 'latest_agent_ip',           // 3
+    프로세스명 : 'proc_name',             // 4
+    PID : 'proc_id',                    // 5
+    프린터 : 'printer',            // 6
+    관리자 : 'doc_owner',                // 7
+    인쇄파일명 : 'doc_name',          // 8
+    SPLFILE : 'spl_file', // 9 => 사용 안함
+    파일다운로드 : 'spl_file',        // 10
+    복사본크기 : 'file_size',                  // 11
+    페이지 : 'doc_pages',                 // 12
+  };
 
   // New_C
   private columnAlias:any = {
@@ -103,15 +103,24 @@ class PrintService {
     });
   }
 
-  getApiData(page: any, pageSize: any,sorting:any,desc:any,category:any,search:any, ipRanges: IpRange[],privilege:any): Promise<any> {
+  getApiData(page: any, pageSize: any,sorting:any,desc:any,category:any,search:any, ipRanges: IpRange[],privilege:any, excel?:any): Promise<any> {
     let queryPage:number=0;
     let queryPageSize:number=0;
     let querySorting:string=sorting === '' ? 'time' : sorting;
     let queryDesc:string=desc === 'false' ? 'asc' : 'desc';
     let whereClause = '';
-    const aliasKey = Object.keys(this.columnAlias);
-    const aliasValues = Object.values(this.columnAlias);
-    const convertColumns = category !== '' && this.columnAlias[category];
+    let aliasKey:any; 
+    let aliasValues:any; 
+    let convertColumns:any; 
+    if(!excel){
+      aliasKey = Object.keys(this.columnAlias);
+      aliasValues = Object.values(this.columnAlias);
+      convertColumns = category !== "" && this.columnAlias[category];
+    }else{
+      aliasKey = Object.keys(this.columnAliasKo);
+      aliasValues = Object.values(this.columnAliasKo);
+      convertColumns = category !== "" && this.columnAliasKo[category];
+    }
 
     if(page !== undefined) {      
       queryPage = Number(page);
@@ -165,7 +174,7 @@ class PrintService {
           connection.query(query,whereQuery, (error, result) => {
             const excludedKeys = ['Downloading'];
 
-            const filteredKeys = privilege !== 3 ? aliasKey : aliasKey.filter(key => !excludedKeys.includes(key));
+            const filteredKeys = privilege !== 3 ? aliasKey : aliasKey.filter((key:any) => !excludedKeys.includes(key));
 
             // 검색 결과가 없을 경우의 처리
             if(result.length === 0) {

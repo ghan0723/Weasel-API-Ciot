@@ -6,23 +6,23 @@ class OutlookService {
   private query2!: number;
 
   // Old_C
-  // private columnAlias:any = {
-  //   // alias    table명
-  //   'id' : 'id',                    // 0
-  //   'Time' : 'time',                // 1
-  //   'PcName' : 'pc_name',            // 2
-  //   'Agent_ip' : 'latest_agent_ip',        // 3
-  //   'Process' : 'proc_name',          // 4
-  //   'PIDS' : 'pid',                 // 5
-  //   'Mail_Subjects' : 'subject',    // 6
-  //   'Sender' : 'sender',            // 7
-  //   'Receiver' : 'receiver',        // 8
-  //   'AttachedFiles' : 'attachment', // 9
-  //   'CopiedFiles' : 'asked_file',   // 10
-  //   'Downloading' : 'saved_file',   // 11
-  //   'FileSizes' : 'file_size',      // 12
-  //   'Keywords' : 'patterns',        // 13
-  // };
+  private columnAliasKo:any = {
+    // alias    table명
+    'id' : 'id',                    // 0
+    탐지시각 : 'time',                // 1
+    PC명 : 'pc_name',            // 2
+    AGENTIP : 'latest_agent_ip',        // 3
+    프로세스명 : 'proc_name',          // 4
+    PID : 'proc_id',                 // 5
+    메일명 : 'subject',    // 6
+    보낸사람 : 'sender',            // 7
+    받은사람 : 'receivers',        // 8
+    유출파일명 : 'attachments', // 9
+    전송갯수 : 'backup_file',   // 10
+    파일다운로드 : 'backup_file',   // 11
+    파일크기 : 'file_size',      // 12
+    탐지패턴 : 'patterns',        // 13
+  };
 
     // New_C
   private columnAlias:any = {
@@ -107,15 +107,24 @@ class OutlookService {
     });
   }
 
-  getApiData(page: any, pageSize: any,sorting:any,desc:any,category:any,search:any, ipRanges: IpRange[],privilege:any): Promise<any> {
+  getApiData(page: any, pageSize: any,sorting:any,desc:any,category:any,search:any, ipRanges: IpRange[],privilege:any, excel?:any): Promise<any> {
     let queryPage:number=0;
     let queryPageSize:number=0;
     let querySorting:string=sorting === '' ? 'time' : sorting;
     let queryDesc:string=desc === 'false' ? 'asc' : 'desc';
     let whereClause = '';
-    const aliasValues = Object.values(this.columnAlias);
-    const aliasKey = Object.keys(this.columnAlias);
-    const convertColumns = category !== '' && this.columnAlias[category];
+    let aliasKey:any; 
+    let aliasValues:any; 
+    let convertColumns:any; 
+    if(!excel){
+      aliasKey = Object.keys(this.columnAlias);
+      aliasValues = Object.values(this.columnAlias);
+      convertColumns = category !== "" && this.columnAlias[category];
+    }else{
+      aliasKey = Object.keys(this.columnAliasKo);
+      aliasValues = Object.values(this.columnAliasKo);
+      convertColumns = category !== "" && this.columnAliasKo[category];
+    }
 
     if(page !== undefined) {      
       queryPage = Number(page);
@@ -171,7 +180,7 @@ class OutlookService {
           connection.query(query,whereQuery, (error, result) => {
             const excludedKeys = ['Downloading'];
 
-            const filteredKeys = privilege !== 3 ? aliasKey : aliasKey.filter(key => !excludedKeys.includes(key));
+            const filteredKeys = privilege !== 3 ? aliasKey : aliasKey.filter((key:any) => !excludedKeys.includes(key));
             
 
             // 검색 결과가 없을 경우의 처리

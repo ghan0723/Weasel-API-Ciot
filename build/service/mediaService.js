@@ -16,20 +16,20 @@ const db_1 = __importDefault(require("../db/db"));
 class MediaService {
     constructor() {
         // Old_Columns
-        // private columnAlias:any = {
-        //   // alias    table명
-        //   'id' : 'id',                   // 0
-        //   'Time' : 'time',               // 1
-        //   'PcName' : 'pc_name',           // 2
-        //   'Agent_ip' : 'latest_agent_ip',       // 3
-        //   'Process' : 'proc_name',         // 4
-        //   'Media_Type' : 'media_type',   // 5
-        //   'Files' : 'file',              // 6
-        //   'Copied_files' : 'saved_file', // 7 => 사용 안함
-        //   'Downloading' : 'saved_file',  // 8
-        //   'FileSizes' : 'file_size',     // 9
-        //   'Keywords' : 'patterns',       // 10
-        // };
+        this.columnAliasKo = {
+            // alias    table명
+            'id': 'id', // 0
+            탐지시각: 'time', // 1
+            PC명: 'pc_name', // 2
+            AGENTIP: 'latest_agent_ip', // 3
+            프로세스명: 'proc_name', // 4
+            유출유형: 'media_type', // 5
+            유출파일명: 'org_file', // 6
+            복사된파일: 'backup_file', // 7 => 사용 안함
+            파일다운로드: 'backup_file', // 8
+            파일크기: 'file_size', // 9
+            탐지패턴: 'patterns', // 10
+        };
         // New_Columns
         this.columnAlias = {
             // alias    table명
@@ -106,15 +106,25 @@ class MediaService {
         });
     }
     // 송신탐지내역 테이블
-    getApiData(page, pageSize, sorting, desc, category, search, ipRanges, privilege) {
+    getApiData(page, pageSize, sorting, desc, category, search, ipRanges, privilege, excel) {
         let queryPage = 0;
         let queryPageSize = 0;
         let querySorting = sorting === '' ? 'time' : sorting;
         let queryDesc = desc === 'false' ? 'asc' : 'desc';
         let whereClause = '';
-        const aliasKey = Object.keys(this.columnAlias);
-        const aliasValues = Object.values(this.columnAlias);
-        const convertColumns = category !== '' && this.columnAlias[category];
+        let aliasKey;
+        let aliasValues;
+        let convertColumns;
+        if (!excel) {
+            aliasKey = Object.keys(this.columnAlias);
+            aliasValues = Object.values(this.columnAlias);
+            convertColumns = category !== "" && this.columnAlias[category];
+        }
+        else {
+            aliasKey = Object.keys(this.columnAliasKo);
+            aliasValues = Object.values(this.columnAliasKo);
+            convertColumns = category !== "" && this.columnAliasKo[category];
+        }
         if (page !== undefined) {
             queryPage = Number(page);
         }
@@ -154,7 +164,7 @@ class MediaService {
                 new Promise((innerResolve, innerReject) => {
                     db_1.default.query(query, whereQuery, (error, result) => {
                         const excludedKeys = ['Downloading'];
-                        const filteredKeys = privilege !== 3 ? aliasKey : aliasKey.filter(key => !excludedKeys.includes(key));
+                        const filteredKeys = privilege !== 3 ? aliasKey : aliasKey.filter((key) => !excludedKeys.includes(key));
                         // 검색 결과가 없을 경우의 처리
                         if (result.length === 0) {
                             result[0] = filteredKeys.reduce((obj, key) => {

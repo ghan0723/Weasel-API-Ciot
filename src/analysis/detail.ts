@@ -14,7 +14,7 @@ class Detail {
     // dateRange가 'week'인 경우
     if (dateRange.includes("week")) {
       result[pcGuid] = { date: [], data: [] };
-      result["average"] = { date: [], data: [] };
+      result["평균"] = { date: [], data: [] };
 
       for (
         let date = new Date(startDate);
@@ -32,10 +32,10 @@ class Detail {
           const count2 = result3[0].count;
           const result4 = await this.getDistinctGuid(date, pcGuid);
           const averageData = count2 / result4.length || 0;
-          result["average"].date.push(
+          result["평균"].date.push(
             this.dateFormat(date).split("-")[2] + "일"
           ); // 날짜를 date 배열에 추가
-          result["average"].data.push(parseFloat(averageData.toFixed(2))); // count를 data 배열에 추가
+          result["평균"].data.push(parseFloat(averageData.toFixed(2))); // count를 data 배열에 추가
         } catch (error) {
           // 오류 처리
           console.error(error);
@@ -46,7 +46,7 @@ class Detail {
       (dateRange.includes("month") && numericValue === 3)
     ) {
       result[pcGuid] = { date: [], data: [] };
-      result["average"] = { date: [], data: [] };
+      result["평균"] = { date: [], data: [] };
       const endDateObj = new Date(endDate);
       let currentDate = new Date(startDate);
       while (currentDate <= endDateObj) {
@@ -75,12 +75,12 @@ class Detail {
             pcGuid
           );
           const averageData = count2 / result4.length || 0;
-          result["average"].date.push(
+          result["평균"].date.push(
             this.dateFormat(currentDate).split("-")[1] +
               "/" +
               this.dateFormat(currentDate).split("-")[2]
           );
-          result["average"].data.push(parseFloat(averageData.toFixed(2)));
+          result["평균"].data.push(parseFloat(averageData.toFixed(2)));
         } catch (error) {
           console.error(error);
         }
@@ -90,7 +90,7 @@ class Detail {
       }
     } else if (dateRange.includes("year")) {
       result[pcGuid] = { date: [], data: [] };
-      result["average"] = { date: [], data: [] };
+      result["평균"] = { date: [], data: [] };
       const endDateObj = new Date(endDate);
       let currentDate = new Date(startDate);
       while (currentDate <= endDateObj) {
@@ -119,10 +119,10 @@ class Detail {
             pcGuid
           );
           const averageData = count2 / result4.length || 0;
-          result["average"].date.push(
+          result["평균"].date.push(
             this.dateFormat(currentDate).split("-")[1] + "월"
           );
-          result["average"].data.push(parseFloat(averageData.toFixed(2)));
+          result["평균"].data.push(parseFloat(averageData.toFixed(2)));
         } catch (error) {
           console.error(error);
         }
@@ -131,7 +131,7 @@ class Detail {
       }
     } else if (dateRange.includes("month") && numericValue === 6) {
       result[pcGuid] = { date: [], data: [] };
-      result["average"] = { date: [], data: [] };
+      result["평균"] = { date: [], data: [] };
       const endDateObj = new Date(endDate);
       let currentDate = new Date(startDate);
       while (currentDate <= endDateObj) {
@@ -160,12 +160,12 @@ class Detail {
             pcGuid
           );
           const averageData = count2 / result4.length || 0;
-          result["average"].date.push(
+          result["평균"].date.push(
             this.dateFormat(currentDate).split("-")[1] +
               "/" +
               this.dateFormat(currentDate).split("-")[2]
           );
-          result["average"].data.push(parseFloat(averageData.toFixed(2)));
+          result["평균"].data.push(parseFloat(averageData.toFixed(2)));
         } catch (error) {
           console.error(error);
         }

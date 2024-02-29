@@ -46,16 +46,16 @@ router.get("/dwn", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         const ipRanges = ipCalcService.parseIPRange(result[0].ip_ranges);
         let results;
         if (contents === "network") {
-            results = yield networkService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, result[0].privilege);
+            results = yield networkService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, result[0].privilege, true);
         }
         else if (contents === "media") {
-            results = yield mediaService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, result[0].privilege);
+            results = yield mediaService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, result[0].privilege, true);
         }
         else if (contents === "outlook") {
-            results = yield outlookService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, result[0].privilege);
+            results = yield outlookService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, result[0].privilege, true);
         }
         else if (contents === "print") {
-            results = yield printService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, result[0].privilege);
+            results = yield printService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, result[0].privilege, true);
         }
         else if (contents === "leaked") {
             results = yield leakedService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges);

@@ -21,7 +21,7 @@ class Detail {
             // dateRange가 'week'인 경우
             if (dateRange.includes("week")) {
                 result[pcGuid] = { date: [], data: [] };
-                result["average"] = { date: [], data: [] };
+                result["평균"] = { date: [], data: [] };
                 for (let date = new Date(startDate); date <= new Date(endDate); date = new Date(date.getTime() + 86400000) // 86400000 : 하루치 ms
                 ) {
                     try {
@@ -34,8 +34,8 @@ class Detail {
                         const count2 = result3[0].count;
                         const result4 = yield this.getDistinctGuid(date, pcGuid);
                         const averageData = count2 / result4.length || 0;
-                        result["average"].date.push(this.dateFormat(date).split("-")[2] + "일"); // 날짜를 date 배열에 추가
-                        result["average"].data.push(parseFloat(averageData.toFixed(2))); // count를 data 배열에 추가
+                        result["평균"].date.push(this.dateFormat(date).split("-")[2] + "일"); // 날짜를 date 배열에 추가
+                        result["평균"].data.push(parseFloat(averageData.toFixed(2))); // count를 data 배열에 추가
                     }
                     catch (error) {
                         // 오류 처리
@@ -46,7 +46,7 @@ class Detail {
             else if ((dateRange.includes("month") && numericValue === 1) ||
                 (dateRange.includes("month") && numericValue === 3)) {
                 result[pcGuid] = { date: [], data: [] };
-                result["average"] = { date: [], data: [] };
+                result["평균"] = { date: [], data: [] };
                 const endDateObj = new Date(endDate);
                 let currentDate = new Date(startDate);
                 while (currentDate <= endDateObj) {
@@ -61,10 +61,10 @@ class Detail {
                         const count2 = result3[0].count;
                         const result4 = yield this.getDistinctGuidByMonth(currentDate, currentDatePlus3, pcGuid);
                         const averageData = count2 / result4.length || 0;
-                        result["average"].date.push(this.dateFormat(currentDate).split("-")[1] +
+                        result["평균"].date.push(this.dateFormat(currentDate).split("-")[1] +
                             "/" +
                             this.dateFormat(currentDate).split("-")[2]);
-                        result["average"].data.push(parseFloat(averageData.toFixed(2)));
+                        result["평균"].data.push(parseFloat(averageData.toFixed(2)));
                     }
                     catch (error) {
                         console.error(error);
@@ -75,7 +75,7 @@ class Detail {
             }
             else if (dateRange.includes("year")) {
                 result[pcGuid] = { date: [], data: [] };
-                result["average"] = { date: [], data: [] };
+                result["평균"] = { date: [], data: [] };
                 const endDateObj = new Date(endDate);
                 let currentDate = new Date(startDate);
                 while (currentDate <= endDateObj) {
@@ -90,8 +90,8 @@ class Detail {
                         const count2 = result3[0].count;
                         const result4 = yield this.getDistinctGuidByMonth(currentDateMinus, currentDate, pcGuid);
                         const averageData = count2 / result4.length || 0;
-                        result["average"].date.push(this.dateFormat(currentDate).split("-")[1] + "월");
-                        result["average"].data.push(parseFloat(averageData.toFixed(2)));
+                        result["평균"].date.push(this.dateFormat(currentDate).split("-")[1] + "월");
+                        result["평균"].data.push(parseFloat(averageData.toFixed(2)));
                     }
                     catch (error) {
                         console.error(error);
@@ -101,7 +101,7 @@ class Detail {
             }
             else if (dateRange.includes("month") && numericValue === 6) {
                 result[pcGuid] = { date: [], data: [] };
-                result["average"] = { date: [], data: [] };
+                result["평균"] = { date: [], data: [] };
                 const endDateObj = new Date(endDate);
                 let currentDate = new Date(startDate);
                 while (currentDate <= endDateObj) {
@@ -116,10 +116,10 @@ class Detail {
                         const count2 = result3[0].count;
                         const result4 = yield this.getDistinctGuidByMonth(currentDate, currentDatePlus3, pcGuid);
                         const averageData = count2 / result4.length || 0;
-                        result["average"].date.push(this.dateFormat(currentDate).split("-")[1] +
+                        result["평균"].date.push(this.dateFormat(currentDate).split("-")[1] +
                             "/" +
                             this.dateFormat(currentDate).split("-")[2]);
-                        result["average"].data.push(parseFloat(averageData.toFixed(2)));
+                        result["평균"].data.push(parseFloat(averageData.toFixed(2)));
                     }
                     catch (error) {
                         console.error(error);
