@@ -58,7 +58,7 @@ router.get("/dwn", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             results = yield printService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, result[0].privilege, true);
         }
         else if (contents === "leaked") {
-            results = yield leakedService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges);
+            results = yield leakedService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, true);
         }
         else {
             console.error("Invalid param:", contents);

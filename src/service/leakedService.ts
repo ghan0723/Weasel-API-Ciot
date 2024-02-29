@@ -2,7 +2,7 @@ import connection from "../db/db";
 import { IpRange } from "../interface/interface";
 
 class LeakedService {
-  getApiData(page: any, pageSize: any, sorting: any, desc: any, category: any, search: any, ipRanges: IpRange[]): Promise<any> {
+  getApiData(page: any, pageSize: any, sorting: any, desc: any, category: any, search: any, ipRanges: IpRange[], excelCheck:boolean): Promise<any> {
     let queryPage: number = 0;
     let queryPageSize: number = 0;
     let querySorting: string = sorting === "" ? "time" : sorting;
@@ -53,6 +53,7 @@ class LeakedService {
       Promise.all([
         new Promise<void>((innerResolve, innerReject) => {
           connection.query(query, whereQuery, (error, result) => {
+            
             // 검색 결과가 없을 경우의 처리
             if (result.length === 0) {
               result[0] = { time: "", pc_name: "", latest_agent_ip: "" };
@@ -60,6 +61,16 @@ class LeakedService {
             if (error) {
               innerReject(error);
             } else {
+              if(excelCheck) {
+                for(let i=0; i < result.length; i++) {
+                  result[i]['업데이트 시각'] = result[i]['time'];
+                  delete result[i].time;
+                  result[i]['PC명'] = result[i]['pc_name'];
+                  delete result[i].pc_name;
+                  result[i]['AGENT IP'] = result[i]['latest_agent_ip'];
+                  delete result[i].latest_agent_ip;
+                }
+              }
               innerResolve(result); // 빈 인수로 호출
             }
           });

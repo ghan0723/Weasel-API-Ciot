@@ -46,7 +46,7 @@ router.get("/dwn", async (req: Request, res: Response) => {
       } else if (contents === "print") {
         results = await printService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges,result[0].privilege, true);
       } else if (contents === "leaked") {
-        results = await leakedService.getApiData(page,pageSize,sorting,desc,category,search,ipRanges);
+        results = await leakedService.getApiData(page,pageSize,sorting,desc,category,search,ipRanges,true);
       } else {
         console.error("Invalid param:", contents);
         res.status(400).send("Invalid param");

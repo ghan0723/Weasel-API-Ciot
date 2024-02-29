@@ -75,11 +75,17 @@ class AnalysisService {
         const riskPointsByPc = {};
         // 각 PC별로 파일 유출 빈도 점수와 파일 크기 점수를 가져와서 리스크 포인트 계산
         Object.keys(sortedEventByPc).forEach((pcGuid) => {
+            let sum = 0;
             const eventPoint = sortedEventByPc[pcGuid] || 0;
             const fileSizePoint = sortedFileSizeByPc[pcGuid] || 0;
             const patternPoint = sortedPatternsByPc !== undefined && sortedPatternsByPc[pcGuid] || 0;
-            // 리스크 포인트 계산
-            const sum = eventPoint + fileSizePoint * 2 + patternPoint;
+            if (patternPoint !== 0) {
+                // 리스크 포인트 계산
+                sum = eventPoint + fileSizePoint * 2 + patternPoint.score;
+            }
+            else {
+                sum = eventPoint + fileSizePoint * 2;
+            }
             // PC별 정보 저장
             riskPointsByPc[pcGuid] = { sum, event: eventPoint, file_size: fileSizePoint, pattern: patternPoint };
         });
@@ -152,6 +158,26 @@ class AnalysisService {
                 text += ', 키워드/패턴:관심';
                 level = Math.max(level, 1); // 현재 레벨과 비교하여 더 높은 레벨 선택
             }
+            if (pattern.patternLevel == 5) {
+                text += ', 패턴/키워드:매우 심각';
+                level = Math.max(level, 5); // 현재 레벨과 비교하여 더 높은 레벨 선택
+            }
+            else if (pattern.patternLevel == 4) {
+                text += ', 패턴/키워드:심각';
+                level = Math.max(level, 4); // 현재 레벨과 비교하여 더 높은 레벨 선택
+            }
+            else if (pattern.patternLevel == 3) {
+                text += ', 패턴/키워드:경계';
+                level = Math.max(level, 3); // 현재 레벨과 비교하여 더 높은 레벨 선택
+            }
+            else if (pattern.patternLevel == 2) {
+                text += ', 패턴/키워드:주의';
+                level = Math.max(level, 2); // 현재 레벨과 비교하여 더 높은 레벨 선택
+            }
+            else if (pattern.patternLevel == 1) {
+                text += ', 패턴/키워드:관심';
+                level = Math.max(level, 1); // 현재 레벨과 비교하여 더 높은 레벨 선택
+            }
             // pcName 및 latestAgentIp 가져오기
             const { pcName, latestAgentIp } = agentinfo[pcGuid];
             // 결과 배열에 객체 추가
@@ -174,7 +200,7 @@ class AnalysisService {
         const average = new average_1.default();
         const keywordsList = {};
         const patternsList = {};
-        // 키워드/건수 구분
+        // 패턴/키워드 구분
         Object.keys(keywords).map(data => {
             var _a;
             // 키워드
@@ -190,16 +216,22 @@ class AnalysisService {
         const patternsDB = average.analyzePatternsDBSort(detectFiles);
         // 아무 패턴도 없는 것에 대한 scoring 및 제거
         Object.keys(patternsDB).map(data => {
+            patternsResult[data] = { score: 0, patternLevel: 0 };
             if (patternsDB[data] === '') {
-                patternsResult[data] = 0;
                 delete patternsDB[data];
             }
         });
-        // 키워드/건수에 대한 scoring
+        // 패턴/키워드에 대한 scoring
         const keywordsScoring = average.analyzeKeywordsListScoring(patternsDB, keywordsList);
         const patternsScoring = average.analyzePatternsListScoring(patternsDB, patternsList);
         Object.keys(keywordsScoring).map(guid => {
-            patternsResult[guid] = (keywordsScoring[guid] + patternsScoring[guid]);
+            patternsResult[guid].score = (keywordsScoring[guid].score + patternsScoring[guid].score);
+            if (keywordsScoring[guid].patternLevel >= patternsScoring[guid].patternLevel) {
+                patternsResult[guid].patternLevel = keywordsScoring[guid].patternLevel;
+            }
+            else {
+                patternsResult[guid].patternLevel = patternsScoring[guid].patternLevel;
+            }
         });
         return patternsResult;
     }
