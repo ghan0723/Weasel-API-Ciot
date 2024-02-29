@@ -31,11 +31,9 @@ router.post("/select", (req, res) => {
     const keywords = req.body.keywords;
     analysis.riskScoring(startDate, endDate, keywords)
         .then(result => {
-        console.log('result', result);
         res.send(result);
     })
         .catch(error => {
-        console.log('error', error);
         res.status(error.status).send(error.error);
     });
 });
@@ -49,6 +47,8 @@ router.post("/detail", (req, res) => {
     const startDate = req.body.startDate + " 00:00:00";
     const endDate = req.body.endDate + " 23:59:59";
     const pc_guid = req.body.pc_guid;
+    const level = req.body.level;
+    const status = req.body.status;
     const dateRange = analysis.formatPeriod(startDate, endDate);
     const resultValues = [];
     // 정규식을 사용하여 숫자 값을 추출합니다.
@@ -65,7 +65,7 @@ router.post("/detail", (req, res) => {
                     resultValues.push(patternResult);
                     resultValues.push(result2);
                     resultValues.push(result3);
-                    resultValues.push({ startDate, endDate });
+                    resultValues.push({ startDate, endDate, level, status });
                     res.send({ result: resultValues });
                 })
                     .catch((error3) => {

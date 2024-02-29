@@ -128,7 +128,6 @@ class Detail {
                     currentDate.setDate(currentDate.getDate() + 14);
                 }
             }
-            console.log("라인 확인용 : ", result);
             return result;
         });
     }
@@ -421,7 +420,6 @@ class Detail {
                     comp_file_size: comp_file_sizes
                 };
             }
-            console.log("파일 사이즈 제발.. : ", result);
             return result;
         });
     }

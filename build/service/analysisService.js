@@ -93,43 +93,63 @@ class AnalysisService {
             let progress = (sum / Math.max(...Object.values(riskPointsByPc).map(({ sum }) => sum))) * 100; // progress 계산
             // 특정 조건에 따라 텍스트 추가
             if (event >= 80) {
-                text += '빈도수:매우 위험';
+                text += '유출 빈도:매우 심각';
                 level = Math.max(level, 5); // 현재 레벨과 비교하여 더 높은 레벨 선택
             }
             else if (event >= 60) {
-                text += '빈도수:위험';
+                text += '유출 빈도:심각';
                 level = Math.max(level, 4); // 현재 레벨과 비교하여 더 높은 레벨 선택
             }
             else if (event >= 40) {
-                text += '빈도수:경고';
+                text += '유출 빈도:경계';
                 level = Math.max(level, 3); // 현재 레벨과 비교하여 더 높은 레벨 선택
             }
             else if (event >= 20) {
-                text += '빈도수:주의';
+                text += '유출 빈도:주의';
                 level = Math.max(level, 2); // 현재 레벨과 비교하여 더 높은 레벨 선택
             }
             else if (event >= 0) {
-                text += '빈도수:관심';
+                text += '유출 빈도:관심';
                 level = Math.max(level, 1); // 현재 레벨과 비교하여 더 높은 레벨 선택
             }
             if (file_size >= 160) {
-                text += ', 파일 사이즈:매우 위험';
+                text += ', 유출 용량:매우 심각';
                 level = Math.max(level, 5); // 현재 레벨과 비교하여 더 높은 레벨 선택
             }
             else if (file_size >= 120) {
-                text += ', 파일 사이즈:위험';
+                text += ', 유출 용량:심각';
                 level = Math.max(level, 4); // 현재 레벨과 비교하여 더 높은 레벨 선택
             }
             else if (file_size >= 80) {
-                text += ', 파일 사이즈:경고';
+                text += ', 유출 용량:경계';
                 level = Math.max(level, 3); // 현재 레벨과 비교하여 더 높은 레벨 선택
             }
             else if (file_size >= 40) {
-                text += ', 파일 사이즈:주의';
+                text += ', 유출 용량:주의';
                 level = Math.max(level, 2); // 현재 레벨과 비교하여 더 높은 레벨 선택
             }
             else if (file_size >= 0) {
-                text += ', 파일 사이즈:관심';
+                text += ', 유출 용량:관심';
+                level = Math.max(level, 1); // 현재 레벨과 비교하여 더 높은 레벨 선택
+            }
+            if (file_size >= 160) {
+                text += ', 키워드/패턴:매우 심각';
+                level = Math.max(level, 5); // 현재 레벨과 비교하여 더 높은 레벨 선택
+            }
+            else if (file_size >= 120) {
+                text += ', 키워드/패턴:심각';
+                level = Math.max(level, 4); // 현재 레벨과 비교하여 더 높은 레벨 선택
+            }
+            else if (file_size >= 80) {
+                text += ', 키워드/패턴:경계';
+                level = Math.max(level, 3); // 현재 레벨과 비교하여 더 높은 레벨 선택
+            }
+            else if (file_size >= 40) {
+                text += ', 키워드/패턴:주의';
+                level = Math.max(level, 2); // 현재 레벨과 비교하여 더 높은 레벨 선택
+            }
+            else if (file_size >= 0) {
+                text += ', 키워드/패턴:관심';
                 level = Math.max(level, 1); // 현재 레벨과 비교하여 더 높은 레벨 선택
             }
             // pcName 및 latestAgentIp 가져오기
