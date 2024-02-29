@@ -138,26 +138,6 @@ class AnalysisService {
                 text += ', 유출 용량:관심';
                 level = Math.max(level, 1); // 현재 레벨과 비교하여 더 높은 레벨 선택
             }
-            if (file_size >= 160) {
-                text += ', 키워드/패턴:매우 심각';
-                level = Math.max(level, 5); // 현재 레벨과 비교하여 더 높은 레벨 선택
-            }
-            else if (file_size >= 120) {
-                text += ', 키워드/패턴:심각';
-                level = Math.max(level, 4); // 현재 레벨과 비교하여 더 높은 레벨 선택
-            }
-            else if (file_size >= 80) {
-                text += ', 키워드/패턴:경계';
-                level = Math.max(level, 3); // 현재 레벨과 비교하여 더 높은 레벨 선택
-            }
-            else if (file_size >= 40) {
-                text += ', 키워드/패턴:주의';
-                level = Math.max(level, 2); // 현재 레벨과 비교하여 더 높은 레벨 선택
-            }
-            else if (file_size >= 0) {
-                text += ', 키워드/패턴:관심';
-                level = Math.max(level, 1); // 현재 레벨과 비교하여 더 높은 레벨 선택
-            }
             if (pattern.patternLevel == 5) {
                 text += ', 패턴/키워드:매우 심각';
                 level = Math.max(level, 5); // 현재 레벨과 비교하여 더 높은 레벨 선택
