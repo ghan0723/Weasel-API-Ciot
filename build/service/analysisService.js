@@ -96,80 +96,87 @@ class AnalysisService {
             const { sum, event, file_size, pattern } = riskPointsByPc[pcGuid];
             let text = '';
             let level = 0;
+            let eventLevel = 0;
+            let sizeLevel = 0;
+            let patLevel = 0;
             let progress = (sum / Math.max(...Object.values(riskPointsByPc).map(({ sum }) => sum))) * 100; // progress 계산
             // 특정 조건에 따라 텍스트 추가
             if (event >= 80) {
                 text += '유출 빈도:매우 심각';
-                level = Math.max(level, 5); // 현재 레벨과 비교하여 더 높은 레벨 선택
+                eventLevel += 5;
             }
             else if (event >= 60) {
                 text += '유출 빈도:심각';
-                level = Math.max(level, 4); // 현재 레벨과 비교하여 더 높은 레벨 선택
+                eventLevel += 4;
             }
             else if (event >= 40) {
                 text += '유출 빈도:경계';
-                level = Math.max(level, 3); // 현재 레벨과 비교하여 더 높은 레벨 선택
+                eventLevel += 3;
             }
             else if (event >= 20) {
                 text += '유출 빈도:주의';
-                level = Math.max(level, 2); // 현재 레벨과 비교하여 더 높은 레벨 선택
+                eventLevel += 2;
             }
             else if (event >= 0) {
                 text += '유출 빈도:관심';
-                level = Math.max(level, 1); // 현재 레벨과 비교하여 더 높은 레벨 선택
+                eventLevel += 1;
             }
             if (file_size >= 160) {
                 text += ', 유출 용량:매우 심각';
-                level = Math.max(level, 5); // 현재 레벨과 비교하여 더 높은 레벨 선택
+                sizeLevel += 5;
             }
             else if (file_size >= 120) {
                 text += ', 유출 용량:심각';
-                level = Math.max(level, 4); // 현재 레벨과 비교하여 더 높은 레벨 선택
+                sizeLevel += 4;
             }
             else if (file_size >= 80) {
                 text += ', 유출 용량:경계';
-                level = Math.max(level, 3); // 현재 레벨과 비교하여 더 높은 레벨 선택
+                sizeLevel += 3;
             }
             else if (file_size >= 40) {
                 text += ', 유출 용량:주의';
-                level = Math.max(level, 2); // 현재 레벨과 비교하여 더 높은 레벨 선택
+                sizeLevel += 2;
             }
             else if (file_size >= 0) {
                 text += ', 유출 용량:관심';
-                level = Math.max(level, 1); // 현재 레벨과 비교하여 더 높은 레벨 선택
+                sizeLevel += 1;
             }
-            if (pattern.patternLevel == 5) {
+            if ((pattern === null || pattern === void 0 ? void 0 : pattern.patternLevel) >= 5) {
                 text += ', 패턴/키워드:매우 심각';
-                level = Math.max(level, 5); // 현재 레벨과 비교하여 더 높은 레벨 선택
+                patLevel += 5;
             }
-            else if (pattern.patternLevel == 4) {
+            else if ((pattern === null || pattern === void 0 ? void 0 : pattern.patternLevel) >= 4) {
                 text += ', 패턴/키워드:심각';
-                level = Math.max(level, 4); // 현재 레벨과 비교하여 더 높은 레벨 선택
+                patLevel += 4;
             }
-            else if (pattern.patternLevel == 3) {
+            else if ((pattern === null || pattern === void 0 ? void 0 : pattern.patternLevel) >= 3) {
                 text += ', 패턴/키워드:경계';
-                level = Math.max(level, 3); // 현재 레벨과 비교하여 더 높은 레벨 선택
+                patLevel += 3;
             }
-            else if (pattern.patternLevel == 2) {
+            else if ((pattern === null || pattern === void 0 ? void 0 : pattern.patternLevel) >= 2) {
                 text += ', 패턴/키워드:주의';
-                level = Math.max(level, 2); // 현재 레벨과 비교하여 더 높은 레벨 선택
+                patLevel += 2;
             }
-            else if (pattern.patternLevel == 1) {
+            else if ((pattern === null || pattern === void 0 ? void 0 : pattern.patternLevel) >= 1) {
                 text += ', 패턴/키워드:관심';
-                level = Math.max(level, 1); // 현재 레벨과 비교하여 더 높은 레벨 선택
+                patLevel += 1;
             }
             // pcName 및 latestAgentIp 가져오기
             const { pcName, latestAgentIp } = agentinfo[pcGuid];
+            const weightedAverageGroup = this.calculateWeightedAverage({ eventLevel, sizeLevel, patLevel });
             // 결과 배열에 객체 추가
-            riskPointsArray.push({ pcGuid, level, pcName: `${pcName}(${latestAgentIp})`, status: sum, text, progress });
+            riskPointsArray.push({ pcGuid, level: weightedAverageGroup, pcName: `${pcName}(${latestAgentIp})`, status: sum, text, progress });
         });
         // status가 동일한 경우에는 이벤트 빈도수를 기준으로 내림차순으로 정렬
         riskPointsArray.sort((a, b) => {
-            if (b.status !== a.status) {
-                return b.status - a.status; // status가 다를 때는 status로 정렬
+            if (b.level !== a.level) {
+                return b.level - a.level; // level이 다를 때는 level로 정렬
+            }
+            else if (b.status !== a.status) {
+                return b.status - a.status; // level이 같고 status가 다를 때는 status로 정렬
             }
             else {
-                return b.event - a.event; // status가 동일할 때는 이벤트 빈도수로 정렬
+                return b.event - a.event; // level과 status가 같을 때는 이벤트 빈도수로 정렬
             }
         });
         // 결과 반환
@@ -311,6 +318,24 @@ class AnalysisService {
                 });
             }
         });
+    }
+    calculateWeightedAverage(group) {
+        // 평균 계산
+        const values = Object.values(group);
+        const average = values.reduce((acc, curr) => acc + curr, 0) / values.length;
+        // 최대값 찾기
+        const maxValue = Math.max(...values);
+        // 최대값과 나머지 값들의 차이를 바탕으로 가중치 계산
+        const weight = values.filter(value => value !== maxValue)
+            .reduce((acc, curr) => acc + (maxValue - curr), 0) / (values.length - 1);
+        // 가중치가 너무 크면 조정
+        const adjustedWeight = Math.min(weight, maxValue / 2) / 10;
+        // 가중치 적용된 평균 계산
+        let weightedAverage = average + adjustedWeight;
+        // 2번 집단과의 비교를 위한 조건 추가
+        // 이 부분은 문제의 요구 사항에 따라 추가적인 조정이 필요할 수 있습니다.
+        // 결과 반올림
+        return Math.round(weightedAverage);
     }
 }
 exports.default = AnalysisService;
