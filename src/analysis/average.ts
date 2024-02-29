@@ -474,6 +474,44 @@ class Average {
     return level;
 
   }
+
+  // 집합의 다양성 점수를 계산하는 함수입니다. 0이 아닌 요소의 개수를 기반으로 점수를 계산합니다.
+  calculateDiversityScore(values: number[]): number  {
+    // 0이 아닌 요소의 개수를 계산합니다.
+    const nonZeroCount = values.filter(v => v > 0).length;
+    // 0이 아닌 요소 하나당 10점을 부여하여 다양성 점수를 계산합니다.
+    return nonZeroCount * 10;
+  };
+
+  // 집합의 평균 값을 계산하는 함수입니다.
+  calculateAverage(values: number[]): number  {
+    // 집합의 모든 요소의 합을 계산합니다.
+    const sum = values.reduce((acc, curr) => acc + curr, 0);
+    // 합계를 요소의 개수로 나누어 평균을 계산합니다.
+    return sum / values.length;
+  };
+
+  // 집합의 표준 편차를 계산하는 함수입니다.
+  calculateStandardDeviation (values: number[], avg: number): number {
+    // 분산을 계산합니다. 각 요소에서 평균을 뺀 값의 제곱의 평균입니다.
+    const variance = values.reduce((acc, curr) => acc + (curr - avg) ** 2, 0) / values.length;
+    // 분산의 제곱근을 통해 표준 편차를 계산합니다.
+    return Math.sqrt(variance);
+  };
+
+  // 최종 점수를 계산하는 함수입니다. 이 함수는 집합 A와 B의 평균, 표준 편차, 다양성 점수를 계산하여 최종 점수를 도출합니다.
+  calculateFinalScore (setValue: number[]): number {
+    //  평균을 계산합니다.
+    const avg = this.calculateAverage(setValue);
+    // 표준 편차를 계산합니다.
+    const stdDevA = this.calculateStandardDeviation(setValue, avg);
+    // 다양성 점수를 계산합니다.
+    // const diversityScoreB = this.calculateDiversityScore(setValue);
+    // 최종 점수는 평균, 표준 편차, 그리고 다양성 점수의 합입니다.
+    const finalScore = avg + stdDevA;
+    // 최종 점수를 배열로 반환합니다.
+    return finalScore;
+  };
 }
 
 export default Average;

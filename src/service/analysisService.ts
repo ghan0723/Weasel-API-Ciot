@@ -88,6 +88,7 @@ class AnalysisService {
     
     // PC별 정보를 저장할 객체 초기화
     const riskPointsByPc: { [pc_guid: string]: { sum: number, event: number, file_size: number, pattern:{score:number, patternLevel:number} } } = {};
+    const average:Average = new Average();
   
     // 각 PC별로 파일 유출 빈도 점수와 파일 크기 점수를 가져와서 리스크 포인트 계산
     Object.keys(sortedEventByPc).forEach((pcGuid) => {
@@ -116,6 +117,28 @@ class AnalysisService {
       let text = '';
       let level = 0;
       let progress = (sum / Math.max(...Object.values(riskPointsByPc).map(({ sum }) => sum))) * 100; // progress 계산
+
+      // test 진행중(score에 따른 level)
+      // console.log('pattern',pattern);
+      // if(pcGuid === 'PC22') {
+      //   const standardScoreSet = [100,200,300];
+      //   const finalScore = average.calculateFinalScore(standardScoreSet);
+      //   console.log('------------------------------------------------');
+      
+      //   console.log('event : ',event,', file_size : ',file_size,', pattern.score : ',pattern.score);
+      //   console.log('pcGuid : ',pcGuid,', finalScore : ',finalScore);
+      //   console.log('------------------------------------------------');
+      // } else {
+      //   const standardScoreSet = [event,file_size,pattern.score];
+      //   const finalScore = average.calculateFinalScore(standardScoreSet);
+      //   console.log('------------------------------------------------');
+      
+      //   console.log('event : ',event,', file_size : ',file_size,', pattern.score : ',pattern.score);
+      //   console.log('pcGuid : ',pcGuid,', finalScore : ',finalScore);
+      //   console.log('------------------------------------------------');
+      // }
+      
+      
       // 특정 조건에 따라 텍스트 추가
       if (event >= 80) {
         text += '유출 빈도:매우 심각';
