@@ -116,90 +116,66 @@ class AnalysisService {
       const { sum, event, file_size, pattern } = riskPointsByPc[pcGuid];
       let text = '';
       let level = 0;
-      let eventLevel = 0;
-      let sizeLevel = 0;
-      let patLevel = 0;
       let progress = (sum / Math.max(...Object.values(riskPointsByPc).map(({ sum }) => sum))) * 100; // progress 계산
 
-      // test 진행중(score에 따른 level)
-      // console.log('pattern',pattern);
-      // if(pcGuid === 'PC22') {
-      //   const standardScoreSet = [100,200,300];
-      //   const finalScore = average.calculateFinalScore(standardScoreSet);
-      //   console.log('------------------------------------------------');
-      
-      //   console.log('event : ',event,', file_size : ',file_size,', pattern.score : ',pattern.score);
-      //   console.log('pcGuid : ',pcGuid,', finalScore : ',finalScore);
-      //   console.log('------------------------------------------------');
-      // } else {
-      //   const standardScoreSet = [event,file_size,pattern.score];
-      //   const finalScore = average.calculateFinalScore(standardScoreSet);
-      //   console.log('------------------------------------------------');
-      
-      //   console.log('event : ',event,', file_size : ',file_size,', pattern.score : ',pattern.score);
-      //   console.log('pcGuid : ',pcGuid,', finalScore : ',finalScore);
-      //   console.log('------------------------------------------------');
-      // }
-      
       
       // 특정 조건에 따라 텍스트 추가
       if (event >= 80) {
         text += '유출 빈도:매우 심각';
-        eventLevel += 5; 
+        level = Math.max(level, 5);
       } else if (event >= 60){
         text += '유출 빈도:심각';
-        eventLevel += 4;
+        level = Math.max(level, 4);
       } else if(event >= 40){
         text += '유출 빈도:경계';
-        eventLevel += 3;
+        level = Math.max(level, 3);
       } else if (event >= 20){
         text += '유출 빈도:주의';
-        eventLevel += 2;
+        level = Math.max(level, 2);
       } else if (event >= 0){
         text += '유출 빈도:관심';
-        eventLevel += 1;
+        level = Math.max(level, 1);
       }
 
       if (file_size >= 160) {
         text += ', 유출 용량:매우 심각';
-        sizeLevel += 5;
+        level = Math.max(level, 5);
       } else if (file_size >= 120){
         text += ', 유출 용량:심각';
-        sizeLevel += 4;
+        level = Math.max(level, 4);
       } else if(file_size >= 80){
         text += ', 유출 용량:경계';
-        sizeLevel += 3;
+        level = Math.max(level, 3);
       } else if (file_size >= 40){
         text += ', 유출 용량:주의';
-        sizeLevel += 2;
+        level = Math.max(level, 2);
       } else if (file_size >= 0){
         text += ', 유출 용량:관심';
-        sizeLevel += 1;
+        level = Math.max(level, 1);
       }
 
       if(pattern?.patternLevel >= 5) {
         text += ', 패턴/키워드:매우 심각';
-        patLevel += 5;
+        level = Math.max(level, 5);
       } else if(pattern?.patternLevel >= 4) {
         text += ', 패턴/키워드:심각';
-        patLevel += 4;
+        level = Math.max(level, 4);
       } else if(pattern?.patternLevel >= 3) {
         text += ', 패턴/키워드:경계';
-        patLevel += 3;
+        level = Math.max(level, 3);
       } else if(pattern?.patternLevel >= 2) {
         text += ', 패턴/키워드:주의';
-        patLevel += 2;
+        level = Math.max(level, 2);
       } else if(pattern?.patternLevel >= 1) {
         text += ', 패턴/키워드:관심';
-        patLevel += 1;
+        level = Math.max(level, 1);
       }
 
       // pcName 및 latestAgentIp 가져오기
       const { pcName, latestAgentIp } = agentinfo[pcGuid];
-      const weightedAverageGroup = this.calculateWeightedAverage({eventLevel, sizeLevel, patLevel});
-      
+
       // 결과 배열에 객체 추가
-      riskPointsArray.push({ pcGuid, level:weightedAverageGroup , pcName:`${pcName}(${latestAgentIp})`,  status: sum, text, progress});
+      riskPointsArray.push({ pcGuid, level , pcName:`${pcName}(${latestAgentIp})`,  status: sum, text, progress});
     });
 
     // status가 동일한 경우에는 이벤트 빈도수를 기준으로 내림차순으로 정렬
@@ -226,7 +202,7 @@ class AnalysisService {
     // 패턴/키워드 구분
     Object.keys(keywords).map(data => {
       // 키워드
-      if(keywords[data]?.check === true) {
+      if(keywords[data]?.check === false) {
         keywordsList[data] = keywords[data];
       } else {
         // 건수
