@@ -213,7 +213,7 @@ class Average {
     }
     analyzeFileSizeByWeek(detectFiles) {
         //압축 파일 확장자
-        const validExtensions = ['.zip', '.zipx', '.gz', '.z', '.egg', '.7z', '.ar', '.lz', '.lz4', '.ace', '.alz', '.lzh', '.lha', '.rar', '.bz2'];
+        const validExtensions = [".zip", ".zipx", ".gz", ".z", ".egg", ".7z", ".ar", ".lz", ".lz4", ".ace", ".alz", ".lzh", ".lha", ".rar", ".bz2"];
         // PC 별로 파일 크기가 일정 양을 넘을 시 counting 할 객체
         const fileSizeByPc = {};
         // detectFiles 배열을 순회하면서 PC 별로 파일 크기의 총합을 계산
@@ -276,7 +276,7 @@ class Average {
         return sortedFileSizeByPc;
     }
     analyzeFileSizeByMonth(detectFiles, count) {
-        const validExtensions = ['.zip', '.zipx', '.gz', '.z', '.egg', '.7z', '.ar', '.lz', '.lz4', '.ace', '.alz', '.lzh', '.lha', '.rar', '.bz2'];
+        const validExtensions = [".zip", ".zipx", ".gz", ".z", ".egg", ".7z", ".ar", ".lz", ".lz4", ".ace", ".alz", ".lzh", ".lha", ".rar", ".bz2"];
         // PC 별로 파일 크기가 일정 양을 넘을 시 counting 할 객체
         const fileSizeByPc = {};
         // detectFiles 배열을 순회하면서 PC 별로 파일 크기의 총합을 계산
@@ -350,7 +350,7 @@ class Average {
             const { pc_guid, patterns } = file;
             if (!patternsSummary[pc_guid])
                 patternsSummary[pc_guid] = {};
-            if (patterns !== '') {
+            if (patterns !== "") {
                 const patternEntries = patterns.split(", ").map((pattern) => {
                     const [keyword, count] = pattern.split(":");
                     return { keyword, count: parseInt(count, 10) };
@@ -377,9 +377,9 @@ class Average {
         const minPatternCount = 10; // 최소 패턴 발견 수
         const minRiskLevel = 1; // 최소 위험도
         // 패턴당 점수 계산
-        let patternScore = Math.min(patternCount, maxPatternCount) / 10 * baseScorePerPattern;
+        let patternScore = (Math.min(patternCount, maxPatternCount) / 10) * baseScorePerPattern;
         // 위험도에 따른 가중치 적용
-        patternScore *= (riskLevel / 10);
+        patternScore *= riskLevel / 10;
         patternScore *= 2;
         // 최대 점수 제한
         if (riskLevel === 0) {
@@ -392,31 +392,32 @@ class Average {
     }
     analyzeKeywordsListScoring(patternsDB, keywordList) {
         const keywordsResult = {};
-        const keyList = Object.keys(keywordList);
         // patternsDB 객체를 순회합니다.
         Object.entries(patternsDB).forEach(([pcGuid, patternStr]) => {
             let score = 0.0;
             // patternStr을 콤마로 분리하여 각 패턴을 배열로 변환합니다.
-            const patterns = patternStr.split(', ');
+            const patterns = patternStr.split(", ");
             // 각 패턴에 대해 반복하며 keywordList에 존재하는지 확인합니다.
-            patterns.forEach(pattern => {
+            patterns.forEach((pattern) => {
                 var _a;
-                const [keyword, countStr] = pattern.split(':');
-                if (keyList.includes(keyword)) {
+                const [keyword, countStr] = pattern.split(":");
+                if (keywordList[keyword]) {
                     // keywordList에 정의된 키워드의 level 값으로 점수를 계산합니다.
-                    score += ((_a = keywordList[keyword]) === null || _a === void 0 ? void 0 : _a.level) * 10;
+                    const cal = ((_a = keywordList[keyword]) === null || _a === void 0 ? void 0 : _a.level) * 10;
+                    if (score < cal) {
+                        score = cal;
+                    }
                 }
             });
-            score /= keyList.length;
             if (keywordsResult[pcGuid] === undefined || keywordsResult[pcGuid] === null) {
                 keywordsResult[pcGuid] = 0;
             }
-            // 최종 계산된 점수를 keywordsResult 객체에 저장합니다.      
+            // 최종 계산된 점수를 keywordsResult 객체에 저장합니다.
             if (keywordsResult[pcGuid] < score) {
-                keywordsResult[pcGuid] = parseFloat(score.toFixed(2));
+                keywordsResult[pcGuid] = score;
+                // keywordsResult[pcGuid].patternLevel = this.analyzePatternsLevel(score, true);
             }
         });
-        console.log('keywordsResult', keywordsResult);
         return keywordsResult;
     }
     analyzePatternsListScoring(patternsDB, keywordList) {
@@ -426,28 +427,30 @@ class Average {
         Object.entries(patternsDB).forEach(([pcGuid, patternStr]) => {
             let score = 0.0;
             // patternStr을 콤마로 분리하여 각 패턴을 배열로 변환합니다.
-            const patterns = patternStr.split(', ');
+            const patterns = patternStr.split(", ");
             // 각 패턴에 대해 반복하며 keywordList에 존재하는지 확인합니다.
-            patterns.forEach(pattern => {
+            patterns.forEach((pattern) => {
                 var _a;
-                const [keyword, countStr] = pattern.split(':');
+                const [keyword, countStr] = pattern.split(":");
                 const count = parseInt(countStr, 10);
                 // 1000건 이상일 경우 무조건 1000건으로 설정
                 if (count > 1000)
                     count === 1000;
                 if (keyList.includes(keyword)) {
                     // keywordList에 정의된 키워드의 level 값으로 점수를 계산합니다.
-                    score += this.calculatePatternScore(count, +((_a = keywordList[keyword]) === null || _a === void 0 ? void 0 : _a.level));
+                    const cal = this.calculatePatternScore(count, +((_a = keywordList[keyword]) === null || _a === void 0 ? void 0 : _a.level));
+                    if (score < cal) {
+                        score = cal;
+                    }
                 }
             });
             score /= keyList.length;
             if (keywordsResult[pcGuid] === undefined || keywordsResult[pcGuid] === null) {
                 keywordsResult[pcGuid] = 0;
             }
-            // 최종 계산된 점수를 keywordsResult 객체에 저장합니다.      
+            // 최종 계산된 점수를 keywordsResult 객체에 저장합니다.
             if (keywordsResult[pcGuid] < score) {
-                keywordsResult[pcGuid] = parseFloat(score.toFixed(2));
-                ;
+                keywordsResult[pcGuid] = score;
             }
         });
         return keywordsResult;
@@ -459,20 +462,19 @@ class Average {
         if (keywordFlag === false) {
             w = 2;
         }
-        ;
-        if (score >= 0 && score <= (20 * w)) {
+        if (score >= 0 && score <= 20 * w) {
             level = 1;
         }
-        else if (score > (20 * w) && score <= (40 * w)) {
+        else if (score > 20 * w && score <= 40 * w) {
             level = 2;
         }
-        else if (score > (40 * w) && score <= (60 * w)) {
+        else if (score > 40 * w && score <= 60 * w) {
             level = 3;
         }
-        else if (score > (60 * w) && score <= (80 * w)) {
+        else if (score > 60 * w && score <= 80 * w) {
             level = 4;
         }
-        else if (score > (80 * w) && score <= (100 * w)) {
+        else if (score > 80 * w && score <= 100 * w) {
             level = 5;
         }
         return level;
@@ -480,11 +482,10 @@ class Average {
     // 집합의 다양성 점수를 계산하는 함수입니다. 0이 아닌 요소의 개수를 기반으로 점수를 계산합니다.
     calculateDiversityScore(values) {
         // 0이 아닌 요소의 개수를 계산합니다.
-        const nonZeroCount = values.filter(v => v > 0).length;
+        const nonZeroCount = values.filter((v) => v > 0).length;
         // 0이 아닌 요소 하나당 10점을 부여하여 다양성 점수를 계산합니다.
         return nonZeroCount * 10;
     }
-    ;
     // 집합의 평균 값을 계산하는 함수입니다.
     calculateAverage(values) {
         // 집합의 모든 요소의 합을 계산합니다.
@@ -492,7 +493,6 @@ class Average {
         // 합계를 요소의 개수로 나누어 평균을 계산합니다.
         return sum / values.length;
     }
-    ;
     // 집합의 표준 편차를 계산하는 함수입니다.
     calculateStandardDeviation(values, avg) {
         // 분산을 계산합니다. 각 요소에서 평균을 뺀 값의 제곱의 평균입니다.
@@ -500,7 +500,6 @@ class Average {
         // 분산의 제곱근을 통해 표준 편차를 계산합니다.
         return Math.sqrt(variance);
     }
-    ;
     // 최종 점수를 계산하는 함수입니다. 이 함수는 집합 A와 B의 평균, 표준 편차, 다양성 점수를 계산하여 최종 점수를 도출합니다.
     calculateFinalScore(setValue) {
         //  평균을 계산합니다.
@@ -514,6 +513,5 @@ class Average {
         // 최종 점수를 배열로 반환합니다.
         return finalScore;
     }
-    ;
 }
 exports.default = Average;

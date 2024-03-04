@@ -5,10 +5,10 @@ class Average {
     anomalyHours: number[];
   } {
     // 24시간 배열을 0으로 초기화
-    const leakEventsByAllHour: { [key: number]: number } = Array.from(
-      { length: 24 },
-      (_, i) => ({ [i]: 0 })
-    ).reduce((acc: any, hourObj: any) => Object.assign(acc, hourObj), {});
+    const leakEventsByAllHour: { [key: number]: number } = Array.from({ length: 24 }, (_, i) => ({ [i]: 0 })).reduce(
+      (acc: any, hourObj: any) => Object.assign(acc, hourObj),
+      {}
+    );
 
     // 각 파일을 순회하면서 해당 시간의 카운트 증가
     detectFiles.forEach((file: any) => {
@@ -23,10 +23,7 @@ class Average {
     }, {} as { [key: number]: number });
 
     const totalHours = Object.keys(leakEventsByHour).length;
-    const totalEvents: any = Object.values(leakEventsByHour).reduce(
-      (sum: any, count: any) => sum + count,
-      0
-    );
+    const totalEvents: any = Object.values(leakEventsByHour).reduce((sum: any, count: any) => sum + count, 0);
     const averageEventsPerHour = totalEvents / totalHours;
 
     const anomalyHours = Object.entries(leakEventsByHour)
@@ -70,16 +67,11 @@ class Average {
       }
     });
     // 점수를 기준으로 내림차순 정렬
-    const sortedEventByPc = Object.fromEntries(
-      Object.entries(eventByPc).sort(([, a], [, b]) => b - a)
-    );
+    const sortedEventByPc = Object.fromEntries(Object.entries(eventByPc).sort(([, a], [, b]) => b - a));
     return sortedEventByPc;
   }
 
-  analyzeEventsByMonth(
-    detectFiles: any,
-    count: number
-  ): { [pcGuid: string]: number } {
+  analyzeEventsByMonth(detectFiles: any, count: number): { [pcGuid: string]: number } {
     // PC 별로 유출 빈도 수를 counting 할 객체
     const eventByPc: { [pcGuid: string]: number } = {};
     // 배열을 확인하면서 pc 별 빈도수를 계산한다.
@@ -133,16 +125,11 @@ class Average {
       }
     });
     // 점수를 기준으로 내림차순 정렬
-    const sortedEventByPc = Object.fromEntries(
-      Object.entries(eventByPc).sort(([, a], [, b]) => b - a)
-    );
+    const sortedEventByPc = Object.fromEntries(Object.entries(eventByPc).sort(([, a], [, b]) => b - a));
     return sortedEventByPc;
   }
 
-  analyzeEventsByYear(
-    detectFiles: any,
-    count: number
-  ): { [pcGuid: string]: number } {
+  analyzeEventsByYear(detectFiles: any, count: number): { [pcGuid: string]: number } {
     // PC 별로 유출 빈도 수를 counting 할 객체
     const eventByPc: { [pcGuid: string]: number } = {};
     // 배열을 확인하면서 pc 별 빈도수를 계산한다.
@@ -196,15 +183,13 @@ class Average {
       }
     });
     // 점수를 기준으로 내림차순 정렬
-    const sortedEventByPc = Object.fromEntries(
-      Object.entries(eventByPc).sort(([, a], [, b]) => b - a)
-    );
+    const sortedEventByPc = Object.fromEntries(Object.entries(eventByPc).sort(([, a], [, b]) => b - a));
     return sortedEventByPc;
   }
 
   analyzeFileSizeByWeek(detectFiles: any): { [pcGuid: string]: number } {
     //압축 파일 확장자
-    const validExtensions = ['.zip', '.zipx', '.gz', '.z', '.egg', '.7z', '.ar', '.lz', '.lz4', '.ace', '.alz', '.lzh', '.lha', '.rar', '.bz2'];
+    const validExtensions = [".zip", ".zipx", ".gz", ".z", ".egg", ".7z", ".ar", ".lz", ".lz4", ".ace", ".alz", ".lzh", ".lha", ".rar", ".bz2"];
     // PC 별로 파일 크기가 일정 양을 넘을 시 counting 할 객체
     const fileSizeByPc: { [pcGuid: string]: number } = {};
 
@@ -235,35 +220,33 @@ class Average {
       }
     });
     Object.keys(fileSizeByPc).forEach((pcGuid, index) => {
-      if(fileSizeByPc[pcGuid] >= 100000000){
+      if (fileSizeByPc[pcGuid] >= 100000000) {
         fileSizeByPc[pcGuid] = 100;
-      } else if (fileSizeByPc[pcGuid] >= 80000000){
+      } else if (fileSizeByPc[pcGuid] >= 80000000) {
         fileSizeByPc[pcGuid] = 80;
-      } else if (fileSizeByPc[pcGuid] >= 60000000){
+      } else if (fileSizeByPc[pcGuid] >= 60000000) {
         fileSizeByPc[pcGuid] = 60;
-      } else if (fileSizeByPc[pcGuid] >= 40000000){
+      } else if (fileSizeByPc[pcGuid] >= 40000000) {
         fileSizeByPc[pcGuid] = 40;
-      } else if (fileSizeByPc[pcGuid] >= 20000000){
+      } else if (fileSizeByPc[pcGuid] >= 20000000) {
         fileSizeByPc[pcGuid] = 20;
-      } else if (fileSizeByPc[pcGuid] >= 10000000){
+      } else if (fileSizeByPc[pcGuid] >= 10000000) {
         fileSizeByPc[pcGuid] = 10;
-      } else if (fileSizeByPc[pcGuid] >= 50000000){
+      } else if (fileSizeByPc[pcGuid] >= 50000000) {
         fileSizeByPc[pcGuid] = 5;
       } else {
         fileSizeByPc[pcGuid] = 0;
-      }      
+      }
     });
     // 점수를 기준으로 내림차순 정렬
-    const sortedFileSizeByPc = Object.fromEntries(
-      Object.entries(fileSizeByPc).sort(([, a], [, b]) => b - a)
-    );
+    const sortedFileSizeByPc = Object.fromEntries(Object.entries(fileSizeByPc).sort(([, a], [, b]) => b - a));
     return sortedFileSizeByPc;
   }
 
   analyzeFileSizeByMonth(detectFiles: any, count: number): { [pcGuid: string]: number } {
-    const validExtensions = ['.zip', '.zipx', '.gz', '.z', '.egg', '.7z', '.ar', '.lz', '.lz4', '.ace', '.alz', '.lzh', '.lha', '.rar', '.bz2'];
-        // PC 별로 파일 크기가 일정 양을 넘을 시 counting 할 객체
-        const fileSizeByPc: { [pcGuid: string]: number } = {};
+    const validExtensions = [".zip", ".zipx", ".gz", ".z", ".egg", ".7z", ".ar", ".lz", ".lz4", ".ace", ".alz", ".lzh", ".lha", ".rar", ".bz2"];
+    // PC 별로 파일 크기가 일정 양을 넘을 시 counting 할 객체
+    const fileSizeByPc: { [pcGuid: string]: number } = {};
     // detectFiles 배열을 순회하면서 PC 별로 파일 크기의 총합을 계산
     detectFiles.forEach((file: any) => {
       const { pc_guid, file_size, org_file } = file;
@@ -291,19 +274,19 @@ class Average {
       }
     });
     Object.keys(fileSizeByPc).forEach((pcGuid, index) => {
-      if(fileSizeByPc[pcGuid] >= 20000000 * count){
+      if (fileSizeByPc[pcGuid] >= 20000000 * count) {
         fileSizeByPc[pcGuid] = 100;
-      } else if (fileSizeByPc[pcGuid] >= 16000000 * count){
+      } else if (fileSizeByPc[pcGuid] >= 16000000 * count) {
         fileSizeByPc[pcGuid] = 80;
-      } else if (fileSizeByPc[pcGuid] >= 14000000 * count){
+      } else if (fileSizeByPc[pcGuid] >= 14000000 * count) {
         fileSizeByPc[pcGuid] = 70;
-      } else if (fileSizeByPc[pcGuid] >= 10000000 * count){
+      } else if (fileSizeByPc[pcGuid] >= 10000000 * count) {
         fileSizeByPc[pcGuid] = 50;
-      } else if (fileSizeByPc[pcGuid] >= 80000000 * count){
+      } else if (fileSizeByPc[pcGuid] >= 80000000 * count) {
         fileSizeByPc[pcGuid] = 40;
-      } else if (fileSizeByPc[pcGuid] >= 60000000 * count){
+      } else if (fileSizeByPc[pcGuid] >= 60000000 * count) {
         fileSizeByPc[pcGuid] = 30;
-      } else if (fileSizeByPc[pcGuid] >= 40000000 * count){
+      } else if (fileSizeByPc[pcGuid] >= 40000000 * count) {
         fileSizeByPc[pcGuid] = 20;
       } else if (fileSizeByPc[pcGuid] >= 20000000 * count) {
         fileSizeByPc[pcGuid] = 10;
@@ -311,7 +294,7 @@ class Average {
         fileSizeByPc[pcGuid] = 5;
       } else {
         fileSizeByPc[pcGuid] = 0;
-      }      
+      }
     });
     // 점수를 기준으로 내림차순 정렬
     const sortedFileSizeByPc = Object.fromEntries(
@@ -323,37 +306,37 @@ class Average {
   analyzePatternsDBSort(detectFiles: any): { [pcGuid: string]: string } {
     const patternsSummary: { [pcGuid: string]: { [keyword: string]: number } } = {};
 
-    detectFiles.forEach((file:any) => {
+    detectFiles.forEach((file: any) => {
       const { pc_guid, patterns } = file;
 
       if (!patternsSummary[pc_guid]) patternsSummary[pc_guid] = {};
 
-      if(patterns !== '') {
-        const patternEntries = patterns.split(", ").map((pattern:any) => {
+      if (patterns !== "") {
+        const patternEntries = patterns.split(", ").map((pattern: any) => {
           const [keyword, count] = pattern.split(":");
           return { keyword, count: parseInt(count, 10) };
         });
-    
-        patternEntries.forEach(({ keyword, count }:any) => {
+
+        patternEntries.forEach(({ keyword, count }: any) => {
           patternsSummary[pc_guid][keyword] = (patternsSummary[pc_guid][keyword] || 0) + count;
         });
       }
     });
-  
+
     // 최종 문자열 형태로 변환
     const result: { [pcGuid: string]: string } = {};
     Object.entries(patternsSummary).forEach(([pcGuid, keywordCounts]) => {
       const summaryString = Object.entries(keywordCounts)
-      .map(([keyword, count]) => `${keyword}:${count}`)
-      .join(", ");
+        .map(([keyword, count]) => `${keyword}:${count}`)
+        .join(", ");
 
       result[pcGuid] = summaryString;
-    });    
-  
+    });
+
     return result;
   }
 
-  calculatePatternScore(patternCount:number, riskLevel:number):number {
+  calculatePatternScore(patternCount: number, riskLevel: number): number {
     const baseScorePerPattern = 1; // 패턴당 기본 점수
     const maxPatternCount = 1000; // 최대 발견 가능한 패턴 수
     const maxScore = 200; // 최대 점수
@@ -361,148 +344,148 @@ class Average {
     const minRiskLevel = 1; // 최소 위험도
 
     // 패턴당 점수 계산
-    let patternScore = Math.min(patternCount, maxPatternCount) / 10 * baseScorePerPattern;
-    
+    let patternScore = (Math.min(patternCount, maxPatternCount) / 10) * baseScorePerPattern;
+
     // 위험도에 따른 가중치 적용
-    patternScore *= (riskLevel/10);
+    patternScore *= riskLevel / 10;
     patternScore *= 2;
-    
+
     // 최대 점수 제한
-    if(riskLevel === 0) {
+    if (riskLevel === 0) {
       patternScore = 0;
     } else {
       patternScore = Math.min(patternScore, maxScore);
     }
-    
-    return Math.round(patternScore);
-}
 
-  analyzeKeywordsListScoring(patternsDB:any, keywordList:any): { [pcGuid: string]: number } {
+    return Math.round(patternScore);
+  }
+
+  analyzeKeywordsListScoring(patternsDB: any, keywordList: any): { [pcGuid: string]: number } {
     const keywordsResult: { [pcGuid: string]: number } = {};
-    const keyList = Object.keys(keywordList);
 
     // patternsDB 객체를 순회합니다.
     Object.entries(patternsDB).forEach(([pcGuid, patternStr]) => {
-      let score:number = 0.0;
+      let score: number = 0;
 
       // patternStr을 콤마로 분리하여 각 패턴을 배열로 변환합니다.
-      const patterns = (patternStr as string).split(', ');
+      const patterns = (patternStr as string).split(", ");
 
       // 각 패턴에 대해 반복하며 keywordList에 존재하는지 확인합니다.
-      patterns.forEach(pattern => {
-        const [keyword, countStr] = pattern.split(':');
+      patterns.forEach((pattern) => {
+        const [keyword, countStr] = pattern.split(":");
 
-        if (keyList.includes(keyword)) {
+        if (keywordList[keyword]) {
           // keywordList에 정의된 키워드의 level 값으로 점수를 계산합니다.
-          score += keywordList[keyword]?.level * 10;
+          const cal = keywordList[keyword]?.level * 10;
+          if(score < cal) {
+            score = cal;
+          }
         }
       });
-      
-      score /= keyList.length;
 
-      if(keywordsResult[pcGuid] === undefined || keywordsResult[pcGuid] === null) {
+      if (keywordsResult[pcGuid] === undefined || keywordsResult[pcGuid] === null) {
         keywordsResult[pcGuid] = 0;
       }
 
-      // 최종 계산된 점수를 keywordsResult 객체에 저장합니다.      
-      if(keywordsResult[pcGuid] < score) {
-        keywordsResult[pcGuid] = parseFloat(score.toFixed(2));
+      // 최종 계산된 점수를 keywordsResult 객체에 저장합니다.
+      if (keywordsResult[pcGuid] < score) {
+        keywordsResult[pcGuid] = score;
+        // keywordsResult[pcGuid].patternLevel = this.analyzePatternsLevel(score, true);
       }
     });
-
-    console.log('keywordsResult',keywordsResult);
-    
 
     return keywordsResult;
   }
 
-  analyzePatternsListScoring(patternsDB:any, keywordList:any): { [pcGuid: string]: number } {
+  analyzePatternsListScoring(patternsDB: any, keywordList: any): { [pcGuid: string]: number } {
     const keywordsResult: { [pcGuid: string]: number } = {};
-    const keyList = Object.keys(keywordList);
 
     // patternsDB 객체를 순회합니다.
     Object.entries(patternsDB).forEach(([pcGuid, patternStr]) => {
       let score = 0.0;
 
       // patternStr을 콤마로 분리하여 각 패턴을 배열로 변환합니다.
-      const patterns = (patternStr as string).split(', ');
+      const patterns = (patternStr as string).split(", ");
 
       // 각 패턴에 대해 반복하며 keywordList에 존재하는지 확인합니다.
-      patterns.forEach(pattern => {
-        const [keyword, countStr] = pattern.split(':');
+      patterns.forEach((pattern) => {
+        const [keyword, countStr] = pattern.split(":");
         const count = parseInt(countStr, 10);
         // 1000건 이상일 경우 무조건 1000건으로 설정
-        if(count > 1000) count === 1000;
+        if (count > 1000) count === 1000;
 
-        if (keyList.includes(keyword)) {
+        if (keywordList[keyword]) {
           // keywordList에 정의된 키워드의 level 값으로 점수를 계산합니다.
-          score += this.calculatePatternScore(count,+keywordList[keyword]?.level);
+          const cal = this.calculatePatternScore(count, +keywordList[keyword]?.level);
+          if(score < cal) {
+            score = cal;
+          }
         }
       });
+      
 
-      score /= keyList.length;
-
-      if(keywordsResult[pcGuid] === undefined || keywordsResult[pcGuid] === null) {
+      if (keywordsResult[pcGuid] === undefined || keywordsResult[pcGuid] === null) {
         keywordsResult[pcGuid] = 0;
       }
 
-      // 최종 계산된 점수를 keywordsResult 객체에 저장합니다.      
-      if(keywordsResult[pcGuid] < score) {
-        keywordsResult[pcGuid] = parseFloat(score.toFixed(2));;
+      // 최종 계산된 점수를 keywordsResult 객체에 저장합니다.
+      if (keywordsResult[pcGuid] < score) {
+        keywordsResult[pcGuid] = score;
       }
     });
 
     return keywordsResult;
   }
 
-  analyzePatternsLevel(score:number, keywordFlag:boolean):number {
+  analyzePatternsLevel(score: number, keywordFlag: boolean): number {
     // keywordFlag : 키워드(true), 건수(false)
     let w = 1;
-    let level:number = 0;
-    if(keywordFlag === false) { w=2 };
+    let level: number = 0;
+    if (keywordFlag === false) {
+      w = 2;
+    }
 
-    if(score >= 0 && score <= (20 * w)) {
+    if (score >= 0 && score <= 20 * w) {
       level = 1;
-    } else if(score > (20 * w) && score <= (40 * w)) {
+    } else if (score > 20 * w && score <= 40 * w) {
       level = 2;
-    } else if(score > (40 * w) && score <= (60 * w)) {
+    } else if (score > 40 * w && score <= 60 * w) {
       level = 3;
-    } else if(score > (60 * w) && score <= (80 * w)) {
+    } else if (score > 60 * w && score <= 80 * w) {
       level = 4;
-    } else if(score > (80 * w) && score <= (100 * w)) {
+    } else if (score > 80 * w && score <= 100 * w) {
       level = 5;
     }
 
     return level;
-
   }
 
   // 집합의 다양성 점수를 계산하는 함수입니다. 0이 아닌 요소의 개수를 기반으로 점수를 계산합니다.
-  calculateDiversityScore(values: number[]): number  {
+  calculateDiversityScore(values: number[]): number {
     // 0이 아닌 요소의 개수를 계산합니다.
-    const nonZeroCount = values.filter(v => v > 0).length;
+    const nonZeroCount = values.filter((v) => v > 0).length;
     // 0이 아닌 요소 하나당 10점을 부여하여 다양성 점수를 계산합니다.
     return nonZeroCount * 10;
-  };
+  }
 
   // 집합의 평균 값을 계산하는 함수입니다.
-  calculateAverage(values: number[]): number  {
+  calculateAverage(values: number[]): number {
     // 집합의 모든 요소의 합을 계산합니다.
     const sum = values.reduce((acc, curr) => acc + curr, 0);
     // 합계를 요소의 개수로 나누어 평균을 계산합니다.
     return sum / values.length;
-  };
+  }
 
   // 집합의 표준 편차를 계산하는 함수입니다.
-  calculateStandardDeviation (values: number[], avg: number): number {
+  calculateStandardDeviation(values: number[], avg: number): number {
     // 분산을 계산합니다. 각 요소에서 평균을 뺀 값의 제곱의 평균입니다.
     const variance = values.reduce((acc, curr) => acc + (curr - avg) ** 2, 0) / values.length;
     // 분산의 제곱근을 통해 표준 편차를 계산합니다.
     return Math.sqrt(variance);
-  };
+  }
 
   // 최종 점수를 계산하는 함수입니다. 이 함수는 집합 A와 B의 평균, 표준 편차, 다양성 점수를 계산하여 최종 점수를 도출합니다.
-  calculateFinalScore (setValue: number[]): number {
+  calculateFinalScore(setValue: number[]): number {
     //  평균을 계산합니다.
     const avg = this.calculateAverage(setValue);
     // 표준 편차를 계산합니다.
@@ -513,7 +496,7 @@ class Average {
     const finalScore = avg + stdDevA;
     // 최종 점수를 배열로 반환합니다.
     return finalScore;
-  };
+  }
 }
 
 export default Average;
