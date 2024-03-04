@@ -186,20 +186,25 @@ class AnalysisService {
         const average = new average_1.default();
         const keywordsList = {};
         const patternsList = {};
+        const calculateList = {};
         // 패턴/키워드 구분
         Object.keys(keywords).map(data => {
             var _a;
-            // 키워드
-            if (((_a = keywords[data]) === null || _a === void 0 ? void 0 : _a.check) === false) {
-                keywordsList[data] = keywords[data];
-            }
-            else {
-                // 건수
-                patternsList[data] = keywords[data];
+            // // 키워드
+            // if(keywords[data]?.check === false) {
+            //   keywordsList[data] = keywords[data];
+            // } else {
+            //   // 건수
+            //   patternsList[data] = keywords[data];
+            // }
+            if (((_a = keywords[data]) === null || _a === void 0 ? void 0 : _a.check) !== false) {
+                calculateList[data] = keywords[data];
             }
         });
+        console.log('calculateList', calculateList);
         // DB Sort
         const patternsDB = average.analyzePatternsDBSort(detectFiles);
+        console.log('patternDB', patternsDB);
         // 아무 패턴도 없는 것에 대한 scoring 및 제거
         Object.keys(patternsDB).map(data => {
             patternsResult[data] = { score: 0, patternLevel: 0 };
@@ -208,8 +213,8 @@ class AnalysisService {
             }
         });
         // 패턴/키워드에 대한 scoring
-        const keywordsScoring = average.analyzeKeywordsListScoring(patternsDB, keywordsList);
-        const patternsScoring = average.analyzePatternsListScoring(patternsDB, patternsList);
+        const keywordsScoring = average.analyzeKeywordsListScoring(patternsDB, calculateList);
+        const patternsScoring = average.analyzePatternsListScoring(patternsDB, calculateList);
         Object.keys(keywordsScoring).map(guid => {
             patternsResult[guid].score = (keywordsScoring[guid].score + patternsScoring[guid].score);
             if (keywordsScoring[guid].patternLevel >= patternsScoring[guid].patternLevel) {
@@ -224,7 +229,7 @@ class AnalysisService {
     analyzeDetailPatterns(detectFiles, pc_guid) {
         const average = new average_1.default();
         // DB Sort
-        const patternsDB = average.analyzePatternsDBSort(detectFiles);
+        const patternsDB = average.analyzePatternsDBSort(detectFiles); // 추후 변경
         const result = {};
         const patternObject = [];
         const patterns = patternsDB[pc_guid].split(', '); // 문자열을 ', '로 분리하여 배열로 변환

@@ -173,7 +173,7 @@ class MediaService {
             const excludedKeys = ['Downloading'];
 
             const filteredKeys = privilege !== 3 ? aliasKey : aliasKey.filter((key:any) => !excludedKeys.includes(key));
-
+            
             // 검색 결과가 없을 경우의 처리
             if(result.length === 0) {
               result[0] = filteredKeys.reduce((obj:any, key:any) => {
