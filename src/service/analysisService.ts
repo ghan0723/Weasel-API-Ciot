@@ -305,7 +305,7 @@ class AnalysisService {
               const agnetInfo = this.transformAgentInfo(result2);
               // pattern
               if(Object.keys(keywords).length !== 0) {
-                patternsResult = this.analyzePatterns(result,keywords);
+                // patternsResult = this.analyzePatterns(result,keywords);
               }
     
               if(dateRange.includes('week')){
