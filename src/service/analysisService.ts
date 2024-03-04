@@ -193,45 +193,38 @@ class AnalysisService {
     return riskPointsArray;
   }
 
-  analyzePatterns(detectFiles: any, keywords : any): { [pcGuid: string]: {score:number, patternLevel:number} } {
-    const patternsResult: { [pcGuid: string]: {score:number, patternLevel:number}  } = {};
+  analyzePatterns(detectFiles: any, keywords : any): { [pcGuid: string]: number } {
+    const patternsResult: { [pcGuid: string]: number } = {};
     const average: Average = new Average();
-    const keywordsList:any = {};
-    const patternsList:any = {};
+    const calculateList:any = {};
 
     // 패턴/키워드 구분
     Object.keys(keywords).map(data => {
-      // 키워드
-      if(keywords[data]?.check === false) {
-        keywordsList[data] = keywords[data];
-      } else {
-        // 건수
-        patternsList[data] = keywords[data];
+      if(keywords[data]?.check !== false) {
+        calculateList[data] = keywords[data];
       }
-    });    
+    });
+
+    console.log('calculateList',calculateList);
+    
 
     // DB Sort
     const patternsDB = average.analyzePatternsDBSort(detectFiles);
 
     // 아무 패턴도 없는 것에 대한 scoring 및 제거
     Object.keys(patternsDB).map(data => {
-      patternsResult[data] = {score:0, patternLevel:0};
+      patternsResult[data] = 0;
       if(patternsDB[data] === '') {
         delete patternsDB[data];
       }
     });
 
     // 패턴/키워드에 대한 scoring
-    const keywordsScoring = average.analyzeKeywordsListScoring(patternsDB,keywordsList);
-    const patternsScoring = average.analyzePatternsListScoring(patternsDB,patternsList);
+    const keywordsScoring = average.analyzeKeywordsListScoring(patternsDB,calculateList);
+    const patternsScoring = average.analyzePatternsListScoring(patternsDB,calculateList);
 
     Object.keys(keywordsScoring).map(guid => {
-      patternsResult[guid].score = (keywordsScoring[guid].score + patternsScoring[guid].score);
-      if(keywordsScoring[guid].patternLevel >= patternsScoring[guid].patternLevel) {
-        patternsResult[guid].patternLevel = keywordsScoring[guid].patternLevel;
-      } else {
-        patternsResult[guid].patternLevel = patternsScoring[guid].patternLevel;
-      }
+      patternsResult[guid] = (keywordsScoring[guid] + patternsScoring[guid]);
     });
 
     return patternsResult;
@@ -240,7 +233,7 @@ class AnalysisService {
   analyzeDetailPatterns(detectFiles: any, pc_guid:any):any {
     const average: Average = new Average();
     // DB Sort
-    const patternsDB = average.analyzePatternsDBSort(detectFiles);
+    const patternsDB = average.analyzePatternsDBSort(detectFiles); // 추후 변경
     const result:any = {};
 
     const patternObject:any = [];
