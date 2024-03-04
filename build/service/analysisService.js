@@ -73,7 +73,6 @@ class AnalysisService {
     scoringRiskPoint(sortedEventByPc, sortedFileSizeByPc, agentinfo, sortedPatternsByPc) {
         // PC별 정보를 저장할 객체 초기화
         const riskPointsByPc = {};
-        const average = new average_1.default();
         // 각 PC별로 파일 유출 빈도 점수와 파일 크기 점수를 가져와서 리스크 포인트 계산
         Object.keys(sortedEventByPc).forEach((pcGuid) => {
             let sum = 0;
@@ -82,7 +81,7 @@ class AnalysisService {
             const patternPoint = sortedPatternsByPc !== undefined && sortedPatternsByPc[pcGuid] || 0;
             if (patternPoint !== 0) {
                 // 리스크 포인트 계산
-                sum = eventPoint + fileSizePoint * 2 + patternPoint.score;
+                sum = eventPoint + fileSizePoint * 2 + patternPoint.keyword + patternPoint.pattern;
             }
             else {
                 sum = eventPoint + fileSizePoint * 2;
@@ -97,7 +96,7 @@ class AnalysisService {
             const { sum, event, file_size, pattern } = riskPointsByPc[pcGuid];
             let text = '';
             let level = 0;
-            let patternScore = (pattern === null || pattern === void 0 ? void 0 : pattern.score) / 3;
+            // let patternScore = pattern?.score / 3;
             let progress = (sum / Math.max(...Object.values(riskPointsByPc).map(({ sum }) => sum))) * 100; // progress 계산
             // 특정 조건에 따라 텍스트 추가
             if (event >= 80) {
@@ -130,22 +129,37 @@ class AnalysisService {
             else if (file_size >= 0) {
                 text += ', 유출 용량:관심';
             }
-            if (patternScore >= 80) {
-                text += ', 패턴/키워드:매우 심각';
+            if (pattern.keyword >= 80) {
+                text += ', 키워드:매우 심각';
             }
-            else if (patternScore >= 60) {
-                text += ', 패턴/키워드:심각';
+            else if (pattern.keyword >= 60) {
+                text += ', 키워드:심각';
             }
-            else if (patternScore >= 40) {
-                text += ', 패턴/키워드:경계';
+            else if (pattern.keyword >= 40) {
+                text += ', 키워드:경계';
             }
-            else if (patternScore >= 20) {
-                text += ', 패턴/키워드:주의';
+            else if (pattern.keyword >= 20) {
+                text += ', 키워드:주의';
             }
-            else if (patternScore >= 0) {
-                text += ', 패턴/키워드:관심';
+            else if (pattern.keyword >= 0) {
+                text += ', 키워드:관심';
             }
-            const levelScore = this.calculateProgress(event, file_size, patternScore);
+            if (pattern.pattern >= 80 * 2) {
+                text += ', 패턴:매우 심각';
+            }
+            else if (pattern.pattern >= 60 * 2) {
+                text += ', 패턴:심각';
+            }
+            else if (pattern.pattern >= 40 * 2) {
+                text += ', 패턴:경계';
+            }
+            else if (pattern.pattern >= 20 * 2) {
+                text += ', 패턴:주의';
+            }
+            else if (pattern.pattern >= 0) {
+                text += ', 패턴:관심';
+            }
+            const levelScore = this.calculateProgress(event, file_size, pattern.keyword, pattern.pattern / 2);
             if (levelScore >= 80) {
                 level += 5;
             }
@@ -186,43 +200,36 @@ class AnalysisService {
         const average = new average_1.default();
         const keywordsList = {};
         const patternsList = {};
-        const calculateList = {};
         // 패턴/키워드 구분
         Object.keys(keywords).map(data => {
             var _a;
-            // // 키워드
-            // if(keywords[data]?.check === false) {
-            //   keywordsList[data] = keywords[data];
-            // } else {
-            //   // 건수
-            //   patternsList[data] = keywords[data];
-            // }
-            if (((_a = keywords[data]) === null || _a === void 0 ? void 0 : _a.check) !== false) {
-                calculateList[data] = keywords[data];
+            // 패턴
+            if (((_a = keywords[data]) === null || _a === void 0 ? void 0 : _a.check) === true) {
+                patternsList[data] = keywords[data];
+            }
+            else {
+                // 키워드
+                keywordsList[data] = keywords[data];
             }
         });
-        console.log('calculateList', calculateList);
         // DB Sort
         const patternsDB = average.analyzePatternsDBSort(detectFiles);
-        console.log('patternDB', patternsDB);
         // 아무 패턴도 없는 것에 대한 scoring 및 제거
         Object.keys(patternsDB).map(data => {
-            patternsResult[data] = { score: 0, patternLevel: 0 };
+            patternsResult[data] = {
+                keyword: 0,
+                pattern: 0
+            };
             if (patternsDB[data] === '') {
                 delete patternsDB[data];
             }
         });
         // 패턴/키워드에 대한 scoring
-        const keywordsScoring = average.analyzeKeywordsListScoring(patternsDB, calculateList);
-        const patternsScoring = average.analyzePatternsListScoring(patternsDB, calculateList);
+        const keywordsScoring = average.analyzeKeywordsListScoring(patternsDB, keywordsList);
+        const patternsScoring = average.analyzePatternsListScoring(patternsDB, patternsList);
         Object.keys(keywordsScoring).map(guid => {
-            patternsResult[guid].score = (keywordsScoring[guid].score + patternsScoring[guid].score);
-            if (keywordsScoring[guid].patternLevel >= patternsScoring[guid].patternLevel) {
-                patternsResult[guid].patternLevel = keywordsScoring[guid].patternLevel;
-            }
-            else {
-                patternsResult[guid].patternLevel = patternsScoring[guid].patternLevel;
-            }
+            patternsResult[guid].keyword = keywordsScoring[guid];
+            patternsResult[guid].pattern = patternsScoring[guid];
         });
         return patternsResult;
     }
@@ -341,10 +348,10 @@ class AnalysisService {
         // 결과 반올림
         return Math.round(weightedAverage);
     }
-    calculateProgress(a, b, c) {
-        const maxValue = Math.max(a, b, c); // a, b, c 중 가장 큰 값
-        const sumOfOthers = (a + b + c - maxValue); // 나머지 두 값을 더한 값
-        const result = (sumOfOthers / 20) + maxValue; // 최종 결과 계산
+    calculateProgress(a, b, c, d) {
+        const maxValue = Math.max(a, b, c, d); // a, b, c 중 가장 큰 값
+        const sumOfOthers = (a + b + c + d - maxValue); // 나머지 두 값을 더한 값
+        const result = (sumOfOthers / 30) + maxValue; // 최종 결과 계산
         return result;
     }
 }
