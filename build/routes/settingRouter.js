@@ -46,11 +46,26 @@ router.get("/servers", (req, res) => {
 router.post("/agent", (req, res) => {
     const username = req.query.username;
     const agent = req.body;
+    const updateFile = req.body.updateFile;
     settingService
         .modAgentSetting(agent)
         .then((result) => {
-        log_1.weasel.log(username, req.socket.remoteAddress, "Success to Update Agent Setting ");
-        res.send(result);
+        if (updateFile !== undefined && updateFile !== null) {
+            settingService
+                .updateFileAgent(updateFile)
+                .then((result2) => {
+                log_1.weasel.log(username, req.socket.remoteAddress, "Success to Update Agent Setting ");
+                res.send(result);
+            })
+                .catch((error2) => {
+                log_1.weasel.error(username, req.socket.remoteAddress, "Failed to Update Agent Setting ");
+                res.status(500).send("agent setting post 하다가 에러났어요");
+            });
+        }
+        else {
+            log_1.weasel.log(username, req.socket.remoteAddress, "Success to Update Agent Setting ");
+            res.send(result);
+        }
     })
         .catch((error) => {
         // console.error("agent setting post 에러 : ", error);
@@ -63,8 +78,16 @@ router.get("/agents", (req, res) => {
     settingService
         .getAgentSetting()
         .then((result) => {
-        log_1.weasel.log(username, req.socket.remoteAddress, "Success to Get Agent Information ");
-        res.send(result);
+        settingService.getUpdateFileAgent()
+            .then((result2) => {
+            log_1.weasel.log(username, req.socket.remoteAddress, "Success to Get Agent Information ");
+            res.send([result, result2]);
+        })
+            .catch((error2) => {
+            log_1.weasel.error(username, req.socket.remoteAddress, "Failed to Get Agent Information ");
+            console.error("agent setting get 에러 : ", error2);
+            res.status(500).send("agent setting get 하다가 에러났어요");
+        });
     })
         .catch((error) => {
         log_1.weasel.error(username, req.socket.remoteAddress, "Failed to Get Agent Information ");

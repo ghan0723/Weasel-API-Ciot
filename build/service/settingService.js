@@ -217,5 +217,31 @@ class SettingService {
             });
         });
     }
+    updateFileAgent(updateFile) {
+        const query = `update updateagents set update_file = ${updateFile}`;
+        return new Promise((resolve, reject) => {
+            db_1.default.query(query, (error, result) => {
+                if (error) {
+                    reject(error);
+                }
+                else {
+                    resolve(result);
+                }
+            });
+        });
+    }
+    getUpdateFileAgent() {
+        const query = 'select update_file as updateFile from updateagents';
+        return new Promise((resolve, reject) => {
+            db_1.default.query(query, (error, result) => {
+                if (error) {
+                    reject(error);
+                }
+                else {
+                    resolve(result);
+                }
+            });
+        });
+    }
 }
 exports.default = SettingService;

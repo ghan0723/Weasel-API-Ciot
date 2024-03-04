@@ -231,6 +231,32 @@ class SettingService {
       });
     });
   }
+
+  updateFileAgent(updateFile:any):Promise<any>{
+    const query = `update updateagents set update_file = ${updateFile}`;
+    return new Promise((resolve, reject) => {
+      connection.query(query, (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      })
+    })
+  }
+
+  getUpdateFileAgent(): Promise<any>{
+    const query = 'select update_file as updateFile from updateagents';
+    return new Promise((resolve, reject) => {
+      connection.query(query, (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      })
+    })
+  }
 }
 
 export default SettingService;

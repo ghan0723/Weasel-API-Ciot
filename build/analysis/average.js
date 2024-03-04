@@ -342,6 +342,7 @@ class Average {
         });
         // 점수를 기준으로 내림차순 정렬
         const sortedFileSizeByPc = Object.fromEntries(Object.entries(fileSizeByPc).sort(([, a], [, b]) => b - a));
+        console.log("sortedFileSizeByPc : ", sortedFileSizeByPc);
         return sortedFileSizeByPc;
     }
     analyzePatternsDBSort(detectFiles) {

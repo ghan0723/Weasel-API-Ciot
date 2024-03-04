@@ -116,59 +116,59 @@ class AnalysisService {
       const { sum, event, file_size, pattern } = riskPointsByPc[pcGuid];
       let text = '';
       let level = 0;
+      let patternScore = pattern?.score / 3;
       let progress = (sum / Math.max(...Object.values(riskPointsByPc).map(({ sum }) => sum))) * 100; // progress 계산
 
       
       // 특정 조건에 따라 텍스트 추가
       if (event >= 80) {
         text += '유출 빈도:매우 심각';
-        level = Math.max(level, 5);
       } else if (event >= 60){
         text += '유출 빈도:심각';
-        level = Math.max(level, 4);
       } else if(event >= 40){
         text += '유출 빈도:경계';
-        level = Math.max(level, 3);
       } else if (event >= 20){
         text += '유출 빈도:주의';
-        level = Math.max(level, 2);
       } else if (event >= 0){
         text += '유출 빈도:관심';
-        level = Math.max(level, 1);
       }
 
-      if (file_size >= 160) {
+      if (file_size >= 80) {
         text += ', 유출 용량:매우 심각';
-        level = Math.max(level, 5);
-      } else if (file_size >= 120){
+      } else if (file_size >= 60){
         text += ', 유출 용량:심각';
-        level = Math.max(level, 4);
-      } else if(file_size >= 80){
+      } else if(file_size >= 40){
         text += ', 유출 용량:경계';
-        level = Math.max(level, 3);
-      } else if (file_size >= 40){
+      } else if (file_size >= 20){
         text += ', 유출 용량:주의';
-        level = Math.max(level, 2);
       } else if (file_size >= 0){
         text += ', 유출 용량:관심';
-        level = Math.max(level, 1);
       }
 
-      if(pattern?.patternLevel >= 5) {
+      if(patternScore >= 80) {
         text += ', 패턴/키워드:매우 심각';
-        level = Math.max(level, 5);
-      } else if(pattern?.patternLevel >= 4) {
+      } else if(patternScore >= 60) {
         text += ', 패턴/키워드:심각';
-        level = Math.max(level, 4);
-      } else if(pattern?.patternLevel >= 3) {
+      } else if(patternScore >= 40) {
         text += ', 패턴/키워드:경계';
-        level = Math.max(level, 3);
-      } else if(pattern?.patternLevel >= 2) {
+      } else if(patternScore >= 20) {
         text += ', 패턴/키워드:주의';
-        level = Math.max(level, 2);
-      } else if(pattern?.patternLevel >= 1) {
+      } else if(patternScore >= 0) {
         text += ', 패턴/키워드:관심';
-        level = Math.max(level, 1);
+      }
+
+      const levelScore = this.calculateProgress(event, file_size, patternScore);
+      
+      if(levelScore >= 80) {
+        level += 5;
+      } else if(levelScore >= 60) {
+        level += 4;
+      } else if(levelScore >= 40) {
+        level += 3;
+      } else if(levelScore >= 20) {
+        level += 2;
+      } else if(levelScore >= 0) {
+        level += 1;
       }
 
       // pcName 및 latestAgentIp 가져오기
@@ -373,6 +373,12 @@ class AnalysisService {
     return Math.round(weightedAverage);
 }
 
+calculateProgress(a: any, b: any, c: any): number {
+  const maxValue = Math.max(a, b, c); // a, b, c 중 가장 큰 값
+  const sumOfOthers = (a + b + c - maxValue); // 나머지 두 값을 더한 값
+  const result = (sumOfOthers / 20) + maxValue; // 최종 결과 계산
+  return result;
+}
 
 }
 export default AnalysisService;
