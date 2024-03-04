@@ -317,7 +317,6 @@ class Average {
     const sortedFileSizeByPc = Object.fromEntries(
       Object.entries(fileSizeByPc).sort(([, a], [, b]) => b - a)
     );
-    console.log("sortedFileSizeByPc : ", sortedFileSizeByPc);
     return sortedFileSizeByPc;
   }
 

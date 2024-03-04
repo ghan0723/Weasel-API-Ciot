@@ -178,36 +178,26 @@ class AnalysisService {
                 return b.event - a.event; // level과 status가 같을 때는 이벤트 빈도수로 정렬
             }
         });
+        console.log("riskPointsArray : ", riskPointsArray);
         // 결과 반환
         return riskPointsArray;
     }
     analyzePatterns(detectFiles, keywords) {
         const patternsResult = {};
         const average = new average_1.default();
-        const keywordsList = {};
-        const patternsList = {};
         const calculateList = {};
         // 패턴/키워드 구분
         Object.keys(keywords).map(data => {
             var _a;
-            // // 키워드
-            // if(keywords[data]?.check === false) {
-            //   keywordsList[data] = keywords[data];
-            // } else {
-            //   // 건수
-            //   patternsList[data] = keywords[data];
-            // }
             if (((_a = keywords[data]) === null || _a === void 0 ? void 0 : _a.check) !== false) {
                 calculateList[data] = keywords[data];
             }
         });
-        console.log('calculateList', calculateList);
         // DB Sort
         const patternsDB = average.analyzePatternsDBSort(detectFiles);
-        console.log('patternDB', patternsDB);
         // 아무 패턴도 없는 것에 대한 scoring 및 제거
         Object.keys(patternsDB).map(data => {
-            patternsResult[data] = { score: 0, patternLevel: 0 };
+            patternsResult[data] = 0;
             if (patternsDB[data] === '') {
                 delete patternsDB[data];
             }
@@ -216,13 +206,7 @@ class AnalysisService {
         const keywordsScoring = average.analyzeKeywordsListScoring(patternsDB, calculateList);
         const patternsScoring = average.analyzePatternsListScoring(patternsDB, calculateList);
         Object.keys(keywordsScoring).map(guid => {
-            patternsResult[guid].score = (keywordsScoring[guid].score + patternsScoring[guid].score);
-            if (keywordsScoring[guid].patternLevel >= patternsScoring[guid].patternLevel) {
-                patternsResult[guid].patternLevel = keywordsScoring[guid].patternLevel;
-            }
-            else {
-                patternsResult[guid].patternLevel = patternsScoring[guid].patternLevel;
-            }
+            patternsResult[guid] = (keywordsScoring[guid] + patternsScoring[guid]);
         });
         return patternsResult;
     }
@@ -287,7 +271,7 @@ class AnalysisService {
                         const agnetInfo = this.transformAgentInfo(result2);
                         // pattern
                         if (Object.keys(keywords).length !== 0) {
-                            patternsResult = this.analyzePatterns(result, keywords);
+                            // patternsResult = this.analyzePatterns(result,keywords);
                         }
                         if (dateRange.includes('week')) {
                             const averageResult = average.analyzeEventsByWeek(result);

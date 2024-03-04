@@ -205,9 +205,6 @@ class AnalysisService {
       }
     });
 
-    console.log('calculateList',calculateList);
-    
-
     // DB Sort
     const patternsDB = average.analyzePatternsDBSort(detectFiles);
 

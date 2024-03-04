@@ -342,7 +342,6 @@ class Average {
         });
         // 점수를 기준으로 내림차순 정렬
         const sortedFileSizeByPc = Object.fromEntries(Object.entries(fileSizeByPc).sort(([, a], [, b]) => b - a));
-        console.log("sortedFileSizeByPc : ", sortedFileSizeByPc);
         return sortedFileSizeByPc;
     }
     analyzePatternsDBSort(detectFiles) {
@@ -396,10 +395,9 @@ class Average {
         const keyList = Object.keys(keywordList);
         // patternsDB 객체를 순회합니다.
         Object.entries(patternsDB).forEach(([pcGuid, patternStr]) => {
-            let score = 0;
+            let score = 0.0;
             // patternStr을 콤마로 분리하여 각 패턴을 배열로 변환합니다.
             const patterns = patternStr.split(', ');
-            console.log('keywordList', keywordList);
             // 각 패턴에 대해 반복하며 keywordList에 존재하는지 확인합니다.
             patterns.forEach(pattern => {
                 var _a;
@@ -411,15 +409,11 @@ class Average {
             });
             score /= keyList.length;
             if (keywordsResult[pcGuid] === undefined || keywordsResult[pcGuid] === null) {
-                keywordsResult[pcGuid] = {
-                    score: 0,
-                    patternLevel: 0
-                };
+                keywordsResult[pcGuid] = 0;
             }
             // 최종 계산된 점수를 keywordsResult 객체에 저장합니다.      
-            if (keywordsResult[pcGuid].score < score) {
-                keywordsResult[pcGuid].score = parseFloat(score.toFixed(2));
-                keywordsResult[pcGuid].patternLevel = this.analyzePatternsLevel(score, true);
+            if (keywordsResult[pcGuid] < score) {
+                keywordsResult[pcGuid] = parseFloat(score.toFixed(2));
             }
         });
         console.log('keywordsResult', keywordsResult);
@@ -427,6 +421,7 @@ class Average {
     }
     analyzePatternsListScoring(patternsDB, keywordList) {
         const keywordsResult = {};
+        const keyList = Object.keys(keywordList);
         // patternsDB 객체를 순회합니다.
         Object.entries(patternsDB).forEach(([pcGuid, patternStr]) => {
             let score = 0.0;
@@ -440,21 +435,19 @@ class Average {
                 // 1000건 이상일 경우 무조건 1000건으로 설정
                 if (count > 1000)
                     count === 1000;
-                if (keywordList[keyword]) {
+                if (keyList.includes(keyword)) {
                     // keywordList에 정의된 키워드의 level 값으로 점수를 계산합니다.
-                    score = this.calculatePatternScore(count, +((_a = keywordList[keyword]) === null || _a === void 0 ? void 0 : _a.level));
+                    score += this.calculatePatternScore(count, +((_a = keywordList[keyword]) === null || _a === void 0 ? void 0 : _a.level));
                 }
             });
+            score /= keyList.length;
             if (keywordsResult[pcGuid] === undefined || keywordsResult[pcGuid] === null) {
-                keywordsResult[pcGuid] = {
-                    score: 0,
-                    patternLevel: 0
-                };
+                keywordsResult[pcGuid] = 0;
             }
             // 최종 계산된 점수를 keywordsResult 객체에 저장합니다.      
-            if (keywordsResult[pcGuid].score < score) {
-                keywordsResult[pcGuid].score = score;
-                keywordsResult[pcGuid].patternLevel = this.analyzePatternsLevel(score, false);
+            if (keywordsResult[pcGuid] < score) {
+                keywordsResult[pcGuid] = parseFloat(score.toFixed(2));
+                ;
             }
         });
         return keywordsResult;
