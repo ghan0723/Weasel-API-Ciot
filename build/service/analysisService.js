@@ -101,23 +101,23 @@ class AnalysisService {
             let sizeLevel = 0;
             let patLevel = 0;
             let progress = (sum / Math.max(...Object.values(riskPointsByPc).map(({ sum }) => sum))) * 100; // progress 계산
+            // test 진행중(score에 따른 level)
             // console.log('pattern',pattern);
-            if (pcGuid === 'PC22') {
-                const standardScoreSet = [100, 200, 300];
-                const finalScore = average.calculateFinalScore(standardScoreSet);
-                console.log('------------------------------------------------');
-                console.log('event : ', event, ', file_size : ', file_size, ', pattern.score : ', pattern.score);
-                console.log('pcGuid : ', pcGuid, ', finalScore : ', finalScore);
-                console.log('------------------------------------------------');
-            }
-            else {
-                const standardScoreSet = [event, file_size, pattern.score];
-                const finalScore = average.calculateFinalScore(standardScoreSet);
-                console.log('------------------------------------------------');
-                console.log('event : ', event, ', file_size : ', file_size, ', pattern.score : ', pattern.score);
-                console.log('pcGuid : ', pcGuid, ', finalScore : ', finalScore);
-                console.log('------------------------------------------------');
-            }
+            // if(pcGuid === 'PC22') {
+            //   const standardScoreSet = [100,200,300];
+            //   const finalScore = average.calculateFinalScore(standardScoreSet);
+            //   console.log('------------------------------------------------');
+            //   console.log('event : ',event,', file_size : ',file_size,', pattern.score : ',pattern.score);
+            //   console.log('pcGuid : ',pcGuid,', finalScore : ',finalScore);
+            //   console.log('------------------------------------------------');
+            // } else {
+            //   const standardScoreSet = [event,file_size,pattern.score];
+            //   const finalScore = average.calculateFinalScore(standardScoreSet);
+            //   console.log('------------------------------------------------');
+            //   console.log('event : ',event,', file_size : ',file_size,', pattern.score : ',pattern.score);
+            //   console.log('pcGuid : ',pcGuid,', finalScore : ',finalScore);
+            //   console.log('------------------------------------------------');
+            // }
             // 특정 조건에 따라 텍스트 추가
             if (event >= 80) {
                 text += '유출 빈도:매우 심각';
