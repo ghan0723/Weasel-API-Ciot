@@ -85,7 +85,6 @@ class AnalysisService {
     agentinfo: { [pcGuid: string]: { pcName: string, latestAgentIp: string } },
     sortedPatternsByPc?: { [pcGuid: string]: {keyword : number, pattern : number} },
   ) {
-    
     // PC별 정보를 저장할 객체 초기화
     const riskPointsByPc: { [pc_guid: string]: { sum: number, event: number, file_size: number, pattern:{keyword : number, pattern : number} } } = {};
   
@@ -186,7 +185,7 @@ class AnalysisService {
       const { pcName, latestAgentIp } = agentinfo[pcGuid];
 
       // 결과 배열에 객체 추가
-      riskPointsArray.push({ pcGuid, level , pcName:`${pcName}(${latestAgentIp})`,  status: sum, text, progress});
+      riskPointsArray.push({ pcGuid, level , pcName:`${pcName}(${latestAgentIp})`,  status: sum, text});
     });
 
     // status가 동일한 경우에는 이벤트 빈도수를 기준으로 내림차순으로 정렬

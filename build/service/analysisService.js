@@ -178,7 +178,7 @@ class AnalysisService {
             // pcName 및 latestAgentIp 가져오기
             const { pcName, latestAgentIp } = agentinfo[pcGuid];
             // 결과 배열에 객체 추가
-            riskPointsArray.push({ pcGuid, level, pcName: `${pcName}(${latestAgentIp})`, status: sum, text, progress });
+            riskPointsArray.push({ pcGuid, level, pcName: `${pcName}(${latestAgentIp})`, status: sum, text });
         });
         // status가 동일한 경우에는 이벤트 빈도수를 기준으로 내림차순으로 정렬
         riskPointsArray.sort((a, b) => {
@@ -192,7 +192,6 @@ class AnalysisService {
                 return b.event - a.event; // level과 status가 같을 때는 이벤트 빈도수로 정렬
             }
         });
-        console.log("riskPointsArray : ", riskPointsArray);
         // 결과 반환
         return riskPointsArray;
     }
@@ -295,7 +294,7 @@ class AnalysisService {
                         const agnetInfo = this.transformAgentInfo(result2);
                         // pattern
                         if (Object.keys(keywords).length !== 0) {
-                            // patternsResult = this.analyzePatterns(result,keywords);
+                            patternsResult = this.analyzePatterns(result, keywords);
                         }
                         if (dateRange.includes('week')) {
                             const averageResult = average.analyzeEventsByWeek(result);

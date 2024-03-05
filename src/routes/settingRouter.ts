@@ -1,9 +1,28 @@
+import multer from "multer";
 import { weasel } from "../interface/log";
 import SettingService from "../service/settingService";
+import path from 'path';
 import express, { Request, Response, Router } from "express";
 
 const router: Router = express.Router();
 const settingService: SettingService = new SettingService();
+// Multer 저장소 설정
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'C:/ciot/updates/');
+    // cb(null, 'C:/Program Files (x86)/ciot/test');
+  },
+  filename: (req, file, cb) => {
+    console.log('file.originalname',file.originalname);
+    
+    const ext = path.extname(file.originalname); // 확장자 추출
+    cb(null, path.basename(file.originalname, ext) + ext); // 파일 이름 설정
+  }
+});
+
+const upload = multer({ 
+  storage: storage,
+ });
 
 router.post("/server", (req: Request, res: Response) => {
   const username = req.query.username;
@@ -208,6 +227,15 @@ router.post("/delete", (req: Request, res: Response) => {
       );
       res.status(500).send("Delete ProcessAccuracy 하다가 에러났어요");
     });
+});
+
+router.post("/fileUpdate", upload.single('file'), (req: Request, res: Response) => {
+  if (req.file) {
+    console.log('업로드된 파일 정보:', req.file);
+    // 여기서 추가적인 작업을 진행할 수 있습니다.
+  } else {
+    console.log('파일이 업로드되지 않았습니다.');
+  }
 });
 
 export = router;

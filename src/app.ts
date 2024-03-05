@@ -31,6 +31,18 @@ const lineChartsRouter = require("./routes/lineChartsRouter.js");
 var app = express();
 const fs = require("fs");
 
+// 파일 업데이트 디렉터리 생성
+try {
+  const directoryPath  = 'C:/ciot/updates';
+  if(!fs.existsSync(directoryPath )) {
+    fs.mkdirSync(directoryPath , { recursive: true });
+  }
+} catch (err) {
+  console.error(err);
+}
+
+
+
 //JSON 파일 읽기
 let rawdata = fs.readFileSync("connection.json");
 let config = JSON.parse(rawdata);

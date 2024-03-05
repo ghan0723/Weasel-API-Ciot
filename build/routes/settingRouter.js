@@ -2,11 +2,28 @@
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+const multer_1 = __importDefault(require("multer"));
 const log_1 = require("../interface/log");
 const settingService_1 = __importDefault(require("../service/settingService"));
+const path_1 = __importDefault(require("path"));
 const express_1 = __importDefault(require("express"));
 const router = express_1.default.Router();
 const settingService = new settingService_1.default();
+// Multer 저장소 설정
+const storage = multer_1.default.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'C:/ciot/updates/');
+        // cb(null, 'C:/Program Files (x86)/ciot/test');
+    },
+    filename: (req, file, cb) => {
+        console.log('file.originalname', file.originalname);
+        const ext = path_1.default.extname(file.originalname); // 확장자 추출
+        cb(null, path_1.default.basename(file.originalname, ext) + ext); // 파일 이름 설정
+    }
+});
+const upload = (0, multer_1.default)({
+    storage: storage,
+});
 router.post("/server", (req, res) => {
     const username = req.query.username;
     const server = req.body;
@@ -144,5 +161,14 @@ router.post("/delete", (req, res) => {
         log_1.weasel.error(username, req.socket.remoteAddress, "Failed to Delete ProcessAccuracy");
         res.status(500).send("Delete ProcessAccuracy 하다가 에러났어요");
     });
+});
+router.post("/fileUpdate", upload.single('file'), (req, res) => {
+    if (req.file) {
+        console.log('업로드된 파일 정보:', req.file);
+        // 여기서 추가적인 작업을 진행할 수 있습니다.
+    }
+    else {
+        console.log('파일이 업로드되지 않았습니다.');
+    }
 });
 module.exports = router;

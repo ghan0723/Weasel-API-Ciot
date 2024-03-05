@@ -33,7 +33,7 @@ class LeakedService {
 
     return new Promise((resolve, reject) => {
       const query =
-        "select time, pc_name, latest_agent_ip " +
+        "select pc_guid, pc_name, latest_agent_ip, time " +
         // "select * " +
         "from agentinfo " +
         whereClause +
@@ -63,12 +63,14 @@ class LeakedService {
             } else {
               if(excelCheck) {
                 for(let i=0; i < result.length; i++) {
-                  result[i]['업데이트 시각'] = result[i]['time'];
-                  delete result[i].time;
+                  result[i]['PC GUID'] = result[i]['pc_guid'];
+                  delete result[i].pc_guid;
                   result[i]['PC명'] = result[i]['pc_name'];
                   delete result[i].pc_name;
                   result[i]['AGENT IP'] = result[i]['latest_agent_ip'];
                   delete result[i].latest_agent_ip;
+                  result[i]['업데이트 시각'] = result[i]['time'];
+                  delete result[i].time;
                 }
               }
               innerResolve(result); // 빈 인수로 호출
@@ -138,9 +140,9 @@ class LeakedService {
 
       const query = `insert into	agentinfo (
         pc_guid,
-        time,
         pc_name,
-        latest_agent_ip)
+        latest_agent_ip,
+        time)
     values (
     'PCGUID${i + 1}',
     now(),
