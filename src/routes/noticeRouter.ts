@@ -6,7 +6,6 @@ const noticeService: NoticeService = new NoticeService();
 
 router.get("/popup", (req: Request, res: Response) => {
   noticeService.getPopNotice().then((result) => {
-    console.log("result : ", result);
     res.send(result);
   });
 });

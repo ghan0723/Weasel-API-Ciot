@@ -61,7 +61,7 @@ router.post("/login", (req: Request, res: Response) => {
                         );
                         res
                           .status(200)
-                          .send({ username, freq: false, notice: true});
+                          .send({ username, freq: false, notice: true });
                       } else {
                         //팝업이 존재하지 않는다면
                         res.cookie("username", user[0].username, {
@@ -100,92 +100,134 @@ router.post("/login", (req: Request, res: Response) => {
                 res.status(500).send(error2);
               });
           } else {
-            let decPasswd = cryptoService.getDecryptUltra(user[0].passwd);
-            settingService
-              .getGUITime()
-              .then((cookieTime) => {
-                userService
-                  .checkPwdFreq(username)
-                  .then((freq) => {
-                    if (passwd !== decPasswd) {
-                      weasel.error(
-                        username,
-                        req.socket.remoteAddress,
-                        "Passwords do not match "
-                      );
-                      res.status(401).json({
-                        error: "비밀번호가 일치하지 않습니다",
-                        redirectUrl: `${frontIP}/auth/sign-in`,
-                      });
-                      return;
-                    } else {
-                      if (!freq) {
-                        userService
-                          .getPopupNotice()
-                          .then((popup) => {
-                            if (popup[0]?.count > 0) {
-                              res.cookie("username", user[0].username, {
-                                secure: true,
-                                maxAge: cookieTime * 1000,
-                                path: "/", // 쿠키의 경로 설정
-                              });
-                              weasel.log(
+            //관리자 제외 나머지 아이디
+            if (user[0]?.enabled !== 1) {
+              weasel.error(
+                username,
+                req.socket.remoteAddress,
+                "This User Can't login"
+              );
+              res.status(500).send({ enabled: false });
+            } else {
+              let decPasswd = cryptoService.getDecryptUltra(user[0].passwd);
+              settingService
+                .getGUITime()
+                .then((cookieTime) => {
+                  userService
+                    .checkPwdFreq(username)
+                    .then((freq) => {
+                      if (passwd !== decPasswd) {
+                        userService.disabledUser(username, user[0].fail_count+1)
+                        .then((enabled) => {
+                          weasel.error(
+                            username,
+                            req.socket.remoteAddress,
+                            "Passwords do not match "
+                          );
+                          res.status(401).json({
+                            error: "비밀번호가 일치하지 않습니다",
+                            redirectUrl: `${frontIP}/auth/sign-in`,
+                          });
+                        })
+                        .catch((enableError) => {
+                          weasel.error(
+                            username,
+                            req.socket.remoteAddress,
+                            "Update Fail Login_fail_count"
+                          );
+                          res.status(401).json({
+                            error: "비밀번호가 일치하지 않습니다",
+                            redirectUrl: `${frontIP}/auth/sign-in`,
+                          });
+                          return;
+                        })
+                      } else {
+                        if (!freq) {
+                          //로그인 성공했으니까 fail_count 한번 초기화 해주기
+                          userService.failCountDefault(username)
+                          .then((result4) => {
+                            userService
+                            .getPopupNotice()
+                            .then((popup) => {
+                              if (popup[0]?.count > 0) {
+                                res.cookie("username", user[0].username, {
+                                  secure: true,
+                                  maxAge: cookieTime * 1000,
+                                  path: "/", // 쿠키의 경로 설정
+                                });
+                                weasel.log(
+                                  username,
+                                  req.socket.remoteAddress,
+                                  "Success Login "
+                                );
+                                res
+                                  .status(200)
+                                  .send({ username, freq, notice: true });
+                              } else {
+                                res.cookie("username", user[0].username, {
+                                  secure: true,
+                                  maxAge: cookieTime * 1000,
+                                  path: "/", // 쿠키의 경로 설정
+                                });
+                                weasel.log(
+                                  username,
+                                  req.socket.remoteAddress,
+                                  "Success Login "
+                                );
+                                res
+                                  .status(200)
+                                  .send({ username, freq, notice: false });
+                              }
+                            })
+                            .catch((error5) => {
+                              weasel.error(
                                 username,
                                 req.socket.remoteAddress,
-                                "Success Login "
+                                "Failed to get PopupNotice "
                               );
-                              res.status(200).send({ username, freq, notice: true});
-                            } else {
-                              res.cookie("username", user[0].username, {
-                                secure: true,
-                                maxAge: cookieTime * 1000,
-                                path: "/", // 쿠키의 경로 설정
-                              });
-                              weasel.log(
-                                username,
-                                req.socket.remoteAddress,
-                                "Success Login "
+                              console.error(
+                                "PopupNotice 가져오기 실패:",
+                                error5
                               );
-                              res.status(200).send({ username, freq, notice: false });
-                            }
+                              res.status(500).send(error5);
+                            });
                           })
                           .catch((error5) => {
                             weasel.error(
                               username,
                               req.socket.remoteAddress,
-                              "Failed to get PopupNotice "
+                              "Failed to Update Fail_Count"
                             );
-                            console.error("PopupNotice 가져오기 실패:", error5);
-                            res.status(500).send(error5);
-                          });
-                      } else {
-                        //freq 보고 판별
-                        weasel.log(
-                          username,
-                          req.socket.remoteAddress,
-                          "Please Change Pwd "
-                        );
-                        res.status(200).send({ username, freq });
+                          })
+                        } else {
+                          //freq 보고 판별
+                          weasel.log(
+                            username,
+                            req.socket.remoteAddress,
+                            "Please Change Pwd "
+                          );
+                          res.status(200).send({ username, freq });
+                        }
                       }
-                    }
-                  })
-                  .catch((error3) => {
-                    weasel.error(
-                      username,
-                      req.socket.remoteAddress,
-                      "Failed to get Pwd Freq "
-                    );
-                  });
-              })
-              .catch((error2) => {
-                weasel.error(
-                  username,
-                  req.socket.remoteAddress,
-                  "Failed to get cookie time "
-                );
-                console.error("쿠키 타임 가져오기 실패:", error2);
-                res.status(500).send(error2);
-              });
+                    })
+                    .catch((error3) => {
+                      weasel.error(
+                        username,
+                        req.socket.remoteAddress,
+                        "Failed to get Pwd Freq "
+                      );
+                    });
+                })
+                .catch((error2) => {
+                  weasel.error(
+                    username,
+                    req.socket.remoteAddress,
+                    "Failed to get cookie time "
+                  );
+                  console.error("쿠키 타임 가져오기 실패:", error2);
+                  res.status(500).send(error2);
+                });
+            }
           }
         });
       }
@@ -455,6 +497,7 @@ router.get("/modify/:username", (req: Request, res: Response) => {
         passwd: decPasswd,
         privilege: result[0].privilege,
         ip_ranges: result[0].ip_ranges,
+        enabled:result[0].enabled,
       };
       weasel.log(
         username,
@@ -619,7 +662,7 @@ router.post("/update/:username", (req: Request, res: Response) => {
               if (decOldPwd === user.passwd) {
                 //변경이 안됨 => 주기 초기화 해줄 필요 없음
                 userService
-                  .modUser(newUser, oldname)
+                  .modUser(newUser, oldname, user.enabled)
                   .then((result4) => {
                     weasel.log(
                       oldname,
@@ -640,7 +683,7 @@ router.post("/update/:username", (req: Request, res: Response) => {
               } else {
                 //변경됨 => 한번 주기 초기화 해줘야함
                 userService
-                  .modUser(newUser, oldname)
+                  .modUser(newUser, oldname, user.enabled)
                   .then((result4) => {
                     userService
                       .modifyPwdByFreq(user.username, encPasswd)

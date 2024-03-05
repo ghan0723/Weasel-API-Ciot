@@ -218,7 +218,7 @@ class SettingService {
         });
     }
     updateFileAgent(updateFile) {
-        const query = `update updateagents set update_file = ${updateFile}`;
+        const query = `update UpdateAgents set update_file = '${updateFile}'`;
         return new Promise((resolve, reject) => {
             db_1.default.query(query, (error, result) => {
                 if (error) {

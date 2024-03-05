@@ -171,4 +171,14 @@ router.post("/fileUpdate", upload.single('file'), (req, res) => {
         console.log('파일이 업로드되지 않았습니다.');
     }
 });
+router.get("/updateFile", (req, res) => {
+    settingService
+        .getUpdateFileAgent()
+        .then((result) => {
+        res.send(result);
+    })
+        .catch((error) => {
+        res.status(500).send("get UpdateAgentFile 하다가 에러났어요");
+    });
+});
 module.exports = router;

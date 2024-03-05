@@ -238,4 +238,15 @@ router.post("/fileUpdate", upload.single('file'), (req: Request, res: Response) 
   }
 });
 
+router.get("/updateFile", (req:Request, res:Response) => {
+  settingService
+    .getUpdateFileAgent()
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => {
+      res.status(500).send("get UpdateAgentFile 하다가 에러났어요");
+    });
+});
+
 export = router;
