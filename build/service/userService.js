@@ -16,8 +16,8 @@ const db_1 = __importDefault(require("../db/db"));
 class UserService {
     getLogin(username) {
         return new Promise((resolve, reject) => {
-            const query = "SELECT username, passwd, privilege, ip_ranges FROM accountlist WHERE username = ?";
-            db_1.default.query(query, [username], (error, results) => {
+            const query = `SELECT username, passwd, privilege, ip_ranges, enabled, fail_count FROM accountlist WHERE username = '${username}'`;
+            db_1.default.query(query, (error, results) => {
                 if (error) {
                     reject(error);
                 }
@@ -74,7 +74,7 @@ class UserService {
         });
     }
     getUser(username) {
-        const query = `select username, passwd, privilege, ip_ranges from accountlist where username = ? `;
+        const query = `select username, passwd, privilege, ip_ranges, enabled from accountlist where username = ? `;
         return new Promise((resolve, reject) => {
             db_1.default.query(query, username, (error, result) => {
                 if (error) {
@@ -87,10 +87,16 @@ class UserService {
             });
         });
     }
-    modUser(user, oldname) {
+    modUser(user, oldname, enabled) {
         let mngip = user.ip_ranges.replace(/(\r\n|\n|\r)/gm, ", ");
         let privilege = parseInt(user.privilege, 10);
-        const query = `UPDATE accountlist SET username = '${user.username}', passwd = '${user.passwd}', privilege = ${privilege}, ip_ranges = '${mngip}' WHERE username = '${oldname}'`;
+        let query = "";
+        if (!enabled) {
+            query = `UPDATE accountlist SET username = '${user.username}', passwd = '${user.passwd}', privilege = ${privilege}, ip_ranges = '${mngip}' WHERE username = '${oldname}'`;
+        }
+        else {
+            query = `UPDATE accountlist SET username = '${user.username}', passwd = '${user.passwd}', privilege = ${privilege}, ip_ranges = '${mngip}', enabled = ${enabled} WHERE username = '${oldname}'`;
+        }
         return new Promise((resolve, reject) => {
             db_1.default.query(query, (error, result) => {
                 if (error) {
@@ -383,6 +389,38 @@ class UserService {
     getPopupNotice() {
         return new Promise((resolve, reject) => {
             const query = `select count(description) as count, description from popupnotice`;
+            db_1.default.query(query, (error, result) => {
+                if (error) {
+                    reject(error);
+                }
+                else {
+                    resolve(result);
+                }
+            });
+        });
+    }
+    disabledUser(username, fail_count) {
+        let query = "";
+        if (fail_count >= 5) {
+            query = `update accountlist set enabled = 0, fail_count = 0 where username = '${username}'`;
+        }
+        else {
+            query = `update accountlist set fail_count = ${fail_count} where username = '${username}'`;
+        }
+        return new Promise((resolve, reject) => {
+            db_1.default.query(query, (error, result) => {
+                if (error) {
+                    reject(error);
+                }
+                else {
+                    resolve(result);
+                }
+            });
+        });
+    }
+    failCountDefault(username) {
+        const query = `update accountlist set fail_count = 0 where username = '${username}'`;
+        return new Promise((resolve, reject) => {
             db_1.default.query(query, (error, result) => {
                 if (error) {
                     reject(error);

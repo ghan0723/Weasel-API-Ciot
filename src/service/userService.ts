@@ -4,9 +4,8 @@ import connection from "../db/db";
 class UserService {
   getLogin(username: string): Promise<any> {
     return new Promise((resolve, reject) => {
-      const query =
-        "SELECT username, passwd, privilege, ip_ranges FROM accountlist WHERE username = ?";
-      connection.query(query, [username], (error, results) => {
+      const query = `SELECT username, passwd, privilege, ip_ranges, enabled, fail_count FROM accountlist WHERE username = '${username}'`;
+      connection.query(query, (error, results) => {
         if (error) {
           reject(error);
         } else {
@@ -73,7 +72,7 @@ class UserService {
   }
 
   getUser(username: string): Promise<any> {
-    const query = `select username, passwd, privilege, ip_ranges from accountlist where username = ? `;
+    const query = `select username, passwd, privilege, ip_ranges, enabled from accountlist where username = ? `;
 
     return new Promise((resolve, reject) => {
       connection.query(query, username, (error, result) => {
@@ -94,11 +93,17 @@ class UserService {
       privilege: string;
       ip_ranges: string;
     },
-    oldname: string
+    oldname: string,
+    enabled?: number
   ): Promise<any> {
     let mngip = user.ip_ranges.replace(/(\r\n|\n|\r)/gm, ", ");
     let privilege: number = parseInt(user.privilege, 10);
-    const query = `UPDATE accountlist SET username = '${user.username}', passwd = '${user.passwd}', privilege = ${privilege}, ip_ranges = '${mngip}' WHERE username = '${oldname}'`;
+    let query = "";
+    if (!enabled) {
+      query = `UPDATE accountlist SET username = '${user.username}', passwd = '${user.passwd}', privilege = ${privilege}, ip_ranges = '${mngip}' WHERE username = '${oldname}'`;
+    } else {
+      query = `UPDATE accountlist SET username = '${user.username}', passwd = '${user.passwd}', privilege = ${privilege}, ip_ranges = '${mngip}', enabled = ${enabled} WHERE username = '${oldname}'`;
+    }
 
     return new Promise((resolve, reject) => {
       connection.query(query, (error, result) => {
@@ -415,6 +420,37 @@ class UserService {
   getPopupNotice(): Promise<any> {
     return new Promise((resolve, reject) => {
       const query = `select count(description) as count, description from popupnotice`;
+      connection.query(query, (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      });
+    });
+  }
+
+  disabledUser(username: any, fail_count: any): Promise<any> {
+    let query = "";
+    if (fail_count >= 5) {
+      query = `update accountlist set enabled = 0, fail_count = 0 where username = '${username}'`;
+    } else {
+      query = `update accountlist set fail_count = ${fail_count} where username = '${username}'`;
+    }
+    return new Promise((resolve, reject) => {
+      connection.query(query, (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      });
+    });
+  }
+
+  failCountDefault(username: any): Promise<any> {
+    const query = `update accountlist set fail_count = 0 where username = '${username}'`;
+    return new Promise((resolve, reject) => {
       connection.query(query, (error, result) => {
         if (error) {
           reject(error);

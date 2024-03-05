@@ -145,4 +145,28 @@ router.post("/delete", (req, res) => {
         res.status(500).send("Delete ProcessAccuracy 하다가 에러났어요");
     });
 });
+router.get("/updateFile", (req, res) => {
+    settingService
+        .getUpdateFileAgent()
+        .then((result) => {
+        res.send(result);
+    })
+        .catch((error) => {
+        res.status(500).send("get UpdateAgentFile 하다가 에러났어요");
+    });
+});
+router.post("/updateFile", (req, res) => {
+    const username = req.query.username;
+    const updateFile = req.body.updateFile;
+    console.log("updateFile : ", updateFile);
+    settingService.updateFileAgent(updateFile)
+        .then((result) => {
+        log_1.weasel.log(username, req.socket.remoteAddress, "Success to Update Agent File");
+        res.send(result);
+    })
+        .catch((error) => {
+        log_1.weasel.error(username, req.socket.remoteAddress, "Failed to Update Agent File");
+        res.status(500).send("Update Agent File 하다가 에러났어요");
+    });
+});
 module.exports = router;

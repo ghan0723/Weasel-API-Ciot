@@ -8,7 +8,6 @@ const router = express_1.default.Router();
 const noticeService = new noticeService_1.default();
 router.get("/popup", (req, res) => {
     noticeService.getPopNotice().then((result) => {
-        console.log("result : ", result);
         res.send(result);
     });
 });

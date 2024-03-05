@@ -233,7 +233,7 @@ class SettingService {
   }
 
   updateFileAgent(updateFile:any):Promise<any>{
-    const query = `update updateagents set update_file = ${updateFile}`;
+    const query = `update UpdateAgents set update_file = '${updateFile}'`;
     return new Promise((resolve, reject) => {
       connection.query(query, (error, result) => {
         if (error) {

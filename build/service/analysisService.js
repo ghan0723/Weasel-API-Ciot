@@ -192,7 +192,6 @@ class AnalysisService {
                 return b.event - a.event; // level과 status가 같을 때는 이벤트 빈도수로 정렬
             }
         });
-        console.log("riskPointsArray : ", riskPointsArray);
         // 결과 반환
         return riskPointsArray;
     }
@@ -295,7 +294,7 @@ class AnalysisService {
                         const agnetInfo = this.transformAgentInfo(result2);
                         // pattern
                         if (Object.keys(keywords).length !== 0) {
-                            // patternsResult = this.analyzePatterns(result,keywords);
+                            patternsResult = this.analyzePatterns(result, keywords);
                         }
                         if (dateRange.includes('week')) {
                             const averageResult = average.analyzeEventsByWeek(result);

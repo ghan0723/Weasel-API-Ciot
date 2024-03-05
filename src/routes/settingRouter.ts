@@ -210,4 +210,38 @@ router.post("/delete", (req: Request, res: Response) => {
     });
 });
 
+router.get("/updateFile", (req:Request, res:Response) => {
+  settingService
+    .getUpdateFileAgent()
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => {
+      res.status(500).send("get UpdateAgentFile 하다가 에러났어요");
+    });
+});
+
+router.post("/updateFile", (req:Request, res:Response) => {
+  const username = req.query.username;
+  const updateFile = req.body.updateFile;
+  console.log("updateFile : ", updateFile);
+  settingService.updateFileAgent(updateFile)
+  .then((result) => {
+    weasel.log(
+      username,
+      req.socket.remoteAddress,
+      "Success to Update Agent File"
+    );
+    res.send(result);
+  })
+  .catch((error) => {
+    weasel.error(
+      username,
+      req.socket.remoteAddress,
+      "Failed to Update Agent File"
+    );
+    res.status(500).send("Update Agent File 하다가 에러났어요");
+  });
+})
+
 export = router;
