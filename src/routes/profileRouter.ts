@@ -43,7 +43,6 @@ router.get("/edit/:username", (req: Request, res: Response) => {
 router.post("/update/:username", (req: Request, res: Response) => {
   let oldname = req.params.username;
   let user = req.body;
-  console.log("user.freq : ", user.freq);
   const encPasswd = cryptoService.getEncryptUltra(user.passwd);
   const newUser = {
     username: user.username,

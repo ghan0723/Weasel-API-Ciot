@@ -14,6 +14,7 @@ const ipCalcService:IpCalcService = new IpCalcService();
 router.get('/', (req:Request, res:Response) => {
     const select = req.query.select;     // 일/주/월
     const username = req.query.username; // 로그인 된 사용자
+    const outlookFlag = req.query.outlookFlag; // outlook 사용
     let ipRanges:IpRange[];
 
     userService.getPrivilegeAndIP(username)
@@ -29,15 +30,15 @@ router.get('/', (req:Request, res:Response) => {
         switch(select) {
             // 일
             case 'day' :
-                results = lineChartsService.getTablesDayData(ipRanges);
+                results = lineChartsService.getTablesDayData(ipRanges,outlookFlag);
             break;
             // 월
             case 'month' :
-                results = lineChartsService.getTablesMonthData(ipRanges);
+                results = lineChartsService.getTablesMonthData(ipRanges,outlookFlag);
             break;
             // 주
             default :
-                results = lineChartsService.getTablesWeekData(ipRanges);
+                results = lineChartsService.getTablesWeekData(ipRanges,outlookFlag);
             break;
         }
     

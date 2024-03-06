@@ -76,7 +76,6 @@ router.get('/dummy', (req:Request, res:Response) => {
   const category = req.query.category; // search column
   const search = req.query.search;     // search context
   const username = req.query.username; // username
-  console.log("dummy : ", contents);
 
   switch(contents) {
     case 'network':

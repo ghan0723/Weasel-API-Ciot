@@ -21,6 +21,11 @@ class SettingService {
   }): Promise<any> {
     let excip = agent.exceptionList?.replace(/(\r\n|\n|\r)/gm, ", ");
     let kewordRef = agent.keywordList?.replace(/(\r\n|\n|\r)/gm, "@@");
+
+    // db에 undefined가 문자열로 들어가는 것을 막기위한 예외처리
+    if(excip === undefined) excip = '';
+    if(kewordRef === undefined) kewordRef = '';
+
     const query = `update serversetting set uid=${agent.uid}, clnt_svr_ip="${agent.serverIP}", clnt_svr_port=${agent.serverPort}, clnt_svr_conn_interval=${agent.serverInterval}, 
     clnt_license="${agent.licenseDist}", clnt_exceptions_list="${excip}", clnt_patterns_list="${kewordRef}", svr_checkbox_flag=${agent.flag}`;
     return new Promise((resolve, reject) => {
@@ -42,8 +47,8 @@ class SettingService {
         if (error) {
           reject(error);
         } else {
-          const clntKeywordList = result[0]?.clnt_patterns_list;
-          const clntExceptionList = result[0]?.clnt_exceptions_list;
+          const clntKeywordList = result[0]?.clnt_patterns_list ?? '';
+          const clntExceptionList = result[0]?.clnt_exceptions_list ?? '';          
           
           if (clntKeywordList && clntKeywordList.includes("@@")) {
             const modifiedKeywordList = clntKeywordList.replace(/@@/g, "\n");
@@ -284,8 +289,6 @@ class SettingService {
   }
 
   postUpdateFileAgent(updateFile:any): Promise<any>{
-    console.log('updateFile',updateFile);
-    
     const query = `update updateagents set update_file = 'C:/ciot/updates/${updateFile}'`;
     return new Promise((resolve, reject) => {
       connection.query(query, (error, result) => {

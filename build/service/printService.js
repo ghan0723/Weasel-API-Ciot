@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const db_1 = __importDefault(require("../db/db"));
+const generateRandom_1 = require("../interface/generateRandom");
 class PrintService {
     constructor() {
         // Old_C
@@ -27,10 +28,10 @@ class PrintService {
             프린터: 'printer', // 6
             관리자: 'doc_owner', // 7
             인쇄파일명: 'doc_name', // 8
-            SPLFILE: 'spl_file', // 9 => 사용 안함
-            파일다운로드: 'spl_file', // 10
-            복사본크기: 'file_size', // 11
-            페이지: 'doc_pages', // 12
+            // SPLFILE : 'spl_file', // 9 => 사용 안함
+            파일다운로드: 'spl_file', // 9
+            복사본크기: 'file_size', // 10
+            페이지: 'doc_pages', // 11
         };
         // New_C
         this.columnAlias = {
@@ -44,10 +45,10 @@ class PrintService {
             'Printers': 'printer', // 6
             'Owners': 'doc_owner', // 7
             'Documents': 'doc_name', // 8
-            'Copied_Spool_Files': 'spl_file', // 9 => 사용 안함
-            'Downloading': 'spl_file', // 10
-            'Sizes': 'file_size', // 11
-            'Pages': 'doc_pages', // 12
+            // 'Copied_Spool_Files' : 'spl_file', // 9 => 사용 안함
+            'Downloading': 'spl_file', // 9
+            'Sizes': 'file_size', // 10
+            'Pages': 'doc_pages', // 11
         };
     }
     getCountAll(select, ipRanges) {
@@ -151,12 +152,12 @@ class PrintService {
         return new Promise((resolve, reject) => {
             const queryStr = privilege !== 3 ?
                 `select ${aliasValues[0]}, ${aliasValues[1]} as ${aliasKey[1]}, ${aliasValues[2]} as ${aliasKey[2]}, ${aliasValues[3]} as ${aliasKey[3]}, ${aliasValues[4]} as ${aliasKey[4]}, ${aliasValues[5]} as ${aliasKey[5]}, 
-      ${aliasValues[6]} as ${aliasKey[6]}, ${aliasValues[7]} as ${aliasKey[7]}, ${aliasValues[8]} as ${aliasKey[8]}, ${aliasValues[10]} as ${aliasKey[10]},
-      ${aliasValues[11]} as ${aliasKey[11]}, ${aliasValues[12]} as ${aliasKey[12]} `
+      ${aliasValues[6]} as ${aliasKey[6]}, ${aliasValues[7]} as ${aliasKey[7]}, ${aliasValues[8]} as ${aliasKey[8]}, ${aliasValues[9]} as ${aliasKey[9]},
+      ${aliasValues[10]} as ${aliasKey[10]}, ${aliasValues[11]} as ${aliasKey[11]} `
                 :
                     `select ${aliasValues[0]}, ${aliasValues[1]} as ${aliasKey[1]}, ${aliasValues[2]} as ${aliasKey[2]}, ${aliasValues[3]} as ${aliasKey[3]}, ${aliasValues[4]} as ${aliasKey[4]}, ${aliasValues[5]} as ${aliasKey[5]}, 
         ${aliasValues[6]} as ${aliasKey[6]}, ${aliasValues[7]} as ${aliasKey[7]}, ${aliasValues[8]} as ${aliasKey[8]}, 
-        ${aliasValues[11]} as ${aliasKey[11]}, ${aliasValues[12]} as ${aliasKey[12]} `;
+        ${aliasValues[10]} as ${aliasKey[10]}, ${aliasValues[11]} as ${aliasKey[11]} `;
             const query = queryStr +
                 "from leakedprintingfiles " +
                 whereClause +
@@ -267,23 +268,24 @@ class PrintService {
                 else {
                     queryMonthStr = queryMonth.toString();
                 }
+                const getTime = (0, generateRandom_1.generateRandomDateTime)();
                 const query = `insert into	leakedprintingfiles (
         time,
+        pc_guid,
       pc_name,
       proc_name,
-      pid,
+      proc_id,
       latest_agent_ip,
       printer,
-      owner,
-      document,
+      doc_owner,
+      doc_name,
       spl_file,
-      size,
-      pages,
-      down_state,
-      isprinted,
-      asked_file)
+      file_size,
+      doc_pages,
+      upload_state)
     values (
-    now(),
+    '${getTime}',
+    'PCGUID${i + 1}',
     'PCname${i + 1}',
     '${proc_name}',
     '2684',
@@ -294,9 +296,7 @@ class PrintService {
     'DESKTOP-O14QCIB++2022-08-31 10.00.34++00007.spl',
     '452823',
     '2',
-    '111',
-    '0',
-    '5');`;
+    '111');`;
                 try {
                     const result = yield new Promise((resolve, reject) => {
                         db_1.default.query(query, (error, result) => {

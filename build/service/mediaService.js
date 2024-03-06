@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const db_1 = __importDefault(require("../db/db"));
+const generateRandom_1 = require("../interface/generateRandom");
 class MediaService {
     constructor() {
         // Old_Columns
@@ -25,10 +26,10 @@ class MediaService {
             프로세스명: 'proc_name', // 4
             유출유형: 'media_type', // 5
             유출파일명: 'org_file', // 6
-            복사된파일: 'backup_file', // 7 => 사용 안함
-            파일다운로드: 'backup_file', // 8
-            파일크기: 'file_size', // 9
-            탐지패턴: 'patterns', // 10
+            // 복사된파일 : 'backup_file', // 7 => 사용 안함
+            파일다운로드: 'backup_file', // 7
+            파일크기: 'file_size', // 8
+            탐지패턴: 'patterns', // 9
         };
         // New_Columns
         this.columnAlias = {
@@ -40,10 +41,10 @@ class MediaService {
             'Process': 'proc_name', // 4
             'Media_Type': 'media_type', // 5
             'Files': 'org_file', // 6
-            'Copied_files': 'backup_file', // 7 => 사용 안함
-            'Downloading': 'backup_file', // 8
-            'FileSizes': 'file_size', // 9
-            'Keywords': 'patterns', // 10
+            // 'Copied_files' : 'backup_file', // 7 => 사용 안함
+            'Downloading': 'backup_file', // 7
+            'FileSizes': 'file_size', // 8
+            'Keywords': 'patterns', // 9
         };
     }
     getMediaAll(select, ipRanges) {
@@ -148,11 +149,11 @@ class MediaService {
         return new Promise((resolve, reject) => {
             const queryStr = privilege !== 3 ?
                 `select ${aliasValues[0]}, ${aliasValues[1]} as ${aliasKey[1]}, ${aliasValues[2]} as ${aliasKey[2]}, ${aliasValues[3]} as ${aliasKey[3]}, ${aliasValues[4]} as ${aliasKey[4]}, ${aliasValues[5]} as ${aliasKey[5]}, ${aliasValues[6]} as ${aliasKey[6]},
-      ${aliasValues[8]} as ${aliasKey[8]},
-      ${aliasValues[9]} as ${aliasKey[9]}, ${aliasValues[10]} as ${aliasKey[10]} `
+      ${aliasValues[7]} as ${aliasKey[7]},
+      ${aliasValues[8]} as ${aliasKey[8]}, ${aliasValues[9]} as ${aliasKey[9]} `
                 :
                     `select ${aliasValues[0]}, ${aliasValues[1]} as ${aliasKey[1]}, ${aliasValues[2]} as ${aliasKey[2]}, ${aliasValues[3]} as ${aliasKey[3]}, ${aliasValues[4]} as ${aliasKey[4]}, ${aliasValues[5]} as ${aliasKey[5]}, ${aliasValues[6]} as ${aliasKey[6]},
-      ${aliasValues[9]} as ${aliasKey[9]}, ${aliasValues[10]} as ${aliasKey[10]} `;
+      ${aliasValues[8]} as ${aliasKey[8]}, ${aliasValues[9]} as ${aliasKey[9]} `;
             const query = queryStr +
                 "from leakedmediafiles " +
                 whereClause +
@@ -248,64 +249,35 @@ class MediaService {
                 else {
                     queryMonthStr = queryMonth.toString();
                 }
-                // Old_C
-                const query = `insert
-      into leakedmediafiles
-       (time,
+                const getTime = (0, generateRandom_1.generateRandomDateTime)();
+                // New_C
+                const query = `insert into leakedmediafiles
+     (time,
+      pc_guid,
       pc_name,
       proc_name,
-      pid,
+      proc_id,
       latest_agent_ip,
-      media_type,
-      file,
-      saved_file,
-      file_size,
-      patterns,
-      down_state,
-      isprinted,
-      asked_file)
-    values 
-    (now(),
-    'PCNAME${i + 1}',
-    'skcertservice.exe',
-    '8892',
-    '10.10.10.157',
-    'USB',
-    'd:\\npki\\signkorea\\user\\cn=이상만-274795,ou=hts,ou=삼성,ou=증권,o=signkorea,c=kr\\signpri.key',
-    'DESKTOP-O14QCIB++2022-09-13 22.34.15++BT++signpri.key',
-    '1346',
-    '',
-    '111',
-    '0',
-    '5');`;
-                // New_C
-                //   const query = `insert
-                //   into leakedmediafiles
-                //    (time,
-                //     pc_guid
-                //     pc_name,
-                //     proc_name,
-                //     proc_id,
-                //     latest_agent_ip,
-                //   media_type,
-                //   org_file,
-                //   backup_file,
-                //   file_size,
-                //   patterns,
-                //   upload_state)
-                // values 
-                // (now(),
-                // 'PCNAME${i+1}',
-                // 'PCGUID${i+1}',
-                // 'skcertservice.exe',
-                // '8892',
-                // '10.10.10.157',
-                // 'USB',
-                // 'd:\\npki\\signkorea\\user\\cn=이상만-274795,ou=hts,ou=삼성,ou=증권,o=signkorea,c=kr\\signpri.key',
-                // 'DESKTOP-O14QCIB++2022-09-13 22.34.15++BT++signpri.key',
-                // '1346',
-                // '',
-                // '111');`;
+    media_type,
+    org_file,
+    backup_file,
+    file_size,
+    patterns,
+    upload_state)
+  values 
+  (
+  '${getTime}',
+  'PCGUID${i + 1}',
+  'PCNAME${i + 1}',  
+  'skcertservice.exe',
+  '8892',
+  '10.10.10.157',
+  'USB',
+  'd:\\npki\\signkorea\\user\\cn=이상만-274795,ou=hts,ou=삼성,ou=증권,o=signkorea,c=kr\\signpri.key',
+  'DESKTOP-O14QCIB++2022-09-13 22.34.15++BT++signpri.key',
+  '1346',
+  '',
+  '111');`;
                 try {
                     const result = yield new Promise((resolve, reject) => {
                         db_1.default.query(query, (error, result) => {
