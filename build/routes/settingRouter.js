@@ -208,8 +208,6 @@ router.get("/updateFile", (req, res) => {
 router.post("/updateFile", (req, res) => {
     const username = req.body.username;
     const updateFile = req.body.updateFile.split('\\').pop();
-    console.log('username', username);
-    console.log('updateFile', updateFile);
     settingService
         .postUpdateFileAgent(updateFile)
         .then(() => {

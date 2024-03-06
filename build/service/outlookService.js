@@ -223,7 +223,6 @@ class OutlookService {
                 else {
                     console.log("삭제 성공");
                     resolve(result);
-                    console.log('result : ', result);
                 }
             });
         });
