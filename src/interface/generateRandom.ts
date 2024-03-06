@@ -77,7 +77,7 @@ export function generateDetectFiles(numFiles: number): DetectFile[] {
     return detectFiles;
 }
 
-function generateRandomDateTime(): string {
+export function generateRandomDateTime(): string {
     const startDate: number = new Date(2024, 0, 1).getTime();
     const endDate: number = new Date().getTime();
     const randomDate: Date = new Date(startDate + Math.random() * (endDate - startDate));

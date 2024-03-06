@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const db_1 = __importDefault(require("../db/db"));
+const generateRandom_1 = require("../interface/generateRandom");
 class OutlookService {
     constructor() {
         // Old_C
@@ -270,26 +271,29 @@ class OutlookService {
                 else {
                     queryMonthStr = queryMonth.toString();
                 }
+                const getTime = (0, generateRandom_1.generateRandomDateTime)();
+                // New_C
                 const query = `insert into leakedoutlookfiles (
         time,
+        pc_guid,
         pc_name,
         proc_name,
-        pid,
+        proc_id,
         latest_agent_ip,
         subject,
         sender,
-        receiver,
-        attachment,
-        saved_file,
+        receivers,
+        attachments,
+        backup_file,
         file_size,
         patterns,
-        down_state,
-        isprinted,
-        asked_file)
+        upload_state)
       values 
-      (now(),
-      'PCname${i + 1}',
-      '${proc_name}',
+      (
+      '${getTime}',
+      'PCGUID${i + 1}',
+      'PCname${i + 1}',      
+      '${process}',
       '23564',
       '${agentIp}',
       'FW: F5 웹방화벽 장애 원인분석 및 조치결과 보고서',
@@ -299,40 +303,7 @@ class OutlookService {
       'DESKTOP-O14QCIB++2022-08-17 09.38.00++UP++(220721) F5 웹방화벽 장애 원인분석 및 조치결과 보고서.docx',
       '39630',
       'Keyword${i + 1}',
-      '111',
-      '0',
-      '5');`;
-                // New_C
-                // const query = `insert into outlookpstviewer (
-                //   time,
-                //   pc_guid
-                //   pc_name,
-                //   proc_name,
-                //   proc_id,
-                //   latest_agent_ip,
-                //   subject,
-                //   sender,
-                //   receivers,
-                //   attachments,
-                //   backup_file,
-                //   file_size,
-                //   patterns,
-                //   upload_state)
-                // values 
-                // (now(),
-                // 'PCGUID${i+1}',
-                // 'PCname${i+1}',      
-                // '${process}',
-                // '23564',
-                // '${agentIp}',
-                // 'FW: F5 웹방화벽 장애 원인분석 및 조치결과 보고서',
-                // 'smlee@stemsoft.co.kr',
-                // 'smlee@stemsoft.co.kr;',
-                // 'image001.png, (220721) F5 웹방화벽 장애 원인분석 및 조치결과 보고서.docx',
-                // 'DESKTOP-O14QCIB++2022-08-17 09.38.00++UP++(220721) F5 웹방화벽 장애 원인분석 및 조치결과 보고서.docx',
-                // '39630',
-                // 'Keyword${i+1}',
-                // '111');`;
+      '111');`;
                 try {
                     const result = yield new Promise((resolve, reject) => {
                         db_1.default.query(query, (error, result) => {

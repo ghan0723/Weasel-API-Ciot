@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.insertDetectFiles = exports.generateDetectFiles = void 0;
+exports.insertDetectFiles = exports.generateRandomDateTime = exports.generateDetectFiles = void 0;
 const db_1 = __importDefault(require("../db/db"));
 function generateDetectFiles(numFiles) {
     const detectFiles = [];
@@ -63,6 +63,7 @@ function generateRandomDateTime() {
     const randomDate = new Date(startDate + Math.random() * (endDate - startDate));
     return randomDate.toISOString().replace('T', ' ').substring(0, 19);
 }
+exports.generateRandomDateTime = generateRandomDateTime;
 function generateRandomIPAddress() {
     return Array.from({ length: 4 }, () => Math.floor(Math.random() * 256)).join('.');
 }

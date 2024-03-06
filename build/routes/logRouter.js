@@ -54,7 +54,7 @@ router.get("/tables", (req, res) => {
             res.send(false);
         }
     })
-        .catch((error) => {
+        .catch(() => {
         log_1.weasel.error(username, req.socket.remoteAddress, "Failed to load outlook Flag. ");
         res.status(500).send("error");
     });

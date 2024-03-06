@@ -46,15 +46,27 @@ class LineChartsService {
         return months;
     }
     // tables month count(1년치 data)
-    getTablesMonthData(ipRanges) {
+    getTablesMonthData(ipRanges, outlookFlag) {
         let monthArray = [];
-        return new Promise((resolve, reject) => {
-            Promise.all([
+        let promiseArray = [];
+        if (outlookFlag === 'true') {
+            promiseArray = [
                 this.getTableMonth(0, ipRanges),
                 this.getTableMonth(1, ipRanges),
                 this.getTableMonth(2, ipRanges),
                 this.getTableMonth(3, ipRanges),
-            ]).then((values) => {
+            ];
+        }
+        else {
+            promiseArray = [
+                this.getTableMonth(0, ipRanges),
+                this.getTableMonth(1, ipRanges),
+                this.getTableMonth(3, ipRanges),
+            ];
+        }
+        return new Promise((resolve, reject) => {
+            Promise.all(promiseArray)
+                .then((values) => {
                 for (const month of this.monthlyArray) {
                     monthArray.push(+month);
                 }
@@ -114,14 +126,25 @@ class LineChartsService {
         }
         return weeks;
     }
-    getTablesWeekData(ipRanges) {
-        return new Promise((resolve, reject) => {
-            Promise.all([
+    getTablesWeekData(ipRanges, outlookFlag) {
+        let promiseArray = [];
+        if (outlookFlag === 'true') {
+            promiseArray = [
                 this.getTableWeek(0, ipRanges),
                 this.getTableWeek(1, ipRanges),
                 this.getTableWeek(2, ipRanges),
                 this.getTableWeek(3, ipRanges),
-            ])
+            ];
+        }
+        else {
+            promiseArray = [
+                this.getTableWeek(0, ipRanges),
+                this.getTableWeek(1, ipRanges),
+                this.getTableWeek(3, ipRanges),
+            ];
+        }
+        return new Promise((resolve, reject) => {
+            Promise.all(promiseArray)
                 .then((values) => {
                 // weekStr Naming
                 const weekStr = this.weeksArray.map(str => {
@@ -215,16 +238,26 @@ class LineChartsService {
         }
         return oneWeekDates;
     }
-    getTablesDayData(ipRanges) {
+    getTablesDayData(ipRanges, outlookFlag) {
         return new Promise((resolve, reject) => {
-            Promise.all([
-                this.getTableDay(0, ipRanges),
-                this.getTableDay(1, ipRanges),
-                this.getTableDay(2, ipRanges),
-                this.getTableDay(3, ipRanges),
-            ])
+            let promiseArray = [];
+            if (outlookFlag === 'true') {
+                promiseArray = [
+                    this.getTableDay(0, ipRanges),
+                    this.getTableDay(1, ipRanges),
+                    this.getTableDay(2, ipRanges),
+                    this.getTableDay(3, ipRanges),
+                ];
+            }
+            else {
+                promiseArray = [
+                    this.getTableDay(0, ipRanges),
+                    this.getTableDay(1, ipRanges),
+                    this.getTableDay(3, ipRanges),
+                ];
+            }
+            Promise.all(promiseArray)
                 .then((values) => {
-                console.log(values);
                 values.push(this.oneWeekDates);
                 resolve(values);
             })
