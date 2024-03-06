@@ -7,19 +7,33 @@ const userService_1 = __importDefault(require("../service/userService"));
 const ipCalcService_1 = __importDefault(require("../service/ipCalcService"));
 const logService_1 = __importDefault(require("../service/logService"));
 const log_1 = require("../interface/log");
+const settingService_1 = __importDefault(require("../service/settingService"));
 const router = express_1.default.Router();
 const userService = new userService_1.default();
 const ipCalcService = new ipCalcService_1.default();
 const logService = new logService_1.default();
+const settingService = new settingService_1.default();
 router.get("/dashboard", (req, res) => {
     const select = req.query.select;
     const username = req.query.username;
     if (typeof username !== "string" && typeof select !== "string") {
         log_1.weasel.error(username, req.socket.remoteAddress, "Failed to load Dashboard Page. ");
-        res.send("error");
+        res.status(500).send("error");
     }
     log_1.weasel.log(username, req.socket.remoteAddress, `The current Dashboard Page displays data on a ${select}. `);
-    res.send("success");
+    settingService.getOutlookFlag()
+        .then((result) => {
+        if ((result[0].flag & 256) === 256) {
+            res.send(true);
+        }
+        else {
+            res.send(false);
+        }
+    })
+        .catch((error) => {
+        log_1.weasel.error(username, req.socket.remoteAddress, "Failed to load outlook Flag. ");
+        res.status(500).send("error");
+    });
 });
 router.get("/tables", (req, res) => {
     const username = req.query.username;

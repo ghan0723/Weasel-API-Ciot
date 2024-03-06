@@ -123,6 +123,8 @@ class LogService {
         throw new Error("내부 서버 오류");
       }
     }
+
+    
 }
 
 export default LogService;

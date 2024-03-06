@@ -243,5 +243,18 @@ class SettingService {
             });
         });
     }
+    getOutlookFlag() {
+        const query = "select svr_checkbox_flag as flag from serversetting";
+        return new Promise((resolve, reject) => {
+            db_1.default.query(query, (error, result) => {
+                if (error) {
+                    reject(error);
+                }
+                else {
+                    resolve(result);
+                }
+            });
+        });
+    }
 }
 exports.default = SettingService;

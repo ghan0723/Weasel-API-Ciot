@@ -1,7 +1,7 @@
 import multer from "multer";
 import { weasel } from "../interface/log";
 import SettingService from "../service/settingService";
-import path from 'path';
+import path from "path";
 import express, { Request, Response, Router } from "express";
 
 const router: Router = express.Router();
@@ -9,20 +9,20 @@ const settingService: SettingService = new SettingService();
 // Multer 저장소 설정
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'C:/ciot/updates/');
+    cb(null, "C:/ciot/updates/");
     // cb(null, 'C:/Program Files (x86)/ciot/test');
   },
   filename: (req, file, cb) => {
-    console.log('file.originalname',file.originalname);
-    
+    console.log("file.originalname", file.originalname);
+
     const ext = path.extname(file.originalname); // 확장자 추출
     cb(null, path.basename(file.originalname, ext) + ext); // 파일 이름 설정
-  }
+  },
 });
 
-const upload = multer({ 
+const upload = multer({
   storage: storage,
- });
+});
 
 router.post("/server", (req: Request, res: Response) => {
   const username = req.query.username;
@@ -81,37 +81,15 @@ router.get("/servers", (req: Request, res: Response) => {
 router.post("/agent", (req: Request, res: Response) => {
   const username = req.query.username;
   const agent = req.body;
-  const updateFile = req.body.updateFile;
   settingService
     .modAgentSetting(agent)
     .then((result) => {
-      if (updateFile !== undefined && updateFile !== null) {
-        settingService
-          .updateFileAgent(updateFile)
-          .then((result2) => {
-            weasel.log(
-              username,
-              req.socket.remoteAddress,
-              "Success to Update Agent Setting "
-            );
-            res.send(result);
-          })
-          .catch((error2) => {
-            weasel.error(
-              username,
-              req.socket.remoteAddress,
-              "Failed to Update Agent Setting "
-            );
-            res.status(500).send("agent setting post 하다가 에러났어요");
-          });
-      } else {
-        weasel.log(
-          username,
-          req.socket.remoteAddress,
-          "Success to Update Agent Setting "
-        );
-        res.send(result);
-      }
+      weasel.log(
+        username,
+        req.socket.remoteAddress,
+        "Success to Update Agent Setting "
+      );
+      res.send(result);
     })
     .catch((error) => {
       // console.error("agent setting post 에러 : ", error);
@@ -129,24 +107,25 @@ router.get("/agents", (req: Request, res: Response) => {
   settingService
     .getAgentSetting()
     .then((result) => {
-      settingService.getUpdateFileAgent()
-      .then((result2) => {
-        weasel.log(
-          username,
-          req.socket.remoteAddress,
-          "Success to Get Agent Information "
-        );
-        res.send([result, result2]);
-      })
-      .catch((error2) => {
-        weasel.error(
-          username,
-          req.socket.remoteAddress,
-          "Failed to Get Agent Information "
-        );
-        console.error("agent setting get 에러 : ", error2);
-        res.status(500).send("agent setting get 하다가 에러났어요");
-      })
+      settingService
+        .getUpdateFileAgent()
+        .then((result2) => {
+          weasel.log(
+            username,
+            req.socket.remoteAddress,
+            "Success to Get Agent Information "
+          );
+          res.send([result, result2]);
+        })
+        .catch((error2) => {
+          weasel.error(
+            username,
+            req.socket.remoteAddress,
+            "Failed to Get Agent Information "
+          );
+          console.error("agent setting get 에러 : ", error2);
+          res.status(500).send("agent setting get 하다가 에러났어요");
+        });
     })
     .catch((error) => {
       weasel.error(
@@ -229,16 +208,20 @@ router.post("/delete", (req: Request, res: Response) => {
     });
 });
 
-router.post("/fileUpdate", upload.single('file'), (req: Request, res: Response) => {
-  if (req.file) {
-    console.log('업로드된 파일 정보:', req.file);
-    // 여기서 추가적인 작업을 진행할 수 있습니다.
-  } else {
-    console.log('파일이 업로드되지 않았습니다.');
+router.post(
+  "/fileUpdate",
+  upload.single("file"),
+  (req: Request, res: Response) => {
+    if (req.file) {
+      console.log("업로드된 파일 정보:", req.file);
+      // 여기서 추가적인 작업을 진행할 수 있습니다.
+    } else {
+      console.log("파일이 업로드되지 않았습니다.");
+    }
   }
-});
+);
 
-router.get("/updateFile", (req:Request, res:Response) => {
+router.get("/updateFile", (req: Request, res: Response) => {
   settingService
     .getUpdateFileAgent()
     .then((result) => {
@@ -248,5 +231,7 @@ router.get("/updateFile", (req:Request, res:Response) => {
       res.status(500).send("get UpdateAgentFile 하다가 에러났어요");
     });
 });
+
+
 
 export = router;

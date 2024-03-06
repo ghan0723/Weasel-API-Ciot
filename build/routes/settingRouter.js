@@ -12,14 +12,14 @@ const settingService = new settingService_1.default();
 // Multer 저장소 설정
 const storage = multer_1.default.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'C:/ciot/updates/');
+        cb(null, "C:/ciot/updates/");
         // cb(null, 'C:/Program Files (x86)/ciot/test');
     },
     filename: (req, file, cb) => {
-        console.log('file.originalname', file.originalname);
+        console.log("file.originalname", file.originalname);
         const ext = path_1.default.extname(file.originalname); // 확장자 추출
         cb(null, path_1.default.basename(file.originalname, ext) + ext); // 파일 이름 설정
-    }
+    },
 });
 const upload = (0, multer_1.default)({
     storage: storage,
@@ -63,26 +63,11 @@ router.get("/servers", (req, res) => {
 router.post("/agent", (req, res) => {
     const username = req.query.username;
     const agent = req.body;
-    const updateFile = req.body.updateFile;
     settingService
         .modAgentSetting(agent)
         .then((result) => {
-        if (updateFile !== undefined && updateFile !== null) {
-            settingService
-                .updateFileAgent(updateFile)
-                .then((result2) => {
-                log_1.weasel.log(username, req.socket.remoteAddress, "Success to Update Agent Setting ");
-                res.send(result);
-            })
-                .catch((error2) => {
-                log_1.weasel.error(username, req.socket.remoteAddress, "Failed to Update Agent Setting ");
-                res.status(500).send("agent setting post 하다가 에러났어요");
-            });
-        }
-        else {
-            log_1.weasel.log(username, req.socket.remoteAddress, "Success to Update Agent Setting ");
-            res.send(result);
-        }
+        log_1.weasel.log(username, req.socket.remoteAddress, "Success to Update Agent Setting ");
+        res.send(result);
     })
         .catch((error) => {
         // console.error("agent setting post 에러 : ", error);
@@ -95,7 +80,8 @@ router.get("/agents", (req, res) => {
     settingService
         .getAgentSetting()
         .then((result) => {
-        settingService.getUpdateFileAgent()
+        settingService
+            .getUpdateFileAgent()
             .then((result2) => {
             log_1.weasel.log(username, req.socket.remoteAddress, "Success to Get Agent Information ");
             res.send([result, result2]);
@@ -162,13 +148,13 @@ router.post("/delete", (req, res) => {
         res.status(500).send("Delete ProcessAccuracy 하다가 에러났어요");
     });
 });
-router.post("/fileUpdate", upload.single('file'), (req, res) => {
+router.post("/fileUpdate", upload.single("file"), (req, res) => {
     if (req.file) {
-        console.log('업로드된 파일 정보:', req.file);
+        console.log("업로드된 파일 정보:", req.file);
         // 여기서 추가적인 작업을 진행할 수 있습니다.
     }
     else {
-        console.log('파일이 업로드되지 않았습니다.');
+        console.log("파일이 업로드되지 않았습니다.");
     }
 });
 router.get("/updateFile", (req, res) => {

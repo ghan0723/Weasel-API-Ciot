@@ -3,11 +3,13 @@ import UserService from "../service/userService";
 import IpCalcService from "../service/ipCalcService";
 import LogService from "../service/logService";
 import { weasel } from "../interface/log";
+import SettingService from "../service/settingService";
 
 const router: Router = express.Router();
 const userService: UserService = new UserService();
 const ipCalcService = new IpCalcService();
 const logService: LogService = new LogService();
+const settingService: SettingService = new SettingService();
 
 router.get("/dashboard", (req: Request, res: Response) => {
   const select = req.query.select;
@@ -19,14 +21,31 @@ router.get("/dashboard", (req: Request, res: Response) => {
       req.socket.remoteAddress,
       "Failed to load Dashboard Page. "
     );
-    res.send("error");
+    res.status(500).send("error");
   }
+
   weasel.log(
     username,
     req.socket.remoteAddress,
     `The current Dashboard Page displays data on a ${select}. `
   );
-  res.send("success");
+
+  settingService.getOutlookFlag()
+  .then((result) => {
+    if((result[0].flag & 256) === 256){
+      res.send(true);
+    } else {
+      res.send(false);
+    }
+  })
+  .catch((error) => {
+    weasel.error(
+      username,
+      req.socket.remoteAddress,
+      "Failed to load outlook Flag. "
+    );
+    res.status(500).send("error");
+  })
 });
 
 router.get("/tables", (req: Request, res: Response) => {

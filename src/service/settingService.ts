@@ -257,6 +257,19 @@ class SettingService {
       })
     })
   }
+
+  getOutlookFlag(): Promise<any> {
+    const query = "select svr_checkbox_flag as flag from serversetting"
+    return new Promise((resolve, reject) => {
+      connection.query(query, (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      })
+    })
+  }
 }
 
 export default SettingService;
