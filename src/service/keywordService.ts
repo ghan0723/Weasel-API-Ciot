@@ -10,10 +10,12 @@ class KeywordService {
   getKeyword(
     props: any,
     select: any,
-    ipRanges: IpRange[]
+    ipRanges: IpRange[],
+    keywordList: string[]
   ): Promise<ResultWithCountsItem[]> {
     let table: string;
     let dayOption: string;
+    let keywordOption: string = "";
 
     if (props === "network") {
       table = "leakednetworkfiles";
@@ -40,12 +42,13 @@ class KeywordService {
           `(INET_ATON(latest_agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`
       )
       .join(" OR ");
-    const query = `select pc_name, patterns from ${table} where (${dayOption}) AND (${ipConditions}) AND 
-    (
-      patterns LIKE '%주민번호%' OR
-      patterns LIKE '%핸드폰번호%' OR
-      patterns LIKE '%이력서%'
-    ) `;
+
+    if (keywordList.length > 0) {
+      keywordOption = `AND ( ${keywordList
+        .map((keyword) => `patterns LIKE '%${keyword}%'`)
+        .join(" OR ")} )`;
+    }
+    const query = `select pc_name, patterns from ${table} where (${dayOption}) AND (${ipConditions}) ${keywordOption} `;
 
     return new Promise<ResultWithCountsItem[]>((resolve, reject) => {
       connection.query(query, (error: any, result: any[]) => {
@@ -62,20 +65,18 @@ class KeywordService {
               );
               // Create an object to store keyword counts for the current pc_name
               const keywordCountMap: Record<string, number> = {};
-          
               pcResults.forEach((item: ResultItem) => {
                 // Extract counts and patterns using regex
-                const matches = item.patterns.match(
-                  /([^\s:,]+):(\d+)/g
-                );
-          
+                const matches = item.patterns.match(/([^\s:,]+):(\d+)/g);
                 if (matches) {
                   matches.forEach((match) => {
                     const [keyword, count] = match.split(":");
                     const numericCount = parseInt(count, 10) || 1;
                     // Add the count to the existing count for the keyword
-                    keywordCountMap[keyword] =
+                    if(keywordList.includes(keyword)){
+                      keywordCountMap[keyword] =
                       (keywordCountMap[keyword] || 0) + numericCount;
+                    }
                   });
                 }
               });
@@ -110,11 +111,11 @@ class KeywordService {
     });
   }
 
-  getKeywordList():Promise<any> {
+  getKeywordList(): Promise<any> {
     return new Promise((resolve, reject) => {
-      const query = `select clnt_patterns_list from serversetting;`
+      const query = `select clnt_patterns_list from serversetting;`;
       connection.query(query, (error, result) => {
-        if(error) {
+        if (error) {
           reject(error);
         } else {
           // 패턴: = 문자로 시작하고 @@으로 끝나는 모든 항목을 찾음
@@ -124,24 +125,22 @@ class KeywordService {
           let matches;
           const results = [];
 
-          while ((matches = regex.exec(result[0]?.clnt_patterns_list)) !== null) {
-            // matches[1]은 키, matches[2]는 값            
+          while (
+            (matches = regex.exec(result[0]?.clnt_patterns_list)) !== null
+          ) {
+            // matches[1]은 키, matches[2]는 값
             results.push({
-              key: matches[1],     // 키
+              key: matches[1], // 키
               // value: matches[2] // 값
             });
           }
 
-          const keysResult = results.map(data => data.key);
+          const keysResult = results.map((data) => data.key);
           resolve(keysResult);
         }
-
       });
-
     });
   }
-
-  
 }
 
 export default KeywordService;

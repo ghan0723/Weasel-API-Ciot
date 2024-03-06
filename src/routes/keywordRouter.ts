@@ -12,11 +12,16 @@ const keywordService: KeywordService = new KeywordService();
 router.get("/all", (req: Request, res: Response) => {
   let select = req.query.select;
   let username = req.query.username;
+  let outlookFlag = req.query.outlookFlag;
+  let keywordList: string[] = [];
 
   function fetchData(serviceName: string) {
     return userService.getPrivilegeAndIP(username).then((result) => {
       let ipRange = ipCalcService.parseIPRange(result[0].ip_ranges);
-      return keywordService.getKeyword(serviceName, select, ipRange);
+      return keywordService.getKeywordList().then((result2) => {
+        keywordList = result2;
+        return keywordService.getKeyword(serviceName, select, ipRange, keywordList);
+      });
     });
   }
 
@@ -68,15 +73,31 @@ router.get("/all", (req: Request, res: Response) => {
 
     return top5MergedData;
   }
-  Promise.all([fetchData("network"), fetchData("media"), fetchData("outlook")])
-    .then((dataArray) => {
-      const top5MergedData: Array<MergedData> = mergeKeywordCounts(dataArray);
-      res.status(200).send(top5MergedData);
-    })
-    .catch((err) => {
-      console.error("에러 발생: ", err);
-      res.status(500).send("Error fetching data");
-    });
+  if (outlookFlag !== undefined && outlookFlag === 'true') {
+    Promise.all([
+      fetchData("network"),
+      fetchData("media"),
+      fetchData("outlook"),
+    ])
+      .then((dataArray) => {
+        const top5MergedData: Array<MergedData> = mergeKeywordCounts(dataArray);
+        res.status(200).send(top5MergedData);
+      })
+      .catch((err) => {
+        console.error("에러 발생: ", err);
+        res.status(500).send("Error fetching data");
+      });
+  } else {
+    Promise.all([fetchData("network"), fetchData("media")])
+      .then((dataArray) => {
+        const top5MergedData: Array<MergedData> = mergeKeywordCounts(dataArray);
+        res.status(200).send(top5MergedData);
+      })
+      .catch((err) => {
+        console.error("에러 발생: ", err);
+        res.status(500).send("Error fetching data");
+      });
+  }
 });
 
 export = router;

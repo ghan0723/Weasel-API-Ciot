@@ -10,6 +10,7 @@ const fs_1 = __importDefault(require("fs"));
 const express_1 = __importDefault(require("express"));
 const router = express_1.default.Router();
 const settingService = new settingService_1.default();
+let existFile = ';';
 // Multer 저장소 설정
 const storage = multer_1.default.diskStorage({
     destination: (req, file, cb) => {
@@ -19,7 +20,9 @@ const storage = multer_1.default.diskStorage({
         const ext = path_1.default.extname(file.originalname); // 확장자 추출
         let filename = path_1.default.basename(file.originalname, ext) + ext;
         const fullPath = path_1.default.join('C:/ciot/updates/', filename);
+        existFile = '';
         if (fs_1.default.existsSync(fullPath)) {
+            existFile = filename;
             filename = path_1.default.basename(file.originalname, ext) + "_1" + ext;
             cb(null, filename);
         }
@@ -159,6 +162,7 @@ router.post("/fileUpdate", upload.single('file'), (req, res) => {
     console.log('들어옴??????');
     if (req.file) {
         const ext = path_1.default.extname(req.file.path); // 확장자 추출
+        console.log('req.file', req.file);
         if (ext === '.pdf') {
             // PDF 파일인 경우
             console.log('PDF 파일 업로드 성공:', req.file);
