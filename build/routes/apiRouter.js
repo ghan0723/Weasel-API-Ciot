@@ -73,7 +73,6 @@ router.get('/dummy', (req, res) => {
     const category = req.query.category; // search column
     const search = req.query.search; // search context
     const username = req.query.username; // username
-    console.log("dummy : ", contents);
     switch (contents) {
         case 'network':
             results = networkService.getDummyData(count);

@@ -215,7 +215,6 @@ class MediaService {
                 else {
                     console.log("삭제 성공");
                     resolve(result);
-                    console.log('result : ', result);
                 }
             });
         });
@@ -288,7 +287,6 @@ class MediaService {
                             else {
                                 console.log("데이터 삽입 성공");
                                 resolve(result);
-                                // console.log('result : ', result);          
                             }
                         });
                     });
