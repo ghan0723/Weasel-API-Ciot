@@ -2,26 +2,35 @@ import multer from "multer";
 import { weasel } from "../interface/log";
 import SettingService from "../service/settingService";
 import path from 'path';
+import fs from 'fs';
 import express, { Request, Response, Router } from "express";
 
 const router: Router = express.Router();
 const settingService: SettingService = new SettingService();
+let   existFile:string = ';'
 // Multer 저장소 설정
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'C:/ciot/updates/');
-    // cb(null, 'C:/Program Files (x86)/ciot/test');
   },
   filename: (req, file, cb) => {
-    console.log('file.originalname',file.originalname);
-    
     const ext = path.extname(file.originalname); // 확장자 추출
-    cb(null, path.basename(file.originalname, ext) + ext); // 파일 이름 설정
+    let filename = path.basename(file.originalname, ext) + ext;
+    const fullPath = path.join('C:/ciot/updates/', filename);
+    existFile = '';
+
+    if (fs.existsSync(fullPath)) {
+      existFile = filename;
+      filename = path.basename(file.originalname, ext) + "_1" + ext;      
+      cb(null, filename);
+    } else {
+      cb(null, filename);
+    }
   }
 });
 
 const upload = multer({ 
-  storage: storage,
+  storage: storage
  });
 
 router.post("/server", (req: Request, res: Response) => {
@@ -230,11 +239,32 @@ router.post("/delete", (req: Request, res: Response) => {
 });
 
 router.post("/fileUpdate", upload.single('file'), (req: Request, res: Response) => {
+  console.log('들어옴??????');
+  
   if (req.file) {
-    console.log('업로드된 파일 정보:', req.file);
-    // 여기서 추가적인 작업을 진행할 수 있습니다.
+    const ext = path.extname(req.file.path); // 확장자 추출
+    console.log('req.file',req.file);
+    
+    
+    if (ext === '.pdf') {
+      // PDF 파일인 경우
+      console.log('PDF 파일 업로드 성공:', req.file);
+      res.status(200).send('PDF 파일 업로드 성공!');
+    } else {
+      // PDF 파일이 아닌 경우 파일 삭제
+      fs.unlink(req.file.path, (err) => {
+        if (err) {
+          console.error('파일 삭제 중 오류 발생:', err);
+          res.status(500).send('파일 삭제 중 오류 발생');
+        } else {
+          console.log('PDF 파일이 아닌 파일 삭제됨:', req.file?.path);
+          res.status(400).send('PDF 파일이 아닙니다.');
+        }
+      });
+    }
   } else {
-    console.log('파일이 업로드되지 않았습니다.');
+    console.log('업로드 실패');
+    res.status(400).send('PDF 파일이 아닙니다.');
   }
 });
 
