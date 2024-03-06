@@ -69,7 +69,23 @@ router.get("/tables", (req: Request, res: Response) => {
       contents + " cate : " + category + " sear : " + search
     }. `
   );
-  res.send("success");
+
+  settingService.getOutlookFlag()
+  .then((result) => {
+    if((result[0].flag & 256) === 256){
+      res.send(true);
+    } else {
+      res.send(false);
+    }
+  })
+  .catch(() => {
+    weasel.error(
+      username,
+      req.socket.remoteAddress,
+      "Failed to load outlook Flag. "
+    );
+    res.status(500).send("error");
+  })
 });
 
 router.get("/leaked", (req: Request, res: Response) => {
