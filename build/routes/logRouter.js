@@ -45,7 +45,19 @@ router.get("/tables", (req, res) => {
         res.send("error");
     }
     log_1.weasel.log(username, req.socket.remoteAddress, `The current Data-Tables Page displays data on a ${contents + " cate : " + category + " sear : " + search}. `);
-    res.send("success");
+    settingService.getOutlookFlag()
+        .then((result) => {
+        if ((result[0].flag & 256) === 256) {
+            res.send(true);
+        }
+        else {
+            res.send(false);
+        }
+    })
+        .catch((error) => {
+        log_1.weasel.error(username, req.socket.remoteAddress, "Failed to load outlook Flag. ");
+        res.status(500).send("error");
+    });
 });
 router.get("/leaked", (req, res) => {
     const username = req.query.username;

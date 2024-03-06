@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const db_1 = __importDefault(require("../db/db"));
+const fs_1 = __importDefault(require("fs"));
 class SettingService {
     addAgentSetting() {
         return new Promise((resolve, reject) => {
@@ -230,8 +231,45 @@ class SettingService {
             });
         });
     }
+    processFile(oldFile, newFile) {
+        // 기존 파일 삭제
+        fs_1.default.unlink(newFile, (err) => {
+            if (err) {
+                console.error("파일 삭제 중 오류 발생:", err);
+                return false;
+            }
+            else {
+                console.log("같은 경로의 파일이 삭제됨:", oldFile);
+            }
+        });
+        // 새로운 파일의 naming 변경
+        fs_1.default.rename(oldFile, newFile, (err) => {
+            if (err) {
+                console.error("파일 이름 변경 중 오류 발생:", err);
+                return false;
+            }
+            else {
+                console.log("같은 경로의 이름이 변경됨:", newFile);
+            }
+        });
+        return true;
+    }
     getUpdateFileAgent() {
         const query = 'select update_file as updateFile from updateagents';
+        return new Promise((resolve, reject) => {
+            db_1.default.query(query, (error, result) => {
+                if (error) {
+                    reject(error);
+                }
+                else {
+                    resolve(result);
+                }
+            });
+        });
+    }
+    postUpdateFileAgent(updateFile) {
+        console.log('updateFile', updateFile);
+        const query = `update updateagents set update_file = 'C:/ciot/updates/${updateFile}'`;
         return new Promise((resolve, reject) => {
             db_1.default.query(query, (error, result) => {
                 if (error) {
