@@ -6,23 +6,30 @@ const multer_1 = __importDefault(require("multer"));
 const log_1 = require("../interface/log");
 const settingService_1 = __importDefault(require("../service/settingService"));
 const path_1 = __importDefault(require("path"));
+const fs_1 = __importDefault(require("fs"));
 const express_1 = __importDefault(require("express"));
 const router = express_1.default.Router();
 const settingService = new settingService_1.default();
 // Multer 저장소 설정
 const storage = multer_1.default.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, "C:/ciot/updates/");
-        // cb(null, 'C:/Program Files (x86)/ciot/test');
+        cb(null, 'C:/ciot/updates/');
     },
     filename: (req, file, cb) => {
-        console.log("file.originalname", file.originalname);
         const ext = path_1.default.extname(file.originalname); // 확장자 추출
-        cb(null, path_1.default.basename(file.originalname, ext) + ext); // 파일 이름 설정
-    },
+        let filename = path_1.default.basename(file.originalname, ext) + ext;
+        const fullPath = path_1.default.join('C:/ciot/updates/', filename);
+        if (fs_1.default.existsSync(fullPath)) {
+            filename = path_1.default.basename(file.originalname, ext) + "_1" + ext;
+            cb(null, filename);
+        }
+        else {
+            cb(null, filename);
+        }
+    }
 });
 const upload = (0, multer_1.default)({
-    storage: storage,
+    storage: storage
 });
 router.post("/server", (req, res) => {
     const username = req.query.username;
@@ -148,13 +155,33 @@ router.post("/delete", (req, res) => {
         res.status(500).send("Delete ProcessAccuracy 하다가 에러났어요");
     });
 });
-router.post("/fileUpdate", upload.single("file"), (req, res) => {
+router.post("/fileUpdate", upload.single('file'), (req, res) => {
+    console.log('들어옴??????');
     if (req.file) {
-        console.log("업로드된 파일 정보:", req.file);
-        // 여기서 추가적인 작업을 진행할 수 있습니다.
+        const ext = path_1.default.extname(req.file.path); // 확장자 추출
+        if (ext === '.pdf') {
+            // PDF 파일인 경우
+            console.log('PDF 파일 업로드 성공:', req.file);
+            res.status(200).send('PDF 파일 업로드 성공!');
+        }
+        else {
+            // PDF 파일이 아닌 경우 파일 삭제
+            fs_1.default.unlink(req.file.path, (err) => {
+                var _a;
+                if (err) {
+                    console.error('파일 삭제 중 오류 발생:', err);
+                    res.status(500).send('파일 삭제 중 오류 발생');
+                }
+                else {
+                    console.log('PDF 파일이 아닌 파일 삭제됨:', (_a = req.file) === null || _a === void 0 ? void 0 : _a.path);
+                    res.status(400).send('PDF 파일이 아닙니다.');
+                }
+            });
+        }
     }
     else {
-        console.log("파일이 업로드되지 않았습니다.");
+        console.log('업로드 실패');
+        res.status(400).send('PDF 파일이 아닙니다.');
     }
 });
 router.get("/updateFile", (req, res) => {
