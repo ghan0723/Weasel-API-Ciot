@@ -113,7 +113,7 @@ class KeywordService {
 
   getKeywordList(): Promise<any> {
     return new Promise((resolve, reject) => {
-      const query = `select clnt_patterns_list from serversetting;`;
+      const query = `select svr_patterns_list from serversetting;`;
       connection.query(query, (error, result) => {
         if (error) {
           reject(error);
@@ -126,7 +126,7 @@ class KeywordService {
           const results = [];
 
           while (
-            (matches = regex.exec(result[0]?.clnt_patterns_list)) !== null
+            (matches = regex.exec(result[0]?.svr_patterns_list)) !== null
           ) {
             // matches[1]은 키, matches[2]는 값
             results.push({

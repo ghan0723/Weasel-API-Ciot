@@ -27,7 +27,7 @@ class SettingService {
     if(kewordRef === undefined) kewordRef = '';
 
     const query = `update serversetting set uid=${agent.uid}, clnt_svr_ip="${agent.serverIP}", clnt_svr_port=${agent.serverPort}, clnt_svr_conn_interval=${agent.serverInterval}, 
-    clnt_license="${agent.licenseDist}", clnt_exceptions_list="${excip}", clnt_patterns_list="${kewordRef}", svr_checkbox_flag=${agent.flag}`;
+    clnt_license="${agent.licenseDist}", clnt_exceptions_list="${excip}", svr_patterns_list="${kewordRef}", svr_checkbox_flag=${agent.flag}`;
     return new Promise((resolve, reject) => {
       connection.query(query, (error, result) => {
         if (error) {
@@ -41,13 +41,13 @@ class SettingService {
 
   getAgentSetting(): Promise<any> {
     const query =
-      "select uid, svr_checkbox_flag, clnt_svr_ip, clnt_svr_port, clnt_svr_conn_interval, clnt_license, clnt_exceptions_list, clnt_patterns_list, svr_port, svr_file_retention_periods, svr_auto_fileupload from serversetting";
+      "select uid, svr_checkbox_flag, clnt_svr_ip, clnt_svr_port, clnt_svr_conn_interval, clnt_license, clnt_exceptions_list, svr_patterns_list, svr_port, svr_file_retention_periods, svr_auto_fileupload from serversetting";
     return new Promise((resolve, reject) => {
       connection.query(query, (error, result) => {
         if (error) {
           reject(error);
         } else {
-          const clntKeywordList = result[0]?.clnt_patterns_list ?? '';
+          const clntKeywordList = result[0]?.svr_patterns_list ?? '';
           const clntExceptionList = result[0]?.clnt_exceptions_list ?? '';          
           
           if (clntKeywordList && clntKeywordList.includes("@@")) {
@@ -63,7 +63,7 @@ class SettingService {
                   clnt_svr_conn_interval: result[0]?.clnt_svr_conn_interval,
                   clnt_license: result[0]?.clnt_license,
                   clnt_exceptions_list: modifiedExcepIP,
-                  clnt_patterns_list: modifiedKeywordList,
+                  svr_patterns_list: modifiedKeywordList,
                   svr_port: result[0]?.svr_port,
                   svr_file_retention_periods:
                     result[0]?.svr_file_retention_periods,
@@ -80,7 +80,7 @@ class SettingService {
                   clnt_svr_conn_interval: result[0]?.clnt_svr_conn_interval,
                   clnt_license: result[0]?.clnt_license,
                   clnt_exceptions_list: result[0]?.clnt_exceptions_list,
-                  clnt_patterns_list: modifiedKeywordList,
+                  svr_patterns_list: modifiedKeywordList,
                   svr_port: result[0]?.svr_port,
                   svr_file_retention_periods:
                     result[0]?.svr_file_retention_periods,
@@ -100,7 +100,7 @@ class SettingService {
                   clnt_svr_conn_interval: result[0]?.clnt_svr_conn_interval,
                   clnt_license: result[0]?.clnt_license,
                   clnt_exceptions_list: modifiedExcepIP,
-                  clnt_patterns_list: result[0]?.clnt_patterns_list,
+                  svr_patterns_list: result[0]?.svr_patterns_list,
                   svr_port: result[0]?.svr_port,
                   svr_file_retention_periods:
                     result[0]?.svr_file_retention_periods,
@@ -117,7 +117,7 @@ class SettingService {
                   clnt_svr_conn_interval: result[0]?.clnt_svr_conn_interval,
                   clnt_license: result[0]?.clnt_license,
                   clnt_exceptions_list: result[0]?.clnt_exceptions_list,
-                  clnt_patterns_list: result[0]?.clnt_patterns_list,
+                  svr_patterns_list: result[0]?.svr_patterns_list,
                   svr_port: result[0]?.svr_port,
                   svr_file_retention_periods:
                     result[0]?.svr_file_retention_periods,
