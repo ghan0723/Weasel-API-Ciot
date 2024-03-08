@@ -19,7 +19,7 @@ router.get("/dashboard", (req: Request, res: Response) => {
     weasel.error(
       username,
       req.socket.remoteAddress,
-      "Failed to load Dashboard Page. "
+      "Unable to display the dashboard page"
     );
     res.status(500).send("error");
   }
@@ -27,7 +27,7 @@ router.get("/dashboard", (req: Request, res: Response) => {
   weasel.log(
     username,
     req.socket.remoteAddress,
-    `The current Dashboard Page displays data on a ${select}. `
+    `The current dashboard page displays data on a ${select}. `
   );
 
   settingService.getOutlookFlag()
@@ -42,7 +42,7 @@ router.get("/dashboard", (req: Request, res: Response) => {
     weasel.error(
       username,
       req.socket.remoteAddress,
-      "Failed to load outlook Flag. "
+      "Unable to retrieve outlook flag value"
     );
     res.status(500).send("error");
   })
@@ -58,15 +58,15 @@ router.get("/tables", (req: Request, res: Response) => {
     weasel.error(
       username,
       req.socket.remoteAddress,
-      "Failed to load Data-Tables Page. "
+      "Unable to display the dataTable page"
     );
     res.send("error");
   }
   weasel.log(
     username,
     req.socket.remoteAddress,
-    `The current Data-Tables Page displays data on a ${
-      contents + " cate : " + category + " sear : " + search
+    `The current data-tables page displays data on a ${
+      contents + " category : " + category + " searchWord : " + search
     }. `
   );
 
@@ -82,7 +82,7 @@ router.get("/tables", (req: Request, res: Response) => {
     weasel.error(
       username,
       req.socket.remoteAddress,
-      "Failed to load outlook Flag. "
+      "Unable to retrieve outlook flag value"
     );
     res.status(500).send("error");
   })
@@ -97,15 +97,15 @@ router.get("/leaked", (req: Request, res: Response) => {
     weasel.error(
       username,
       req.socket.remoteAddress,
-      "Failed to load Data-Tables Page. "
+      "Unable to display the leackedTable page"
     );
     res.send("error");
   }
   weasel.log(
     username,
     req.socket.remoteAddress,
-    `The current Data-Tables Page displays data on a ${
-      "leaked cate : " + category + " sear : " + search
+    `The current leackedTable page displays data on a ${
+      "leaked category : " + category + " searchWord : " + search
     }. `
   );
   res.send("success");
@@ -118,14 +118,14 @@ router.get("/logout", (req: Request, res: Response) => {
     weasel.error(
       username,
       req.socket.remoteAddress,
-      "Failed to load LogOut. "
+      "Logout failed"
     );
     res.send("error");
   }
   weasel.log(
     username,
     req.socket.remoteAddress,
-    `Success to LogOut ${username}. `
+    `Logout for ${username} was successful. `
   );
   res.send("success");
 });
@@ -159,11 +159,11 @@ router.get("/file", (req:Request, res:Response) => {
 
   logService.getLogContent(year, month, file)
   .then((content) => {
-    weasel.log("", req.socket.remoteAddress, `Open Log ${file}`);
+    weasel.log("", req.socket.remoteAddress, `Verified ${file} audit log`);
     res.send([content]);
   })
   .catch((error) => {
-    weasel.error("", req.socket.remoteAddress, "Failed Open Log");
+    weasel.error("", req.socket.remoteAddress, "Failed to retrieve the audit log");
     res.status(401).send("fail");
   })
 })
@@ -197,11 +197,11 @@ router.get("/error/file", (req:Request, res:Response) => {
 
   logService.getErrorLogContent(year, month, file)
   .then((content) => {
-    weasel.log("", req.socket.remoteAddress, `Open Log ${file}`);
+    weasel.log("", req.socket.remoteAddress, `Verified ${file} error log`);
     res.send([content]);
   })
   .catch((error) => {
-    weasel.error("", req.socket.remoteAddress, "Failed Open Log");
+    weasel.error("", req.socket.remoteAddress, "Failed to retrieve the error log");
     res.status(401).send("fail");
   })
 })

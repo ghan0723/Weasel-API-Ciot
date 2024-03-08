@@ -25,7 +25,7 @@ router.get("/edit/:username", (req: Request, res: Response) => {
       weasel.log(
         username,
         req.socket.remoteAddress,
-        "Success to Load Profile Page "
+        "Verified the profile page"
       );
       res.send([newUser]);
     })
@@ -33,7 +33,7 @@ router.get("/edit/:username", (req: Request, res: Response) => {
       weasel.error(
         username,
         req.socket.remoteAddress,
-        "Failed to Load Profile Page "
+        "Failed to retrieve the profile page"
       );
       console.error("profile failed:", error);
       res.status(500).send("Internal Server Error");
@@ -48,11 +48,11 @@ router.post("/update/:username", (req: Request, res: Response) => {
     username: user.username,
     passwd: encPasswd,
   };
-  userService
-    .getPrivilege(oldname)
-    .then((result) => {
+  profileService
+    .getProfile(oldname)
+    .then((result1) => {
       //관리자 계정이 아니라면
-      if (result[0].privilege !== 1) {
+      if (result1[0].privilege !== 1) {
         //중복 사용자가 아닌지 판별
         userService
           .checkUsername(user.username, oldname)
@@ -62,7 +62,7 @@ router.post("/update/:username", (req: Request, res: Response) => {
               weasel.error(
                 oldname,
                 req.socket.remoteAddress,
-                "Failed to Update Profile By Exist"
+                "Unable to update the profile due to duplicate username"
               );
               res.status(401).send({ error: result.message });
             } else {
@@ -78,11 +78,11 @@ router.post("/update/:username", (req: Request, res: Response) => {
                     profileService
                       .modUser(newUser, oldname)
                       .then((result2) => {
-                        if (user.freq === 3) {
+                        if (user.freq === result1[0].pwd_change_freq) {
                           weasel.log(
                             oldname,
                             req.socket.remoteAddress,
-                            "Success to Update Profile "
+                            "Profile update was successful"
                           );
                           res.send(result2.message);
                         } else {
@@ -92,7 +92,7 @@ router.post("/update/:username", (req: Request, res: Response) => {
                               weasel.log(
                                 oldname,
                                 req.socket.remoteAddress,
-                                "Success to Update Freq & Profile"
+                                "Profile and freq update was successful"
                               );
                               res.send(result.message);
                             })
@@ -100,7 +100,7 @@ router.post("/update/:username", (req: Request, res: Response) => {
                               weasel.error(
                                 oldname,
                                 req.socket.remoteAddress,
-                                "Failed to Update Freq & Profile "
+                                "Failed to update update frequency and profile"
                               );
                               res
                                 .status(500)
@@ -112,7 +112,7 @@ router.post("/update/:username", (req: Request, res: Response) => {
                         weasel.error(
                           oldname,
                           req.socket.remoteAddress,
-                          "Failed to Update Profile "
+                          "Failed to update the profile"
                         );
                         res.status(500).send("업데이트 잘못된거 같습니다.");
                       });
@@ -127,7 +127,7 @@ router.post("/update/:username", (req: Request, res: Response) => {
                             weasel.log(
                               oldname,
                               req.socket.remoteAddress,
-                              "Success to Update Profile "
+                              "Profile update was successful"
                             );
                             res.send(result2.message);
                           })
@@ -135,7 +135,7 @@ router.post("/update/:username", (req: Request, res: Response) => {
                             weasel.error(
                               oldname,
                               req.socket.remoteAddress,
-                              "Failed to Update Profile "
+                              "Failed to update the profile"
                             );
                             res.status(500).send("업데이트 잘못된거 같습니다.");
                           });
@@ -144,7 +144,7 @@ router.post("/update/:username", (req: Request, res: Response) => {
                         weasel.error(
                           oldname,
                           req.socket.remoteAddress,
-                          "Failed to Update Pwd Freq"
+                          "Failed to update update frequency and profile"
                         );
                         res.status(500).send("업데이트 잘못된거 같습니다.");
                       });
@@ -154,7 +154,7 @@ router.post("/update/:username", (req: Request, res: Response) => {
                   weasel.error(
                     oldname,
                     req.socket.remoteAddress,
-                    "Failed to Get Pwd By Username "
+                    "Failed to retrieve the password"
                   );
                   res.status(500).send("업데이트 잘못된거 같습니다.");
                 });
@@ -164,9 +164,9 @@ router.post("/update/:username", (req: Request, res: Response) => {
             weasel.error(
               oldname,
               req.socket.remoteAddress,
-              "Failed to Get Profile By Exist"
+              "Failed to perform duplicate user check"
             );
-            res.status(401).send({ error: result.message });
+            res.status(401).send({ error: result1.message });
           });
       } else {
         //관리자 계정일때
@@ -179,7 +179,7 @@ router.post("/update/:username", (req: Request, res: Response) => {
               weasel.error(
                 oldname,
                 req.socket.remoteAddress,
-                "Failed to Update Profile By Exist"
+                "Unable to update the profile due to duplicate username"
               );
               res.status(401).send({ error: result.message });
             } else {
@@ -193,7 +193,7 @@ router.post("/update/:username", (req: Request, res: Response) => {
                       weasel.log(
                         oldname,
                         req.socket.remoteAddress,
-                        "Success to Update Freq & Profile"
+                        "Profile and freq update was successful"
                       );
                       res.send(result.message);
                     })
@@ -201,7 +201,7 @@ router.post("/update/:username", (req: Request, res: Response) => {
                       weasel.error(
                         oldname,
                         req.socket.remoteAddress,
-                        "Failed to Update Freq & Profile "
+                        "Failed to update update frequency and profile"
                       );
                       res.status(500).send("업데이트 잘못된거 같습니다.");
                     });
@@ -210,7 +210,7 @@ router.post("/update/:username", (req: Request, res: Response) => {
                   weasel.error(
                     oldname,
                     req.socket.remoteAddress,
-                    "Failed to Update Profile "
+                    "Failed to update the profile"
                   );
                   res.status(500).send("업데이트 잘못된거 같습니다.");
                 });
@@ -220,9 +220,9 @@ router.post("/update/:username", (req: Request, res: Response) => {
             weasel.error(
               oldname,
               req.socket.remoteAddress,
-              "Failed to Get Profile By Exist"
+              "Failed to perform duplicate user check"
             );
-            res.status(401).send({ error: result.message });
+            res.status(401).send({ error: result1.message });
           });
       }
     })
@@ -230,7 +230,7 @@ router.post("/update/:username", (req: Request, res: Response) => {
       weasel.error(
         oldname,
         req.socket.remoteAddress,
-        "Failed to Get Privilege By Username "
+        "Failed to retrieve user information."
       );
       res.status(500).send("업데이트 잘못된거 같습니다.");
     });

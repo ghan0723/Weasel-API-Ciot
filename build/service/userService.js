@@ -159,11 +159,11 @@ class UserService {
                     }
                     break;
                 case "enabled":
-                    if (/(켜짐|켜)/i.test(searchWord)) {
-                        searchCondition = `where enabled = 1`;
-                    }
-                    else if (/(꺼짐|꺼)/i.test(searchWord)) {
+                    if (/(비활성화|비|비활|비활성|비화|비활화)/i.test(searchWord)) {
                         searchCondition = `where enabled = 0`;
+                    }
+                    else if (/(활성화|활|활성|성화|활화|성|화)/i.test(searchWord)) {
+                        searchCondition = `where enabled = 1`;
                     }
                     else {
                         searchCondition = `where enabled = '${searchWord}'`;
@@ -222,14 +222,14 @@ class UserService {
                     }
                     break;
                 case "enabled":
-                    if (/(켜짐|켜)/i.test(searchWord)) {
-                        searchCondition += ` AND enabled = 1`;
-                    }
-                    else if (/(꺼짐|꺼)/i.test(searchWord)) {
+                    if (/(비활성화|비|비활|비활성|비화|비활화)/i.test(searchWord)) {
                         searchCondition += ` AND enabled = 0`;
                     }
+                    else if (/(활성화|활|활성|성화|활화|성|화)/i.test(searchWord)) {
+                        searchCondition += ` AND enabled = 1`;
+                    }
                     else {
-                        searchCondition += ` AND enabled = '${searchWord}'`;
+                        searchCondition += ` AND enabled LIKE '%${searchWord}%'`;
                     }
                     break;
                 case "ip_ranges":

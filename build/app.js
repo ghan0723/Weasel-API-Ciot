@@ -64,7 +64,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 // app.use('/');
 // local
-app.use('/Detects', express.static('C:/Program Files (x86)/ciot/WeaselMon/Temp'));
+app.use('/Detects', express.static('C:/Program Files (x86)/ciot/WeaselServer/Temp'));
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

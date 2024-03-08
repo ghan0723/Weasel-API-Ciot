@@ -219,9 +219,6 @@ class NetworkService {
         " offset " +
         queryPage * queryPageSize;
 
-        console.log('query',query);
-        
-
       const query2 =
         "select count(*) as count from leakednetworkfiles " + whereClause;
       const whereQuery = "%" + search + "%";

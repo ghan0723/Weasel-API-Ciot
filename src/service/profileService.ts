@@ -48,6 +48,19 @@ class ProfileService {
       });
     });
   }
+
+  getUserFreqAndPri(username:any):Promise<any> {
+    const query = `select pwd_change_freq as freq from accountlist where username = '${username}'`;
+    return new Promise((resolve, reject) => {
+      connection.query(query, (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      });
+    })
+  }
 }
 
 export default ProfileService;
