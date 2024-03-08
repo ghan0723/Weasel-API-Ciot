@@ -159,10 +159,10 @@ class UserService {
                     }
                     break;
                 case "enabled":
-                    if (/(켜짐|켜)/i.test(searchWord)) {
+                    if (/(활성화)/i.test(searchWord)) {
                         searchCondition = `where enabled = 1`;
                     }
-                    else if (/(꺼짐|꺼)/i.test(searchWord)) {
+                    else if (/(비활성화|비)/i.test(searchWord)) {
                         searchCondition = `where enabled = 0`;
                     }
                     else {
@@ -222,10 +222,10 @@ class UserService {
                     }
                     break;
                 case "enabled":
-                    if (/(켜짐|켜)/i.test(searchWord)) {
+                    if (/(활성화)/i.test(searchWord)) {
                         searchCondition += ` AND enabled = 1`;
                     }
-                    else if (/(꺼짐|꺼)/i.test(searchWord)) {
+                    else if (/(비활성화|비)/i.test(searchWord)) {
                         searchCondition += ` AND enabled = 0`;
                     }
                     else {

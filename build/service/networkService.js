@@ -8,7 +8,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+const fs_1 = __importDefault(require("fs"));
 class NetworkService {
     constructor(connection) {
         // Ko_Columns
@@ -195,13 +199,29 @@ class NetworkService {
                 queryPageSize +
                 " offset " +
                 queryPage * queryPageSize;
-            console.log('query', query);
             const query2 = "select count(*) as count from leakednetworkfiles " + whereClause;
             const whereQuery = "%" + search + "%";
             Promise.all([
                 new Promise((innerResolve, innerReject) => {
                     this.connection.query(query, whereQuery, (error, result) => {
                         const excludedKeys = ["DownLoad", "ScreenShot"];
+                        result.map((data, i) => {
+                            const date = data.Time.split(' ')[0];
+                            const fileName = `C:/Program Files (x86)/ciot/WeaselServer/Temp/${date}/${data.Agent_ip}.${data.id}.${data.DownLoad}`;
+                            if (fs_1.default.existsSync(fileName)) {
+                                result[i].DownLoad = `${data.Agent_ip}.${data.id}.${data.DownLoad}`;
+                            }
+                            else {
+                                result[i].DownLoad = '';
+                            }
+                            if (fs_1.default.existsSync(`${fileName}.png`)) {
+                                result[i].ScreenShot = `${data.Agent_ip}.${data.id}.${data.ScreenShot}`;
+                            }
+                            else {
+                                result[i].ScreenShot = '';
+                            }
+                        });
+                        console.log('result', result);
                         const filteredKeys = privilege !== 3
                             ? aliasKey
                             : aliasKey.filter((key) => !excludedKeys.includes(key));
