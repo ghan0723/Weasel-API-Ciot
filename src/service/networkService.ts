@@ -1,5 +1,7 @@
 import { IpRange } from "../interface/interface";
 import { Connection } from "mysql";
+import fs from "fs";
+
 
 class NetworkService {
   private connection: Connection;
@@ -227,6 +229,23 @@ class NetworkService {
         new Promise<void>((innerResolve, innerReject) => {
           this.connection.query(query, whereQuery, (error, result) => {
             const excludedKeys = ["DownLoad", "ScreenShot"];
+
+            result.map((data:any,i:number) => {
+              const date = data.Time.split(' ')[0];
+              const fileName = `C:/Program Files (x86)/ciot/WeaselServer/Temp/${date}/${data.Agent_ip}.${data.id}.${data.DownLoad}`;
+              
+              if(fs.existsSync(fileName)) {
+                result[i].DownLoad = `${data.Agent_ip}.${data.id}.${data.DownLoad}`;
+              } else {
+                result[i].DownLoad = '';
+              }
+
+              if(fs.existsSync(`${fileName}.png`)) {
+                result[i].ScreenShot = `${data.Agent_ip}.${data.id}.${data.ScreenShot}`;
+              } else {
+                result[i].ScreenShot = '';
+              }              
+            });
 
             const filteredKeys =
               privilege !== 3

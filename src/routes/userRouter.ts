@@ -36,7 +36,7 @@ router.post("/login", (req: Request, res: Response) => {
                   weasel.error(
                     username,
                     req.socket.remoteAddress,
-                    "Passwords do not match "
+                    "Password do not match "
                   );
                   res.status(401).json({
                     error: "비밀번호가 일치하지 않습니다",
@@ -57,7 +57,7 @@ router.post("/login", (req: Request, res: Response) => {
                         weasel.log(
                           username,
                           req.socket.remoteAddress,
-                          "Success Login "
+                          "Success login "
                         );
                         res
                           .status(200)
@@ -72,7 +72,7 @@ router.post("/login", (req: Request, res: Response) => {
                         weasel.log(
                           username,
                           req.socket.remoteAddress,
-                          "Success Login "
+                          "Success login "
                         );
                         res
                           .status(200)
@@ -83,7 +83,7 @@ router.post("/login", (req: Request, res: Response) => {
                       weasel.error(
                         username,
                         req.socket.remoteAddress,
-                        "Failed to get PopupNotice "
+                        "Failed to retrieve popup notice information from the database "
                       );
                       console.error("PopupNotice 가져오기 실패:", error5);
                       res.status(500).send(error5);
@@ -105,7 +105,7 @@ router.post("/login", (req: Request, res: Response) => {
               weasel.error(
                 username,
                 req.socket.remoteAddress,
-                "This User Can't login"
+                "This user is unable to login"
               );
               res.status(500).send({ enabled: false });
             } else {
@@ -122,7 +122,7 @@ router.post("/login", (req: Request, res: Response) => {
                           weasel.error(
                             username,
                             req.socket.remoteAddress,
-                            "Passwords do not match "
+                            "Password do not match "
                           );
                           res.status(401).json({
                             error: "비밀번호가 일치하지 않습니다",
@@ -133,7 +133,7 @@ router.post("/login", (req: Request, res: Response) => {
                           weasel.error(
                             username,
                             req.socket.remoteAddress,
-                            "Update Fail Login_fail_count"
+                            "Failed to update the fail_count column in the accountlist table in the database "
                           );
                           res.status(401).json({
                             error: "비밀번호가 일치하지 않습니다",
@@ -158,7 +158,7 @@ router.post("/login", (req: Request, res: Response) => {
                                 weasel.log(
                                   username,
                                   req.socket.remoteAddress,
-                                  "Success Login "
+                                  "Success login "
                                 );
                                 res
                                   .status(200)
@@ -172,7 +172,7 @@ router.post("/login", (req: Request, res: Response) => {
                                 weasel.log(
                                   username,
                                   req.socket.remoteAddress,
-                                  "Success Login "
+                                  "Success login "
                                 );
                                 res
                                   .status(200)
@@ -183,7 +183,7 @@ router.post("/login", (req: Request, res: Response) => {
                               weasel.error(
                                 username,
                                 req.socket.remoteAddress,
-                                "Failed to get PopupNotice "
+                                "Failed to retrieve popup notice information from the database "
                               );
                               console.error(
                                 "PopupNotice 가져오기 실패:",
@@ -196,7 +196,7 @@ router.post("/login", (req: Request, res: Response) => {
                             weasel.error(
                               username,
                               req.socket.remoteAddress,
-                              "Failed to Update Fail_Count"
+                              "Failed to reset the fail_count column in the accountlist table in the database."
                             );
                           })
                         } else {
@@ -204,7 +204,7 @@ router.post("/login", (req: Request, res: Response) => {
                           weasel.log(
                             username,
                             req.socket.remoteAddress,
-                            "Please Change Pwd "
+                            "Please change password "
                           );
                           res.status(200).send({ username, freq });
                         }
@@ -214,7 +214,7 @@ router.post("/login", (req: Request, res: Response) => {
                       weasel.error(
                         username,
                         req.socket.remoteAddress,
-                        "Failed to get Pwd Freq "
+                        "Failed to get password frequency. "
                       );
                     });
                 })
@@ -233,7 +233,7 @@ router.post("/login", (req: Request, res: Response) => {
       }
     })
     .catch((error) => {
-      weasel.error(username, req.socket.remoteAddress, "Server error ");
+      weasel.error(username, req.socket.remoteAddress, "Other server errors while login");
       res.redirect(`${frontIP}/auth/sign-in`);
       // res.status(500).send("서버 내부 오류가 발생했습니다.");
     });
@@ -259,7 +259,7 @@ router.post("/add", (req: Request, res: Response) => {
               weasel.error(
                 user.username,
                 req.socket.remoteAddress,
-                "Failed to Add User By Exist Username "
+                "Failed to add user by exist username "
               );
               res.status(401).send({ error: result.message });
             } else {
@@ -283,7 +283,7 @@ router.post("/add", (req: Request, res: Response) => {
                                 weasel.log(
                                   user.username,
                                   req.socket.remoteAddress,
-                                  "Success Add User "
+                                  "Success add user "
                                 );
                                 res.send(result4.message);
                               })
@@ -291,7 +291,7 @@ router.post("/add", (req: Request, res: Response) => {
                                 weasel.error(
                                   user.username,
                                   req.socket.remoteAddress,
-                                  "Failed to Add User By Server "
+                                  "Failed to add user due to an error from another server "
                                 );
                                 console.error("회원가입 실패:", error);
                                 res.status(500).send(error);
@@ -301,7 +301,7 @@ router.post("/add", (req: Request, res: Response) => {
                             weasel.error(
                               user.username,
                               req.socket.remoteAddress,
-                              "Failed to Get Freq "
+                              "Failed to get accountlist from pwd_change_freq "
                             );
                             console.error("회원가입 실패:", error);
                             res.status(500).send(error);
@@ -310,7 +310,7 @@ router.post("/add", (req: Request, res: Response) => {
                         weasel.error(
                           user.username,
                           req.socket.remoteAddress,
-                          "Failed to Add User By Incorrect IP Range "
+                          "Failed to add user by incorrect IP range "
                         );
                         res.status(401).send({ error: result3.message });
                       }
@@ -320,7 +320,7 @@ router.post("/add", (req: Request, res: Response) => {
                   weasel.error(
                     user.username,
                     req.socket.remoteAddress,
-                    "Failed to Get Privilege & IP Ranges "
+                    "Failed to get privilege and IP ranges "
                   );
                   res.send(
                     "이거는 쿠키 가지고 privilege랑 mngip 가져오는 도중에 발생하는 에러입니다."
@@ -332,7 +332,7 @@ router.post("/add", (req: Request, res: Response) => {
             weasel.error(
               user.username,
               req.socket.remoteAddress,
-              "Failed to Add User By Exist Username "
+              "Failed to add user by exist username "
             );
             res.send("이거는 중복을 검사하는 도중에 발생하는 에러입니다.");
           });
@@ -342,7 +342,7 @@ router.post("/add", (req: Request, res: Response) => {
             weasel.error(
               user.username,
               req.socket.remoteAddress,
-              "Failed to Add User By Exist Username "
+              "Failed to add user by exist username "
             );
           } else {
             //관리자 계정 freq
@@ -355,7 +355,7 @@ router.post("/add", (req: Request, res: Response) => {
                     weasel.log(
                       user.username,
                       req.socket.remoteAddress,
-                      "Success Add User "
+                      "Success add user "
                     );
                     res.send(result4.message);
                   })
@@ -363,7 +363,7 @@ router.post("/add", (req: Request, res: Response) => {
                     weasel.error(
                       user.username,
                       req.socket.remoteAddress,
-                      "Failed to Add User By Server "
+                      "Failed to add user by server "
                     );
                     console.error("회원가입 실패:", error);
                     res.status(500).send(error);
@@ -373,7 +373,7 @@ router.post("/add", (req: Request, res: Response) => {
                 weasel.error(
                   user.username,
                   req.socket.remoteAddress,
-                  "Failed to Get Freq "
+                  "Failed to get frequency "
                 );
                 console.error("회원가입 실패:", error);
                 res.status(500).send(error);
@@ -386,7 +386,7 @@ router.post("/add", (req: Request, res: Response) => {
       weasel.error(
         user.username,
         req.socket.remoteAddress,
-        "Failed to Get Privilege"
+        "Failed to get privilege"
       );
       console.error("회원가입 실패:", error);
       res.status(500).send(error);
@@ -420,7 +420,7 @@ router.post("/rm", (req: Request, res: Response) => {
                     weasel.log(
                       username,
                       req.socket.remoteAddress,
-                      "Success Remove User "
+                      "Success remove user "
                     );
                     res.status(200).send(result2);
                   })
@@ -428,7 +428,7 @@ router.post("/rm", (req: Request, res: Response) => {
                     weasel.error(
                       username,
                       req.socket.remoteAddress,
-                      "Failed Remove User By Get User List "
+                      "Failed remove user by get user list "
                     );
                     console.error("list를 제대로 못 가져옴:", error2);
                     res.status(500).send("Internal Server Error");
@@ -438,7 +438,7 @@ router.post("/rm", (req: Request, res: Response) => {
                 weasel.error(
                   username,
                   req.socket.remoteAddress,
-                  "Failed Remove User By Username "
+                  "Failed remove user by username "
                 );
                 console.error("user 정보 제대로 못 가져옴:", error);
                 res.status(500).send("Internal Server Error");
@@ -450,7 +450,7 @@ router.post("/rm", (req: Request, res: Response) => {
                 weasel.log(
                   username,
                   req.socket.remoteAddress,
-                  "Success Remove User By Admin "
+                  "Success remove user by admin "
                 );
                 res.send(result);
               })
@@ -458,7 +458,7 @@ router.post("/rm", (req: Request, res: Response) => {
                 weasel.error(
                   username,
                   req.socket.remoteAddress,
-                  "Failed Remove User By Server "
+                  "Failed remove user by server "
                 );
                 console.error("list 잘못 가져옴:", error);
                 res.status(500).send("Internal Server Error");
@@ -469,7 +469,7 @@ router.post("/rm", (req: Request, res: Response) => {
           weasel.error(
             username,
             req.socket.remoteAddress,
-            "Failed to Get Privilege"
+            "Failed to get privilege"
           );
           console.error("list 잘못 가져옴:", error);
           res.status(500).send("Internal Server Error");
@@ -479,7 +479,7 @@ router.post("/rm", (req: Request, res: Response) => {
       weasel.error(
         username,
         req.socket.remoteAddress,
-        "Failed Remove User By Server "
+        "Failed remove user by server "
       );
       console.error("실패:", error);
       res.status(500).send("Internal Server Error");
@@ -502,7 +502,7 @@ router.get("/modify/:username", (req: Request, res: Response) => {
       weasel.log(
         username,
         req.socket.remoteAddress,
-        "Success to Get Modify User Information "
+        "Success to get modify user information "
       );
       res.send([newUser]);
     })
@@ -510,7 +510,7 @@ router.get("/modify/:username", (req: Request, res: Response) => {
       weasel.error(
         username,
         req.socket.remoteAddress,
-        "Failed to Get User Information By Username "
+        "Failed to get user information by username "
       );
       console.error("보내기 실패:", error);
       res.status(500).send("Internal Server Error");
@@ -538,7 +538,7 @@ router.post("/update/:username", (req: Request, res: Response) => {
               weasel.error(
                 oldname,
                 req.socket.remoteAddress,
-                "Failed to Update User Information By Exist Username "
+                "Failed to update user information by exist username "
               );
               res.status(401).send({ error: result.message });
             } else {
@@ -565,7 +565,7 @@ router.post("/update/:username", (req: Request, res: Response) => {
                                 weasel.log(
                                   oldname,
                                   req.socket.remoteAddress,
-                                  "Success Update User Information "
+                                  "Success update user information "
                                 );
                                 res.send(result4.message);
                               })
@@ -573,7 +573,7 @@ router.post("/update/:username", (req: Request, res: Response) => {
                                 weasel.error(
                                   oldname,
                                   req.socket.remoteAddress,
-                                  "Failed to Update User Information By Server "
+                                  "Failed to update user information by server "
                                 );
                                 console.error("업데이트 실패:", error);
                                 res.status(500).send("Internal Server Error");
@@ -589,7 +589,7 @@ router.post("/update/:username", (req: Request, res: Response) => {
                                     weasel.log(
                                       oldname,
                                       req.socket.remoteAddress,
-                                      "Success Update User Information "
+                                      "Success update user information "
                                     );
                                     res.send(result4.message);
                                   })
@@ -597,7 +597,7 @@ router.post("/update/:username", (req: Request, res: Response) => {
                                     weasel.error(
                                       user.username,
                                       req.socket.remoteAddress,
-                                      "Failed to Modify Pwd Freq "
+                                      "Failed to modify password frequency "
                                     );
                                     console.error("업데이트 실패:", error);
                                     res
@@ -609,7 +609,7 @@ router.post("/update/:username", (req: Request, res: Response) => {
                                 weasel.error(
                                   oldname,
                                   req.socket.remoteAddress,
-                                  "Failed to Update User Information By Server "
+                                  "Failed to update user information by server "
                                 );
                                 console.error("업데이트 실패:", error);
                                 res.status(500).send("Internal Server Error");
@@ -620,7 +620,7 @@ router.post("/update/:username", (req: Request, res: Response) => {
                         weasel.error(
                           oldname,
                           req.socket.remoteAddress,
-                          "Failed to Update User By Incorrect IP Range "
+                          "Failed to update user by incorrect IP range "
                         );
                         res.status(401).send({ error: result3.message });
                       }
@@ -630,7 +630,7 @@ router.post("/update/:username", (req: Request, res: Response) => {
                   weasel.error(
                     oldname,
                     req.socket.remoteAddress,
-                    "Failed to Get Privilege & IP Ranges "
+                    "Failed to get privilege & IP ranges "
                   );
                   res.send(
                     "이거는 쿠키 가지고 privilege랑 mngip 가져오는 도중에 발생하는 에러입니다."
@@ -642,7 +642,7 @@ router.post("/update/:username", (req: Request, res: Response) => {
             weasel.error(
               oldname,
               req.socket.remoteAddress,
-              "Failed to Update User Information By Exist Username "
+              "Failed to update user information by exist username "
             );
             res.send("이거는 중복을 검사하는 도중에 발생하는 에러입니다.");
           });
@@ -652,7 +652,7 @@ router.post("/update/:username", (req: Request, res: Response) => {
             weasel.error(
               oldname,
               req.socket.remoteAddress,
-              "Failed to Update User Information By Exist Username "
+              "Failed to update user information by exist username "
             );
             res.status(401).send({ error: result.message });
           } else {
@@ -667,7 +667,7 @@ router.post("/update/:username", (req: Request, res: Response) => {
                     weasel.log(
                       oldname,
                       req.socket.remoteAddress,
-                      "Success Update User Information "
+                      "Success update user information "
                     );
                     res.send(result4.message);
                   })
@@ -675,7 +675,7 @@ router.post("/update/:username", (req: Request, res: Response) => {
                     weasel.error(
                       oldname,
                       req.socket.remoteAddress,
-                      "Failed to Update User Information By Server "
+                      "Failed to update user information by server "
                     );
                     console.error("업데이트 실패:", error);
                     res.status(500).send("Internal Server Error");
@@ -691,7 +691,7 @@ router.post("/update/:username", (req: Request, res: Response) => {
                         weasel.log(
                           oldname,
                           req.socket.remoteAddress,
-                          "Success Update User Information "
+                          "Success update user information "
                         );
                         res.send(result4.message);
                       })
@@ -699,7 +699,7 @@ router.post("/update/:username", (req: Request, res: Response) => {
                         weasel.error(
                           user.username,
                           req.socket.remoteAddress,
-                          "Failed to Modify Pwd Freq "
+                          "Failed to modify password frequency "
                         );
                         console.error("업데이트 실패:", error);
                         res.status(500).send("Internal Server Error");
@@ -709,7 +709,7 @@ router.post("/update/:username", (req: Request, res: Response) => {
                     weasel.error(
                       oldname,
                       req.socket.remoteAddress,
-                      "Failed to Update User Information By Server "
+                      "Failed to update user information by server "
                     );
                     console.error("업데이트 실패:", error);
                     res.status(500).send("Internal Server Error");
@@ -724,7 +724,7 @@ router.post("/update/:username", (req: Request, res: Response) => {
       weasel.error(
         oldname,
         req.socket.remoteAddress,
-        "Failed to Get Privilege"
+        "Failed to get privilege"
       );
       res.send(
         "이거는 쿠키 가지고 privilege 가져오는 도중에 발생하는 에러입니다."
@@ -773,7 +773,7 @@ router.get("/all", (req: Request, res: Response) => {
                 weasel.log(
                   username,
                   req.socket.remoteAddress,
-                  `Success to Load User Control Page category=${category}, searchWord=${searchWord}`
+                  `Success to load user control page category=${category}, searchWord=${searchWord}`
                 );
                 res.status(200).send(result2);
               })
@@ -781,7 +781,7 @@ router.get("/all", (req: Request, res: Response) => {
                 weasel.error(
                   username,
                   req.socket.remoteAddress,
-                  "Failed to Load User Control Page "
+                  "Failed to load user control page "
                 );
                 console.error("list를 제대로 못 가져옴:", error2);
                 res.status(500).send("Internal Server Error");
@@ -791,7 +791,7 @@ router.get("/all", (req: Request, res: Response) => {
             weasel.error(
               username,
               req.socket.remoteAddress,
-              "Failed to Load User Control Page "
+              "Failed to load user control page "
             );
             console.error("user 정보 제대로 못 가져옴:", error);
             res.status(500).send("Internal Server Error");
@@ -803,7 +803,7 @@ router.get("/all", (req: Request, res: Response) => {
             weasel.log(
               username,
               req.socket.remoteAddress,
-              "Success to Load User Control Page "
+              "Success to load user control page "
             );
             res.send(result);
           })
@@ -811,7 +811,7 @@ router.get("/all", (req: Request, res: Response) => {
             weasel.error(
               username,
               req.socket.remoteAddress,
-              "Failed to Load User Control Page "
+              "Failed to load user control page "
             );
             console.error("list 잘못 가져옴:", error);
             res.status(500).send("Internal Server Error");
@@ -822,7 +822,7 @@ router.get("/all", (req: Request, res: Response) => {
       weasel.error(
         username,
         req.socket.remoteAddress,
-        "Failed to Get Privilege"
+        "Failed to get privilege"
       );
       console.error("user 정보 제대로 못 가져옴:", error);
       res.status(500).send("Internal Server Error");
@@ -855,7 +855,7 @@ router.post("/pwd", (req: Request, res: Response) => {
         weasel.error(
           username,
           req.socket.remoteAddress,
-          "Failed to Update Pwd Freq By Exist OldPwd "
+          "Failed to update password frequency by exist old password "
         );
         res.status(401).send("fail");
       } else {
@@ -866,7 +866,7 @@ router.post("/pwd", (req: Request, res: Response) => {
               weasel.log(
                 username,
                 req.socket.remoteAddress,
-                "Success Update Pwd Freq "
+                "Success update password frequency "
               );
               res.status(200).send(result2);
             })
@@ -874,7 +874,7 @@ router.post("/pwd", (req: Request, res: Response) => {
               weasel.error(
                 username,
                 req.socket.remoteAddress,
-                "Failed to Update Pwd Freq By Server "
+                "Failed to update password frequency by server "
               );
               res.status(500).send("Internal Server Error");
             });
@@ -882,7 +882,7 @@ router.post("/pwd", (req: Request, res: Response) => {
           weasel.error(
             username,
             req.socket.remoteAddress,
-            "Failed to Update Pwd By Old Pwd Equals New Pwd"
+            "Failed to update password by old password equal new password"
           );
           res
             .status(500)
@@ -896,7 +896,7 @@ router.post("/pwd", (req: Request, res: Response) => {
       weasel.error(
         username,
         req.socket.remoteAddress,
-        "Failed to Update Pwd Freq By Get Pwd "
+        "Failed to update password frequency by get password "
       );
       res.send("error :" + error2);
     });
