@@ -29,10 +29,10 @@ class OutlookService {
             보낸사람: 'sender', // 7
             받은사람: 'receivers', // 8
             유출파일명: 'attachments', // 9
-            전송갯수: 'backup_file', // 10
-            파일다운로드: 'backup_file', // 11
-            파일크기: 'file_size', // 12
-            탐지패턴: 'patterns', // 13
+            // 전송갯수 : 'backup_file',   // 10 => 삭제됨
+            파일다운로드: 'backup_file', // 10
+            파일크기: 'file_size', // 11
+            탐지패턴: 'patterns', // 12
         };
         // New_C
         this.columnAlias = {
@@ -47,10 +47,10 @@ class OutlookService {
             'Sender': 'sender', // 7
             'Receiver': 'receivers', // 8
             'AttachedFiles': 'attachments', // 9
-            'CopiedFiles': 'backup_file', // 10
-            'Downloading': 'backup_file', // 11
-            'FileSizes': 'file_size', // 12
-            'Keywords': 'patterns', // 13
+            // 'CopiedFiles' : 'backup_file',   // 10 => 삭제됨
+            'Downloading': 'backup_file', // 10
+            'FileSizes': 'file_size', // 11
+            'Keywords': 'patterns', // 12
         };
     }
     getCountAll(select, ipRanges) {
@@ -155,13 +155,11 @@ class OutlookService {
             const queryStr = privilege !== 3 ?
                 `select ${aliasValues[0]}, ${aliasValues[1]} as ${aliasKey[1]}, ${aliasValues[2]} as ${aliasKey[2]}, ${aliasValues[3]} as ${aliasKey[3]}, ${aliasValues[4]} as ${aliasKey[4]}, 
       ${aliasValues[5]} as ${aliasKey[5]}, ${aliasValues[6]} as ${aliasKey[6]}, ${aliasValues[7]} as ${aliasKey[7]}, ${aliasValues[8]} as ${aliasKey[8]}, 
-      ${aliasValues[9]} as ${aliasKey[9]}, ${aliasValues[10]} as ${aliasKey[10]}, ${aliasValues[11]} as ${aliasKey[11]}, 
-      ${aliasValues[12]} as ${aliasKey[12]}, ${aliasValues[13]} as ${aliasKey[13]} `
+      ${aliasValues[9]} as ${aliasKey[9]}, ${aliasValues[11]} as ${aliasKey[11]}, ${aliasValues[12]} as ${aliasKey[12]}, ${aliasValues[10]} as ${aliasKey[10]} `
                 :
                     `select ${aliasValues[0]}, ${aliasValues[1]} as ${aliasKey[1]}, ${aliasValues[2]} as ${aliasKey[2]}, ${aliasValues[3]} as ${aliasKey[3]}, ${aliasValues[4]} as ${aliasKey[4]}, 
       ${aliasValues[5]} as ${aliasKey[5]}, ${aliasValues[6]} as ${aliasKey[6]}, ${aliasValues[7]} as ${aliasKey[7]}, ${aliasValues[8]} as ${aliasKey[8]}, 
-      ${aliasValues[9]} as ${aliasKey[9]}, ${aliasValues[10]} as ${aliasKey[10]}, 
-      ${aliasValues[12]} as ${aliasKey[12]}, ${aliasValues[13]} as ${aliasKey[13]} `;
+      ${aliasValues[9]} as ${aliasKey[9]}, ${aliasValues[11]} as ${aliasKey[11]}, ${aliasValues[12]} as ${aliasKey[12]} `;
             const query = queryStr +
                 "from leakedoutlookfiles " +
                 whereClause +
