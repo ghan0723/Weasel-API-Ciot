@@ -19,7 +19,7 @@ class ComplexService {
         }
         else if (props === "outlook") {
             table = "leakedoutlookfiles";
-            columns = "proc_name, sender";
+            columns = "subject, sender";
         }
         else {
             table = "leakedprintingfiles";

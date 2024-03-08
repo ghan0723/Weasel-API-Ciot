@@ -16,18 +16,15 @@ class SettingService {
     serverInterval?: number;
     licenseDist?: string;
     exceptionList?: string;
-    keywordList?: string;
     flag: number;
   }): Promise<any> {
     let excip = agent.exceptionList?.replace(/(\r\n|\n|\r)/gm, ", ");
-    let kewordRef = agent.keywordList?.replace(/(\r\n|\n|\r)/gm, "@@");
 
     // db에 undefined가 문자열로 들어가는 것을 막기위한 예외처리
-    if(excip === undefined) excip = '';
-    if(kewordRef === undefined) kewordRef = '';
+    if (excip === undefined) excip = "";
 
     const query = `update serversetting set uid=${agent.uid}, clnt_svr_ip="${agent.serverIP}", clnt_svr_port=${agent.serverPort}, clnt_svr_conn_interval=${agent.serverInterval}, 
-    clnt_license="${agent.licenseDist}", clnt_exceptions_list="${excip}", svr_patterns_list="${kewordRef}", svr_checkbox_flag=${agent.flag}`;
+    clnt_license="${agent.licenseDist}", clnt_exceptions_list="${excip}", svr_checkbox_flag=${agent.flag}`;
     return new Promise((resolve, reject) => {
       connection.query(query, (error, result) => {
         if (error) {
@@ -41,90 +38,46 @@ class SettingService {
 
   getAgentSetting(): Promise<any> {
     const query =
-      "select uid, svr_checkbox_flag, clnt_svr_ip, clnt_svr_port, clnt_svr_conn_interval, clnt_license, clnt_exceptions_list, svr_patterns_list, svr_port, svr_file_retention_periods, svr_auto_fileupload from serversetting";
+      "select uid, svr_checkbox_flag, clnt_svr_ip, clnt_svr_port, clnt_svr_conn_interval, clnt_license, clnt_exceptions_list, svr_port, svr_file_retention_periods, svr_auto_fileupload from serversetting";
     return new Promise((resolve, reject) => {
       connection.query(query, (error, result) => {
         if (error) {
           reject(error);
         } else {
-          const clntKeywordList = result[0]?.svr_patterns_list ?? '';
-          const clntExceptionList = result[0]?.clnt_exceptions_list ?? '';          
-          
-          if (clntKeywordList && clntKeywordList.includes("@@")) {
-            const modifiedKeywordList = clntKeywordList.replace(/@@/g, "\n");
-            if (clntExceptionList) {
-              const modifiedExcepIP = clntExceptionList.replace(/,\s*/gm, "\n");
-              resolve([
-                {
-                  uid: result[0]?.uid,
-                  svr_checkbox_flag: result[0]?.svr_checkbox_flag,
-                  clnt_svr_ip: result[0]?.clnt_svr_ip,
-                  clnt_svr_port: result[0]?.clnt_svr_port,
-                  clnt_svr_conn_interval: result[0]?.clnt_svr_conn_interval,
-                  clnt_license: result[0]?.clnt_license,
-                  clnt_exceptions_list: modifiedExcepIP,
-                  svr_patterns_list: modifiedKeywordList,
-                  svr_port: result[0]?.svr_port,
-                  svr_file_retention_periods:
-                    result[0]?.svr_file_retention_periods,
-                  svr_auto_fileupload: result[0]?.svr_auto_fileupload,
-                },
-              ]);
-            } else {
-              resolve([
-                {
-                  uid: result[0]?.uid,
-                  svr_checkbox_flag: result[0]?.svr_checkbox_flag,
-                  clnt_svr_ip: result[0]?.clnt_svr_ip,
-                  clnt_svr_port: result[0]?.clnt_svr_port,
-                  clnt_svr_conn_interval: result[0]?.clnt_svr_conn_interval,
-                  clnt_license: result[0]?.clnt_license,
-                  clnt_exceptions_list: result[0]?.clnt_exceptions_list,
-                  svr_patterns_list: modifiedKeywordList,
-                  svr_port: result[0]?.svr_port,
-                  svr_file_retention_periods:
-                    result[0]?.svr_file_retention_periods,
-                  svr_auto_fileupload: result[0]?.svr_auto_fileupload,
-                },
-              ]);
-            }
+          const clntExceptionList = result[0]?.clnt_exceptions_list ?? "";
+          if (clntExceptionList) {
+            const modifiedExcepIP = clntExceptionList.replace(/,\s*/gm, "\n");
+            resolve([
+              {
+                uid: result[0]?.uid,
+                svr_checkbox_flag: result[0]?.svr_checkbox_flag,
+                clnt_svr_ip: result[0]?.clnt_svr_ip,
+                clnt_svr_port: result[0]?.clnt_svr_port,
+                clnt_svr_conn_interval: result[0]?.clnt_svr_conn_interval,
+                clnt_license: result[0]?.clnt_license,
+                clnt_exceptions_list: modifiedExcepIP,
+                svr_port: result[0]?.svr_port,
+                svr_file_retention_periods:
+                  result[0]?.svr_file_retention_periods,
+                svr_auto_fileupload: result[0]?.svr_auto_fileupload,
+              },
+            ]);
           } else {
-            if (clntExceptionList) {
-              const modifiedExcepIP = clntExceptionList.replace(/,\s*/gm, "\n");
-              resolve([
-                {
-                  uid: result[0]?.uid,
-                  svr_checkbox_flag: result[0]?.svr_checkbox_flag,
-                  clnt_svr_ip: result[0]?.clnt_svr_ip,
-                  clnt_svr_port: result[0]?.clnt_svr_port,
-                  clnt_svr_conn_interval: result[0]?.clnt_svr_conn_interval,
-                  clnt_license: result[0]?.clnt_license,
-                  clnt_exceptions_list: modifiedExcepIP,
-                  svr_patterns_list: result[0]?.svr_patterns_list,
-                  svr_port: result[0]?.svr_port,
-                  svr_file_retention_periods:
-                    result[0]?.svr_file_retention_periods,
-                  svr_auto_fileupload: result[0]?.svr_auto_fileupload,
-                },
-              ]);
-            } else {
-              resolve([
-                {
-                  uid: result[0]?.uid,
-                  svr_checkbox_flag: result[0]?.svr_checkbox_flag,
-                  clnt_svr_ip: result[0]?.clnt_svr_ip,
-                  clnt_svr_port: result[0]?.clnt_svr_port,
-                  clnt_svr_conn_interval: result[0]?.clnt_svr_conn_interval,
-                  clnt_license: result[0]?.clnt_license,
-                  clnt_exceptions_list: result[0]?.clnt_exceptions_list,
-                  svr_patterns_list: result[0]?.svr_patterns_list,
-                  svr_port: result[0]?.svr_port,
-                  svr_file_retention_periods:
-                    result[0]?.svr_file_retention_periods,
-                  svr_auto_fileupload: result[0]?.svr_auto_fileupload,
-                },
-              ]);
-            }
+            resolve([
+              {
+                uid: result[0]?.uid,
+                svr_checkbox_flag: result[0]?.svr_checkbox_flag,
+                clnt_svr_ip: result[0]?.clnt_svr_ip,
+                clnt_svr_port: result[0]?.clnt_svr_port,
+                clnt_svr_conn_interval: result[0]?.clnt_svr_conn_interval,
+                clnt_license: result[0]?.clnt_license,
+                clnt_exceptions_list: result[0]?.clnt_exceptions_list,
+                svr_port: result[0]?.svr_port,
+                svr_file_retention_periods:
+                  result[0]?.svr_file_retention_periods,
+                svr_auto_fileupload: result[0]?.svr_auto_fileupload,
+              },
+            ]);
           }
         }
       });
@@ -142,9 +95,12 @@ class SettingService {
     ret: string;
     auto: boolean;
     interval: number;
+    keywordList?: string;
   }): Promise<any> {
     const autoDwn = server.auto ? 1 : 0;
-    const query = `update serversetting set svr_port=${server.serverPort}, svr_file_retention_periods=${server.ret}, svr_auto_fileupload=${autoDwn}, svr_ui_refresh_interval=${server.interval}`;
+    let kewordRef = server.keywordList?.replace(/(\r\n|\n|\r)/gm, "@@");
+    if (kewordRef === undefined) kewordRef = "";
+    const query = `update serversetting set svr_port=${server.serverPort}, svr_file_retention_periods=${server.ret}, svr_auto_fileupload=${autoDwn}, svr_ui_refresh_interval=${server.interval}, svr_patterns_list="${kewordRef}"`;
     return new Promise((resolve, reject) => {
       connection.query(query, (error, result) => {
         if (error) {
@@ -157,13 +113,37 @@ class SettingService {
   }
 
   getServerSetting(): Promise<any> {
-    const query = `select svr_port, svr_file_retention_periods, svr_auto_fileupload, svr_ui_refresh_interval from serversetting`;
+    const query = `select svr_port, svr_file_retention_periods, svr_auto_fileupload, svr_ui_refresh_interval, svr_patterns_list from serversetting`;
     return new Promise((resolve, reject) => {
       connection.query(query, (error, result) => {
         if (error) {
           reject(error);
         } else {
-          resolve(result);
+          const svrKeywordList = result[0]?.svr_patterns_list ?? "";
+          if (svrKeywordList && svrKeywordList.includes("@@")) {
+            const modifiedKeywordList = svrKeywordList.replace(/@@/g, "\n");
+            resolve([
+              {
+                svr_port: result[0].svr_port,
+                svr_file_retention_periods:
+                  result[0].svr_file_retention_periods,
+                svr_auto_fileupload: result[0].svr_auto_fileupload,
+                svr_ui_refresh_interval: result[0].svr_ui_refresh_interval,
+                svr_patterns_list: modifiedKeywordList,
+              },
+            ]);
+          } else {
+            resolve([
+              {
+                svr_port: result[0].svr_port,
+                svr_file_retention_periods:
+                  result[0].svr_file_retention_periods,
+                svr_auto_fileupload: result[0].svr_auto_fileupload,
+                svr_ui_refresh_interval: result[0].svr_ui_refresh_interval,
+                svr_patterns_list: result[0].svr_patterns_list,
+              },
+            ]);
+          }
         }
       });
     });
@@ -238,7 +218,7 @@ class SettingService {
     });
   }
 
-  updateFileAgent(updateFile:any):Promise<any>{
+  updateFileAgent(updateFile: any): Promise<any> {
     const query = `update UpdateAgents set update_file = '${updateFile}'`;
     return new Promise((resolve, reject) => {
       connection.query(query, (error, result) => {
@@ -247,36 +227,36 @@ class SettingService {
         } else {
           resolve(result);
         }
-      })
-    })
+      });
+    });
   }
 
-  processFile(oldFile:any,newFile:any):boolean {
-      // 기존 파일 삭제
-      fs.unlink(newFile, (err) => {
-        if (err) {
-          console.error("파일 삭제 중 오류 발생:", err);
-          return false;
-        } else {
-          console.log("같은 경로의 파일이 삭제됨:", oldFile);
-        }
-      });
+  processFile(oldFile: any, newFile: any): boolean {
+    // 기존 파일 삭제
+    fs.unlink(newFile, (err) => {
+      if (err) {
+        console.error("파일 삭제 중 오류 발생:", err);
+        return false;
+      } else {
+        console.log("같은 경로의 파일이 삭제됨:", oldFile);
+      }
+    });
 
-      // 새로운 파일의 naming 변경
-      fs.rename(oldFile, newFile, (err) => {
-        if (err) {
-          console.error("파일 이름 변경 중 오류 발생:", err);
-          return false;
-        } else {
-          console.log("같은 경로의 이름이 변경됨:", newFile);
-        }
-      });
+    // 새로운 파일의 naming 변경
+    fs.rename(oldFile, newFile, (err) => {
+      if (err) {
+        console.error("파일 이름 변경 중 오류 발생:", err);
+        return false;
+      } else {
+        console.log("같은 경로의 이름이 변경됨:", newFile);
+      }
+    });
 
-      return true;
+    return true;
   }
 
-  getUpdateFileAgent(): Promise<any>{
-    const query = 'select update_file as updateFile from updateagents';
+  getUpdateFileAgent(): Promise<any> {
+    const query = "select update_file as updateFile from updateagents";
     return new Promise((resolve, reject) => {
       connection.query(query, (error, result) => {
         if (error) {
@@ -284,11 +264,11 @@ class SettingService {
         } else {
           resolve(result);
         }
-      })
-    })
+      });
+    });
   }
 
-  postUpdateFileAgent(updateFile:any): Promise<any>{
+  postUpdateFileAgent(updateFile: any): Promise<any> {
     const query = `update updateagents set update_file = 'C:/ciot/updates/${updateFile}'`;
     return new Promise((resolve, reject) => {
       connection.query(query, (error, result) => {
@@ -297,12 +277,12 @@ class SettingService {
         } else {
           resolve(result);
         }
-      })
-    })
+      });
+    });
   }
 
   getOutlookFlag(): Promise<any> {
-    const query = "select svr_checkbox_flag as flag from serversetting"
+    const query = "select svr_checkbox_flag as flag from serversetting";
     return new Promise((resolve, reject) => {
       connection.query(query, (error, result) => {
         if (error) {
@@ -310,8 +290,8 @@ class SettingService {
         } else {
           resolve(result);
         }
-      })
-    })
+      });
+    });
   }
 }
 

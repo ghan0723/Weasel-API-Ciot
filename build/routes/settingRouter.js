@@ -60,6 +60,7 @@ router.get("/servers", (req, res) => {
             ret: result[0].svr_file_retention_periods,
             auto: newAuto,
             interval: result[0].svr_ui_refresh_interval,
+            svr_patterns_list: result[0].svr_patterns_list,
         };
         log_1.weasel.log(username, req.socket.remoteAddress, "Success to Get Server Information ");
         res.send(newResult);

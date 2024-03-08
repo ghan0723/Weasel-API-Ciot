@@ -15,7 +15,7 @@ class ComplexService {
       columns = "media_type, org_file";
     } else if (props === "outlook") {
       table = "leakedoutlookfiles";
-      columns = "proc_name, sender";
+      columns = "subject, sender";
     } else {
       table = "leakedprintingfiles";
       columns = "printer, doc_name";
