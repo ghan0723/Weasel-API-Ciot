@@ -82,11 +82,13 @@ router.get("/file", (req, res) => {
     logService
         .getLogContent(year, month, file)
         .then((content) => {
-        log_1.weasel.log("", req.socket.remoteAddress, `Verified ${file} audit log`);
+        log_1.weasel.log("", req.socket.remoteAddress, `${file} audit log`);
+        // weasel.log("", req.socket.remoteAddress, `${file} 감사 로그입니다`);
         res.send([content]);
     })
-        .catch((error) => {
-        log_1.weasel.error("", req.socket.remoteAddress, "Failed to retrieve the audit log");
+        .catch(() => {
+        log_1.weasel.error("", req.socket.remoteAddress, "Failed to view audit logs");
+        // weasel.error("", req.socket.remoteAddress,"감사 로그 보기 실패");
         res.status(401).send("fail");
     });
 });

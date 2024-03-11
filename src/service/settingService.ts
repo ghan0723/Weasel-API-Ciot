@@ -9,6 +9,16 @@ class SettingService {
     });
   }
 
+  modAgentSettingLog(revData:any, currentData:any):string {
+    let str = 'Change agent settings\t';
+    // let str = '에이전트 설정 변경\t';
+
+    if(revData?.serverIP !== currentData?.clnt_svr_ip) str += 'client ip = before(' + currentData?.clnt_svr_ip + '), after(' + revData?.serverIP + '), '; 
+    if(revData?.serverPort !== currentData?.clnt_svr_port) str += 'client port = before(' + currentData?.clnt_svr_port + '), after(' + revData?.serverPort + '), '; 
+
+    return str;
+  }
+
   modAgentSetting(agent: {
     uid: number;
     serverIP?: string;
@@ -88,6 +98,15 @@ class SettingService {
     return new Promise((resolve, reject) => {
       connection;
     });
+  }
+
+  modServerSettingLog(revData:any, currentData:any):string {
+    let str = 'Change server settings\t';
+    // let str = '서버 설정 변경\t';
+
+    if(revData?.serverPort !== currentData?.svr_port) str += 'server port = before(' + currentData?.svr_port + '), after(' + revData?.serverPort + ')'; 
+
+    return str;
   }
 
   modServerSetting(server: {
