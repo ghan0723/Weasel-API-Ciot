@@ -18,7 +18,7 @@ router.post("/login", (req: Request, res: Response) => {
     .getLogin(username)
     .then((user) => {
       if (user.length === 0) {
-        weasel.error(username, req.socket.remoteAddress, "Not exist user ");
+        weasel.log(username, req.socket.remoteAddress, "Not exist user ");
         // 에러 메시지와 원하는 URL을 포함한 JSON 응답을 보냄
         res.status(401).json({
           error: "사용자를 찾을 수 없습니다",
@@ -26,197 +26,77 @@ router.post("/login", (req: Request, res: Response) => {
         });
         return;
       } else {
-        userService.getPrivilege(username).then((result) => {
-          if (result[0].privilege === 1) {
-            let decPasswd = cryptoService.getDecryptUltra(user[0].passwd);
-            settingService
-              .getGUITime()
-              .then((cookieTime) => {
-                if (passwd !== decPasswd) {
-                  weasel.error(
-                    username,
-                    req.socket.remoteAddress,
-                    "Password do not match "
-                  );
-                  res.status(401).json({
-                    error: "비밀번호가 일치하지 않습니다",
-                    redirectUrl: `${frontIP}/auth/sign-in`,
-                  });
-                  return;
-                } else {
-                  userService
-                    .getPopupNotice()
-                    .then((popup) => {
-                      if (popup[0]?.count > 0) {
-                        //띄울 팝업이 존재한다면
-                        res.cookie("username", user[0].username, {
-                          secure: true,
-                          maxAge: cookieTime * 1000,
-                          path: "/", // 쿠키의 경로 설정
-                        });
-                        weasel.log(
-                          username,
-                          req.socket.remoteAddress,
-                          "Success login "
-                        );
-                        res
-                          .status(200)
-                          .send({ username, freq: false, notice: true });
-                      } else {
-                        //팝업이 존재하지 않는다면
-                        res.cookie("username", user[0].username, {
-                          secure: true,
-                          maxAge: cookieTime * 1000,
-                          path: "/", // 쿠키의 경로 설정
-                        });
-                        weasel.log(
-                          username,
-                          req.socket.remoteAddress,
-                          "Success login "
-                        );
-                        res
-                          .status(200)
-                          .send({ username, freq: false, notice: false });
-                      }
-                    })
-                    .catch((error5) => {
-                      weasel.error(
-                        username,
-                        req.socket.remoteAddress,
-                        "Failed to retrieve popup notice information from the database "
-                      );
-                      console.error("PopupNotice 가져오기 실패:", error5);
-                      res.status(500).send(error5);
-                    });
-                }
-              })
-              .catch((error2) => {
-                weasel.error(
-                  username,
-                  req.socket.remoteAddress,
-                  "Failed to get cookie time "
-                );
-                console.error("쿠키 타임 가져오기 실패:", error2);
-                res.status(500).send(error2);
-              });
-          } else {
-            //관리자 제외 나머지 아이디
-            if (user[0]?.enabled !== 1) {
-              weasel.error(
-                username,
-                req.socket.remoteAddress,
-                "The user's status is not enabled"
-              );
-              res.status(500).send({ enabled: false });
-            } else {
+        userService
+          .getPrivilege(username)
+          .then((result) => {
+            if (result[0].privilege === 1) {
               let decPasswd = cryptoService.getDecryptUltra(user[0].passwd);
               settingService
                 .getGUITime()
                 .then((cookieTime) => {
-                  userService
-                    .checkPwdFreq(username)
-                    .then((freq) => {
-                      if (passwd !== decPasswd) {
-                        userService.disabledUser(username, user[0].fail_count+1)
-                        .then((enabled) => {
-                          weasel.error(
-                            username,
-                            req.socket.remoteAddress,
-                            "Password do not match "
-                          );
-                          res.status(401).json({
-                            error: "비밀번호가 일치하지 않습니다",
-                            redirectUrl: `${frontIP}/auth/sign-in`,
+                  if (passwd !== decPasswd) {
+                    weasel.log(
+                      username,
+                      req.socket.remoteAddress,
+                      "Password do not match "
+                    );
+                    res.status(401).json({
+                      error: "비밀번호가 일치하지 않습니다",
+                      redirectUrl: `${frontIP}/auth/sign-in`,
+                    });
+                    return;
+                  } else {
+                    userService
+                      .getPopupNotice()
+                      .then((popup) => {
+                        if (popup[0]?.count > 0) {
+                          //띄울 팝업이 존재한다면
+                          res.cookie("username", user[0].username, {
+                            secure: true,
+                            maxAge: cookieTime * 1000,
+                            path: "/", // 쿠키의 경로 설정
                           });
-                        })
-                        .catch((enableError) => {
-                          weasel.error(
-                            username,
-                            req.socket.remoteAddress,
-                            "Failed to update the fail_count column in the accountlist table in the database "
-                          );
-                          res.status(401).json({
-                            error: "비밀번호가 일치하지 않습니다",
-                            redirectUrl: `${frontIP}/auth/sign-in`,
-                          });
-                          return;
-                        })
-                      } else {
-                        if (!freq) {
-                          //로그인 성공했으니까 fail_count 한번 초기화 해주기
-                          userService.failCountDefault(username)
-                          .then((result4) => {
-                            userService
-                            .getPopupNotice()
-                            .then((popup) => {
-                              if (popup[0]?.count > 0) {
-                                res.cookie("username", user[0].username, {
-                                  secure: true,
-                                  maxAge: cookieTime * 1000,
-                                  path: "/", // 쿠키의 경로 설정
-                                });
-                                weasel.log(
-                                  username,
-                                  req.socket.remoteAddress,
-                                  "Success login "
-                                );
-                                res
-                                  .status(200)
-                                  .send({ username, freq, notice: true });
-                              } else {
-                                res.cookie("username", user[0].username, {
-                                  secure: true,
-                                  maxAge: cookieTime * 1000,
-                                  path: "/", // 쿠키의 경로 설정
-                                });
-                                weasel.log(
-                                  username,
-                                  req.socket.remoteAddress,
-                                  "Success login "
-                                );
-                                res
-                                  .status(200)
-                                  .send({ username, freq, notice: false });
-                              }
-                            })
-                            .catch((error5) => {
-                              weasel.error(
-                                username,
-                                req.socket.remoteAddress,
-                                "Failed to retrieve popup notice information from the database "
-                              );
-                              console.error(
-                                "PopupNotice 가져오기 실패:",
-                                error5
-                              );
-                              res.status(500).send(error5);
-                            });
-                          })
-                          .catch((error5) => {
-                            weasel.error(
-                              username,
-                              req.socket.remoteAddress,
-                              "Failed to reset the fail_count column in the accountlist table in the database."
-                            );
-                          })
-                        } else {
-                          //freq 보고 판별
                           weasel.log(
                             username,
                             req.socket.remoteAddress,
-                            "Please change password "
+                            "Popup content available."
                           );
-                          res.status(200).send({ username, freq });
+                          weasel.log(
+                            username,
+                            req.socket.remoteAddress,
+                            "Success login "
+                          );
+                          res
+                            .status(200)
+                            .send({ username, freq: false, notice: true });
+                        } else {
+                          //팝업이 존재하지 않는다면
+                          res.cookie("username", user[0].username, {
+                            secure: true,
+                            maxAge: cookieTime * 1000,
+                            path: "/", // 쿠키의 경로 설정
+                          });
+                          weasel.log(
+                            username,
+                            req.socket.remoteAddress,
+                            "Success login "
+                          );
+                          res
+                            .status(200)
+                            .send({ username, freq: false, notice: false });
                         }
-                      }
-                    })
-                    .catch((error3) => {
-                      weasel.error(
-                        username,
-                        req.socket.remoteAddress,
-                        "Failed to get password frequency. "
-                      );
-                    });
+                      })
+                      .catch((error5) => {
+                        weasel.error(
+                          username,
+                          req.socket.remoteAddress,
+                          "Failed to retrieve popup notice information from the database"
+                        );
+                        // weasel.error(username, req.socket.remoteAddress, "팝업을 가져오는 쿼리 실행 중 오류가 발생했습니다.");
+                        console.error("PopupNotice 가져오기 실패:", error5);
+                        res.status(500).send(error5);
+                      });
+                  }
                 })
                 .catch((error2) => {
                   weasel.error(
@@ -224,18 +104,171 @@ router.post("/login", (req: Request, res: Response) => {
                     req.socket.remoteAddress,
                     "Failed to get cookie time "
                   );
+                  // weasel.error(username, req.socket.remoteAddress, "서버의 Guitime을 가져오는 쿼리 실행 중 오류가 발생했습니다.");
                   console.error("쿠키 타임 가져오기 실패:", error2);
                   res.status(500).send(error2);
                 });
+            } else {
+              //관리자 제외 나머지 아이디
+              if (user[0]?.enabled !== 1) {
+                weasel.log(
+                  username,
+                  req.socket.remoteAddress,
+                  "The user's status is not enabled"
+                );
+                res.status(500).send({ enabled: false });
+              } else {
+                let decPasswd = cryptoService.getDecryptUltra(user[0].passwd);
+                settingService
+                  .getGUITime()
+                  .then((cookieTime) => {
+                    userService
+                      .checkPwdFreq(username)
+                      .then((freq) => {
+                        if (passwd !== decPasswd) {
+                          userService
+                            .disabledUser(username, user[0].fail_count + 1)
+                            .then((enabled) => {
+                              weasel.log(
+                                username,
+                                req.socket.remoteAddress,
+                                "Password do not match "
+                              );
+                              res.status(401).json({
+                                error: "비밀번호가 일치하지 않습니다",
+                                redirectUrl: `${frontIP}/auth/sign-in`,
+                              });
+                            })
+                            .catch((enableError) => {
+                              weasel.error(
+                                username,
+                                req.socket.remoteAddress,
+                                "Failed to update the fail_count column in the accountlist table in the database "
+                              );
+                              // weasel.error(username, req.socket.remoteAddress, "비밀번호 입력 실패값을 초기화하는 쿼리 실행 중 오류가 발생했습니다.");
+                              res.status(401).json({
+                                error: "비밀번호가 일치하지 않습니다",
+                                redirectUrl: `${frontIP}/auth/sign-in`,
+                              });
+                              return;
+                            });
+                        } else {
+                          if (!freq) {
+                            //로그인 성공했으니까 fail_count 한번 초기화 해주기
+                            userService
+                              .failCountDefault(username)
+                              .then((result4) => {
+                                userService
+                                  .getPopupNotice()
+                                  .then((popup) => {
+                                    if (popup[0]?.count > 0) {
+                                      res.cookie("username", user[0].username, {
+                                        secure: true,
+                                        maxAge: cookieTime * 1000,
+                                        path: "/", // 쿠키의 경로 설정
+                                      });
+                                      weasel.log(
+                                        username,
+                                        req.socket.remoteAddress,
+                                        "Popup content available."
+                                      );
+                                      weasel.log(
+                                        username,
+                                        req.socket.remoteAddress,
+                                        "Success login "
+                                      );
+                                      res
+                                        .status(200)
+                                        .send({ username, freq, notice: true });
+                                    } else {
+                                      res.cookie("username", user[0].username, {
+                                        secure: true,
+                                        maxAge: cookieTime * 1000,
+                                        path: "/", // 쿠키의 경로 설정
+                                      });
+                                      weasel.log(
+                                        username,
+                                        req.socket.remoteAddress,
+                                        "Success login "
+                                      );
+                                      res.status(200).send({
+                                        username,
+                                        freq,
+                                        notice: false,
+                                      });
+                                    }
+                                  })
+                                  .catch((error5) => {
+                                    weasel.error(
+                                      username,
+                                      req.socket.remoteAddress,
+                                      "Failed to retrieve popup notice information from the database"
+                                    );
+                                    // weasel.error(username, req.socket.remoteAddress, "팝업을 가져오는 쿼리 실행 중 오류가 발생했습니다.");
+                                    res.status(500).send(error5);
+                                  });
+                              })
+                              .catch((error5) => {
+                                weasel.error(
+                                  username,
+                                  req.socket.remoteAddress,
+                                  "Failed to reset the fail_count column in the accountlist table in the database."
+                                );
+                                // weasel.error(username, req.socket.remoteAddress, "비밀번호 입력 실패 횟수를 가져오는 쿼리 실행 중 오류가 발생했습니다.");
+                              });
+                          } else {
+                            //freq에 의해 비밀번호를 변경해야 한다
+                            weasel.log(
+                              username,
+                              req.socket.remoteAddress,
+                              "Please change password "
+                            );
+                            // weasel.log(username, req.socket.remoteAddress, "비밀번호 변경 주기가 지났습니다. 비밀번호를 변경으로 이동합니다.");
+                            res.status(200).send({ username, freq });
+                          }
+                        }
+                      })
+                      .catch((error3) => {
+                        weasel.error(
+                          username,
+                          req.socket.remoteAddress,
+                          "Failed to get password frequency. "
+                        );
+                        // weasel.error(username, req.socket.remoteAddress, "비밀번호 변경 확인값을 가져오는 쿼리 실행 중 오류가 발생했습니다.");
+                      });
+                  })
+                  .catch((error2) => {
+                    weasel.error(
+                      username,
+                      req.socket.remoteAddress,
+                      "Failed to get cookie time "
+                    );
+                    // weasel.error(username, req.socket.remoteAddress, "서버의 Guitime을 가져오는 쿼리 실행 중 오류가 발생했습니다.");
+                    console.error("쿠키 타임 가져오기 실패:", error2);
+                    res.status(500).send(error2);
+                  });
+              }
             }
-          }
-        });
+          })
+          .catch((error) => {
+            weasel.error(
+              username,
+              req.socket.remoteAddress,
+              "Failed to get privilege"
+            );
+            // weasel.error(username, req.socket.remoteAddress, "입력한 아이디의 등급을 가져오는 쿼리 실행 중 오류가 발생했습니다.");
+            res.redirect(`${frontIP}/auth/sign-in`);
+          });
       }
     })
     .catch((error) => {
-      weasel.error(username, req.socket.remoteAddress, "Other server errors while login");
+      weasel.error(
+        username,
+        req.socket.remoteAddress,
+        "Other server errors while login"
+      );
+      // weasel.error(username, req.socket.remoteAddress, "입력받은 아이디를 데이터베이스와 비교하기 위한 쿼리 실행중 오류가 발생했습니다.");
       res.redirect(`${frontIP}/auth/sign-in`);
-      // res.status(500).send("서버 내부 오류가 발생했습니다.");
     });
 });
 
@@ -248,84 +281,69 @@ router.post("/add", (req: Request, res: Response) => {
     privilege: user.privilege,
     ip_ranges: user.range,
   };
+
   userService
-    .getPrivilege(user.cookie)
+    .getPrivilegeAndIP(user.cookie)
     .then((result) => {
       if (result[0].privilege !== 1) {
         userService
           .checkUsername(user.username)
           .then((result) => {
             if (result.exists) {
-              weasel.error(
+              weasel.log(
                 user.username,
                 req.socket.remoteAddress,
                 "Failed to add user by exist username "
               );
               res.status(401).send({ error: result.message });
             } else {
-              userService
-                .getPrivilegeAndIP(user.cookie)
-                .then((result2) => {
-                  let IpRange = ipCalcService.parseIPRange(
-                    result2[0].ip_ranges
-                  );
+              let IpRange = ipCalcService.parseIPRange(result[0].ip_ranges);
+              //새로 만든 사용자의 대역이 현재 로그인 한 사용자의 ip 대역을 넘지 않는지 확인
+              userService.checkIpRange(user.range, IpRange).then((result3) => {
+                if (result3.inRange) {
+                  //대역을 넘지 않을 때
+                  //freq 값 추가
                   userService
-                    .checkIpRange(user.range, IpRange)
-                    .then((result3) => {
-                      if (result3.inRange) {
-                        //freq 값 추가
-                        userService
-                          .getFreq(user.cookie)
-                          .then((result) => {
-                            userService
-                              .addUser(newUser, result[0].pwd_change_freq)
-                              .then((result4) => {
-                                weasel.log(
-                                  user.username,
-                                  req.socket.remoteAddress,
-                                  "Success add user "
-                                );
-                                res.send(result4.message);
-                              })
-                              .catch((error) => {
-                                weasel.error(
-                                  user.username,
-                                  req.socket.remoteAddress,
-                                  "Failed to add user due to an error from another server "
-                                );
-                                console.error("회원가입 실패:", error);
-                                res.status(500).send(error);
-                              });
-                          })
-                          .catch((error) => {
-                            weasel.error(
-                              user.username,
-                              req.socket.remoteAddress,
-                              "Failed to get accountlist from pwd_change_freq "
-                            );
-                            console.error("회원가입 실패:", error);
-                            res.status(500).send(error);
-                          });
-                      } else {
-                        weasel.error(
-                          user.username,
-                          req.socket.remoteAddress,
-                          "Failed to add user by incorrect IP range "
-                        );
-                        res.status(401).send({ error: result3.message });
-                      }
+                    .getFreq(user.cookie)
+                    .then((result) => {
+                      userService
+                        .addUser(newUser, result[0].pwd_change_freq)
+                        .then((result4) => {
+                          weasel.log(
+                            user.username,
+                            req.socket.remoteAddress,
+                            "Success add user "
+                          );
+                          res.send(result4.message);
+                        })
+                        .catch((error) => {
+                          weasel.error(
+                            user.username,
+                            req.socket.remoteAddress,
+                            "Failed to add user due to an error from another server "
+                          );
+                          console.error("회원가입 실패:", error);
+                          res.status(500).send(error);
+                        });
+                    })
+                    .catch((error) => {
+                      weasel.error(
+                        user.username,
+                        req.socket.remoteAddress,
+                        "Failed to get accountlist from pwd_change_freq "
+                      );
+                      console.error("회원가입 실패:", error);
+                      res.status(500).send(error);
                     });
-                })
-                .catch((error2) => {
-                  weasel.error(
+                } else {
+                  weasel.log(
                     user.username,
                     req.socket.remoteAddress,
-                    "Failed to get privilege and IP ranges "
+                    "Failed to add user by incorrect IP range "
                   );
-                  res.send(
-                    "이거는 쿠키 가지고 privilege랑 mngip 가져오는 도중에 발생하는 에러입니다."
-                  );
-                });
+                  res.status(401).send({ error: result3.message });
+                }
+              });
             }
           })
           .catch((error) => {
@@ -337,6 +355,7 @@ router.post("/add", (req: Request, res: Response) => {
             res.send("이거는 중복을 검사하는 도중에 발생하는 에러입니다.");
           });
       } else {
+        //관리자로 새로 만들때
         userService.checkUsername(newUser.username).then((result5) => {
           if (result5.exists) {
             weasel.error(
@@ -382,14 +401,15 @@ router.post("/add", (req: Request, res: Response) => {
         });
       }
     })
-    .catch((error) => {
+    .catch((error2) => {
       weasel.error(
         user.username,
         req.socket.remoteAddress,
-        "Failed to get privilege"
+        "Failed to get privilege and IP ranges "
       );
-      console.error("회원가입 실패:", error);
-      res.status(500).send(error);
+      res.send(
+        "이거는 쿠키 가지고 privilege랑 mngip 가져오는 도중에 발생하는 에러입니다."
+      );
     });
 });
 
@@ -497,13 +517,8 @@ router.get("/modify/:username", (req: Request, res: Response) => {
         passwd: decPasswd,
         privilege: result[0].privilege,
         ip_ranges: result[0].ip_ranges,
-        enabled:result[0].enabled,
+        enabled: result[0].enabled,
       };
-      weasel.log(
-        username,
-        req.socket.remoteAddress,
-        "Success to get modify user information "
-      );
       res.send([newUser]);
     })
     .catch((error) => {
@@ -754,105 +769,59 @@ router.get("/all", (req: Request, res: Response) => {
   let username = req.query.username;
   let category = req.query.category;
   let searchWord = req.query.searchWord;
+
   userService
-    .getPrivilege(username)
+    .getPrivilegeAndIP(username)
     .then((result) => {
       if (result[0].privilege !== 1) {
+        let IpRange = ipCalcService.parseIPRange(result[0].ip_ranges);
         userService
-          .getPrivilegeAndIP(username)
-          .then((result) => {
-            let IpRange = ipCalcService.parseIPRange(result[0].ip_ranges);
-            userService
-              .getUserListByPrivilegeAndIP(
-                result[0].privilege,
-                IpRange,
-                category,
-                searchWord
-              )
-              .then((result2) => {
-                if(result2[0]){
-                  weasel.log(
-                    username,
-                    req.socket.remoteAddress,
-                    "Success to load user control page "
-                  );
-                  res.send(result2);
-                } else {
-                  weasel.log(
-                    username,
-                    req.socket.remoteAddress,
-                    "Success to load user control page "
-                  );
-                  res.send([{
-                    id:'',
-                    username:'',
-                    privilege:'',
-                    ip_ranges:''
-                  }]);
-                }
-              })
-              .catch((error2) => {
-                weasel.error(
-                  username,
-                  req.socket.remoteAddress,
-                  "Failed to load user control page "
-                );
-                console.error("list를 제대로 못 가져옴:", error2);
-                res.status(500).send("Internal Server Error");
-              });
+          .getUserListByPrivilegeAndIP(
+            result[0].privilege,
+            IpRange,
+            category,
+            searchWord
+          )
+          .then((result2) => {
+            if (result2[0]) {
+              res.send(result2);
+            } else {
+              res.send([
+                {
+                  id: "",
+                  username: "",
+                  privilege: "",
+                  ip_ranges: "",
+                },
+              ]);
+            }
           })
-          .catch((error) => {
-            weasel.error(
-              username,
-              req.socket.remoteAddress,
-              "Failed to load user control page "
-            );
-            console.error("user 정보 제대로 못 가져옴:", error);
+          .catch((error2) => {
             res.status(500).send("Internal Server Error");
           });
       } else {
         userService
           .getUserListAll(category, searchWord)
           .then((result) => {
-            if(result[0]){
-              weasel.log(
-                username,
-                req.socket.remoteAddress,
-                "Success to load user control page "
-              );
+            if (result[0]) {
               res.send(result);
             } else {
-              weasel.log(
-                username,
-                req.socket.remoteAddress,
-                "Success to load user control page "
-              );
-              res.send([{
-                id:'',
-                username:'',
-                privilege:'',
-                ip_ranges:''
-              }]);
+              res.send([
+                {
+                  id: "",
+                  username: "",
+                  privilege: "",
+                  ip_ranges: "",
+                },
+              ]);
             }
           })
           .catch((error) => {
-            weasel.error(
-              username,
-              req.socket.remoteAddress,
-              "Failed to load user control page "
-            );
-            console.error("list 잘못 가져옴:", error);
             res.status(500).send("Internal Server Error");
           });
       }
     })
     .catch((error) => {
-      weasel.error(
-        username,
-        req.socket.remoteAddress,
-        "Failed to get privilege"
-      );
-      console.error("user 정보 제대로 못 가져옴:", error);
       res.status(500).send("Internal Server Error");
     });
 });

@@ -24,6 +24,7 @@ const excelService: ExcelService = new ExcelService();
 const analysis: AnalysisService = new AnalysisService();
 
 router.get("/dwn", async (req: Request, res: Response) => {
+  const username = req.query.username;
   try {
     const contents = req.query.contents;
     const page = req.query.page;
@@ -32,7 +33,6 @@ router.get("/dwn", async (req: Request, res: Response) => {
     const desc = req.query.desc;
     const category = req.query.category;
     const search = req.query.search;
-    const username = req.query.username;
 
     const result = await userService.getPrivilegeAndIP(username);
     const ipRanges: IpRange[] = ipCalcService.parseIPRange(result[0].ip_ranges);
@@ -127,13 +127,15 @@ router.get("/dwn", async (req: Request, res: Response) => {
       `Download ${contents} excel`
     );
   } catch (error) {
+    weasel.error(username, req.socket.remoteAddress, "Failed to download excel file");
+    // weasel.error(username, req.socket.remoteAddress, "엑셀로 다운로드 하는데 실패했습니다.");
     res.status(500).send("Server error");
   }
 });
 
 router.post("/analytics", async (req: Request, res: Response) => {
+  const username = req.query.username
   try {
-    const username = req.query.username
     const startDate = req.body.startDate + " 00:00:00";
     const endDate = req.body.endDate + " 23:59:59";
     const keywords = req.body.keywords;
@@ -182,6 +184,8 @@ router.post("/analytics", async (req: Request, res: Response) => {
       "Download analytics excel file"
     );
   } catch (error) {
+    weasel.error(username, req.socket.remoteAddress, "Failed to download analytics excel file");
+    // weasel.error(username, req.socket.remoteAddress, "분석 페이지를 엑셀로 다운로드 하는데 실패했습니다.");
     res.status(500).send("Server error");
   }
 });

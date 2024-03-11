@@ -228,11 +228,9 @@ class OutlookService {
         return new Promise((resolve, reject) => {
             db_1.default.query(query, (error, result) => {
                 if (error) {
-                    console.log("삭제하다가 사고남");
                     reject(error);
                 }
                 else {
-                    console.log("삭제 성공");
                     resolve(result);
                 }
             });
@@ -318,17 +316,13 @@ class OutlookService {
                     const result = yield new Promise((resolve, reject) => {
                         db_1.default.query(query, (error, result) => {
                             if (error) {
-                                console.log("getDummyData 에러 발생");
                                 reject(error);
                             }
                             else {
-                                console.log("데이터 삽입 성공");
                                 resolve(result);
-                                // console.log('result : ', result);          
                             }
                         });
                     });
-                    console.log(`데이터 삽입 ${i + 1}번째 성공`);
                 }
                 catch (error) {
                     console.log(`데이터 삽입 ${i + 1}번째 실패: ${error}`);

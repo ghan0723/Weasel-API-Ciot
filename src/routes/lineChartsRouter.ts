@@ -21,7 +21,6 @@ router.get('/', (req:Request, res:Response) => {
     .then(result => {
         let results:Promise<any> | undefined;
         if(result.length === 0) {
-            console.log("username을 가져오다가 에러 발생:");
             return res.status(500).send();
         }
         
@@ -47,7 +46,6 @@ router.get('/', (req:Request, res:Response) => {
             res.status(200).send(data);
         })
         .catch((error) => {
-            console.log("data Send Fail");
             res.status(500).send("Data Send Error");
         });
     })    

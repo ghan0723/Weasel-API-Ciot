@@ -179,20 +179,17 @@ router.post("/fileUpdate", upload.single("file"), (req, res) => {
         else {
             // PDF 파일이 아닌 경우 파일 삭제
             fs_1.default.unlink(req.file.path, (err) => {
-                var _a;
                 if (err) {
                     console.error('파일 삭제 중 오류 발생:', err);
                     res.status(500).send('파일 삭제 중 오류 발생');
                 }
                 else {
-                    console.log('PDF 파일이 아닌 파일 삭제됨:', (_a = req.file) === null || _a === void 0 ? void 0 : _a.path);
                     res.status(200).send('PDF 파일이 아닙니다.');
                 }
             });
         }
     }
     else {
-        console.log("업로드 실패");
         res.status(400).send("PDF 파일이 아닙니다.");
     }
 });

@@ -21,7 +21,6 @@ router.get('/', (req, res) => {
         .then(result => {
         let results;
         if (result.length === 0) {
-            console.log("username을 가져오다가 에러 발생:");
             return res.status(500).send();
         }
         ipRanges = ipCalcService.parseIPRange(result[0].ip_ranges);
@@ -44,7 +43,6 @@ router.get('/', (req, res) => {
             res.status(200).send(data);
         })
             .catch((error) => {
-            console.log("data Send Fail");
             res.status(500).send("Data Send Error");
         });
     });

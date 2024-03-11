@@ -34,6 +34,7 @@ const ipCalcService = new ipCalcService_1.default();
 const excelService = new excelService_1.default();
 const analysis = new analysisService_1.default();
 router.get("/dwn", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const username = req.query.username;
     try {
         const contents = req.query.contents;
         const page = req.query.page;
@@ -42,7 +43,6 @@ router.get("/dwn", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         const desc = req.query.desc;
         const category = req.query.category;
         const search = req.query.search;
-        const username = req.query.username;
         const result = yield userService.getPrivilegeAndIP(username);
         const ipRanges = ipCalcService.parseIPRange(result[0].ip_ranges);
         let results;
@@ -78,12 +78,14 @@ router.get("/dwn", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         log_1.weasel.log(username, req.socket.remoteAddress, `Download ${contents} excel`);
     }
     catch (error) {
+        log_1.weasel.error(username, req.socket.remoteAddress, "Failed to download excel file");
+        // weasel.error(username, req.socket.remoteAddress, "엑셀로 다운로드 하는데 실패했습니다.");
         res.status(500).send("Server error");
     }
 }));
 router.post("/analytics", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const username = req.query.username;
     try {
-        const username = req.query.username;
         const startDate = req.body.startDate + " 00:00:00";
         const endDate = req.body.endDate + " 23:59:59";
         const keywords = req.body.keywords;
@@ -126,6 +128,8 @@ router.post("/analytics", (req, res) => __awaiter(void 0, void 0, void 0, functi
         log_1.weasel.log(username, req.socket.remoteAddress, "Download analytics excel file");
     }
     catch (error) {
+        log_1.weasel.error(username, req.socket.remoteAddress, "Failed to download analytics excel file");
+        // weasel.error(username, req.socket.remoteAddress, "분석 페이지를 엑셀로 다운로드 하는데 실패했습니다.");
         res.status(500).send("Server error");
     }
 }));

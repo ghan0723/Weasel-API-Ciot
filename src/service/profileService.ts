@@ -25,10 +25,8 @@ class ProfileService {
     return new Promise((resolve, reject) => {
       connection.query(query, (error, result) => {
         if (error) {
-          console.log("데이터 업데이트 중 오류 발생");
           reject(error);
         } else {
-          console.log("데이터가 성공적으로 업데이트되었습니다.");
           resolve(result);
         }
       });
@@ -40,7 +38,6 @@ class ProfileService {
     return new Promise((resolve, reject) => {
       connection.query(query, (error, result) => {
         if (error) {
-          console.log("데이터 업데이트 중 오류 발생");
           reject(error);
         } else {
           resolve(result);

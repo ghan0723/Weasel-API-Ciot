@@ -63,11 +63,9 @@ class UserService {
         return new Promise((resolve, reject) => {
             db_1.default.query(query, (error, result) => {
                 if (error) {
-                    console.log("삭제하다가 사고남");
                     reject(error);
                 }
                 else {
-                    console.log("삭제 성공");
                     resolve(result);
                 }
             });
@@ -78,7 +76,6 @@ class UserService {
         return new Promise((resolve, reject) => {
             db_1.default.query(query, username, (error, result) => {
                 if (error) {
-                    console.log("업데이트 가져오다가 사고남");
                     reject(error);
                 }
                 else {
@@ -100,11 +97,9 @@ class UserService {
         return new Promise((resolve, reject) => {
             db_1.default.query(query, (error, result) => {
                 if (error) {
-                    console.log("데이터 업데이트 중 오류 발생");
                     reject(error);
                 }
                 else {
-                    console.log("데이터가 성공적으로 업데이트되었습니다.");
                     resolve(result);
                 }
             });
@@ -115,7 +110,6 @@ class UserService {
         return new Promise((resolve, reject) => {
             db_1.default.query(query, username, (error, result) => {
                 if (error) {
-                    console.log("privilege 가져오다가 사고남");
                     reject(error);
                 }
                 else {
@@ -129,7 +123,6 @@ class UserService {
         return new Promise((resolve, reject) => {
             db_1.default.query(query, username, (error, result) => {
                 if (error) {
-                    console.log("privilege 가져오다가 사고남");
                     reject(error);
                 }
                 else {

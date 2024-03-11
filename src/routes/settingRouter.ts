@@ -189,13 +189,11 @@ router.post("/fileUpdate", upload.single("file"), (req: Request, res: Response) 
           console.error('파일 삭제 중 오류 발생:', err);
           res.status(500).send('파일 삭제 중 오류 발생');
         } else {
-          console.log('PDF 파일이 아닌 파일 삭제됨:', req.file?.path);
           res.status(200).send('PDF 파일이 아닙니다.');
         }
       });
     }
   } else {
-    console.log("업로드 실패");
     res.status(400).send("PDF 파일이 아닙니다.");
   }
 });

@@ -21,7 +21,6 @@ const connection: Connection = mysql.createConnection({
 connection.connect(err => {
   if(err) throw err;
   console.log('Connected to the remote database!');
-  
 });
 
 export = connection;

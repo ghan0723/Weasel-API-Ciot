@@ -101,10 +101,7 @@ function insertDetectFiles(detectFiles) {
             console.error('파일 삽입 중 오류 발생:', error);
         }
         else {
-            console.log('파일이 성공적으로 삽입되었습니다.');
         }
     });
 }
 exports.insertDetectFiles = insertDetectFiles;
-// const detectFiles: DetectFile[] = generateDetectFiles(100);
-// console.log(detectFiles);
