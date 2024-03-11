@@ -121,13 +121,10 @@ router.get("/dwn", async (req: Request, res: Response) => {
       `attachment; filename=${contents}.xlsx`
     );
     res.send(excelBuffer);
-    weasel.log(
-      username,
-      req.socket.remoteAddress,
-      `Download ${contents} excel`
-    );
+    weasel.log(username,req.socket.remoteAddress,`Download ${contents} excel.`);
+    // weasel.log(username,req.socket.remoteAddress,`${contents} 액셀 다운로드입니다.`);
   } catch (error) {
-    weasel.error(username, req.socket.remoteAddress, "Failed to download excel file");
+    weasel.error(username, req.socket.remoteAddress, "Failed to download excel file.");
     // weasel.error(username, req.socket.remoteAddress, "엑셀로 다운로드 하는데 실패했습니다.");
     res.status(500).send("Server error");
   }
@@ -178,13 +175,10 @@ router.post("/analytics", async (req: Request, res: Response) => {
     );
     res.setHeader("Content-Disposition", `attachment; filename=analytics.xlsx`);
     res.send(excelBuffer);
-    weasel.log(
-      username,
-      req.socket.remoteAddress,
-      "Download analytics excel file"
-    );
+    weasel.log(username,req.socket.remoteAddress,"Download analytics excel file.");
+    // weasel.log(username,req.socket.remoteAddress,"분석 페이지 액셀 다운로드입니다.");
   } catch (error) {
-    weasel.error(username, req.socket.remoteAddress, "Failed to download analytics excel file");
+    weasel.error(username, req.socket.remoteAddress, "Failed to download analytics excel file.");
     // weasel.error(username, req.socket.remoteAddress, "분석 페이지를 엑셀로 다운로드 하는데 실패했습니다.");
     res.status(500).send("Server error");
   }
