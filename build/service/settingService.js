@@ -11,6 +11,15 @@ class SettingService {
             db_1.default;
         });
     }
+    modAgentSettingLog(revData, currentData) {
+        let str = 'Change agent settings\t';
+        // let str = '에이전트 설정 변경\t';
+        if ((revData === null || revData === void 0 ? void 0 : revData.serverIP) !== (currentData === null || currentData === void 0 ? void 0 : currentData.clnt_svr_ip))
+            str += 'client ip = before(' + (currentData === null || currentData === void 0 ? void 0 : currentData.clnt_svr_ip) + '), after(' + (revData === null || revData === void 0 ? void 0 : revData.serverIP) + '), ';
+        if ((revData === null || revData === void 0 ? void 0 : revData.serverPort) !== (currentData === null || currentData === void 0 ? void 0 : currentData.clnt_svr_port))
+            str += 'client port = before(' + (currentData === null || currentData === void 0 ? void 0 : currentData.clnt_svr_port) + '), after(' + (revData === null || revData === void 0 ? void 0 : revData.serverPort) + '), ';
+        return str;
+    }
     modAgentSetting(agent) {
         var _a;
         let excip = (_a = agent.exceptionList) === null || _a === void 0 ? void 0 : _a.replace(/(\r\n|\n|\r)/gm, ", ");
@@ -81,6 +90,13 @@ class SettingService {
         return new Promise((resolve, reject) => {
             db_1.default;
         });
+    }
+    modServerSettingLog(revData, currentData) {
+        let str = 'Change server settings\t';
+        // let str = '서버 설정 변경\t';
+        if ((revData === null || revData === void 0 ? void 0 : revData.serverPort) !== (currentData === null || currentData === void 0 ? void 0 : currentData.svr_port))
+            str += 'server port = before(' + (currentData === null || currentData === void 0 ? void 0 : currentData.svr_port) + '), after(' + (revData === null || revData === void 0 ? void 0 : revData.serverPort) + ')';
+        return str;
     }
     modServerSetting(server) {
         var _a;

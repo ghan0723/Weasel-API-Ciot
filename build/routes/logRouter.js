@@ -3,16 +3,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 const express_1 = __importDefault(require("express"));
-const userService_1 = __importDefault(require("../service/userService"));
-const ipCalcService_1 = __importDefault(require("../service/ipCalcService"));
 const logService_1 = __importDefault(require("../service/logService"));
 const log_1 = require("../interface/log");
-const settingService_1 = __importDefault(require("../service/settingService"));
 const router = express_1.default.Router();
-const userService = new userService_1.default();
-const ipCalcService = new ipCalcService_1.default();
 const logService = new logService_1.default();
-const settingService = new settingService_1.default();
 router.get("/dashboard", (req, res) => {
     const select = req.query.select;
     const username = req.query.username;
@@ -62,6 +56,8 @@ router.get("/logout", (req, res) => {
     log_1.weasel.log(username, req.socket.remoteAddress, `Logout for ${username} was successful. `);
     res.send("success");
 });
+// 로그 페이지 관련...
+// 감사로그
 router.get("/years", (req, res) => {
     logService.getYears().then((years) => {
         res.send(years);
@@ -88,14 +84,17 @@ router.get("/file", (req, res) => {
     logService
         .getLogContent(year, month, file)
         .then((content) => {
-        log_1.weasel.log(username, req.socket.remoteAddress, `Verified ${file} audit log`);
+        log_1.weasel.log(username, req.socket.remoteAddress, `${file} audit log`);
+        // weasel.log("", req.socket.remoteAddress, `${file} 감사 로그입니다`);
         res.send([content]);
     })
-        .catch((error) => {
-        log_1.weasel.error(username, req.socket.remoteAddress, "Failed to retrieve the audit log");
+        .catch(() => {
+        log_1.weasel.error(username, req.socket.remoteAddress, "Failed to view audit log");
+        // weasel.error("", req.socket.remoteAddress,"감사 로그 보기 실패");
         res.status(401).send("fail");
     });
 });
+// 에러 로그
 router.get("/error/years", (req, res) => {
     logService.getErrorYears().then((years) => {
         res.send(years);
@@ -122,11 +121,13 @@ router.get("/error/file", (req, res) => {
     logService
         .getErrorLogContent(year, month, file)
         .then((content) => {
-        log_1.weasel.log(username, req.socket.remoteAddress, `Verified ${file} error log`);
+        log_1.weasel.log(username, req.socket.remoteAddress, `${file} error log`);
+        // weasel.log("", req.socket.remoteAddress, `${file} 에러 로그입니다`);
         res.send([content]);
     })
-        .catch((error) => {
-        log_1.weasel.error(username, req.socket.remoteAddress, "Failed to retrieve the error log");
+        .catch(() => {
+        log_1.weasel.error(username, req.socket.remoteAddress, "Failed to view error log");
+        // weasel.error("", req.socket.remoteAddress,"에러 로그 보기 실패");
         res.status(401).send("fail");
     });
 });

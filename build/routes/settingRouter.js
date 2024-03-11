@@ -38,14 +38,22 @@ router.post("/server", (req, res) => {
     const username = req.query.username;
     const server = req.body;
     settingService
-        .modServerSetting(server)
+        .getServerSetting()
         .then((result) => {
-        log_1.weasel.log(username, req.socket.remoteAddress, "Success to Update Server Setting ");
-        res.send("업데이트 성공했습니다.");
+        const str = settingService.modServerSettingLog(server, result[0]);
+        settingService.modServerSetting(server)
+            .then(() => {
+            log_1.weasel.log(username, req.socket.remoteAddress, str);
+            res.send("업데이트 성공했습니다.");
+        }).catch(() => {
+            // weasel.error(username, req.socket.remoteAddress, '서버 세팅 정보 얻기 실패');
+            log_1.weasel.error(username, req.socket.remoteAddress, 'Failed to get server settings information');
+            res.status(500).send("update 하다가 에러났어요");
+        });
     })
-        .catch((error) => {
-        log_1.weasel.error(username, req.socket.remoteAddress, "Failed to Update Server Setting ");
-        console.error("update 에러 : ", error);
+        .catch(() => {
+        // weasel.error(username, req.socket.remoteAddress, '서버 정보 업데이트 실패');
+        log_1.weasel.error(username, req.socket.remoteAddress, 'Failed to update server information');
         res.status(500).send("update 하다가 에러났어요");
     });
 });
@@ -62,11 +70,13 @@ router.get("/servers", (req, res) => {
             interval: result[0].svr_ui_refresh_interval,
             svr_patterns_list: result[0].svr_patterns_list,
         };
-        log_1.weasel.log(username, req.socket.remoteAddress, "Success to Get Server Information ");
+        log_1.weasel.log(username, req.socket.remoteAddress, "View server settings information ");
+        log_1.weasel.log(username, req.socket.remoteAddress, "서버 설정 정보 보기 ");
         res.send(newResult);
     })
         .catch((error) => {
-        log_1.weasel.error(username, req.socket.remoteAddress, "Failed to Get Server Information ");
+        log_1.weasel.error(username, req.socket.remoteAddress, 'Failed to get server settings information');
+        // weasel.error(username, req.socket.remoteAddress, '서버 세팅 정보 얻기 실패');
         console.error("update get 에러 : ", error);
         res.status(500).send("update get 하다가 에러났어요");
     });
@@ -75,14 +85,22 @@ router.post("/agent", (req, res) => {
     const username = req.query.username;
     const agent = req.body;
     settingService
-        .modAgentSetting(agent)
-        .then((result) => {
-        log_1.weasel.log(username, req.socket.remoteAddress, "Success to Update Agent Setting ");
-        res.send(result);
+        .getAgentSetting()
+        .then(result => {
+        const str = settingService.modAgentSettingLog(agent, result[0]);
+        settingService.modAgentSetting(agent)
+            .then((result) => {
+            log_1.weasel.log(username, req.socket.remoteAddress, str);
+            res.send(result);
+        }).catch(() => {
+            log_1.weasel.error(username, req.socket.remoteAddress, "Failed to get agent settings information ");
+            // weasel.error(username, req.socket.remoteAddress, "에이전트 세팅 정보 얻기 실패 ");
+            res.status(500).send("agent setting post 하다가 에러났어요");
+        });
     })
-        .catch((error) => {
-        // console.error("agent setting post 에러 : ", error);
-        log_1.weasel.error(username, req.socket.remoteAddress, "Failed to Update Agent Setting ");
+        .catch(() => {
+        log_1.weasel.error(username, req.socket.remoteAddress, "Failed to update agent information ");
+        // weasel.error(username, req.socket.remoteAddress, "에이전트 정보 업데이트 실패 ");
         res.status(500).send("agent setting post 하다가 에러났어요");
     });
 });
@@ -94,17 +112,20 @@ router.get("/agents", (req, res) => {
         settingService
             .getUpdateFileAgent()
             .then((result2) => {
-            log_1.weasel.log(username, req.socket.remoteAddress, "Success to Get Agent Information ");
+            log_1.weasel.log(username, req.socket.remoteAddress, "View agent settings information ");
+            // weasel.log(username, req.socket.remoteAddress, "에이전트 설정 정보 보기 ");
             res.send([result, result2]);
         })
             .catch((error2) => {
-            log_1.weasel.error(username, req.socket.remoteAddress, "Failed to Get Agent Information ");
+            log_1.weasel.error(username, req.socket.remoteAddress, "Failed to get agent settings information ");
+            // weasel.error(username, req.socket.remoteAddress, "에이전트 세팅 정보 얻기 실패 ");
             console.error("agent setting get 에러 : ", error2);
             res.status(500).send("agent setting get 하다가 에러났어요");
         });
     })
         .catch((error) => {
-        log_1.weasel.error(username, req.socket.remoteAddress, "Failed to Get Agent Information ");
+        log_1.weasel.error(username, req.socket.remoteAddress, "Failed to get agent settings information ");
+        // weasel.error(username, req.socket.remoteAddress, "에이전트 세팅 정보 얻기 실패 ");
         console.error("agent setting get 에러 : ", error);
         res.status(500).send("agent setting get 하다가 에러났어요");
     });
@@ -163,7 +184,7 @@ router.post("/fileUpdate", upload.single("file"), (req, res) => {
     let processFile = false;
     if (req.file) {
         const ext = path_1.default.extname(req.file.path); // 확장자 추출
-        if (ext === ".pdf") {
+        if (ext === ".dat") {
             // 현재 경로에 이름이 겹치는 파일이 있는 경우
             if (existFile !== "") {
                 // 파일 처리 함수를 지연 시간 후에 실행
@@ -173,24 +194,24 @@ router.post("/fileUpdate", upload.single("file"), (req, res) => {
                     processFile = settingService.processFile((_a = req.file) === null || _a === void 0 ? void 0 : _a.path, existFile);
                 }, delayTime);
             }
-            // PDF 파일인 경우
-            res.status(200).send("PDF 파일 업로드 성공!");
+            // Dat 파일인 경우
+            res.status(200).send("Dat 파일 업로드 성공!");
         }
         else {
-            // PDF 파일이 아닌 경우 파일 삭제
+            // Dat 파일이 아닌 경우 파일 삭제
             fs_1.default.unlink(req.file.path, (err) => {
                 if (err) {
                     console.error('파일 삭제 중 오류 발생:', err);
                     res.status(500).send('파일 삭제 중 오류 발생');
                 }
                 else {
-                    res.status(200).send('PDF 파일이 아닙니다.');
+                    res.status(200).send('Dat 파일이 아닙니다.');
                 }
             });
         }
     }
     else {
-        res.status(400).send("PDF 파일이 아닙니다.");
+        res.status(400).send("Dat 파일이 아닙니다.");
     }
 });
 router.get("/updateFile", (req, res) => {

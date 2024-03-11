@@ -155,9 +155,7 @@ router.post("/login", (req, res) => {
                                                         path: "/", // 쿠키의 경로 설정
                                                     });
                                                     log_1.weasel.log(username, req.socket.remoteAddress, "Success login ");
-                                                    res
-                                                        .status(200)
-                                                        .send({
+                                                    res.status(200).send({
                                                         username,
                                                         freq,
                                                         notice: false,
@@ -220,56 +218,48 @@ router.post("/add", (req, res) => {
         ip_ranges: user.range,
     };
     userService
-        .getPrivilege(user.cookie)
+        .getPrivilegeAndIP(user.cookie)
         .then((result) => {
         if (result[0].privilege !== 1) {
             userService
                 .checkUsername(user.username)
                 .then((result) => {
                 if (result.exists) {
-                    log_1.weasel.error(user.username, req.socket.remoteAddress, "Failed to add user by exist username ");
+                    log_1.weasel.log(user.username, req.socket.remoteAddress, "Failed to add user by exist username ");
                     res.status(401).send({ error: result.message });
                 }
                 else {
-                    userService
-                        .getPrivilegeAndIP(user.cookie)
-                        .then((result2) => {
-                        let IpRange = ipCalcService.parseIPRange(result2[0].ip_ranges);
-                        userService
-                            .checkIpRange(user.range, IpRange)
-                            .then((result3) => {
-                            if (result3.inRange) {
-                                //freq 값 추가
+                    let IpRange = ipCalcService.parseIPRange(result[0].ip_ranges);
+                    //새로 만든 사용자의 대역이 현재 로그인 한 사용자의 ip 대역을 넘지 않는지 확인
+                    userService.checkIpRange(user.range, IpRange).then((result3) => {
+                        if (result3.inRange) {
+                            //대역을 넘지 않을 때
+                            //freq 값 추가
+                            userService
+                                .getFreq(user.cookie)
+                                .then((result) => {
                                 userService
-                                    .getFreq(user.cookie)
-                                    .then((result) => {
-                                    userService
-                                        .addUser(newUser, result[0].pwd_change_freq)
-                                        .then((result4) => {
-                                        log_1.weasel.log(user.username, req.socket.remoteAddress, "Success add user ");
-                                        res.send(result4.message);
-                                    })
-                                        .catch((error) => {
-                                        log_1.weasel.error(user.username, req.socket.remoteAddress, "Failed to add user due to an error from another server ");
-                                        console.error("회원가입 실패:", error);
-                                        res.status(500).send(error);
-                                    });
+                                    .addUser(newUser, result[0].pwd_change_freq)
+                                    .then((result4) => {
+                                    log_1.weasel.log(user.username, req.socket.remoteAddress, "Success add user ");
+                                    res.send(result4.message);
                                 })
                                     .catch((error) => {
-                                    log_1.weasel.error(user.username, req.socket.remoteAddress, "Failed to get accountlist from pwd_change_freq ");
+                                    log_1.weasel.error(user.username, req.socket.remoteAddress, "Failed to add user due to an error from another server ");
                                     console.error("회원가입 실패:", error);
                                     res.status(500).send(error);
                                 });
-                            }
-                            else {
-                                log_1.weasel.error(user.username, req.socket.remoteAddress, "Failed to add user by incorrect IP range ");
-                                res.status(401).send({ error: result3.message });
-                            }
-                        });
-                    })
-                        .catch((error2) => {
-                        log_1.weasel.error(user.username, req.socket.remoteAddress, "Failed to get privilege and IP ranges ");
-                        res.send("이거는 쿠키 가지고 privilege랑 mngip 가져오는 도중에 발생하는 에러입니다.");
+                            })
+                                .catch((error) => {
+                                log_1.weasel.error(user.username, req.socket.remoteAddress, "Failed to get accountlist from pwd_change_freq ");
+                                console.error("회원가입 실패:", error);
+                                res.status(500).send(error);
+                            });
+                        }
+                        else {
+                            log_1.weasel.log(user.username, req.socket.remoteAddress, "Failed to add user by incorrect IP range ");
+                            res.status(401).send({ error: result3.message });
+                        }
                     });
                 }
             })
@@ -279,6 +269,7 @@ router.post("/add", (req, res) => {
             });
         }
         else {
+            //관리자로 새로 만들때
             userService.checkUsername(newUser.username).then((result5) => {
                 if (result5.exists) {
                     log_1.weasel.error(user.username, req.socket.remoteAddress, "Failed to add user by exist username ");
@@ -309,10 +300,9 @@ router.post("/add", (req, res) => {
             });
         }
     })
-        .catch((error) => {
-        log_1.weasel.error(user.username, req.socket.remoteAddress, "Failed to get privilege");
-        console.error("회원가입 실패:", error);
-        res.status(500).send(error);
+        .catch((error2) => {
+        log_1.weasel.error(user.username, req.socket.remoteAddress, "Failed to get privilege and IP ranges ");
+        res.send("이거는 쿠키 가지고 privilege랑 mngip 가져오는 도중에 발생하는 에러입니다.");
     });
 });
 router.post("/rm", (req, res) => {

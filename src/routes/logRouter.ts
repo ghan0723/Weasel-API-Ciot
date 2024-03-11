@@ -6,10 +6,7 @@ import { weasel } from "../interface/log";
 import SettingService from "../service/settingService";
 
 const router: Router = express.Router();
-const userService: UserService = new UserService();
-const ipCalcService = new IpCalcService();
 const logService: LogService = new LogService();
-const settingService: SettingService = new SettingService();
 
 router.get("/dashboard", (req: Request, res: Response) => {
   const select = req.query.select;
@@ -88,6 +85,8 @@ router.get("/logout", (req: Request, res: Response) => {
   res.send("success");
 });
 
+// 로그 페이지 관련...
+// 감사로그
 router.get("/years", (req: Request, res: Response) => {
   logService.getYears().then((years) => {
     res.send(years);
@@ -118,19 +117,18 @@ router.get("/file", (req: Request, res: Response) => {
   logService
     .getLogContent(year, month, file)
     .then((content) => {
-      weasel.log(username, req.socket.remoteAddress, `Verified ${file} audit log`);
+      weasel.log(username, req.socket.remoteAddress, `${file} audit log`);
+      // weasel.log("", req.socket.remoteAddress, `${file} 감사 로그입니다`);
       res.send([content]);
     })
-    .catch((error) => {
-      weasel.error(
-        username,
-        req.socket.remoteAddress,
-        "Failed to retrieve the audit log"
-      );
+    .catch(() => {
+      weasel.error(username, req.socket.remoteAddress,"Failed to view audit log");
+      // weasel.error("", req.socket.remoteAddress,"감사 로그 보기 실패");
       res.status(401).send("fail");
     });
 });
 
+// 에러 로그
 router.get("/error/years", (req: Request, res: Response) => {
   logService.getErrorYears().then((years) => {
     res.send(years);
@@ -161,15 +159,13 @@ router.get("/error/file", (req: Request, res: Response) => {
   logService
     .getErrorLogContent(year, month, file)
     .then((content) => {
-      weasel.log(username, req.socket.remoteAddress, `Verified ${file} error log`);
+      weasel.log(username, req.socket.remoteAddress, `${file} error log`);
+      // weasel.log("", req.socket.remoteAddress, `${file} 에러 로그입니다`);
       res.send([content]);
     })
-    .catch((error) => {
-      weasel.error(
-        username,
-        req.socket.remoteAddress,
-        "Failed to retrieve the error log"
-      );
+    .catch(() => {
+      weasel.error(username, req.socket.remoteAddress,"Failed to view error log");
+      // weasel.error("", req.socket.remoteAddress,"에러 로그 보기 실패");
       res.status(401).send("fail");
     });
 });
