@@ -205,22 +205,24 @@ class NetworkService {
                 new Promise((innerResolve, innerReject) => {
                     this.connection.query(query, whereQuery, (error, result) => {
                         const excludedKeys = ["DownLoad", "ScreenShot"];
-                        result.map((data, i) => {
-                            const date = data.Time.split(' ')[0];
-                            const fileName = `C:/Program Files (x86)/ciot/WeaselServer/Temp/${date}/${data.Agent_ip}.${data.id}.${data.DownLoad}`;
-                            if (fs_1.default.existsSync(fileName)) {
-                                result[i].DownLoad = `${data.Agent_ip}.${data.id}.${data.DownLoad}`;
-                            }
-                            else {
-                                result[i].DownLoad = '';
-                            }
-                            if (fs_1.default.existsSync(`${fileName}.png`)) {
-                                result[i].ScreenShot = `${data.Agent_ip}.${data.id}.${data.ScreenShot}`;
-                            }
-                            else {
-                                result[i].ScreenShot = '';
-                            }
-                        });
+                        if (!excel) {
+                            result.map((data, i) => {
+                                const date = data.Time.split(' ')[0];
+                                const fileName = `C:/Program Files (x86)/ciot/WeaselServer/Temp/${date}/${data.Agent_ip}.${data.id}.${data.DownLoad}`;
+                                if (fs_1.default.existsSync(fileName)) {
+                                    result[i].DownLoad = `${data.Agent_ip}.${data.id}.${data.DownLoad}`;
+                                }
+                                else {
+                                    result[i].DownLoad = '';
+                                }
+                                if (fs_1.default.existsSync(`${fileName}.png`)) {
+                                    result[i].ScreenShot = `${data.Agent_ip}.${data.id}.${data.ScreenShot}`;
+                                }
+                                else {
+                                    result[i].ScreenShot = '';
+                                }
+                            });
+                        }
                         const filteredKeys = privilege !== 3
                             ? aliasKey
                             : aliasKey.filter((key) => !excludedKeys.includes(key));

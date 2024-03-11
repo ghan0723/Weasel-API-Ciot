@@ -105,7 +105,7 @@ router.post("/login", (req: Request, res: Response) => {
               weasel.error(
                 username,
                 req.socket.remoteAddress,
-                "This user is unable to login"
+                "The user's status is not enabled"
               );
               res.status(500).send({ enabled: false });
             } else {

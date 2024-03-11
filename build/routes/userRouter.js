@@ -90,7 +90,7 @@ router.post("/login", (req, res) => {
                 else {
                     //관리자 제외 나머지 아이디
                     if (((_a = user[0]) === null || _a === void 0 ? void 0 : _a.enabled) !== 1) {
-                        log_1.weasel.error(username, req.socket.remoteAddress, "This user is unable to login");
+                        log_1.weasel.error(username, req.socket.remoteAddress, "The user's status is not enabled");
                         res.status(500).send({ enabled: false });
                     }
                     else {

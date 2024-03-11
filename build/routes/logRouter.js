@@ -39,6 +39,15 @@ router.get("/leaked", (req, res) => {
     log_1.weasel.log(username, req.socket.remoteAddress, `The current leackedTable page displays data `);
     res.send("success");
 });
+router.get("/analysis", (req, res) => {
+    const username = req.query.username;
+    if (typeof username !== "string") {
+        log_1.weasel.error(username, req.socket.remoteAddress, "Unable to display the analysis page.");
+        res.send("error");
+    }
+    log_1.weasel.log(username, req.socket.remoteAddress, `The current analysis page displays.`);
+    res.send("success");
+});
 router.get("/logout", (req, res) => {
     const username = req.query.username;
     if (typeof username !== "string") {

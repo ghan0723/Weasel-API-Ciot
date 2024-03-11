@@ -1,6 +1,7 @@
 import { IpRange } from "../interface/interface";
 import connection from "../db/db";
 import { generateRandomDateTime } from "../interface/generateRandom";
+import fs from "fs";
 
 class PrintService {
   private query1!: number;
@@ -176,6 +177,19 @@ class PrintService {
             const excludedKeys = ['Downloading'];
 
             const filteredKeys = privilege !== 3 ? aliasKey : aliasKey.filter((key:any) => !excludedKeys.includes(key));
+
+            if(!excel) {
+              result.map((data:any,i:number) => {
+                const date = data.Time.split(' ')[0];
+                const fileName = `C:/Program Files (x86)/ciot/WeaselServer/Temp/${date}/${data.Agent_ip}.${data.id}.${data.Downloading}`;
+                
+                if(fs.existsSync(fileName)) {
+                  result[i].Downloading = `${data.Agent_ip}.${data.id}.${data.Downloading}`;
+                } else {
+                  result[i].Downloading = '';
+                }
+              });
+            }
 
             // 검색 결과가 없을 경우의 처리
             if(result.length === 0) {
