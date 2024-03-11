@@ -22,6 +22,7 @@ const ipCalcService_1 = __importDefault(require("../service/ipCalcService"));
 const excelService_1 = __importDefault(require("../service/excelService"));
 const leakedService_1 = __importDefault(require("../service/leakedService"));
 const analysisService_1 = __importDefault(require("../service/analysisService"));
+const log_1 = require("../interface/log");
 const router = express_1.default.Router();
 const networkService = new networkService_1.default(db_1.default);
 const mediaService = new mediaService_1.default();
@@ -74,37 +75,38 @@ router.get("/dwn", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         res.setHeader("Content-Disposition", `attachment; filename=${contents}.xlsx`);
         res.send(excelBuffer);
+        log_1.weasel.log(username, req.socket.remoteAddress, `Download ${contents} excel`);
     }
     catch (error) {
-        console.error("Error:", error);
         res.status(500).send("Server error");
     }
 }));
 router.post("/analytics", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        const username = req.query.username;
         const startDate = req.body.startDate + " 00:00:00";
         const endDate = req.body.endDate + " 23:59:59";
         const keywords = req.body.keywords;
         const results = yield analysis.riskScoring(startDate, endDate, keywords);
         for (let i = 0; i < results.length; i++) {
-            results[i]['PC명(IP주소)'] = results[i]['pcName'];
-            if (results[i]['level'] === 1) {
-                results[i]['등급'] = '관심';
+            results[i]["PC명(IP주소)"] = results[i]["pcName"];
+            if (results[i]["level"] === 1) {
+                results[i]["등급"] = "관심";
             }
-            else if (results[i]['level'] === 2) {
-                results[i]['등급'] = '주의';
+            else if (results[i]["level"] === 2) {
+                results[i]["등급"] = "주의";
             }
-            else if (results[i]['level'] === 3) {
-                results[i]['등급'] = '경고';
+            else if (results[i]["level"] === 3) {
+                results[i]["등급"] = "경고";
             }
-            else if (results[i]['level'] === 4) {
-                results[i]['등급'] = '위험';
+            else if (results[i]["level"] === 4) {
+                results[i]["등급"] = "위험";
             }
             else {
-                results[i]['등급'] = '매우 위험';
+                results[i]["등급"] = "매우 위험";
             }
-            results[i]['위험도 수치'] = results[i]['status'];
-            results[i]['설명'] = results[i]['text'];
+            results[i]["위험도 수치"] = results[i]["status"];
+            results[i]["설명"] = results[i]["text"];
             delete results[i].pcGuid;
             delete results[i].progress;
             delete results[i].pcName;
@@ -117,13 +119,13 @@ router.post("/analytics", (req, res) => __awaiter(void 0, void 0, void 0, functi
             res.status(404).send("No data found");
             return;
         }
-        const excelBuffer = yield excelService.getExcelFile(results, 'analytics');
+        const excelBuffer = yield excelService.getExcelFile(results, "analytics");
         res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         res.setHeader("Content-Disposition", `attachment; filename=analytics.xlsx`);
         res.send(excelBuffer);
+        log_1.weasel.log(username, req.socket.remoteAddress, "Download analytics excel file");
     }
     catch (error) {
-        console.error("Error:", error);
         res.status(500).send("Server error");
     }
 }));

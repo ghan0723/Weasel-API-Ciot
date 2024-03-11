@@ -221,7 +221,6 @@ class NetworkService {
                                 result[i].ScreenShot = '';
                             }
                         });
-                        console.log('result', result);
                         const filteredKeys = privilege !== 3
                             ? aliasKey
                             : aliasKey.filter((key) => !excludedKeys.includes(key));

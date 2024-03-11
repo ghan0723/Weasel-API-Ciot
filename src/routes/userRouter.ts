@@ -770,12 +770,26 @@ router.get("/all", (req: Request, res: Response) => {
                 searchWord
               )
               .then((result2) => {
-                weasel.log(
-                  username,
-                  req.socket.remoteAddress,
-                  `Success to load user control page category=${category}, searchWord=${searchWord}`
-                );
-                res.status(200).send(result2);
+                if(result2[0]){
+                  weasel.log(
+                    username,
+                    req.socket.remoteAddress,
+                    "Success to load user control page "
+                  );
+                  res.send(result2);
+                } else {
+                  weasel.log(
+                    username,
+                    req.socket.remoteAddress,
+                    "Success to load user control page "
+                  );
+                  res.send([{
+                    id:'',
+                    username:'',
+                    privilege:'',
+                    ip_ranges:''
+                  }]);
+                }
               })
               .catch((error2) => {
                 weasel.error(
@@ -800,12 +814,26 @@ router.get("/all", (req: Request, res: Response) => {
         userService
           .getUserListAll(category, searchWord)
           .then((result) => {
-            weasel.log(
-              username,
-              req.socket.remoteAddress,
-              "Success to load user control page "
-            );
-            res.send(result);
+            if(result[0]){
+              weasel.log(
+                username,
+                req.socket.remoteAddress,
+                "Success to load user control page "
+              );
+              res.send(result);
+            } else {
+              weasel.log(
+                username,
+                req.socket.remoteAddress,
+                "Success to load user control page "
+              );
+              res.send([{
+                id:'',
+                username:'',
+                privilege:'',
+                ip_ranges:''
+              }]);
+            }
           })
           .catch((error) => {
             weasel.error(

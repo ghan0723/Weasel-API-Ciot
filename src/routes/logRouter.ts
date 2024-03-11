@@ -23,38 +23,16 @@ router.get("/dashboard", (req: Request, res: Response) => {
     );
     res.status(500).send("error");
   }
-
   weasel.log(
     username,
     req.socket.remoteAddress,
     `The current dashboard page displays data on a ${select}. `
   );
-
-  settingService.getOutlookFlag()
-  .then((result) => {
-    if((result[0].flag & 256) === 256){
-      res.send(true);
-    } else {
-      res.send(false);
-    }
-  })
-  .catch((error) => {
-    weasel.error(
-      username,
-      req.socket.remoteAddress,
-      "Unable to retrieve outlook flag value"
-    );
-    res.status(500).send("error");
-  })
 });
 
 router.get("/tables", (req: Request, res: Response) => {
   const username = req.query.username;
-  const contents = req.query.contents;
-  const category = req.query.category;
-  const search = req.query.search;
-
-  if (typeof username !== "string" && typeof contents !== "string") {
+  if (typeof username !== "string") {
     weasel.error(
       username,
       req.socket.remoteAddress,
@@ -65,34 +43,12 @@ router.get("/tables", (req: Request, res: Response) => {
   weasel.log(
     username,
     req.socket.remoteAddress,
-    `The current data-tables page displays data on a ${
-      contents + " category : " + category + " searchWord : " + search
-    }. `
+    `The current data-tables page displays data`
   );
-
-  settingService.getOutlookFlag()
-  .then((result) => {
-    if((result[0].flag & 256) === 256){
-      res.send(true);
-    } else {
-      res.send(false);
-    }
-  })
-  .catch(() => {
-    weasel.error(
-      username,
-      req.socket.remoteAddress,
-      "Unable to retrieve outlook flag value"
-    );
-    res.status(500).send("error");
-  })
 });
 
 router.get("/leaked", (req: Request, res: Response) => {
   const username = req.query.username;
-  const category = req.query.category;
-  const search = req.query.search;
-
   if (typeof username !== "string") {
     weasel.error(
       username,
@@ -104,9 +60,7 @@ router.get("/leaked", (req: Request, res: Response) => {
   weasel.log(
     username,
     req.socket.remoteAddress,
-    `The current leackedTable page displays data on a ${
-      "leaked category : " + category + " searchWord : " + search
-    }. `
+    `The current leackedTable page displays data `
   );
   res.send("success");
 });
@@ -115,11 +69,7 @@ router.get("/logout", (req: Request, res: Response) => {
   const username = req.query.username;
 
   if (typeof username !== "string") {
-    weasel.error(
-      username,
-      req.socket.remoteAddress,
-      "Logout failed"
-    );
+    weasel.error(username, req.socket.remoteAddress, "Logout failed");
     res.send("error");
   }
   weasel.log(
@@ -146,27 +96,31 @@ router.get("/months", (req: Request, res: Response) => {
 router.get("/day", (req: Request, res: Response) => {
   let year = req.query.year;
   let month = req.query.month;
-  logService.getLogFiles(year, month)
-  .then((files) => {
+  logService.getLogFiles(year, month).then((files) => {
     res.send(files);
-  })
-})
+  });
+});
 
-router.get("/file", (req:Request, res:Response) => {
+router.get("/file", (req: Request, res: Response) => {
   let year = req.query.year;
   let month = req.query.month;
   let file = req.query.file;
 
-  logService.getLogContent(year, month, file)
-  .then((content) => {
-    weasel.log("", req.socket.remoteAddress, `Verified ${file} audit log`);
-    res.send([content]);
-  })
-  .catch((error) => {
-    weasel.error("", req.socket.remoteAddress, "Failed to retrieve the audit log");
-    res.status(401).send("fail");
-  })
-})
+  logService
+    .getLogContent(year, month, file)
+    .then((content) => {
+      weasel.log("", req.socket.remoteAddress, `Verified ${file} audit log`);
+      res.send([content]);
+    })
+    .catch((error) => {
+      weasel.error(
+        "",
+        req.socket.remoteAddress,
+        "Failed to retrieve the audit log"
+      );
+      res.status(401).send("fail");
+    });
+});
 
 router.get("/error/years", (req: Request, res: Response) => {
   logService.getErrorYears().then((years) => {
@@ -184,26 +138,52 @@ router.get("/error/months", (req: Request, res: Response) => {
 router.get("/error/day", (req: Request, res: Response) => {
   let year = req.query.year;
   let month = req.query.month;
-  logService.getErrorLogFiles(year, month)
-  .then((files) => {
+  logService.getErrorLogFiles(year, month).then((files) => {
     res.send(files);
-  })
-})
+  });
+});
 
-router.get("/error/file", (req:Request, res:Response) => {
+router.get("/error/file", (req: Request, res: Response) => {
   let year = req.query.year;
   let month = req.query.month;
   let file = req.query.file;
 
-  logService.getErrorLogContent(year, month, file)
-  .then((content) => {
-    weasel.log("", req.socket.remoteAddress, `Verified ${file} error log`);
-    res.send([content]);
-  })
-  .catch((error) => {
-    weasel.error("", req.socket.remoteAddress, "Failed to retrieve the error log");
-    res.status(401).send("fail");
-  })
+  logService
+    .getErrorLogContent(year, month, file)
+    .then((content) => {
+      weasel.log("", req.socket.remoteAddress, `Verified ${file} error log`);
+      res.send([content]);
+    })
+    .catch((error) => {
+      weasel.error(
+        "",
+        req.socket.remoteAddress,
+        "Failed to retrieve the error log"
+      );
+      res.status(401).send("fail");
+    });
+});
+
+router.get("/screenshot", (req:Request, res:Response) => {
+  const username = req.query.username;
+  const fileName = req.query.fileName;
+  if(fileName !== undefined && fileName !== null){
+    weasel.log(username, req.socket.remoteAddress, `Download screenshot : ${fileName}`);
+  } else {
+    weasel.error(username, req.socket.remoteAddress, `Unable to download screenshot : ${fileName}`);
+  }
+  res.send("make log")
+})
+
+router.get("/download", (req:Request, res:Response) => {
+  const username = req.query.username;
+  const fileName = req.query.fileName;
+  if(fileName !== undefined && fileName !== null){
+    weasel.log(username, req.socket.remoteAddress, `Download file : ${fileName}`);
+  } else {
+    weasel.error(username, req.socket.remoteAddress, `Unable to download file : ${fileName}`);
+  }
+  res.send("make log")
 })
 
 export = router;

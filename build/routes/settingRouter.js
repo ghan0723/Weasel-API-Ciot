@@ -218,4 +218,20 @@ router.post("/updateFile", (req, res) => {
         res.status(500).send("post UpdateAgentFile error");
     });
 });
+router.get("/outlook", (req, res) => {
+    const username = req.query.username;
+    settingService.getOutlookFlag()
+        .then((result) => {
+        if ((result[0].flag & 256) === 256) {
+            res.send(true);
+        }
+        else {
+            res.send(false);
+        }
+    })
+        .catch((error) => {
+        log_1.weasel.error(username, req.socket.remoteAddress, "Unable to retrieve outlook flag value");
+        res.status(500).send("error");
+    });
+});
 module.exports = router;

@@ -234,7 +234,7 @@ router.post("/add", (req, res) => {
                                     });
                                 })
                                     .catch((error) => {
-                                    log_1.weasel.error(user.username, req.socket.remoteAddress, "Failed to get frequency ");
+                                    log_1.weasel.error(user.username, req.socket.remoteAddress, "Failed to get accountlist from pwd_change_freq ");
                                     console.error("회원가입 실패:", error);
                                     res.status(500).send(error);
                                 });
@@ -554,8 +554,19 @@ router.get("/all", (req, res) => {
                 userService
                     .getUserListByPrivilegeAndIP(result[0].privilege, IpRange, category, searchWord)
                     .then((result2) => {
-                    log_1.weasel.log(username, req.socket.remoteAddress, `Success to load user control page category=${category}, searchWord=${searchWord}`);
-                    res.status(200).send(result2);
+                    if (result2[0]) {
+                        log_1.weasel.log(username, req.socket.remoteAddress, "Success to load user control page ");
+                        res.send(result2);
+                    }
+                    else {
+                        log_1.weasel.log(username, req.socket.remoteAddress, "Success to load user control page ");
+                        res.send([{
+                                id: '',
+                                username: '',
+                                privilege: '',
+                                ip_ranges: ''
+                            }]);
+                    }
                 })
                     .catch((error2) => {
                     log_1.weasel.error(username, req.socket.remoteAddress, "Failed to load user control page ");
@@ -573,8 +584,19 @@ router.get("/all", (req, res) => {
             userService
                 .getUserListAll(category, searchWord)
                 .then((result) => {
-                log_1.weasel.log(username, req.socket.remoteAddress, "Success to load user control page ");
-                res.send(result);
+                if (result[0]) {
+                    log_1.weasel.log(username, req.socket.remoteAddress, "Success to load user control page ");
+                    res.send(result);
+                }
+                else {
+                    log_1.weasel.log(username, req.socket.remoteAddress, "Success to load user control page ");
+                    res.send([{
+                            id: '',
+                            username: '',
+                            privilege: '',
+                            ip_ranges: ''
+                        }]);
+                }
             })
                 .catch((error) => {
                 log_1.weasel.error(username, req.socket.remoteAddress, "Failed to load user control page ");
