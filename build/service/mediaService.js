@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const db_1 = __importDefault(require("../db/db"));
 const generateRandom_1 = require("../interface/generateRandom");
+const fs_1 = __importDefault(require("fs"));
 class MediaService {
     constructor() {
         // Old_Columns
@@ -165,6 +166,18 @@ class MediaService {
                     db_1.default.query(query, whereQuery, (error, result) => {
                         const excludedKeys = ['Downloading'];
                         const filteredKeys = privilege !== 3 ? aliasKey : aliasKey.filter((key) => !excludedKeys.includes(key));
+                        if (!excel) {
+                            result.map((data, i) => {
+                                const date = data.Time.split(' ')[0];
+                                const fileName = `C:/Program Files (x86)/ciot/WeaselServer/Temp/${date}/${data.Agent_ip}.${data.id}.${data.Downloading}`;
+                                if (fs_1.default.existsSync(fileName)) {
+                                    result[i].Downloading = `${data.Agent_ip}.${data.id}.${data.Downloading}`;
+                                }
+                                else {
+                                    result[i].Downloading = '';
+                                }
+                            });
+                        }
                         // 검색 결과가 없을 경우의 처리
                         if (result.length === 0) {
                             result[0] = filteredKeys.reduce((obj, key) => {

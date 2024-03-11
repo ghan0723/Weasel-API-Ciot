@@ -90,7 +90,7 @@ router.post("/login", (req, res) => {
                 else {
                     //관리자 제외 나머지 아이디
                     if (((_a = user[0]) === null || _a === void 0 ? void 0 : _a.enabled) !== 1) {
-                        log_1.weasel.error(username, req.socket.remoteAddress, "This user is unable to login");
+                        log_1.weasel.error(username, req.socket.remoteAddress, "The user's status is not enabled");
                         res.status(500).send({ enabled: false });
                     }
                     else {
@@ -234,7 +234,7 @@ router.post("/add", (req, res) => {
                                     });
                                 })
                                     .catch((error) => {
-                                    log_1.weasel.error(user.username, req.socket.remoteAddress, "Failed to get frequency ");
+                                    log_1.weasel.error(user.username, req.socket.remoteAddress, "Failed to get accountlist from pwd_change_freq ");
                                     console.error("회원가입 실패:", error);
                                     res.status(500).send(error);
                                 });
