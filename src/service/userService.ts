@@ -39,8 +39,13 @@ class UserService {
   ): Promise<any> {
     let mngip = user.ip_ranges.replace(/(\r\n|\n|\r)/gm, ", ");
     let privilege: number = parseInt(user.privilege, 10);
+    let query = '';
+    if(freq !== undefined && freq !== null){
+      query = `insert into accountlist (\`username\`, \`passwd\`, \`privilege\`, \`enabled\`, \`ip_ranges\`, \`last_pwd_date\`, \`pwd_change_freq\`) values ('${user.username}', '${user.passwd}', ${privilege}, 1, '${mngip}', now(), ${freq})`;
+    } else {
+      query = `insert into accountlist (\`username\`, \`passwd\`, \`privilege\`, \`enabled\`, \`ip_ranges\`, \`last_pwd_date\`, \`pwd_change_freq\`) values ('${user.username}', '${user.passwd}', ${privilege}, 1, '${mngip}', now(), 1)`;
+    }
     return new Promise(async (resolve, reject) => {
-      const query = `insert into accountlist (\`username\`, \`passwd\`, \`privilege\`, \`enabled\`, \`ip_ranges\`, \`last_pwd_date\`, \`pwd_change_freq\`) values ('${user.username}', '${user.passwd}', ${privilege}, 1, '${mngip}', now(), ${freq})`;
       connection.query(query, (error, result) => {
         if (error) {
           reject(error);

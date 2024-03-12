@@ -41,8 +41,6 @@ try {
   console.error(err);
 }
 
-
-
 //JSON 파일 읽기
 let rawdata = fs.readFileSync("connection.json");
 let config = JSON.parse(rawdata);

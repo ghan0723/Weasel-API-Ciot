@@ -20,7 +20,8 @@ router.post("/login", (req, res) => {
         .getLogin(username)
         .then((user) => {
         if (user.length === 0) {
-            log_1.weasel.log(username, req.socket.remoteAddress, "Not exist user ");
+            log_1.weasel.log(username, req.socket.remoteAddress, "Not exist user.");
+            // weasel.log(username, req.socket.remoteAddress, "해당 아이디가 존재하지 않습니다.");
             // 에러 메시지와 원하는 URL을 포함한 JSON 응답을 보냄
             res.status(401).json({
                 error: "사용자를 찾을 수 없습니다",
@@ -39,7 +40,8 @@ router.post("/login", (req, res) => {
                         .getGUITime()
                         .then((cookieTime) => {
                         if (passwd !== decPasswd) {
-                            log_1.weasel.log(username, req.socket.remoteAddress, "Password do not match ");
+                            log_1.weasel.log(username, req.socket.remoteAddress, "Password do not match.");
+                            // weasel.log(username,req.socket.remoteAddress,"아이디와 비밀번호가 맞지 않습니다.");
                             res.status(401).json({
                                 error: "비밀번호가 일치하지 않습니다",
                                 redirectUrl: `${ipDomain_1.frontIP}/auth/sign-in`,
@@ -59,7 +61,9 @@ router.post("/login", (req, res) => {
                                         path: "/", // 쿠키의 경로 설정
                                     });
                                     log_1.weasel.log(username, req.socket.remoteAddress, "Popup content available.");
-                                    log_1.weasel.log(username, req.socket.remoteAddress, "Success login ");
+                                    // weasel.log(username,req.socket.remoteAddress,"팝업 콘텐츠를 사용할 수 있습니다.");
+                                    log_1.weasel.log(username, req.socket.remoteAddress, "Success login.");
+                                    // weasel.log(username,req.socket.remoteAddress,"로그인에 성공하였습니다.");
                                     res
                                         .status(200)
                                         .send({ username, freq: false, notice: true });
@@ -71,14 +75,16 @@ router.post("/login", (req, res) => {
                                         maxAge: cookieTime * 1000,
                                         path: "/", // 쿠키의 경로 설정
                                     });
-                                    log_1.weasel.log(username, req.socket.remoteAddress, "Success login ");
+                                    log_1.weasel.log(username, req.socket.remoteAddress, "Success login.");
+                                    // weasel.log(username,req.socket.remoteAddress,"로그인에 성공하였습니다.");
                                     res
                                         .status(200)
                                         .send({ username, freq: false, notice: false });
                                 }
                             })
                                 .catch((error5) => {
-                                log_1.weasel.error(username, req.socket.remoteAddress, "Failed to retrieve popup notice information from the database");
+                                log_1.weasel.error(username, req.socket.remoteAddress, "Failed to retrieve popup notice information from the database.");
+                                log_1.weasel.error(username, req.socket.remoteAddress, "팝업을 가져오는 쿼리 실행 중 오류가 발생했습니다..");
                                 // weasel.error(username, req.socket.remoteAddress, "팝업을 가져오는 쿼리 실행 중 오류가 발생했습니다.");
                                 console.error("PopupNotice 가져오기 실패:", error5);
                                 res.status(500).send(error5);
@@ -86,7 +92,7 @@ router.post("/login", (req, res) => {
                         }
                     })
                         .catch((error2) => {
-                        log_1.weasel.error(username, req.socket.remoteAddress, "Failed to get cookie time ");
+                        log_1.weasel.error(username, req.socket.remoteAddress, "Failed to get cookie time.");
                         // weasel.error(username, req.socket.remoteAddress, "서버의 Guitime을 가져오는 쿼리 실행 중 오류가 발생했습니다.");
                         console.error("쿠키 타임 가져오기 실패:", error2);
                         res.status(500).send(error2);
@@ -95,7 +101,8 @@ router.post("/login", (req, res) => {
                 else {
                     //관리자 제외 나머지 아이디
                     if (((_a = user[0]) === null || _a === void 0 ? void 0 : _a.enabled) !== 1) {
-                        log_1.weasel.log(username, req.socket.remoteAddress, "The user's status is not enabled");
+                        log_1.weasel.log(username, req.socket.remoteAddress, "The user's status is not enabled.");
+                        // weasel.log(username,req.socket.remoteAddress,"사용자 상태가 활성화되지 않았습니다.");
                         res.status(500).send({ enabled: false });
                     }
                     else {
@@ -110,14 +117,21 @@ router.post("/login", (req, res) => {
                                     userService
                                         .disabledUser(username, user[0].fail_count + 1)
                                         .then((enabled) => {
-                                        log_1.weasel.log(username, req.socket.remoteAddress, "Password do not match ");
+                                        if (user[0].fail_count + 1 >= 5) {
+                                            log_1.weasel.log(username, req.socket.remoteAddress, "Password do not match.");
+                                            // weasel.log(username,req.socket.remoteAddress,"아이디와 비밀번호가 맞지 않습니다.");
+                                        }
+                                        else {
+                                            log_1.weasel.log(username, req.socket.remoteAddress, "Password do not match.");
+                                            // weasel.log(username,req.socket.remoteAddress,"아이디와 비밀번호가 맞지 않습니다.");
+                                        }
                                         res.status(401).json({
                                             error: "비밀번호가 일치하지 않습니다",
                                             redirectUrl: `${ipDomain_1.frontIP}/auth/sign-in`,
                                         });
                                     })
                                         .catch((enableError) => {
-                                        log_1.weasel.error(username, req.socket.remoteAddress, "Failed to update the fail_count column in the accountlist table in the database ");
+                                        log_1.weasel.error(username, req.socket.remoteAddress, "Failed to update the fail_count column in the accountlist table in the database.");
                                         // weasel.error(username, req.socket.remoteAddress, "비밀번호 입력 실패값을 초기화하는 쿼리 실행 중 오류가 발생했습니다.");
                                         res.status(401).json({
                                             error: "비밀번호가 일치하지 않습니다",
@@ -143,7 +157,9 @@ router.post("/login", (req, res) => {
                                                         path: "/", // 쿠키의 경로 설정
                                                     });
                                                     log_1.weasel.log(username, req.socket.remoteAddress, "Popup content available.");
-                                                    log_1.weasel.log(username, req.socket.remoteAddress, "Success login ");
+                                                    // weasel.log(username,req.socket.remoteAddress,"팝업 콘텐츠를 사용할 수 있습니다.");
+                                                    log_1.weasel.log(username, req.socket.remoteAddress, "Success login.");
+                                                    // weasel.log(username,req.socket.remoteAddress,"로그인에 성공하였습니다.");
                                                     res
                                                         .status(200)
                                                         .send({ username, freq, notice: true });
@@ -154,7 +170,8 @@ router.post("/login", (req, res) => {
                                                         maxAge: cookieTime * 1000,
                                                         path: "/", // 쿠키의 경로 설정
                                                     });
-                                                    log_1.weasel.log(username, req.socket.remoteAddress, "Success login ");
+                                                    log_1.weasel.log(username, req.socket.remoteAddress, "Success login.");
+                                                    // weasel.log(username,req.socket.remoteAddress,"로그인에 성공하였습니다.");
                                                     res.status(200).send({
                                                         username,
                                                         freq,
@@ -163,7 +180,7 @@ router.post("/login", (req, res) => {
                                                 }
                                             })
                                                 .catch((error5) => {
-                                                log_1.weasel.error(username, req.socket.remoteAddress, "Failed to retrieve popup notice information from the database");
+                                                log_1.weasel.error(username, req.socket.remoteAddress, "Failed to retrieve popup notice information from the database.");
                                                 // weasel.error(username, req.socket.remoteAddress, "팝업을 가져오는 쿼리 실행 중 오류가 발생했습니다.");
                                                 res.status(500).send(error5);
                                             });
@@ -175,14 +192,14 @@ router.post("/login", (req, res) => {
                                     }
                                     else {
                                         //freq에 의해 비밀번호를 변경해야 한다
-                                        log_1.weasel.log(username, req.socket.remoteAddress, "Please change password ");
+                                        log_1.weasel.log(username, req.socket.remoteAddress, "Please change password.");
                                         // weasel.log(username, req.socket.remoteAddress, "비밀번호 변경 주기가 지났습니다. 비밀번호를 변경으로 이동합니다.");
                                         res.status(200).send({ username, freq });
                                     }
                                 }
                             })
                                 .catch((error3) => {
-                                log_1.weasel.error(username, req.socket.remoteAddress, "Failed to get password frequency. ");
+                                log_1.weasel.error(username, req.socket.remoteAddress, "Failed to get password frequency.");
                                 // weasel.error(username, req.socket.remoteAddress, "비밀번호 변경 확인값을 가져오는 쿼리 실행 중 오류가 발생했습니다.");
                             });
                         })
@@ -196,7 +213,7 @@ router.post("/login", (req, res) => {
                 }
             })
                 .catch((error) => {
-                log_1.weasel.error(username, req.socket.remoteAddress, "Failed to get privilege");
+                log_1.weasel.error(username, req.socket.remoteAddress, "Failed to get privilege.");
                 // weasel.error(username, req.socket.remoteAddress, "입력한 아이디의 등급을 가져오는 쿼리 실행 중 오류가 발생했습니다.");
                 res.redirect(`${ipDomain_1.frontIP}/auth/sign-in`);
             });
@@ -225,8 +242,8 @@ router.post("/add", (req, res) => {
                 .checkUsername(user.username)
                 .then((result1) => {
                 if (result1.exists) {
-                    log_1.weasel.log(user.username, req.socket.remoteAddress, "Failed to add user by exist username ");
-                    // weasel.log(user.username, req.socket.remoteAddress, "사용자명이 중복되어 생성에 실패했습니다.");
+                    log_1.weasel.log(user.cookie, req.socket.remoteAddress, "Failed to add user by exist username ");
+                    // weasel.log(user.cookie, req.socket.remoteAddress, "사용자명이 중복되어 생성에 실패했습니다.");
                     res.status(401).send({ error: result1.message });
                 }
                 else {
@@ -242,35 +259,35 @@ router.post("/add", (req, res) => {
                                 userService
                                     .addUser(newUser, result[0].pwd_change_freq)
                                     .then((result4) => {
-                                    log_1.weasel.log(user.username, req.socket.remoteAddress, "Success add user ");
-                                    // weasel.log(user.username, req.socket.remoteAddress, "새로운 사용자 계정 생성에 성공했습니다.");
+                                    log_1.weasel.log(user.cookie, req.socket.remoteAddress, "Success add user ");
+                                    // weasel.log(user.cookie, req.socket.remoteAddress, "새로운 사용자 계정 생성에 성공했습니다.");
                                     res.send(result4.message);
                                 })
                                     .catch((error) => {
-                                    log_1.weasel.error(user.username, req.socket.remoteAddress, "Failed to add user due to an error from another server ");
-                                    // weasel.error(user.username, req.socket.remoteAddress, "새로운 사용자 계정 생성에 실패했습니다.");
+                                    log_1.weasel.error(user.cookie, req.socket.remoteAddress, "Failed to add user due to an error from another server ");
+                                    // weasel.error(user.cookie, req.socket.remoteAddress, "새로운 사용자 계정 생성에 실패했습니다.");
                                     console.error("회원가입 실패:", error);
                                     res.status(500).send(error);
                                 });
                             })
                                 .catch((error) => {
-                                log_1.weasel.error(user.username, req.socket.remoteAddress, "Failed to get accountlist from pwd_change_freq ");
-                                // weasel.error(user.username, req.socket.remoteAddress, "기본 비밀번호 변경 주기를 가져오는데 실패했습니다.");
+                                log_1.weasel.error(user.cookie, req.socket.remoteAddress, "Failed to get accountlist from pwd_change_freq ");
+                                // weasel.error(user.cookie, req.socket.remoteAddress, "기본 비밀번호 변경 주기를 가져오는데 실패했습니다.");
                                 console.error("회원가입 실패:", error);
                                 res.status(500).send(error);
                             });
                         }
                         else {
-                            log_1.weasel.log(user.username, req.socket.remoteAddress, "Failed to add user by incorrect IP range ");
-                            // weasel.log(user.username, req.socket.remoteAddress, "현재 로그인 중인 사용자의 IP 대역을 초과하는 계정은 생성 할 수 없습니다.");
+                            log_1.weasel.log(user.cookie, req.socket.remoteAddress, "Failed to add user by incorrect IP range ");
+                            // weasel.log(user.cookie, req.socket.remoteAddress, "현재 로그인 중인 사용자의 IP 대역을 초과하는 계정은 생성 할 수 없습니다.");
                             res.status(401).send({ error: result3.message });
                         }
                     });
                 }
             })
                 .catch((error) => {
-                log_1.weasel.error(user.username, req.socket.remoteAddress, "Failed to add user by exist username ");
-                // weasel.error(user.username, req.socket.remoteAddress, "중복된 사용자명인지 데이터베이스를 확인하는 데 실패했습니다.");
+                log_1.weasel.error(user.cookie, req.socket.remoteAddress, "Failed to add user by exist username ");
+                // weasel.error(user.cookie, req.socket.remoteAddress, "중복된 사용자명인지 데이터베이스를 확인하는 데 실패했습니다.");
                 res.send("이거는 중복을 검사하는 도중에 발생하는 에러입니다.");
             });
         }
@@ -278,8 +295,8 @@ router.post("/add", (req, res) => {
             //관리자로 새로 만들때
             userService.checkUsername(newUser.username).then((result5) => {
                 if (result5.exists) {
-                    log_1.weasel.log(user.username, req.socket.remoteAddress, "Failed to add user by exist username ");
-                    // weasel.log(user.username, req.socket.remoteAddress, "사용자명이 중복되어 생성에 실패했습니다.");
+                    log_1.weasel.log(user.cookie, req.socket.remoteAddress, "Failed to add user by exist username ");
+                    // weasel.log(user.cookie, req.socket.remoteAddress, "사용자명이 중복되어 생성에 실패했습니다.");
                 }
                 else {
                     //관리자 계정 freq
@@ -289,33 +306,33 @@ router.post("/add", (req, res) => {
                         userService
                             .addUser(newUser, result[0].pwd_change_freq)
                             .then((result4) => {
-                            log_1.weasel.log(user.username, req.socket.remoteAddress, "Success add user ");
-                            // weasel.log(user.username, req.socket.remoteAddress, "새로운 사용자 계정 생성에 성공했습니다.");
+                            log_1.weasel.log(user.cookie, req.socket.remoteAddress, "Success add user ");
+                            // weasel.log(user.cookie, req.socket.remoteAddress, "새로운 사용자 계정 생성에 성공했습니다.");
                             res.send(result4.message);
                         })
                             .catch((error) => {
-                            log_1.weasel.error(user.username, req.socket.remoteAddress, "Failed to add user due to an error from another server ");
-                            // weasel.error(user.username, req.socket.remoteAddress, "새로운 사용자 계정 생성에 실패했습니다.");
+                            log_1.weasel.error(user.cookie, req.socket.remoteAddress, "Failed to add user due to an error from another server ");
+                            // weasel.error(user.cookie, req.socket.remoteAddress, "새로운 사용자 계정 생성에 실패했습니다.");
                             res.status(500).send(error);
                         });
                     })
                         .catch((error) => {
-                        log_1.weasel.error(user.username, req.socket.remoteAddress, "Failed to get accountlist from pwd_change_freq ");
-                        // weasel.error(user.username, req.socket.remoteAddress, "기본 비밀번호 변경 주기를 가져오는데 실패했습니다.");
+                        log_1.weasel.error(user.cookie, req.socket.remoteAddress, "Failed to get accountlist from pwd_change_freq ");
+                        // weasel.error(user.cookie, req.socket.remoteAddress, "기본 비밀번호 변경 주기를 가져오는데 실패했습니다.");
                         res.status(500).send(error);
                     });
                 }
             })
                 .catch((error) => {
-                log_1.weasel.error(user.username, req.socket.remoteAddress, "Failed to add user by exist username ");
-                // weasel.error(user.username, req.socket.remoteAddress, "중복된 사용자명인지 데이터베이스를 확인하는 데 실패했습니다.");
+                log_1.weasel.error(user.cookie, req.socket.remoteAddress, "Failed to add user by exist username ");
+                // weasel.error(user.cookie, req.socket.remoteAddress, "중복된 사용자명인지 데이터베이스를 확인하는 데 실패했습니다.");
                 res.send("이거는 중복을 검사하는 도중에 발생하는 에러입니다.");
             });
         }
     })
         .catch((error2) => {
-        log_1.weasel.error(user.username, req.socket.remoteAddress, "Failed to get privilege and IP ranges ");
-        // weasel.error(user.username, req.socket.remoteAddress, "계정 생성을 위한 현재 로그인 중인 사용자 정보를 가져오는데 실패했습니다.");
+        log_1.weasel.error(user.cookie, req.socket.remoteAddress, "Failed to get privilege and IP ranges ");
+        // weasel.error(user.cookie, req.socket.remoteAddress, "계정 생성을 위한 현재 로그인 중인 사용자 정보를 가져오는데 실패했습니다.");
         res.send("이거는 쿠키 가지고 privilege랑 mngip 가져오는 도중에 발생하는 에러입니다.");
     });
 });
@@ -414,8 +431,8 @@ router.post("/update/:username", (req, res) => {
             .checkUsername(user.username, oldname)
             .then((result) => {
             if (result.exists) {
-                log_1.weasel.log(oldname, req.socket.remoteAddress, "Failed to update user information by exist username ");
-                // weasel.log(oldname, req.socket.remoteAddress, "변경하려는 사용자명이 중복된 사용자명입니다.");
+                log_1.weasel.log(user.cookie, req.socket.remoteAddress, "Failed to update user information by exist username ");
+                // weasel.log(user.cookie, req.socket.remoteAddress, "변경하려는 사용자명이 중복된 사용자명입니다.");
                 res.status(401).send({ error: result.message });
             }
             else {
@@ -433,13 +450,13 @@ router.post("/update/:username", (req, res) => {
                                     userService
                                         .modUser(newUser, oldname)
                                         .then((result4) => {
-                                        log_1.weasel.log(oldname, req.socket.remoteAddress, "Success update user information ");
-                                        // weasel.log(oldname, req.socket.remoteAddress, "사용자 수정을 성공했습니다.");
+                                        log_1.weasel.log(user.cookie, req.socket.remoteAddress, "Success update user information ");
+                                        // weasel.log(user.cookie, req.socket.remoteAddress, "사용자 수정을 성공했습니다.");
                                         res.send(result4.message);
                                     })
                                         .catch((error) => {
-                                        log_1.weasel.error(oldname, req.socket.remoteAddress, "Failed to update user information by server ");
-                                        // weasel.error(oldname, req.socket.remoteAddress, "사용자 수정을 실패했습니다.");
+                                        log_1.weasel.error(user.cookie, req.socket.remoteAddress, "Failed to update user information by server ");
+                                        // weasel.error(user.cookie, req.socket.remoteAddress, "사용자 수정을 실패했습니다.");
                                         console.error("업데이트 실패:", error);
                                         res.status(500).send("Internal Server Error");
                                     });
@@ -452,20 +469,20 @@ router.post("/update/:username", (req, res) => {
                                         userService
                                             .modifyPwdByFreq(user.username, encPasswd)
                                             .then((result) => {
-                                            log_1.weasel.log(oldname, req.socket.remoteAddress, "Success update user information ");
-                                            // weasel.log(oldname, req.socket.remoteAddress, "사용자 수정을 성공했습니다.");
+                                            log_1.weasel.log(user.cookie, req.socket.remoteAddress, "Success update user information ");
+                                            // weasel.log(user.cookie, req.socket.remoteAddress, "사용자 수정을 성공했습니다.");
                                             res.send(result4.message);
                                         })
                                             .catch((error) => {
-                                            log_1.weasel.error(user.username, req.socket.remoteAddress, "Failed to modify password frequency ");
-                                            // weasel.error(user.username, req.socket.remoteAddress, "사용자의 비밀번호 주기를 초기화하는 쿼리 실행 중 오류가 발생했습니다.");
+                                            log_1.weasel.error(user.cookie, req.socket.remoteAddress, "Failed to modify password frequency ");
+                                            // weasel.error(user.cookie, req.socket.remoteAddress, "사용자의 비밀번호 주기를 초기화하는 쿼리 실행 중 오류가 발생했습니다.");
                                             console.error("업데이트 실패:", error);
                                             res.status(500).send("Internal Server Error");
                                         });
                                     })
                                         .catch((error) => {
-                                        log_1.weasel.error(oldname, req.socket.remoteAddress, "Failed to update user information by server ");
-                                        // weasel.error(oldname, req.socket.remoteAddress, "사용자 수정을 실패했습니다.");
+                                        log_1.weasel.error(user.cookie, req.socket.remoteAddress, "Failed to update user information by server ");
+                                        // weasel.error(user.cookie, req.socket.remoteAddress, "사용자 수정을 실패했습니다.");
                                         console.error("업데이트 실패:", error);
                                         res.status(500).send("Internal Server Error");
                                     });
@@ -473,8 +490,8 @@ router.post("/update/:username", (req, res) => {
                             });
                         }
                         else {
-                            log_1.weasel.error(oldname, req.socket.remoteAddress, "Failed to update user by incorrect IP range ");
-                            // weasel.error(oldname, req.socket.remoteAddress, "수정할 사용자의 IP 대역이 현재 로그인한 사용자의 IP 대역을 초과하였습니다.");
+                            log_1.weasel.log(user.cookie, req.socket.remoteAddress, "Failed to update user by incorrect IP range ");
+                            // weasel.log(user.cookie, req.socket.remoteAddress, "수정할 사용자의 IP 대역이 현재 로그인한 사용자의 IP 대역을 초과하였습니다.");
                             res.status(401).send({ error: result3.message });
                         }
                     });
@@ -485,8 +502,8 @@ router.post("/update/:username", (req, res) => {
                         .checkUsername(user.username, oldname)
                         .then((result) => {
                         if (result.exists) {
-                            log_1.weasel.log(oldname, req.socket.remoteAddress, "Failed to update user information by exist username ");
-                            // weasel.log(oldname, req.socket.remoteAddress, "변경하려는 사용자명이 중복된 사용자명입니다.");
+                            log_1.weasel.log(user.cookie, req.socket.remoteAddress, "Failed to update user information by exist username ");
+                            // weasel.log(user.cookie, req.socket.remoteAddress, "변경하려는 사용자명이 중복된 사용자명입니다.");
                             res.status(401).send({ error: result.message });
                         }
                         else {
@@ -498,13 +515,13 @@ router.post("/update/:username", (req, res) => {
                                     userService
                                         .modUser(newUser, oldname, user.enabled)
                                         .then((result4) => {
-                                        log_1.weasel.log(oldname, req.socket.remoteAddress, "Success update user information ");
-                                        // weasel.log(oldname, req.socket.remoteAddress, "사용자 수정을 성공했습니다.");
+                                        log_1.weasel.log(user.cookie, req.socket.remoteAddress, "Success update user information ");
+                                        // weasel.log(user.cookie, req.socket.remoteAddress, "사용자 수정을 성공했습니다.");
                                         res.send(result4.message);
                                     })
                                         .catch((error) => {
-                                        log_1.weasel.error(oldname, req.socket.remoteAddress, "Failed to update user information by server ");
-                                        // weasel.error(oldname, req.socket.remoteAddress, "사용자 수정을 실패했습니다.");
+                                        log_1.weasel.error(user.cookie, req.socket.remoteAddress, "Failed to update user information by server ");
+                                        // weasel.error(user.cookie, req.socket.remoteAddress, "사용자 수정을 실패했습니다.");
                                         res.status(500).send("Internal Server Error");
                                     });
                                 }
@@ -516,8 +533,8 @@ router.post("/update/:username", (req, res) => {
                                         userService
                                             .modifyPwdByFreq(user.username, encPasswd)
                                             .then((result) => {
-                                            log_1.weasel.log(oldname, req.socket.remoteAddress, "Success update user information ");
-                                            // weasel.log(oldname, req.socket.remoteAddress, "사용자 수정을 성공했습니다.");
+                                            log_1.weasel.log(user.cookie, req.socket.remoteAddress, "Success update user information ");
+                                            // weasel.log(user.cookie, req.socket.remoteAddress, "사용자 수정을 성공했습니다.");
                                             res.send(result4.message);
                                         })
                                             .catch((error) => {
@@ -527,8 +544,8 @@ router.post("/update/:username", (req, res) => {
                                         });
                                     })
                                         .catch((error) => {
-                                        log_1.weasel.error(oldname, req.socket.remoteAddress, "Failed to update user information by server ");
-                                        // weasel.error(oldname, req.socket.remoteAddress, "사용자 수정을 실패했습니다.");
+                                        log_1.weasel.error(user.cookie, req.socket.remoteAddress, "Failed to update user information by server ");
+                                        // weasel.error(user.cookie, req.socket.remoteAddress, "사용자 수정을 실패했습니다.");
                                         res.status(500).send("Internal Server Error");
                                     });
                                 }
@@ -539,14 +556,14 @@ router.post("/update/:username", (req, res) => {
             }
         })
             .catch((error) => {
-            log_1.weasel.error(oldname, req.socket.remoteAddress, "Failed to update user information by exist username ");
-            // weasel.error(oldname, req.socket.remoteAddress, "사용자명 중복을 확인하기 위한 쿼리 실행중 오류가 발생했습니다.");
+            log_1.weasel.error(user.cookie, req.socket.remoteAddress, "Failed to update user information by exist username ");
+            // weasel.error(user.cookie, req.socket.remoteAddress, "사용자명 중복을 확인하기 위한 쿼리 실행중 오류가 발생했습니다.");
             res.send("이거는 중복을 검사하는 도중에 발생하는 에러입니다.");
         });
     })
         .catch((error2) => {
-        log_1.weasel.error(oldname, req.socket.remoteAddress, "Failed to get privilege & IP ranges ");
-        // weasel.error(oldname, req.socket.remoteAddress, "계정 수정을 위한 현재 로그인 중인 사용자 정보를 가져오는데 실패했습니다.");
+        log_1.weasel.error(user.cookie, req.socket.remoteAddress, "Failed to get privilege & IP ranges ");
+        // weasel.error(user.cookie, req.socket.remoteAddress, "계정 수정을 위한 현재 로그인 중인 사용자 정보를 가져오는데 실패했습니다.");
         res.send("이거는 쿠키 가지고 privilege랑 mngip 가져오는 도중에 발생하는 에러입니다.");
     });
 });
@@ -644,7 +661,8 @@ router.post("/pwd", (req, res) => {
         .then((result1) => {
         const decOldPwd = cryptoService.getDecryptUltra(result1[0].passwd);
         if (user.oldPwd !== decOldPwd) {
-            log_1.weasel.error(username, req.socket.remoteAddress, "Failed to update password frequency by exist old password ");
+            log_1.weasel.error(username, req.socket.remoteAddress, "Failed to update password frequency by exist old password.");
+            // weasel.error(username,req.socket.remoteAddress,"기존 비밀번호로 비밀번호 빈도를 업데이트하지 못했습니다.");
             res.status(401).send("fail");
         }
         else {
@@ -652,16 +670,19 @@ router.post("/pwd", (req, res) => {
                 userService
                     .modifyPwdByFreq(username, encPwd)
                     .then((result2) => {
-                    log_1.weasel.log(username, req.socket.remoteAddress, "Success update password frequency ");
+                    log_1.weasel.log(username, req.socket.remoteAddress, "Success update password frequency.");
+                    log_1.weasel.log(username, req.socket.remoteAddress, "비밀번호(빈도) 업데이트 성공.");
                     res.status(200).send(result2);
                 })
                     .catch((error) => {
-                    log_1.weasel.error(username, req.socket.remoteAddress, "Failed to update password frequency by server ");
+                    log_1.weasel.error(username, req.socket.remoteAddress, "Failed to update password frequency by server.");
+                    // weasel.error(username,req.socket.remoteAddress,"서버에서 빈도 업데이트를 실패하였습니다.");
                     res.status(500).send("Internal Server Error");
                 });
             }
             else {
-                log_1.weasel.error(username, req.socket.remoteAddress, "Failed to update password by old password equal new password");
+                log_1.weasel.error(username, req.socket.remoteAddress, "Failed to update password by old password equal new password.");
+                // weasel.error(username,req.socket.remoteAddress,"현재 비밀번호와 새로운 비밀번호가 같아 업데이트를 실패하였습니다.");
                 res
                     .status(500)
                     .send("The password before the change and the password after the change are the same.");
@@ -669,7 +690,8 @@ router.post("/pwd", (req, res) => {
         }
     })
         .catch((error2) => {
-        log_1.weasel.error(username, req.socket.remoteAddress, "Failed to update password frequency by get password ");
+        log_1.weasel.error(username, req.socket.remoteAddress, "Failed to update password frequency by get password.");
+        // weasel.error(username,req.socket.remoteAddress,"비밀번호 가져오기를 통해 비밀번호 빈도를 업데이트하지 못했습니다.");
         res.send("error :" + error2);
     });
 });

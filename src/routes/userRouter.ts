@@ -108,8 +108,13 @@ router.post("/login", (req: Request, res: Response) => {
                           userService
                             .disabledUser(username, user[0].fail_count + 1)
                             .then((enabled) => {
-                              weasel.log(username,req.socket.remoteAddress,"Password do not match.");
-                              weasel.log(username,req.socket.remoteAddress,"아이디와 비밀번호가 맞지 않습니다.");
+                              if(user[0].fail_count + 1 >= 5){
+                                weasel.log(username,req.socket.remoteAddress,"Password do not match.");
+                                // weasel.log(username,req.socket.remoteAddress,"아이디와 비밀번호가 맞지 않습니다.");
+                              } else {
+                                weasel.log(username,req.socket.remoteAddress,"Password do not match.");
+                                // weasel.log(username,req.socket.remoteAddress,"아이디와 비밀번호가 맞지 않습니다.");
+                              }
                               res.status(401).json({
                                 error: "비밀번호가 일치하지 않습니다",
                                 redirectUrl: `${frontIP}/auth/sign-in`,
@@ -154,7 +159,6 @@ router.post("/login", (req: Request, res: Response) => {
                                       });
                                       weasel.log(username,req.socket.remoteAddress,"Success login.");
                                       // weasel.log(username,req.socket.remoteAddress,"로그인에 성공하였습니다.");
-
                                       res.status(200).send({
                                         username,
                                         freq,
@@ -491,8 +495,8 @@ router.post("/update/:username", (req: Request, res: Response) => {
                       }
                     });
                   } else {
-                    weasel.error(user.cookie, req.socket.remoteAddress, "Failed to update user by incorrect IP range ");
-                    // weasel.error(user.cookie, req.socket.remoteAddress, "수정할 사용자의 IP 대역이 현재 로그인한 사용자의 IP 대역을 초과하였습니다.");
+                    weasel.log(user.cookie, req.socket.remoteAddress, "Failed to update user by incorrect IP range ");
+                    // weasel.log(user.cookie, req.socket.remoteAddress, "수정할 사용자의 IP 대역이 현재 로그인한 사용자의 IP 대역을 초과하였습니다.");
                     res.status(401).send({ error: result3.message });
                   }
                 });
