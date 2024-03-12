@@ -15,11 +15,9 @@ router.get("/dashboard", (req, res) => {
         // weasel.error(username, req.socket.remoteAddress, "Dashboard 페이지에 접근 할 수 없습니다.");
         res.status(500).send("error");
     }
-    else {
-        log_1.weasel.log(username, req.socket.remoteAddress, `The current dashboard page displays data on a ${select}.`);
-        res.send("h2");
-        // weasel.log(username,req.socket.remoteAddress,`현재 대시보드 페이지에 ${select}에 데이터가 표시됩니다.`);
-    }
+    log_1.weasel.log(username, req.socket.remoteAddress, `The current dashboard page displays data on a ${select}.`);
+    // weasel.log(username,req.socket.remoteAddress,`현재 대시보드 페이지에 ${select}에 데이터가 표시됩니다.`);
+    res.send("success");
 });
 router.get("/tables", (req, res) => {
     const username = req.query.username;
@@ -28,11 +26,9 @@ router.get("/tables", (req, res) => {
         // weasel.error(username, req.socket.remoteAddress,"유출탐지내역 페이지에 접근 할 수 없습니다.");
         res.send("error");
     }
-    else {
-        log_1.weasel.log(username, req.socket.remoteAddress, `The current data-tables page displays data.`);
-        // weasel.log(username,req.socket.remoteAddress,`유출탐지내역 메뉴입니다.`);
-        res.send("h2");
-    }
+    log_1.weasel.log(username, req.socket.remoteAddress, `The current data-tables page displays data.`);
+    // weasel.log(username,req.socket.remoteAddress,`유출탐지내역 메뉴입니다.`);
+    res.send("success");
 });
 router.get("/leaked", (req, res) => {
     const username = req.query.username;
@@ -181,5 +177,6 @@ router.get("/userList", (req, res) => {
         log_1.weasel.log(username, req.socket.remoteAddress, `The userlist control page displays data.`);
         res.send("h2");
     }
+    res.send("make log");
 });
 module.exports = router;

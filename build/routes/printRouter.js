@@ -20,7 +20,7 @@ router.get("/all", (req, res) => {
         printService
             .getCountAll(select, ipRange)
             .then((allmedias) => {
-            res.send(allmedias);
+            res.setHeader('Cache-Control', 'public, max-age=10').send(allmedias);
         })
             .catch((error) => {
             console.error("에러 발생:", error);

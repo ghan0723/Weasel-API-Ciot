@@ -19,7 +19,7 @@ router.get('/all', (req, res) => {
         let ipRange = ipCalcService.parseIPRange(result[0].ip_ranges);
         networkService.getCountAll(select, ipRange)
             .then((allfiles) => {
-            res.send(allfiles);
+            res.setHeader('Cache-Control', 'public, max-age=10').send(allfiles);
         })
             .catch((error) => {
             console.error('에러 발생:', error);

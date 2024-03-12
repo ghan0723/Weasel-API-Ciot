@@ -576,6 +576,8 @@ router.post("/update/:username", (req: Request, res: Response) => {
 
 router.get("/namecookie", (req: Request, res: Response) => {
   let username = req.cookies.username;
+  console.log('namecookie username',username);
+  
   if(username !== undefined && username !== null){
     res.json({ username: username });
   } else {

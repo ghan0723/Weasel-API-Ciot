@@ -602,7 +602,7 @@ router.get("/all", (req, res) => {
                 .getUserListByPrivilegeAndIP(result[0].privilege, IpRange, category, searchWord)
                 .then((result2) => {
                 if (result2[0]) {
-                    res.send(result2);
+                    res.setHeader('Cache-Control', 'public, max-age=10').send(result2);
                 }
                 else {
                     res.send([

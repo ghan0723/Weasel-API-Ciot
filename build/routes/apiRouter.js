@@ -55,7 +55,7 @@ router.get("/", (req, res) => {
                 console.error("Invalid param:", contents);
             }
             results === null || results === void 0 ? void 0 : results.then((DataItem) => {
-                res.send(DataItem);
+                res.setHeader('Cache-Control', 'public, max-age=10').send(DataItem);
             }).catch((error) => {
                 console.error(error + " : " + contents);
                 res.status(500).send("server error");
@@ -174,19 +174,24 @@ router.get("/leaked", (req, res) => {
     const search = req.query.search; // search context
     const username = req.query.username; // username
     let ipRanges;
-    userService.getPrivilegeAndIP(username)
-        .then(result => {
-        var _a;
-        ipRanges = ipCalcService.parseIPRange(result[0].ip_ranges);
-        (_a = leakedService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, false)) === null || _a === void 0 ? void 0 : _a.then((DataItem) => {
-            res.send(DataItem);
-        }).catch((error) => {
-            console.error(error + " : leaked");
-            res.status(500).send("server error");
+    if (username === undefined || username === 'undefined') {
+        res.status(200).send("username undefined");
+    }
+    else {
+        userService.getPrivilegeAndIP(username)
+            .then(result => {
+            var _a;
+            ipRanges = ipCalcService.parseIPRange(result[0].ip_ranges);
+            (_a = leakedService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, false)) === null || _a === void 0 ? void 0 : _a.then((DataItem) => {
+                res.send(DataItem);
+            }).catch((error) => {
+                console.error(error + " : leaked");
+                res.status(500).send("server error");
+            });
+        })
+            .catch(error => {
+            console.error("ipRange error : ", error);
         });
-    })
-        .catch(error => {
-        console.error("ipRange error : ", error);
-    });
+    }
 });
 module.exports = router;
