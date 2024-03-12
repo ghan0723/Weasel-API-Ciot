@@ -22,6 +22,8 @@ router.post("/login", (req, res) => {
         if (user.length === 0) {
             log_1.weasel.log(username, req.socket.remoteAddress, "Not exist user.");
             // weasel.log(username, req.socket.remoteAddress, "해당 아이디가 존재하지 않습니다.");
+            log_1.weasel.log(username, req.socket.remoteAddress, "Not exist user.");
+            // weasel.log(username, req.socket.remoteAddress, "해당 아이디가 존재하지 않습니다.");
             // 에러 메시지와 원하는 URL을 포함한 JSON 응답을 보냄
             res.status(401).json({
                 error: "사용자를 찾을 수 없습니다",
