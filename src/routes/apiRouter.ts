@@ -29,39 +29,42 @@ router.get("/", (req: Request, res: Response) => {
   const search = req.query.search;     // search context
   const username = req.query.username; // username
   
-  
   let ipRanges:IpRange[];
 
-  userService.getPrivilegeAndIP(username)
-  .then(result => {
-    let results;
-    ipRanges = ipCalcService.parseIPRange(result[0].ip_ranges);
-
-    if (contents === "network") {
-      results = networkService.getApiData(page,pageSize,sorting,desc,category,search,ipRanges,result[0].privilege);
-    } else if (contents === "media") {
-      results = mediaService.getApiData(page,pageSize,sorting,desc,category,search,ipRanges,result[0].privilege);
-    } else if (contents === "outlook") {
-      results = outlookService.getApiData(page,pageSize,sorting,desc,category,search,ipRanges,result[0].privilege);
-    } else if (contents === "print") {
-      results = printService.getApiData(page,pageSize,sorting,desc,category,search,ipRanges,result[0].privilege);
-    } else {
-      // Handle the case when param doesn't match any of the expected values
-      console.error("Invalid param:", contents);
-    }
+  if(username === undefined || username === 'undefined') {
+    res.status(200).send("username undefined");
+  } else {
+    userService.getPrivilegeAndIP(username)
+    .then(result => {
+      let results;
+      ipRanges = ipCalcService.parseIPRange(result[0].ip_ranges);
   
-    results
-      ?.then((DataItem) => {
-        res.send(DataItem);
-      })
-      .catch((error) => {
-        console.error(error + " : " + contents);
-        res.status(500).send("server error");
-      });
-  })
-  .catch(error => {
-    console.error("ipRange error : ", error);
-  });
+      if (contents === "network") {
+        results = networkService.getApiData(page,pageSize,sorting,desc,category,search,ipRanges,result[0].privilege);
+      } else if (contents === "media") {
+        results = mediaService.getApiData(page,pageSize,sorting,desc,category,search,ipRanges,result[0].privilege);
+      } else if (contents === "outlook") {
+        results = outlookService.getApiData(page,pageSize,sorting,desc,category,search,ipRanges,result[0].privilege);
+      } else if (contents === "print") {
+        results = printService.getApiData(page,pageSize,sorting,desc,category,search,ipRanges,result[0].privilege);
+      } else {
+        // Handle the case when param doesn't match any of the expected values
+        console.error("Invalid param:", contents);
+      }
+    
+      results
+        ?.then((DataItem) => {
+          res.send(DataItem);
+        })
+        .catch((error) => {
+          console.error(error + " : " + contents);
+          res.status(500).send("server error");
+        });
+    })
+    .catch(error => {
+      console.error("ipRange error : ", error);
+    });
+  }
 });
 
 // dummy data 생성
@@ -190,23 +193,26 @@ router.get("/leaked", (req: Request, res: Response) => {
   
   let ipRanges:IpRange[];
 
-  userService.getPrivilegeAndIP(username)
-  .then(result => {
-    ipRanges = ipCalcService.parseIPRange(result[0].ip_ranges);
-    console.log("여기 왜 터지는거임 ipRanges : ", ipRanges);
+  if(username === undefined || username === 'undefined') {
+    res.status(200).send("username undefined");
+  } else {
+    userService.getPrivilegeAndIP(username)
+    .then(result => {
+      ipRanges = ipCalcService.parseIPRange(result[0].ip_ranges);
     
-    leakedService.getApiData(page,pageSize,sorting,desc,category,search,ipRanges,false)
-      ?.then((DataItem) => {
-        res.send(DataItem);
-      })
-      .catch((error) => {
-        console.error(error + " : leaked");
-        res.status(500).send("server error");
-      });
-  })
-  .catch(error => {
-    console.error("ipRange error : ", error);
-  });
+      leakedService.getApiData(page,pageSize,sorting,desc,category,search,ipRanges,false)
+        ?.then((DataItem) => {
+          res.send(DataItem);
+        })
+        .catch((error) => {
+          console.error(error + " : leaked");
+          res.status(500).send("server error");
+        });
+    })
+    .catch(error => {
+      console.error("ipRange error : ", error);
+    });
+  }
 });
 
 

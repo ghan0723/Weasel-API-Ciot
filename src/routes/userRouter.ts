@@ -579,14 +579,17 @@ router.post("/update/:username", (req: Request, res: Response) => {
 
 router.get("/namecookie", (req: Request, res: Response) => {
   let username = req.cookies.username;
+  
   res.json({ username: username });
 });
 
 router.get("/privilege", (req: Request, res: Response) => {
   let username = req.cookies.username;
+  
   userService
     .getPrivilege(username)
     .then((result) => {
+      
       res.send(result);
     })
     .catch((error) => {

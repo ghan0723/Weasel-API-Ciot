@@ -572,13 +572,16 @@ router.post("/update/:username", (req, res) => {
 });
 router.get("/namecookie", (req, res) => {
     let username = req.cookies.username;
+    console.log('namecookie username', username);
     res.json({ username: username });
 });
 router.get("/privilege", (req, res) => {
     let username = req.cookies.username;
+    console.log('privilege username', username);
     userService
         .getPrivilege(username)
         .then((result) => {
+        console.log('result', result);
         res.send(result);
     })
         .catch((error) => {
