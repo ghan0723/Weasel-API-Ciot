@@ -22,8 +22,6 @@ router.post("/login", (req, res) => {
         if (user.length === 0) {
             log_1.weasel.log(username, req.socket.remoteAddress, "Not exist user.");
             // weasel.log(username, req.socket.remoteAddress, "해당 아이디가 존재하지 않습니다.");
-            log_1.weasel.log(username, req.socket.remoteAddress, "Not exist user.");
-            // weasel.log(username, req.socket.remoteAddress, "해당 아이디가 존재하지 않습니다.");
             // 에러 메시지와 원하는 URL을 포함한 JSON 응답을 보냄
             res.status(401).json({
                 error: "사용자를 찾을 수 없습니다",
@@ -36,6 +34,8 @@ router.post("/login", (req, res) => {
                 .getPrivilege(username)
                 .then((result) => {
                 var _a;
+                const privilege = result[0].privilege;
+                console.log("privilege : ", privilege);
                 if (result[0].privilege === 1) {
                     let decPasswd = cryptoService.getDecryptUltra(user[0].passwd);
                     settingService
@@ -68,7 +68,7 @@ router.post("/login", (req, res) => {
                                     // weasel.log(username,req.socket.remoteAddress,"로그인에 성공하였습니다.");
                                     res
                                         .status(200)
-                                        .send({ username, freq: false, notice: true });
+                                        .send({ username, freq: false, notice: true, privilege });
                                 }
                                 else {
                                     //팝업이 존재하지 않는다면
@@ -81,7 +81,7 @@ router.post("/login", (req, res) => {
                                     // weasel.log(username,req.socket.remoteAddress,"로그인에 성공하였습니다.");
                                     res
                                         .status(200)
-                                        .send({ username, freq: false, notice: false });
+                                        .send({ username, freq: false, notice: false, privilege });
                                 }
                             })
                                 .catch((error5) => {
@@ -164,7 +164,7 @@ router.post("/login", (req, res) => {
                                                     // weasel.log(username,req.socket.remoteAddress,"로그인에 성공하였습니다.");
                                                     res
                                                         .status(200)
-                                                        .send({ username, freq, notice: true });
+                                                        .send({ username, freq, notice: true, privilege });
                                                 }
                                                 else {
                                                     res.cookie("username", user[0].username, {
@@ -178,6 +178,7 @@ router.post("/login", (req, res) => {
                                                         username,
                                                         freq,
                                                         notice: false,
+                                                        privilege
                                                     });
                                                 }
                                             })
@@ -593,6 +594,7 @@ router.get("/all", (req, res) => {
         .getPrivilegeAndIP(username)
         .then((result) => {
         if (result[0].privilege !== 1) {
+            console.log("result[0].ip_ranges : ", result[0].ip_ranges);
             let IpRange = ipCalcService.parseIPRange(result[0].ip_ranges);
             userService
                 .getUserListByPrivilegeAndIP(result[0].privilege, IpRange, category, searchWord)

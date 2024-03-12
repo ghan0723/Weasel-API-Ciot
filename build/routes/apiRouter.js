@@ -173,6 +173,7 @@ router.get("/leaked", (req, res) => {
         .then(result => {
         var _a;
         ipRanges = ipCalcService.parseIPRange(result[0].ip_ranges);
+        console.log("여기 왜 터지는거임 ipRanges : ", ipRanges);
         (_a = leakedService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, false)) === null || _a === void 0 ? void 0 : _a.then((DataItem) => {
             res.send(DataItem);
         }).catch((error) => {

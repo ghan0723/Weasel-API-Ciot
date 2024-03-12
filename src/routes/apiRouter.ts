@@ -193,7 +193,8 @@ router.get("/leaked", (req: Request, res: Response) => {
   userService.getPrivilegeAndIP(username)
   .then(result => {
     ipRanges = ipCalcService.parseIPRange(result[0].ip_ranges);
-  
+    console.log("여기 왜 터지는거임 ipRanges : ", ipRanges);
+    
     leakedService.getApiData(page,pageSize,sorting,desc,category,search,ipRanges,false)
       ?.then((DataItem) => {
         res.send(DataItem);

@@ -134,7 +134,6 @@ class UserService {
 
   getPrivilegeAndIP(username: any): Promise<any> {
     const query = `select privilege, ip_ranges from accountlist where username = ? `;
-
     return new Promise((resolve, reject) => {
       connection.query(query, username, (error, result) => {
         if (error) {
