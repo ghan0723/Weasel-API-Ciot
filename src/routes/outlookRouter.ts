@@ -19,7 +19,7 @@ router.get('/all', (req:Request, res:Response) => {
       outlookService
         .getCountAll(select, ipRange)
         .then((allmedias) => {
-          res.send(allmedias);
+          res.setHeader('Cache-Control', 'public, max-age=10').send(allmedias);
         })
         .catch((error) => {
           console.error("에러 발생:", error);

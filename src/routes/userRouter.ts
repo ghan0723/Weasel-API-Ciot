@@ -576,8 +576,11 @@ router.post("/update/:username", (req: Request, res: Response) => {
 
 router.get("/namecookie", (req: Request, res: Response) => {
   let username = req.cookies.username;
-  
-  res.json({ username: username });
+  if(username !== undefined && username !== null){
+    res.json({ username: username });
+  } else {
+    res.status(500).send({username:"false"})
+  }
 });
 
 router.get("/privilege", (req: Request, res: Response) => {
@@ -615,7 +618,7 @@ router.get("/all", (req: Request, res: Response) => {
           )
           .then((result2) => {
             if (result2[0]) {
-              res.send(result2);
+              res.setHeader('Cache-Control', 'public, max-age=10').send(result2);
             } else {
               res.send([
                 {
