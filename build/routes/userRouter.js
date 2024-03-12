@@ -34,8 +34,6 @@ router.post("/login", (req, res) => {
                 .getPrivilege(username)
                 .then((result) => {
                 var _a;
-                const privilege = result[0].privilege;
-                console.log("privilege : ", privilege);
                 if (result[0].privilege === 1) {
                     let decPasswd = cryptoService.getDecryptUltra(user[0].passwd);
                     settingService
@@ -68,7 +66,7 @@ router.post("/login", (req, res) => {
                                     // weasel.log(username,req.socket.remoteAddress,"로그인에 성공하였습니다.");
                                     res
                                         .status(200)
-                                        .send({ username, freq: false, notice: true, privilege });
+                                        .send({ username, freq: false, notice: true, });
                                 }
                                 else {
                                     //팝업이 존재하지 않는다면
@@ -81,7 +79,7 @@ router.post("/login", (req, res) => {
                                     // weasel.log(username,req.socket.remoteAddress,"로그인에 성공하였습니다.");
                                     res
                                         .status(200)
-                                        .send({ username, freq: false, notice: false, privilege });
+                                        .send({ username, freq: false, notice: false, });
                                 }
                             })
                                 .catch((error5) => {
@@ -164,7 +162,7 @@ router.post("/login", (req, res) => {
                                                     // weasel.log(username,req.socket.remoteAddress,"로그인에 성공하였습니다.");
                                                     res
                                                         .status(200)
-                                                        .send({ username, freq, notice: true, privilege });
+                                                        .send({ username, freq, notice: true, });
                                                 }
                                                 else {
                                                     res.cookie("username", user[0].username, {
@@ -178,7 +176,6 @@ router.post("/login", (req, res) => {
                                                         username,
                                                         freq,
                                                         notice: false,
-                                                        privilege
                                                     });
                                                 }
                                             })
@@ -572,16 +569,13 @@ router.post("/update/:username", (req, res) => {
 });
 router.get("/namecookie", (req, res) => {
     let username = req.cookies.username;
-    console.log('namecookie username', username);
     res.json({ username: username });
 });
 router.get("/privilege", (req, res) => {
     let username = req.cookies.username;
-    console.log('privilege username', username);
     userService
         .getPrivilege(username)
         .then((result) => {
-        console.log('result', result);
         res.send(result);
     })
         .catch((error) => {
@@ -608,9 +602,9 @@ router.get("/all", (req, res) => {
                 else {
                     res.send([
                         {
-                            id: "",
                             username: "",
                             privilege: "",
+                            enabled: "",
                             ip_ranges: "",
                         },
                     ]);
@@ -652,6 +646,7 @@ router.get("/check", (req, res) => {
     userService
         .getPrivilegeAndIP(username)
         .then((result) => {
+        console.log("result : ", result);
         res.send(result);
     })
         .catch((error) => {

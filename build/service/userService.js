@@ -128,10 +128,6 @@ class UserService {
         const query = `select privilege, ip_ranges from accountlist where username = ? `;
         return new Promise((resolve, reject) => {
             db_1.default.query(query, username, (error, result) => {
-                console.log('getPrivilegeAndIP===================');
-                console.log('username', username);
-                console.log('query', query);
-                console.log('result', result);
                 if (error) {
                     reject(error);
                 }
