@@ -588,8 +588,7 @@ router.get("/privilege", (req: Request, res: Response) => {
   
   userService
     .getPrivilege(username)
-    .then((result) => {
-      
+    .then((result) => {   
       res.send(result);
     })
     .catch((error) => {
@@ -618,7 +617,7 @@ router.get("/all", (req: Request, res: Response) => {
           )
           .then((result2) => {
             if (result2[0]) {
-              res.setHeader('Cache-Control', 'public, max-age=10').send(result2);
+              res.send(result2);
             } else {
               res.send([
                 {

@@ -19,7 +19,7 @@ router.get('/count/:select', (req: Request, res: Response) => {
         pieChartService
         .getPieDataToday(id, day, ipRange)
         .then((pieData) => {
-          res.setHeader('Cache-Control', 'public, max-age=10').send(pieData);
+          res.send(pieData);
         })
         .catch((error) => {
           console.error('에러 발생: ', error);

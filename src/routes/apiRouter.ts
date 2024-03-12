@@ -54,7 +54,7 @@ router.get("/", (req: Request, res: Response) => {
     
       results
         ?.then((DataItem) => {
-          res.setHeader('Cache-Control', 'public, max-age=10').send(DataItem);
+          res.send(DataItem);
         })
         .catch((error) => {
           console.error(error + " : " + contents);
@@ -193,26 +193,22 @@ router.get("/leaked", (req: Request, res: Response) => {
   
   let ipRanges:IpRange[];
 
-  if(username === undefined || username === 'undefined') {
-    res.status(200).send("username undefined");
-  } else {
-    userService.getPrivilegeAndIP(username)
-    .then(result => {
-      ipRanges = ipCalcService.parseIPRange(result[0].ip_ranges);
-    
-      leakedService.getApiData(page,pageSize,sorting,desc,category,search,ipRanges,false)
-        ?.then((DataItem) => {
-          res.setHeader('Cache-Control', 'public, max-age=10').send(DataItem);
-        })
-        .catch((error) => {
-          console.error(error + " : leaked");
-          res.status(500).send("server error");
-        });
-    })
-    .catch(error => {
-      console.error("ipRange error : ", error);
-    });
-  }
+  userService.getPrivilegeAndIP(username)
+  .then(result => {
+    ipRanges = ipCalcService.parseIPRange(result[0].ip_ranges);
+  
+    leakedService.getApiData(page,pageSize,sorting,desc,category,search,ipRanges,false)
+      ?.then((DataItem) => {
+        res.send(DataItem);
+      })
+      .catch((error) => {
+        console.error(error + " : leaked");
+        res.status(500).send("server error");
+      });
+  })
+  .catch(error => {
+    console.error("ipRange error : ", error);
+  });
 });
 
 
