@@ -23,6 +23,7 @@ router.get("/dashboard", (req: Request, res: Response) => {
     `The current dashboard page displays data on a ${select}.`
   );
   // weasel.log(username,req.socket.remoteAddress,`현재 대시보드 페이지에 ${select}에 데이터가 표시됩니다.`);
+  res.send("success");
 });
 
 router.get("/tables", (req: Request, res: Response) => {
@@ -34,6 +35,7 @@ router.get("/tables", (req: Request, res: Response) => {
   }
   weasel.log(username,req.socket.remoteAddress,`The current data-tables page displays data.`);
   // weasel.log(username,req.socket.remoteAddress,`유출탐지내역 메뉴입니다.`);
+  res.send("success");
 });
 
 router.get("/leaked", (req: Request, res: Response) => {
@@ -183,7 +185,7 @@ router.get("/download", (req:Request, res:Response) => {
     weasel.error(username, req.socket.remoteAddress, `Unable to download file : ${fileName}`);
     // weasel.error(username, req.socket.remoteAddress, `파일을 다운로드하는데 실패했습니다.`);
   }
-  res.send("make log")
+  res.send("make log");
 })
 
 router.get("/userList", (req:Request, res:Response) => {
@@ -195,6 +197,7 @@ router.get("/userList", (req:Request, res:Response) => {
   } else {
     weasel.log(username, req.socket.remoteAddress, `The userlist control page displays data.`);
   }
+  res.send("make log");
 })
 
 export = router;

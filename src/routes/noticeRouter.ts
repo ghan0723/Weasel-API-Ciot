@@ -6,7 +6,7 @@ const noticeService: NoticeService = new NoticeService();
 
 router.get("/popup", (req: Request, res: Response) => {
   noticeService.getPopNotice().then((result) => {
-    res.send(result);
+    res.setHeader('Cache-Control', 'public, max-age=10').send(result);
   });
 });
 

@@ -54,7 +54,7 @@ router.get("/", (req: Request, res: Response) => {
     
       results
         ?.then((DataItem) => {
-          res.send(DataItem);
+          res.setHeader('Cache-Control', 'public, max-age=10').send(DataItem);
         })
         .catch((error) => {
           console.error(error + " : " + contents);
@@ -202,7 +202,7 @@ router.get("/leaked", (req: Request, res: Response) => {
     
       leakedService.getApiData(page,pageSize,sorting,desc,category,search,ipRanges,false)
         ?.then((DataItem) => {
-          res.send(DataItem);
+          res.setHeader('Cache-Control', 'public, max-age=10').send(DataItem);
         })
         .catch((error) => {
           console.error(error + " : leaked");

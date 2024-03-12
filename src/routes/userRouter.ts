@@ -620,7 +620,7 @@ router.get("/all", (req: Request, res: Response) => {
           )
           .then((result2) => {
             if (result2[0]) {
-              res.send(result2);
+              res.setHeader('Cache-Control', 'public, max-age=10').send(result2);
             } else {
               res.send([
                 {
