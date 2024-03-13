@@ -71,7 +71,7 @@ router.get("/servers", (req, res) => {
             svr_patterns_list: result[0].svr_patterns_list,
         };
         log_1.weasel.log(username, req.socket.remoteAddress, "View server settings information ");
-        log_1.weasel.log(username, req.socket.remoteAddress, "서버 설정 정보 보기 ");
+        // weasel.log(username, req.socket.remoteAddress, "서버 설정 정보 보기 ");
         res.send(newResult);
     })
         .catch((error) => {
@@ -211,7 +211,7 @@ router.post("/fileUpdate", upload.single("file"), (req, res) => {
         }
     }
     else {
-        res.status(400).send("Dat 파일이 아닙니다.");
+        res.status(200).send("Dat 파일이 아닙니다.");
     }
 });
 router.get("/updateFile", (req, res) => {

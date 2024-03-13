@@ -85,7 +85,7 @@ router.post("/update/:username", (req, res) => {
                                     });
                                 }
                             })
-                                .catch((error) => {
+                                .catch(() => {
                                 log_1.weasel.error(oldname, req.socket.remoteAddress, "Failed to update the profile");
                                 res.status(500).send("업데이트 잘못된거 같습니다.");
                             });
@@ -112,13 +112,13 @@ router.post("/update/:username", (req, res) => {
                             });
                         }
                     })
-                        .catch((error) => {
+                        .catch(() => {
                         log_1.weasel.error(oldname, req.socket.remoteAddress, "Failed to retrieve the password");
                         res.status(500).send("업데이트 잘못된거 같습니다.");
                     });
                 }
             })
-                .catch((error) => {
+                .catch(() => {
                 log_1.weasel.error(oldname, req.socket.remoteAddress, "Failed to perform duplicate user check");
                 res.status(401).send({ error: result1.message });
             });
@@ -138,31 +138,31 @@ router.post("/update/:username", (req, res) => {
                     //중복아님
                     profileService
                         .modUser(newUser, oldname)
-                        .then((result2) => {
+                        .then(() => {
                         profileService
                             .updateFreq(user.freq)
                             .then((result) => {
                             log_1.weasel.log(oldname, req.socket.remoteAddress, "Profile and freq update was successful");
                             res.send(result.message);
                         })
-                            .catch((error) => {
+                            .catch(() => {
                             log_1.weasel.error(oldname, req.socket.remoteAddress, "Failed to update update frequency and profile");
                             res.status(500).send("업데이트 잘못된거 같습니다.");
                         });
                     })
-                        .catch((error) => {
+                        .catch(() => {
                         log_1.weasel.error(oldname, req.socket.remoteAddress, "Failed to update the profile");
                         res.status(500).send("업데이트 잘못된거 같습니다.");
                     });
                 }
             })
-                .catch((error) => {
+                .catch(() => {
                 log_1.weasel.error(oldname, req.socket.remoteAddress, "Failed to perform duplicate user check");
                 res.status(401).send({ error: result1.message });
             });
         }
     })
-        .catch((error) => {
+        .catch(() => {
         log_1.weasel.error(oldname, req.socket.remoteAddress, "Failed to retrieve user information.");
         res.status(500).send("업데이트 잘못된거 같습니다.");
     });
