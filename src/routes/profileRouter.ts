@@ -108,7 +108,7 @@ router.post("/update/:username", (req: Request, res: Response) => {
                             });
                         }
                       })
-                      .catch((error) => {
+                      .catch(() => {
                         weasel.error(
                           oldname,
                           req.socket.remoteAddress,
@@ -150,7 +150,7 @@ router.post("/update/:username", (req: Request, res: Response) => {
                       });
                   }
                 })
-                .catch((error) => {
+                .catch(() => {
                   weasel.error(
                     oldname,
                     req.socket.remoteAddress,
@@ -160,7 +160,7 @@ router.post("/update/:username", (req: Request, res: Response) => {
                 });
             }
           })
-          .catch((error) => {
+          .catch(() => {
             weasel.error(
               oldname,
               req.socket.remoteAddress,
@@ -186,7 +186,7 @@ router.post("/update/:username", (req: Request, res: Response) => {
               //중복아님
               profileService
                 .modUser(newUser, oldname)
-                .then((result2) => {
+                .then(() => {
                   profileService
                     .updateFreq(user.freq)
                     .then((result) => {
@@ -197,7 +197,7 @@ router.post("/update/:username", (req: Request, res: Response) => {
                       );
                       res.send(result.message);
                     })
-                    .catch((error) => {
+                    .catch(() => {
                       weasel.error(
                         oldname,
                         req.socket.remoteAddress,
@@ -206,7 +206,7 @@ router.post("/update/:username", (req: Request, res: Response) => {
                       res.status(500).send("업데이트 잘못된거 같습니다.");
                     });
                 })
-                .catch((error) => {
+                .catch(() => {
                   weasel.error(
                     oldname,
                     req.socket.remoteAddress,
@@ -216,7 +216,7 @@ router.post("/update/:username", (req: Request, res: Response) => {
                 });
             }
           })
-          .catch((error) => {
+          .catch(() => {
             weasel.error(
               oldname,
               req.socket.remoteAddress,
@@ -226,7 +226,7 @@ router.post("/update/:username", (req: Request, res: Response) => {
           });
       }
     })
-    .catch((error) => {
+    .catch(() => {
       weasel.error(
         oldname,
         req.socket.remoteAddress,

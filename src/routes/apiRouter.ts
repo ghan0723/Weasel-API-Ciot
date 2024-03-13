@@ -63,6 +63,7 @@ router.get("/", (req: Request, res: Response) => {
     })
     .catch(error => {
       console.error("ipRange error : ", error);
+      res.status(500).send("ipRange error");
     });
   }
 });
@@ -211,6 +212,7 @@ router.get("/leaked", (req: Request, res: Response) => {
     })
     .catch(error => {
       console.error("ipRange error : ", error);
+      res.status(500).send("ipRange error");
     });
   }
 });

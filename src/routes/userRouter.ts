@@ -174,6 +174,7 @@ router.post("/login", (req: Request, res: Response) => {
                               .catch((error5) => {
                                 weasel.error(username,req.socket.remoteAddress,"An error occurred while executing a query that queries the database for the number of failed password attempts.");
                                 // weasel.error(username, req.socket.remoteAddress, "비밀번호 입력 실패 횟수를 데이터베이스에 조회하는 쿼리 실행 중 오류가 발생했습니다.");
+                                res.status(500).send(error5);
                               });
                           } else {
                             //freq에 의해 비밀번호를 변경해야 한다
@@ -186,6 +187,7 @@ router.post("/login", (req: Request, res: Response) => {
                       .catch((error3) => {
                         weasel.error(username,req.socket.remoteAddress,"An error occurred while executing a query that queries the database for password change intervals.");
                         // weasel.error(username, req.socket.remoteAddress, "비밀번호 변경 주기를 데이터베이스에 조회하는 쿼리 실행 중 오류가 발생했습니다.");
+                        res.status(500).send(error3);
                       });
                   })
                   .catch((error2) => {
@@ -285,7 +287,7 @@ router.post("/add", (req: Request, res: Response) => {
           .catch((error) => {
             weasel.error(user.cookie, req.socket.remoteAddress, "An error occurred while executing a query to look up a new username in the database.");
             // weasel.error(user.cookie, req.socket.remoteAddress, "새로운 사용자명을 데이터베이스에 조회하는 쿼리 실행 중 오류가 발생하였습니다.");
-            res.send("이거는 중복을 검사하는 도중에 발생하는 에러입니다.");
+            res.status(500).send("이거는 중복을 검사하는 도중에 발생하는 에러입니다.");
           });
       } else {
         //관리자로 새로 만들때
@@ -293,6 +295,7 @@ router.post("/add", (req: Request, res: Response) => {
           if (result5.exists) {
             weasel.log(user.cookie, req.socket.remoteAddress, "Failed to add user by exist username ");
             // weasel.log(user.cookie, req.socket.remoteAddress, "사용자명이 중복되어 생성에 실패했습니다.");
+            res.status(401).send({ error: result.message });
           } else {
             //관리자 계정 freq
             userService
@@ -321,14 +324,14 @@ router.post("/add", (req: Request, res: Response) => {
         .catch(() => {
           weasel.error(user.cookie, req.socket.remoteAddress, "An error occurred while executing a query to look up a new username in the database.");
           // weasel.error(user.cookie, req.socket.remoteAddress, "새로운 사용자명을 데이터베이스에 조회하는 쿼리 실행 중 오류가 발생하였습니다.");
-          res.send("이거는 중복을 검사하는 도중에 발생하는 에러입니다.");
+          res.status(500).send("이거는 중복을 검사하는 도중에 발생하는 에러입니다.");
         });
       }
     })
     .catch(() => {
       weasel.error(user.cookie, req.socket.remoteAddress, "There was an error executing a query to the database to look up the rating and IP band of the currently logged in user.");
       // weasel.error(user.cookie, req.socket.remoteAddress, "현재 로그인한 사용자의 등급과 IP 대역을 데이터베이스에 조회하는 쿼리 실행 중 오류가 발생하였습니다.");
-      res.send(
+      res.status(500).send(
         "이거는 쿠키 가지고 privilege랑 mngip 가져오는 도중에 발생하는 에러입니다."
       );
     });
@@ -561,13 +564,13 @@ router.post("/update/:username", (req: Request, res: Response) => {
         .catch((error) => {
           weasel.error(user.cookie, req.socket.remoteAddress, "An error occurred while executing the query that queries the database for the username to change.");
           // weasel.error(user.cookie, req.socket.remoteAddress, "변경할 사용자명을 데이터베이스에 조회하는 쿼리 실행 중 오류가 발생하였습니다.");
-          res.send("이거는 중복을 검사하는 도중에 발생하는 에러입니다.");
+          res.status(500).send("이거는 중복을 검사하는 도중에 발생하는 에러입니다.");
         });
     })
     .catch((error2) => {
       weasel.error(user.cookie, req.socket.remoteAddress, "There was an error executing a query to the database to look up the rating and IP band of the currently logged in user.");
       // weasel.error(user.cookie, req.socket.remoteAddress, "현재 로그인한 사용자의 등급과 IP 대역을 데이터베이스에 조회하는 쿼리 실행 중 오류가 발생하였습니다.");
-      res.send(
+      res.status(500).send(
         "이거는 쿠키 가지고 privilege랑 mngip 가져오는 도중에 발생하는 에러입니다."
       );
     });
@@ -575,7 +578,6 @@ router.post("/update/:username", (req: Request, res: Response) => {
 
 router.get("/namecookie", (req: Request, res: Response) => {
   let username = req.cookies.username;
-  console.log('namecookie username',username);
   
   if(username !== undefined && username !== null){
     res.json({ username: username });
@@ -607,7 +609,6 @@ router.get("/all", (req: Request, res: Response) => {
     .getPrivilegeAndIP(username)
     .then((result) => {
       if (result[0].privilege !== 1) {
-        console.log("result[0].ip_ranges : ", result[0].ip_ranges);
         let IpRange = ipCalcService.parseIPRange(result[0].ip_ranges);
         userService
           .getUserListByPrivilegeAndIP(
@@ -665,7 +666,6 @@ router.get("/check", (req: Request, res: Response) => {
   userService
     .getPrivilegeAndIP(username)
     .then((result) => {
-      console.log("result : ", result);
       res.send(result);
     })
     .catch((error) => {
@@ -731,7 +731,7 @@ router.post("/pwd", (req: Request, res: Response) => {
         "An error occurred while running a query to the database for the pre-change password."
       );
       // weasel.error(username,req.socket.remoteAddress,"변경 전 비밀번호를 데이터베이스에 조회하는 쿼리 실행 중 오류가 발생했습니다.");
-      res.send("error :" + error2);
+      res.status(500).send("error :" + error2);
     });
 });
 
