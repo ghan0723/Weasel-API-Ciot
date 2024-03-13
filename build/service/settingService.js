@@ -12,12 +12,23 @@ class SettingService {
         });
     }
     modAgentSettingLog(revData, currentData) {
-        let str = 'Change agent settings\t';
-        // let str = '에이전트 설정 변경\t';
-        if ((revData === null || revData === void 0 ? void 0 : revData.serverIP) !== (currentData === null || currentData === void 0 ? void 0 : currentData.clnt_svr_ip))
-            str += 'client ip = before(' + (currentData === null || currentData === void 0 ? void 0 : currentData.clnt_svr_ip) + '), after(' + (revData === null || revData === void 0 ? void 0 : revData.serverIP) + '), ';
-        if ((revData === null || revData === void 0 ? void 0 : revData.serverPort) !== (currentData === null || currentData === void 0 ? void 0 : currentData.clnt_svr_port))
-            str += 'client port = before(' + (currentData === null || currentData === void 0 ? void 0 : currentData.clnt_svr_port) + '), after(' + (revData === null || revData === void 0 ? void 0 : revData.serverPort) + '), ';
+        let str = '';
+        // let str = '에이전트 설정 변경에 성공하였습니다.';
+        if ((revData === null || revData === void 0 ? void 0 : revData.serverIP) !== (currentData === null || currentData === void 0 ? void 0 : currentData.clnt_svr_ip) && (revData === null || revData === void 0 ? void 0 : revData.serverPort) !== (currentData === null || currentData === void 0 ? void 0 : currentData.clnt_svr_port)) {
+            str += 'Successfully changed agent settings The main changes are server IP changed to ' + (currentData === null || currentData === void 0 ? void 0 : currentData.clnt_svr_ip) + ' -> ' + (revData === null || revData === void 0 ? void 0 : revData.serverIP) + ' and server PORT changed to ' + (currentData === null || currentData === void 0 ? void 0 : currentData.clnt_svr_port) + ' -> ' + (revData === null || revData === void 0 ? void 0 : revData.serverPort) + '.';
+            // str += '에이전트 설정 변경에 성공하였습니다 주요 변경 사항인 서버 ip가 ' + currentData?.clnt_svr_ip + ' -> ' + revData?.serverIP + '로, 서버 port가 '+ currentData?.clnt_svr_port + ' -> ' + revData?.serverPort + '로 변경되었습니다.';
+        }
+        else if ((revData === null || revData === void 0 ? void 0 : revData.serverIP) !== (currentData === null || currentData === void 0 ? void 0 : currentData.clnt_svr_ip) && (revData === null || revData === void 0 ? void 0 : revData.serverPort) === (currentData === null || currentData === void 0 ? void 0 : currentData.clnt_svr_port)) {
+            str += 'Successfully changed agent settings Server IP changed from ' + (currentData === null || currentData === void 0 ? void 0 : currentData.clnt_svr_ip) + ' -> ' + (revData === null || revData === void 0 ? void 0 : revData.serverIP) + '.';
+            // str += '주요 변경 사항인 서버 ip가 ' + currentData?.clnt_svr_ip + ' -> ' + revData?.serverIP + '로 변경되었습니다.';
+        }
+        else if ((revData === null || revData === void 0 ? void 0 : revData.serverIP) === (currentData === null || currentData === void 0 ? void 0 : currentData.clnt_svr_ip) && (revData === null || revData === void 0 ? void 0 : revData.serverPort) !== (currentData === null || currentData === void 0 ? void 0 : currentData.clnt_svr_port)) {
+            str += 'Successfully changed agent settings The main change, the server port, has been changed from ' + (currentData === null || currentData === void 0 ? void 0 : currentData.clnt_svr_port) + ' -> ' + (revData === null || revData === void 0 ? void 0 : revData.serverPort) + '.';
+            // str += '주요 변경 사항인 서버 port가 ' + currentData?.clnt_svr_port + ' -> ' + revData?.serverPort + '로 변경되었습니다.';
+        }
+        else {
+            str += 'The agent settings change was successful.';
+        }
         return str;
     }
     modAgentSetting(agent) {
@@ -92,10 +103,11 @@ class SettingService {
         });
     }
     modServerSettingLog(revData, currentData) {
-        let str = 'Change server settings\t';
-        // let str = '서버 설정 변경\t';
+        let str = 'You have successfully changed the server settings. ';
+        // let str = '서버 설정 변경에 성공하였습니다.';
         if ((revData === null || revData === void 0 ? void 0 : revData.serverPort) !== (currentData === null || currentData === void 0 ? void 0 : currentData.svr_port))
-            str += 'server port = before(' + (currentData === null || currentData === void 0 ? void 0 : currentData.svr_port) + '), after(' + (revData === null || revData === void 0 ? void 0 : revData.serverPort) + ')';
+            str += ' the main change being the server port from ' + (currentData === null || currentData === void 0 ? void 0 : currentData.svr_port) + ' -> ' + (revData === null || revData === void 0 ? void 0 : revData.serverPort);
+        // if(revData?.serverPort !== currentData?.svr_port) str += ' 주요 변경 사항인 서버 포트가 ' + currentData?.svr_port + ' -> ' + revData?.serverPort + '로 변경되었습니다.'; 
         return str;
     }
     modServerSetting(server) {

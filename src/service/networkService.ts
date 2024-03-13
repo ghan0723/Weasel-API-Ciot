@@ -170,7 +170,7 @@ class NetworkService {
           `(INET_ATON(latest_agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`
       )
       .join(" OR ");
-
+    
     if (search !== "") {
       // Old_Columns
       // if(convertColumns ===  'accuracy') {

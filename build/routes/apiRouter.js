@@ -11,6 +11,7 @@ const express_1 = __importDefault(require("express"));
 const ipCalcService_1 = __importDefault(require("../service/ipCalcService"));
 const userService_1 = __importDefault(require("../service/userService"));
 const leakedService_1 = __importDefault(require("../service/leakedService"));
+const log_1 = require("../interface/log");
 const router = express_1.default.Router();
 const networkService = new networkService_1.default(db_1.default);
 const mediaService = new mediaService_1.default();
@@ -131,7 +132,11 @@ router.post('/rm', (req, res) => {
     }
     results === null || results === void 0 ? void 0 : results.then(() => {
         getApiDataLogic(contents, 0, pageSize, sorting, desc, category, search, username, req, res);
+        log_1.weasel.log(username, req.socket.remoteAddress, `You have deleted ${body.length} pieces of data in ${contents}.`);
+        // weasel.log(username, req.socket.remoteAddress, `${contents}의 ${results.length}개 데이터를 삭제하였습니다.`);
     }).catch((error) => {
+        log_1.weasel.error(username, req.socket.remoteAddress, `Deleting ${body.length} pieces of data in ${contents} failed.`);
+        // weasel.error(username, req.socket.remoteAddress, `${contents}의 ${results.length}개 데이터를 삭제하는데 실패하였습니다.`);
         console.error(error + " : " + contents);
         res.status(500).send(contents + " server error");
     });
