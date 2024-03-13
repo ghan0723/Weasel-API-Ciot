@@ -73,8 +73,8 @@ router.get("/servers", (req: Request, res: Response) => {
         interval: result[0].svr_ui_refresh_interval,
         svr_patterns_list: result[0].svr_patterns_list,
       };
-      weasel.log(username, req.socket.remoteAddress, "View server settings information ");
-      weasel.log(username, req.socket.remoteAddress, "서버 설정 정보 보기 ");
+      weasel.log(username, req.socket.remoteAddress, "You have been directed to the Server Settings menu.");
+      // weasel.log(username, req.socket.remoteAddress, "서버 설정 메뉴로 이동하였습니다.");
       res.send(newResult);
     })
     .catch((error) => {
@@ -117,8 +117,8 @@ router.get("/agents", (req: Request, res: Response) => {
       settingService
         .getUpdateFileAgent()
         .then((result2) => {
-          weasel.log(username, req.socket.remoteAddress, "View agent settings information ");
-          // weasel.log(username, req.socket.remoteAddress, "에이전트 설정 정보 보기 ");
+          weasel.log(username, req.socket.remoteAddress, "You're in the Agent settings menu.");
+          // weasel.log(username, req.socket.remoteAddress, "에이전트 설정 메뉴로 이동하였습니다.");
           res.send([result, result2]);
         })
         .catch((error2) => {
@@ -166,7 +166,8 @@ router.post("/process", (req: Request, res: Response) => {
   settingService
     .addProcessAccuracy(newProcName)
     .then((result) => {
-      weasel.log(username, req.socket.remoteAddress, "Success to Add ProcessAccuracy");
+      weasel.log(username, req.socket.remoteAddress, `Added ${newProcName} to the reconnaissance process.`);
+      // weasel.log(username, req.socket.remoteAddress, `${newProcName}을 정탐 프로세스에 추가하였습니다.`);
       res.send(result);
     })
     .catch((error) => {
@@ -181,7 +182,8 @@ router.post("/delete", (req: Request, res: Response) => {
   settingService
     .deleteProcessAccuracy(procName)
     .then((result) => {
-      weasel.log(username, req.socket.remoteAddress, "Success to Delete ProcessAccuracy");
+      weasel.log(username, req.socket.remoteAddress, `Deleted ${procName} from the reconnaissance process.`);
+      // weasel.log(username, req.socket.remoteAddress, `${procName}을 정탐 프로세스에서 삭제하였습니다.`);
       res.send(result);
     })
     .catch((error) => {

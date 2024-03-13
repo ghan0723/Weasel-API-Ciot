@@ -22,11 +22,8 @@ router.get("/edit/:username", (req: Request, res: Response) => {
         ip_ranges: user[0].ip_ranges,
         pwd_change_freq: user[0].pwd_change_freq,
       };
-      weasel.log(
-        username,
-        req.socket.remoteAddress,
-        "Verified the profile page"
-      );
+      weasel.log(username, req.socket.remoteAddress, "You have been taken to the Edit personal information menu.");
+      // weasel.log(username, req.socket.remoteAddress, "본인정보수정 메뉴로 이동하였습니다.");
       res.send([newUser]);
     })
     .catch((error) => {
@@ -59,11 +56,8 @@ router.post("/update/:username", (req: Request, res: Response) => {
           .then((result) => {
             //중복이다.
             if (result.exists) {
-              weasel.error(
-                oldname,
-                req.socket.remoteAddress,
-                "Unable to update the profile due to duplicate username"
-              );
+              weasel.log(oldname, req.socket.remoteAddress, "The username you entered is a duplicate and can't be changed.");
+              // weasel.log(oldname, req.socket.remoteAddress, "입력한 사용자명이 중복되어 변경할 수 없습니다.");
               res.status(401).send({ error: result.message });
             } else {
               //아닐 경우 일단 비밀번호가 변경 되었는지 확인
@@ -79,21 +73,15 @@ router.post("/update/:username", (req: Request, res: Response) => {
                       .modUser(newUser, oldname)
                       .then((result2) => {
                         if (user.freq === result1[0].pwd_change_freq) {
-                          weasel.log(
-                            oldname,
-                            req.socket.remoteAddress,
-                            "Profile update was successful"
-                          );
+                          weasel.log(oldname, req.socket.remoteAddress, "You successfully edited your information.");
+                          // weasel.log(oldname, req.socket.remoteAddress, "본인정보수정에 성공하였습니다.");
                           res.send(result2.message);
                         } else {
                           profileService
                             .updateFreq(user.freq)
                             .then((result) => {
-                              weasel.log(
-                                oldname,
-                                req.socket.remoteAddress,
-                                "Profile and freq update was successful"
-                              );
+                              weasel.log(oldname, req.socket.remoteAddress, "You successfully edited your information.");
+                              // weasel.log(oldname, req.socket.remoteAddress, "본인정보수정에 성공하였습니다.");
                               res.send(result.message);
                             })
                             .catch((error) => {
@@ -124,11 +112,8 @@ router.post("/update/:username", (req: Request, res: Response) => {
                         profileService
                           .modUser(newUser, oldname)
                           .then((result2) => {
-                            weasel.log(
-                              oldname,
-                              req.socket.remoteAddress,
-                              "Profile update was successful"
-                            );
+                            weasel.log(oldname, req.socket.remoteAddress, "You successfully edited your information.");
+                            // weasel.log(oldname, req.socket.remoteAddress, "본인정보수정에 성공하였습니다.");
                             res.send(result2.message);
                           })
                           .catch((error) => {
@@ -176,11 +161,8 @@ router.post("/update/:username", (req: Request, res: Response) => {
           .then((result) => {
             //중복
             if (result.exists) {
-              weasel.error(
-                oldname,
-                req.socket.remoteAddress,
-                "Unable to update the profile due to duplicate username"
-              );
+              weasel.log(oldname, req.socket.remoteAddress, "The username you entered is a duplicate and can't be changed.");
+              // weasel.log(oldname, req.socket.remoteAddress, "입력한 사용자명이 중복되어 변경할 수 없습니다.");
               res.status(401).send({ error: result.message });
             } else {
               //중복아님
@@ -190,11 +172,8 @@ router.post("/update/:username", (req: Request, res: Response) => {
                   profileService
                     .updateFreq(user.freq)
                     .then((result) => {
-                      weasel.log(
-                        oldname,
-                        req.socket.remoteAddress,
-                        "Profile and freq update was successful"
-                      );
+                      weasel.log(oldname, req.socket.remoteAddress, "You successfully edited your information.");
+                      // weasel.log(oldname, req.socket.remoteAddress, "본인정보수정에 성공하였습니다.");
                       res.send(result.message);
                     })
                     .catch((error) => {

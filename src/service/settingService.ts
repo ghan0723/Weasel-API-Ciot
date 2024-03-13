@@ -10,11 +10,21 @@ class SettingService {
   }
 
   modAgentSettingLog(revData:any, currentData:any):string {
-    let str = 'Change agent settings\t';
-    // let str = '에이전트 설정 변경\t';
+    let str = '';
+    // let str = '에이전트 설정 변경에 성공하였습니다.';
 
-    if(revData?.serverIP !== currentData?.clnt_svr_ip) str += 'client ip = before(' + currentData?.clnt_svr_ip + '), after(' + revData?.serverIP + '), '; 
-    if(revData?.serverPort !== currentData?.clnt_svr_port) str += 'client port = before(' + currentData?.clnt_svr_port + '), after(' + revData?.serverPort + '), '; 
+    if(revData?.serverIP !== currentData?.clnt_svr_ip && revData?.serverPort !== currentData?.clnt_svr_port){
+      str += 'Successfully changed agent settings The main changes are server IP changed to ' + currentData?.clnt_svr_ip + ' -> ' + revData?.serverIP + ' and server PORT changed to '+ currentData?.clnt_svr_port + ' -> ' + revData?.serverPort + '.';
+      // str += '에이전트 설정 변경에 성공하였습니다 주요 변경 사항인 서버 ip가 ' + currentData?.clnt_svr_ip + ' -> ' + revData?.serverIP + '로, 서버 port가 '+ currentData?.clnt_svr_port + ' -> ' + revData?.serverPort + '로 변경되었습니다.';
+    } else if (revData?.serverIP !== currentData?.clnt_svr_ip && revData?.serverPort === currentData?.clnt_svr_port){
+      str += 'Successfully changed agent settings Server IP changed from ' + currentData?.clnt_svr_ip + ' -> ' + revData?.serverIP + '.'; 
+      // str += '주요 변경 사항인 서버 ip가 ' + currentData?.clnt_svr_ip + ' -> ' + revData?.serverIP + '로 변경되었습니다.';
+    } else if (revData?.serverIP === currentData?.clnt_svr_ip && revData?.serverPort !== currentData?.clnt_svr_port){
+      str += 'Successfully changed agent settings The main change, the server port, has been changed from ' + currentData?.clnt_svr_port + ' -> ' + revData?.serverPort + '.'; 
+      // str += '주요 변경 사항인 서버 port가 ' + currentData?.clnt_svr_port + ' -> ' + revData?.serverPort + '로 변경되었습니다.';
+    } else {
+      str += 'The agent settings change was successful.';
+    }
 
     return str;
   }
@@ -101,10 +111,11 @@ class SettingService {
   }
 
   modServerSettingLog(revData:any, currentData:any):string {
-    let str = 'Change server settings\t';
-    // let str = '서버 설정 변경\t';
+    let str = 'You have successfully changed the server settings. ';
+    // let str = '서버 설정 변경에 성공하였습니다.';
 
-    if(revData?.serverPort !== currentData?.svr_port) str += 'server port = before(' + currentData?.svr_port + '), after(' + revData?.serverPort + ')'; 
+    if(revData?.serverPort !== currentData?.svr_port) str += ' the main change being the server port from ' + currentData?.svr_port + ' -> ' + revData?.serverPort; 
+    // if(revData?.serverPort !== currentData?.svr_port) str += ' 주요 변경 사항인 서버 포트가 ' + currentData?.svr_port + ' -> ' + revData?.serverPort + '로 변경되었습니다.'; 
 
     return str;
   }

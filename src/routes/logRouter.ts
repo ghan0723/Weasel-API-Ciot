@@ -9,10 +9,9 @@ const router: Router = express.Router();
 const logService: LogService = new LogService();
 
 router.get("/dashboard", (req: Request, res: Response) => {
-  const select = req.query.select;
   const username = req.query.username;
 
-  if (typeof username !== "string" && typeof select !== "string") {
+  if (typeof username !== "string") {
     weasel.error(username, req.socket.remoteAddress, "Unable to display the dashboard page.");
     // weasel.error(username, req.socket.remoteAddress, "Dashboard 페이지에 접근 할 수 없습니다.");
     res.status(500).send("error");
@@ -20,9 +19,9 @@ router.get("/dashboard", (req: Request, res: Response) => {
   weasel.log(
     username,
     req.socket.remoteAddress,
-    `The current dashboard page displays data on a ${select}.`
+    `You're in the Dashboard menu.`
   );
-  // weasel.log(username,req.socket.remoteAddress,`현재 대시보드 페이지에 ${select}에 데이터가 표시됩니다.`);
+  // weasel.log(username,req.socket.remoteAddress,`Dashboard 메뉴로 이동하였습니다.`);
   res.send("success");
 });
 
@@ -33,20 +32,20 @@ router.get("/tables", (req: Request, res: Response) => {
     // weasel.error(username, req.socket.remoteAddress,"유출탐지내역 페이지에 접근 할 수 없습니다.");
     res.send("error");
   }
-  weasel.log(username,req.socket.remoteAddress,`The current data-tables page displays data.`);
-  // weasel.log(username,req.socket.remoteAddress,`유출탐지내역 메뉴입니다.`);
+  weasel.log(username,req.socket.remoteAddress,`You're in the Leak Detection History menu.`);
+  // weasel.log(username,req.socket.remoteAddress,`유출탐지내역 메뉴로 이동하였습니다.`);
   res.send("success");
 });
 
 router.get("/leaked", (req: Request, res: Response) => {
   const username = req.query.username;
   if (typeof username !== "string") {
-    weasel.error(username, req.socket.remoteAddress,  "Unable to display the leackedTable page.");
-    // weasel.error(username, req.socket.remoteAddress,  "관리대상목록 페이지에 접근 할 수 없습니다.");
+    weasel.error(username, req.socket.remoteAddress,  "You have been directed to the Watchlist menu.");
+    // weasel.error(username, req.socket.remoteAddress,  "관리대상 목록 메뉴로 이동하였습니다.");
     res.send("error");
   } else {
-    weasel.log(username,req.socket.remoteAddress,`The current leackedTable page displays data.`);
-    // weasel.log(username,req.socket.remoteAddress,`관리대상 목록 메뉴입니다.`);
+    weasel.log(username,req.socket.remoteAddress,`You have been directed to the Watchlist menu.`);
+    // weasel.log(username,req.socket.remoteAddress,`관리대상 목록 메뉴로 이동하였습니다.`);
     res.send("success");
   }
 });
@@ -59,8 +58,8 @@ router.get("/analysis", (req: Request, res: Response) => {
     // weasel.error(username, req.socket.remoteAddress, "분석 페이지에 접근 할 수 없습니다.");
     res.send("error");
   }
-  weasel.log(username,req.socket.remoteAddress,`The current analysis page displays.`);
-  // weasel.log(username,req.socket.remoteAddress,`분석 메뉴입니다.`);
+  weasel.log(username,req.socket.remoteAddress,`You're in the Analytics menu.`);
+  // weasel.log(username,req.socket.remoteAddress,`분석 메뉴로 이동하였습니다.`);
   res.send("success");
 });
 
@@ -72,8 +71,8 @@ router.get("/logout", (req: Request, res: Response) => {
     // weasel.error(username, req.socket.remoteAddress, "로그아웃 시도 중에 서버에서 예기치 않은 오류가 발생하여 서버가 중단되었습니다.");
     res.send("error");
   }
-  weasel.log(username,req.socket.remoteAddress,`Logout for ${username} was successful.`);
-  // weasel.log(username,req.socket.remoteAddress,`${username}의 로그아웃이 되었습니다.`);
+  weasel.log(username,req.socket.remoteAddress,`The logout of ${username} was successful.`);
+  // weasel.log(username,req.socket.remoteAddress,`${username}의 로그아웃에 성공하였습니다.`);
 
   res.send("success");
 });
@@ -110,8 +109,8 @@ router.get("/file", (req: Request, res: Response) => {
   logService
     .getLogContent(year, month, file)
     .then((content) => {
-      weasel.log(username, req.socket.remoteAddress, `${file} audit log`);
-      // weasel.log("", req.socket.remoteAddress, `${file} 감사 로그입니다`);
+      weasel.log(username, req.socket.remoteAddress, `You have checked the ${file} audit log.`);
+      // weasel.log("", req.socket.remoteAddress, `${file} 감사 로그를 확인하였습니다.`);
       res.send([content]);
     })
     .catch(() => {
@@ -152,8 +151,8 @@ router.get("/error/file", (req: Request, res: Response) => {
   logService
     .getErrorLogContent(year, month, file)
     .then((content) => {
-      weasel.log(username, req.socket.remoteAddress, `${file} error log`);
-      // weasel.log("", req.socket.remoteAddress, `${file} 에러 로그입니다`);
+      weasel.log(username, req.socket.remoteAddress, `You have checked the ${file} error log.`);
+      // weasel.log("", req.socket.remoteAddress, `${file} 에러 로그를 확인하였습니다.`);
       res.send([content]);
     })
     .catch(() => {
@@ -167,8 +166,8 @@ router.get("/screenshot", (req:Request, res:Response) => {
   const username = req.query.username;
   const fileName = req.query.fileName;
   if(fileName !== undefined && fileName !== null){
-    weasel.log(username, req.socket.remoteAddress, `Download screenshot : ${fileName}`);
-    // weasel.log(username, req.socket.remoteAddress, `스크린샷 다운로드 : ${fileName}`);
+    weasel.log(username, req.socket.remoteAddress, `You have downloaded a screenshot of ${fileName}.`);
+    // weasel.log(username, req.socket.remoteAddress, `${fileName}의 스크린샷을 다운로드 하였습니다.`);
   } else {
     weasel.error(username, req.socket.remoteAddress, `Unable to download screenshot : ${fileName}`);
     // weasel.error(username, req.socket.remoteAddress, `스크린샷을 다운로드하는데 실패했습니다.`);
@@ -180,8 +179,8 @@ router.get("/download", (req:Request, res:Response) => {
   const username = req.query.username;
   const fileName = req.query.fileName;
   if(fileName !== undefined && fileName !== null){
-    weasel.log(username, req.socket.remoteAddress, `Download file : ${fileName}`);
-    // weasel.log(username, req.socket.remoteAddress, `파일 다운로드 : ${fileName}`);
+    weasel.log(username, req.socket.remoteAddress, `The file ${fileName} has been downloaded.`);
+    // weasel.log(username, req.socket.remoteAddress, `${fileName}의 파일을 다운로드 하였습니다.`);
   } else {
     weasel.error(username, req.socket.remoteAddress, `Unable to download file : ${fileName}`);
     // weasel.error(username, req.socket.remoteAddress, `파일을 다운로드하는데 실패했습니다.`);
@@ -196,7 +195,8 @@ router.get("/userList", (req:Request, res:Response) => {
     // weasel.error(username, req.socket.remoteAddress, "사용자 관리 페이지에 접근 할 수 없습니다.");
     res.status(500).send("error");
   } else {
-    weasel.log(username, req.socket.remoteAddress, `The userlist control page displays data.`);
+    weasel.log(username, req.socket.remoteAddress, `You're in the User Management menu.`);
+    // weasel.log(username, req.socket.remoteAddress, `사용자 관리 메뉴로 이동하였습니다.`);
     res.send("h2")
   }
   res.send("make log");
