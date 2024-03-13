@@ -153,7 +153,6 @@ class NetworkService {
         const ipConditions = ipRanges
             .map((range) => `(INET_ATON(latest_agent_ip) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`)
             .join(" OR ");
-        console.log("ipConditions : ", ipConditions);
         if (search !== "") {
             // Old_Columns
             // if(convertColumns ===  'accuracy') {
@@ -207,7 +206,6 @@ class NetworkService {
                     this.connection.query(query, whereQuery, (error, result) => {
                         const excludedKeys = ["DownLoad", "ScreenShot"];
                         if (!excel) {
-                            console.log("result :", result);
                             result.map((data, i) => {
                                 const date = data.Time.split(' ')[0];
                                 const fileName = `C:/Program Files (x86)/ciot/WeaselServer/Temp/${date}/${data.Agent_ip}.${data.id}.${data.DownLoad}`;

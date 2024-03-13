@@ -8,6 +8,7 @@ import IpCalcService from "../service/ipCalcService";
 import UserService from "../service/userService";
 import { IpRange } from "../interface/interface";
 import LeakedService from "../service/leakedService";
+import { weasel } from "../interface/log";
 
 const router: Router = express.Router();
 const networkService: NetworkService = new NetworkService(connection);
@@ -120,7 +121,7 @@ router.post('/rm', (req:Request, res:Response) => {
   const search = req.query.search;     // search context
   const username = req.query.username; // username
   const body = req.body;
-
+  
   switch(contents) {
     case 'network':
       results = networkService.postRemoveData(body);
@@ -138,8 +139,12 @@ router.post('/rm', (req:Request, res:Response) => {
 
   results?.then(() => {     
     getApiDataLogic(contents,0,pageSize,sorting,desc,category,search,username,req,res);
+    weasel.log(username, req.socket.remoteAddress, `You have deleted ${body.length} pieces of data in ${contents}.`);
+    // weasel.log(username, req.socket.remoteAddress, `${contents}의 ${results.length}개 데이터를 삭제하였습니다.`);
   })
   .catch((error) => {
+    weasel.error(username, req.socket.remoteAddress, `Deleting ${body.length} pieces of data in ${contents} failed.`);
+    // weasel.error(username, req.socket.remoteAddress, `${contents}의 ${results.length}개 데이터를 삭제하는데 실패하였습니다.`);
     console.error(error + " : " + contents);
     res.status(500).send(contents + " server error");
   });

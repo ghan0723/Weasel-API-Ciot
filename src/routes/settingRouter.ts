@@ -242,9 +242,13 @@ router.post("/updateFile", (req: Request, res: Response) => {
   settingService
     .postUpdateFileAgent(updateFile)
     .then(() => {
+      weasel.log(username, req.socket.remoteAddress, `The weasel agent has been updated with ${updateFile}.`);
+      // weasel.log(username, req.socket.remoteAddress, `${updateFile}로 weasel 에이전트가 업데이트 되었습니다.`);
       res.send(updateFile);
     })
     .catch(() => {
+      weasel.error(username, req.socket.remoteAddress, `The weasel agent failed to update to ${updateFile}.`);
+      // weasel.error(username, req.socket.remoteAddress, `${updateFile}로 weasel 에이전트가 업데이트 실패하였습니다.`);
       res.status(500).send("post UpdateAgentFile error");
     });
 });

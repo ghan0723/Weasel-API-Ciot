@@ -564,12 +564,11 @@ router.post("/update/:username", (req, res) => {
 });
 router.get("/namecookie", (req, res) => {
     let username = req.cookies.username;
-    console.log('namecookie username', username);
     if (username !== undefined && username !== null) {
         res.json({ username: username });
     }
     else {
-        res.status(500).send({ username: "false" });
+        res.status(500).send({ username });
     }
 });
 router.get("/privilege", (req, res) => {
@@ -592,7 +591,6 @@ router.get("/all", (req, res) => {
         .getPrivilegeAndIP(username)
         .then((result) => {
         if (result[0].privilege !== 1) {
-            console.log("result[0].ip_ranges : ", result[0].ip_ranges);
             let IpRange = ipCalcService.parseIPRange(result[0].ip_ranges);
             userService
                 .getUserListByPrivilegeAndIP(result[0].privilege, IpRange, category, searchWord)
@@ -647,7 +645,6 @@ router.get("/check", (req, res) => {
     userService
         .getPrivilegeAndIP(username)
         .then((result) => {
-        console.log("result : ", result);
         res.send(result);
     })
         .catch((error) => {
