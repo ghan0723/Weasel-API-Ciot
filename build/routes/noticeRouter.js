@@ -8,7 +8,7 @@ const router = express_1.default.Router();
 const noticeService = new noticeService_1.default();
 router.get("/popup", (req, res) => {
     noticeService.getPopNotice().then((result) => {
-        res.setHeader('Cache-Control', 'public, max-age=10').send(result);
+        res.send(result);
     });
 });
 module.exports = router;

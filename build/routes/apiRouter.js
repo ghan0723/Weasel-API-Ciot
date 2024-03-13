@@ -55,7 +55,7 @@ router.get("/", (req, res) => {
                 console.error("Invalid param:", contents);
             }
             results === null || results === void 0 ? void 0 : results.then((DataItem) => {
-                res.setHeader('Cache-Control', 'public, max-age=10').send(DataItem);
+                res.send(DataItem);
             }).catch((error) => {
                 console.error(error + " : " + contents);
                 res.status(500).send("server error");
