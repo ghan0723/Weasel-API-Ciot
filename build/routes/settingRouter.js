@@ -46,14 +46,14 @@ router.post("/server", (req, res) => {
             log_1.weasel.log(username, req.socket.remoteAddress, str);
             res.send("업데이트 성공했습니다.");
         }).catch(() => {
-            // weasel.error(username, req.socket.remoteAddress, '서버 세팅 정보 얻기 실패');
-            log_1.weasel.error(username, req.socket.remoteAddress, 'Failed to get server settings information');
+            // weasel.error(username, req.socket.remoteAddress, '서버 설정 메뉴로 이동에 실패하였습니다.');
+            log_1.weasel.error(username, req.socket.remoteAddress, 'Failed to navigate to the Server Settings menu.');
             res.status(500).send("update 하다가 에러났어요");
         });
     })
         .catch(() => {
-        // weasel.error(username, req.socket.remoteAddress, '서버 정보 업데이트 실패');
-        log_1.weasel.error(username, req.socket.remoteAddress, 'Failed to update server information');
+        // weasel.error(username, req.socket.remoteAddress, '서버 설정을 데이터베이스에 변경하는 쿼리 실행 중 오류가 발생하였습니다.');
+        log_1.weasel.error(username, req.socket.remoteAddress, 'An error occurred while executing a query that changes server settings to the database.');
         res.status(500).send("update 하다가 에러났어요");
     });
 });
@@ -75,8 +75,8 @@ router.get("/servers", (req, res) => {
         res.send(newResult);
     })
         .catch((error) => {
-        log_1.weasel.error(username, req.socket.remoteAddress, 'Failed to get server settings information');
-        // weasel.error(username, req.socket.remoteAddress, '서버 세팅 정보 얻기 실패');
+        log_1.weasel.error(username, req.socket.remoteAddress, 'Failed to navigate to the Server Settings menu.');
+        // weasel.error(username, req.socket.remoteAddress, '서버 설정 메뉴로 이동에 실패하였습니다.');
         console.error("update get 에러 : ", error);
         res.status(500).send("update get 하다가 에러났어요");
     });
@@ -93,14 +93,14 @@ router.post("/agent", (req, res) => {
             log_1.weasel.log(username, req.socket.remoteAddress, str);
             res.send(result);
         }).catch(() => {
-            log_1.weasel.error(username, req.socket.remoteAddress, "Failed to get agent settings information ");
-            // weasel.error(username, req.socket.remoteAddress, "에이전트 세팅 정보 얻기 실패 ");
+            log_1.weasel.error(username, req.socket.remoteAddress, "Navigating to the agent settings menu failed.");
+            // weasel.error(username, req.socket.remoteAddress, "에이전트 설정 메뉴로 이동에 실패하였습니다.");
             res.status(500).send("agent setting post 하다가 에러났어요");
         });
     })
         .catch(() => {
-        log_1.weasel.error(username, req.socket.remoteAddress, "Failed to update agent information ");
-        // weasel.error(username, req.socket.remoteAddress, "에이전트 정보 업데이트 실패 ");
+        log_1.weasel.error(username, req.socket.remoteAddress, "An error occurred while executing a query to change agent settings to the database.");
+        // weasel.error(username, req.socket.remoteAddress, "에이전트 설정을 데이터베이스에 변경하는 쿼리 실행 중 오류가 발생하였습니다.");
         res.status(500).send("agent setting post 하다가 에러났어요");
     });
 });
@@ -117,15 +117,15 @@ router.get("/agents", (req, res) => {
             res.send([result, result2]);
         })
             .catch((error2) => {
-            log_1.weasel.error(username, req.socket.remoteAddress, "Failed to get agent settings information ");
-            // weasel.error(username, req.socket.remoteAddress, "에이전트 세팅 정보 얻기 실패 ");
+            log_1.weasel.error(username, req.socket.remoteAddress, "Navigating to the agent settings menu failed.");
+            // weasel.error(username, req.socket.remoteAddress, "에이전트 설정 메뉴로 이동에 실패하였습니다.");
             console.error("agent setting get 에러 : ", error2);
             res.status(500).send("agent setting get 하다가 에러났어요");
         });
     })
         .catch((error) => {
-        log_1.weasel.error(username, req.socket.remoteAddress, "Failed to get agent settings information ");
-        // weasel.error(username, req.socket.remoteAddress, "에이전트 세팅 정보 얻기 실패 ");
+        log_1.weasel.error(username, req.socket.remoteAddress, "Navigating to the agent settings menu failed.");
+        // weasel.error(username, req.socket.remoteAddress, "에이전트 설정 메뉴로 이동에 실패하였습니다.");
         console.error("agent setting get 에러 : ", error);
         res.status(500).send("agent setting get 하다가 에러났어요");
     });

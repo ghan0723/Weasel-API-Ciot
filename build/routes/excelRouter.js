@@ -35,8 +35,8 @@ const excelService = new excelService_1.default();
 const analysis = new analysisService_1.default();
 router.get("/dwn", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const username = req.query.username;
+    const contents = req.query.contents;
     try {
-        const contents = req.query.contents;
         const page = req.query.page;
         const pageSize = req.query.pageSize;
         const sorting = req.query.sorting;
@@ -79,8 +79,8 @@ router.get("/dwn", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         // weasel.log(username,req.socket.remoteAddress,`${contents}의 액셀 파일을 다운로드 하였습니다.`);
     }
     catch (error) {
-        log_1.weasel.error(username, req.socket.remoteAddress, "Failed to download excel file.");
-        // weasel.error(username, req.socket.remoteAddress, "엑셀로 다운로드 하는데 실패했습니다.");
+        log_1.weasel.error(username, req.socket.remoteAddress, `The download of the excel file in ${contents} failed.`);
+        // weasel.error(username, req.socket.remoteAddress, `${contents}의 엑셀 파일을 다운로드하는데 실패하였습니다.`);
         res.status(500).send("Server error");
     }
 }));
@@ -130,8 +130,8 @@ router.post("/analytics", (req, res) => __awaiter(void 0, void 0, void 0, functi
         // weasel.log(username,req.socket.remoteAddress,"분석의 엑셀 파일을 다운로드 하였습니다.");
     }
     catch (error) {
-        log_1.weasel.error(username, req.socket.remoteAddress, "Failed to download analytics excel file.");
-        // weasel.error(username, req.socket.remoteAddress, "분석 페이지를 엑셀로 다운로드 하는데 실패했습니다.");
+        log_1.weasel.error(username, req.socket.remoteAddress, "Downloading the analysis excel file failed.");
+        // weasel.error(username, req.socket.remoteAddress, "분석 엑셀 파일을 다운로드하는데 실패했습니다.");
         res.status(500).send("Server error");
     }
 }));

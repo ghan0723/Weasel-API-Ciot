@@ -186,8 +186,8 @@ class NetworkService {
                     `${aliasValues[12]} as ${aliasKey[12]}, ${aliasValues[13]} as ${aliasKey[13]} `
                 : `select ${aliasValues[0]}, ${aliasValues[1]} as ${aliasKey[1]}, ${aliasValues[2]} as ${aliasKey[2]}, ${aliasValues[3]} as ${aliasKey[3]}, ${aliasValues[4]} as ${aliasKey[4]}, ${aliasValues[5]} as ${aliasKey[5]}, ` +
                     `${aliasValues[6]} as ${aliasKey[6]}, ${aliasValues[7]} as ${aliasKey[7]}, ${aliasValues[8]} as ${aliasKey[8]}, ${aliasValues[9]} as ${aliasKey[9]}, ` +
-                    `pid as ${aliasKey[10]}, src_file as ${aliasKey[11]}, ${aliasValues[14]} as ${aliasKey[14]}, ` +
-                    `patterns as ${aliasKey[15]}, dst_file as ${aliasKey[16]} `;
+                    `${aliasValues[10]} as ${aliasKey[10]}, ${aliasValues[11]} as ${aliasKey[11]}, ${aliasValues[14]} as ${aliasKey[14]}, ` +
+                    `${aliasValues[15]} as ${aliasKey[15]}, ${aliasValues[16]} as ${aliasKey[16]} `;
             const query = queryStr +
                 "from leakednetworkfiles " +
                 whereClause +

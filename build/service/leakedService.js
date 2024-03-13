@@ -59,7 +59,7 @@ class LeakedService {
                     db_1.default.query(query, whereQuery, (error, result) => {
                         // 검색 결과가 없을 경우의 처리
                         if (result.length === 0) {
-                            result[0] = { time: "", pc_name: "", latest_agent_ip: "" };
+                            result[0] = { pc_guid: "", time: "", pc_name: "", latest_agent_ip: "" };
                         }
                         if (error) {
                             innerReject(error);
