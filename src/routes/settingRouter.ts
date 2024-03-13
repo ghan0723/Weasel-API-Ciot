@@ -220,7 +220,7 @@ router.post("/fileUpdate", upload.single("file"), (req: Request, res: Response) 
       });
     }
   } else {
-    res.status(400).send("Dat 파일이 아닙니다.");
+    res.status(200).send("Dat 파일이 아닙니다.");
   }
 });
 

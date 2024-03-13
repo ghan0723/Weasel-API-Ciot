@@ -168,8 +168,8 @@ router.get("/download", (req, res) => {
 router.get("/userList", (req, res) => {
     const username = req.query.username;
     if (typeof username !== "string") {
-        log_1.weasel.error(username, req.socket.remoteAddress, "Unable to display the userlist control page.");
-        // weasel.error(username, req.socket.remoteAddress, "사용자 관리 페이지에 접근 할 수 없습니다.");
+        log_1.weasel.error(username, req.socket.remoteAddress, "Failed to navigate to the User Management menu.");
+        // weasel.error(username, req.socket.remoteAddress, "사용자 관리 메뉴로 이동에 실패하였습니다.");
         res.status(500).send("error");
     }
     else {

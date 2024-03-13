@@ -27,11 +27,8 @@ router.get("/edit/:username", (req: Request, res: Response) => {
       res.send([newUser]);
     })
     .catch((error) => {
-      weasel.error(
-        username,
-        req.socket.remoteAddress,
-        "Failed to retrieve the profile page"
-      );
+      weasel.error(username, req.socket.remoteAddress, "Failed to navigate to the Edit Personal Information menu.");
+      // weasel.error(username, req.socket.remoteAddress, "본인정보수정 메뉴로 이동에 실패하였습니다.");
       console.error("profile failed:", error);
       res.status(500).send("Internal Server Error");
     });
@@ -72,36 +69,13 @@ router.post("/update/:username", (req: Request, res: Response) => {
                     profileService
                       .modUser(newUser, oldname)
                       .then((result2) => {
-                        if (user.freq === result1[0].pwd_change_freq) {
-                          weasel.log(oldname, req.socket.remoteAddress, "You successfully edited your information.");
-                          // weasel.log(oldname, req.socket.remoteAddress, "본인정보수정에 성공하였습니다.");
-                          res.send(result2.message);
-                        } else {
-                          profileService
-                            .updateFreq(user.freq)
-                            .then((result) => {
-                              weasel.log(oldname, req.socket.remoteAddress, "You successfully edited your information.");
-                              // weasel.log(oldname, req.socket.remoteAddress, "본인정보수정에 성공하였습니다.");
-                              res.send(result.message);
-                            })
-                            .catch((error) => {
-                              weasel.error(
-                                oldname,
-                                req.socket.remoteAddress,
-                                "Failed to update update frequency and profile"
-                              );
-                              res
-                                .status(500)
-                                .send("업데이트 잘못된거 같습니다.");
-                            });
-                        }
+                        weasel.log(oldname, req.socket.remoteAddress, "You successfully edited your information.");
+                        // weasel.log(oldname, req.socket.remoteAddress, "본인정보수정에 성공하였습니다.");
+                        res.send(result2.message);
                       })
-                      .catch((error) => {
-                        weasel.error(
-                          oldname,
-                          req.socket.remoteAddress,
-                          "Failed to update the profile"
-                        );
+                      .catch(() => {
+                        weasel.error(oldname, req.socket.remoteAddress,"Failed to edit your information.");
+                        // weasel.error(oldname, req.socket.remoteAddress,"본인정보수정에 실패하였습니다.");
                         res.status(500).send("업데이트 잘못된거 같습니다.");
                       });
                   } else {
@@ -117,40 +91,28 @@ router.post("/update/:username", (req: Request, res: Response) => {
                             res.send(result2.message);
                           })
                           .catch((error) => {
-                            weasel.error(
-                              oldname,
-                              req.socket.remoteAddress,
-                              "Failed to update the profile"
-                            );
+                            weasel.error(oldname, req.socket.remoteAddress, "Failed to edit your information.");
+                            // weasel.error(oldname, req.socket.remoteAddress, "본인정보수정에 실패하였습니다.");
                             res.status(500).send("업데이트 잘못된거 같습니다.");
                           });
                       })
                       .catch((error) => {
-                        weasel.error(
-                          oldname,
-                          req.socket.remoteAddress,
-                          "Failed to update update frequency and profile"
-                        );
+                        weasel.error(oldname, req.socket.remoteAddress, "An error occurred while executing a query to reset the password change cycle in Edit Profile.");
+                        // weasel.error(oldname, req.socket.remoteAddress, "본인정보수정에서 비밀번호 변경 주기 초기화하는 쿼리 실행 중 오류가 발생하였습니다.");
                         res.status(500).send("업데이트 잘못된거 같습니다.");
                       });
                   }
                 })
-                .catch((error) => {
-                  weasel.error(
-                    oldname,
-                    req.socket.remoteAddress,
-                    "Failed to retrieve the password"
-                  );
+                .catch(() => {
+                  weasel.error(oldname, req.socket.remoteAddress, "There was an error executing a query to the database for a password in Edit Profile.");
+                  // weasel.error(oldname, req.socket.remoteAddress, "본인정보수정에서 비밀번호를 데이터베이스에 조회하는 쿼리 실행 중 오류가 발생하였습니다.");
                   res.status(500).send("업데이트 잘못된거 같습니다.");
                 });
             }
           })
-          .catch((error) => {
-            weasel.error(
-              oldname,
-              req.socket.remoteAddress,
-              "Failed to perform duplicate user check"
-            );
+          .catch(() => {
+            weasel.error(oldname,req.socket.remoteAddress, "An error occurred while executing a query to the database to query the username to be changed in Edit Profile.");
+            // weasel.error(oldname,req.socket.remoteAddress, "본인정보수정에서 변경할 사용자명을 데이터베이스에 조회하는 쿼리 실행 중 오류가 발생하였습니다.");
             res.status(401).send({ error: result1.message });
           });
       } else {
@@ -168,7 +130,7 @@ router.post("/update/:username", (req: Request, res: Response) => {
               //중복아님
               profileService
                 .modUser(newUser, oldname)
-                .then((result2) => {
+                .then(() => {
                   profileService
                     .updateFreq(user.freq)
                     .then((result) => {
@@ -176,41 +138,29 @@ router.post("/update/:username", (req: Request, res: Response) => {
                       // weasel.log(oldname, req.socket.remoteAddress, "본인정보수정에 성공하였습니다.");
                       res.send(result.message);
                     })
-                    .catch((error) => {
-                      weasel.error(
-                        oldname,
-                        req.socket.remoteAddress,
-                        "Failed to update update frequency and profile"
-                      );
+                    .catch(() => {
+                      weasel.error(oldname, req.socket.remoteAddress,"An error occurred while executing a query to set the password change frequency value for an administrator in Edit Profile.");
+                      // weasel.error(oldname, req.socket.remoteAddress,"본인정보수정에서 관리자가 비밀번호 변경 주기 값 설정하는 쿼리 실행 중 오류가 발생하였습니다.");
                       res.status(500).send("업데이트 잘못된거 같습니다.");
                     });
                 })
-                .catch((error) => {
-                  weasel.error(
-                    oldname,
-                    req.socket.remoteAddress,
-                    "Failed to update the profile"
-                  );
+                .catch(() => {
+                  weasel.error(oldname, req.socket.remoteAddress, "Failed to edit your information.");
+                  // weasel.error(oldname, req.socket.remoteAddress, "본인정보수정에 실패하였습니다.");
                   res.status(500).send("업데이트 잘못된거 같습니다.");
                 });
             }
           })
-          .catch((error) => {
-            weasel.error(
-              oldname,
-              req.socket.remoteAddress,
-              "Failed to perform duplicate user check"
-            );
+          .catch(() => {
+            weasel.error(oldname,req.socket.remoteAddress, "An error occurred while executing a query to the database to query the username to be changed in Edit Profile.");
+            // weasel.error(oldname,req.socket.remoteAddress, "본인정보수정에서 변경할 사용자명을 데이터베이스에 조회하는 쿼리 실행 중 오류가 발생하였습니다.");
             res.status(401).send({ error: result1.message });
           });
       }
     })
-    .catch((error) => {
-      weasel.error(
-        oldname,
-        req.socket.remoteAddress,
-        "Failed to retrieve user information."
-      );
+    .catch(() => {
+      weasel.error(oldname, req.socket.remoteAddress, "An error occurred while executing a query to the database for the currently logged in account information in Edit Profile. ");
+      // weasel.error(oldname, req.socket.remoteAddress, "본인정보수정에서 현재 로그인한 계정 정보를 데이터베이스에 조회하는 쿼리 실행 중 오류가 발생하였습니다. ");
       res.status(500).send("업데이트 잘못된거 같습니다.");
     });
 });
