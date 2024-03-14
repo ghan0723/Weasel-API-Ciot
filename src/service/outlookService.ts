@@ -21,9 +21,9 @@ class OutlookService {
     받은사람 : 'receivers',        // 8
     유출파일명 : 'attachments', // 9
     // 전송갯수 : 'backup_file',   // 10 => 삭제됨
-    파일다운로드 : 'backup_file',   // 10
-    파일크기 : 'file_size',      // 11
-    탐지패턴 : 'patterns',        // 12
+    파일크기 : 'file_size',      // 10
+    탐지패턴 : 'patterns',        // 11
+    파일다운로드 : 'backup_file',   // 12
   };
 
     // New_C
@@ -40,9 +40,9 @@ class OutlookService {
     'Receiver' : 'receivers',        // 8
     'AttachedFiles' : 'attachments', // 9
     // 'CopiedFiles' : 'backup_file',   // 10 => 삭제됨
-    'Downloading' : 'backup_file',   // 10
-    'FileSizes' : 'file_size',      // 11
-    'Keywords' : 'patterns',        // 12
+    'FileSizes' : 'file_size',      // 10
+    'Keywords' : 'patterns',        // 11
+    'Downloading' : 'backup_file',   // 12
   };
 
   getCountAll(select: any, ipRanges: IpRange[]): Promise<any> {
@@ -118,14 +118,14 @@ class OutlookService {
     let aliasKey:any; 
     let aliasValues:any; 
     let convertColumns:any; 
+    convertColumns = category !== "" && this.columnAlias[category];
     if(!excel){
       aliasKey = Object.keys(this.columnAlias);
       aliasValues = Object.values(this.columnAlias);
-      convertColumns = category !== "" && this.columnAlias[category];
     }else{
       aliasKey = Object.keys(this.columnAliasKo);
       aliasValues = Object.values(this.columnAliasKo);
-      convertColumns = category !== "" && this.columnAliasKo[category];
+      
     }
 
     if(page !== undefined) {      
@@ -159,11 +159,11 @@ class OutlookService {
       const queryStr = privilege !== 3 ? 
       `select ${aliasValues[0]}, ${aliasValues[1]} as ${aliasKey[1]}, ${aliasValues[2]} as ${aliasKey[2]}, ${aliasValues[3]} as ${aliasKey[3]}, ${aliasValues[4]} as ${aliasKey[4]}, 
       ${aliasValues[5]} as ${aliasKey[5]}, ${aliasValues[6]} as ${aliasKey[6]}, ${aliasValues[7]} as ${aliasKey[7]}, ${aliasValues[8]} as ${aliasKey[8]}, 
-      ${aliasValues[9]} as ${aliasKey[9]}, ${aliasValues[11]} as ${aliasKey[11]}, ${aliasValues[12]} as ${aliasKey[12]}, ${aliasValues[10]} as ${aliasKey[10]} `
+      ${aliasValues[9]} as ${aliasKey[9]}, ${aliasValues[10]} as ${aliasKey[10]}, ${aliasValues[11]} as ${aliasKey[11]}, ${aliasValues[12]} as ${aliasKey[12]} `
       :
       `select ${aliasValues[0]}, ${aliasValues[1]} as ${aliasKey[1]}, ${aliasValues[2]} as ${aliasKey[2]}, ${aliasValues[3]} as ${aliasKey[3]}, ${aliasValues[4]} as ${aliasKey[4]}, 
       ${aliasValues[5]} as ${aliasKey[5]}, ${aliasValues[6]} as ${aliasKey[6]}, ${aliasValues[7]} as ${aliasKey[7]}, ${aliasValues[8]} as ${aliasKey[8]}, 
-      ${aliasValues[9]} as ${aliasKey[9]}, ${aliasValues[11]} as ${aliasKey[11]}, ${aliasValues[12]} as ${aliasKey[12]} `
+      ${aliasValues[9]} as ${aliasKey[9]}, ${aliasValues[10]} as ${aliasKey[10]}, ${aliasValues[11]} as ${aliasKey[11]} `
 
       const query =
         queryStr +
@@ -178,22 +178,34 @@ class OutlookService {
       Promise.all([
         new Promise<void>((innerResolve, innerReject) => {
           connection.query(query,whereQuery, (error, result) => {
-            const excludedKeys = ['Downloading'];
-
-            const filteredKeys = privilege !== 3 ? aliasKey : aliasKey.filter((key:any) => !excludedKeys.includes(key));
+            const excludedKeys = ['파일다운로드'];
+            const excludedKeysMonitor = ['Downloading','파일다운로드'];
             
             if(!excel) {
               result.map((data:any,i:number) => {
-                const date = data.Time.split(' ')[0];
-                const fileName = `C:/Program Files (x86)/ciot/WeaselServer/Temp/${date}/${data.Agent_ip}.${data.id}.${data.Downloading}`;
-                
-                if(fs.existsSync(fileName)) {
-                  result[i].Downloading = `${data.Agent_ip}.${data.id}.${data.Downloading}`;
+                if(privilege !== 3) {
+                  const date = data.Time.split(' ')[0];
+                  const fileName = `C:/Program Files (x86)/ciot/WeaselServer/Temp/${date}/${data.Agent_ip}.${data.id}.${data.Downloading}`;
+                  
+                  if(fs.existsSync(fileName)) {
+                    result[i].Downloading = `${data.Agent_ip}.${data.id}.${data.Downloading}`;
+                  } else {
+                    result[i].Downloading = '';
+                  }
                 } else {
-                  result[i].Downloading = '';
+                  delete result[i].Downloading;
                 }
               });
+            } else {
+              result.map((data:any,i:number) => {
+                delete result[i].파일다운로드;
+              });
             }
+
+            const filteredKeys =
+              privilege !== 3
+                ? aliasKey.filter((key:any) => !excludedKeys.includes(key))
+                : aliasKey.filter((key:any) => !excludedKeysMonitor.includes(key));
 
             // 검색 결과가 없을 경우의 처리
             if(result.length === 0) {

@@ -28,9 +28,9 @@ class MediaService {
             유출유형: 'media_type', // 5
             유출파일명: 'org_file', // 6
             // 복사된파일 : 'backup_file', // 7 => 사용 안함
-            파일다운로드: 'backup_file', // 7
-            파일크기: 'file_size', // 8
-            탐지패턴: 'patterns', // 9
+            파일크기: 'file_size', // 7
+            탐지패턴: 'patterns', // 8
+            파일다운로드: 'backup_file', // 9
         };
         // New_Columns
         this.columnAlias = {
@@ -43,9 +43,9 @@ class MediaService {
             'Media_Type': 'media_type', // 5
             'Files': 'org_file', // 6
             // 'Copied_files' : 'backup_file', // 7 => 사용 안함
-            'Downloading': 'backup_file', // 7
-            'FileSizes': 'file_size', // 8
-            'Keywords': 'patterns', // 9
+            'FileSizes': 'file_size', // 7
+            'Keywords': 'patterns', // 8
+            'Downloading': 'backup_file', // 9
         };
     }
     getMediaAll(select, ipRanges) {
@@ -117,15 +117,14 @@ class MediaService {
         let aliasKey;
         let aliasValues;
         let convertColumns;
+        convertColumns = category !== "" && this.columnAlias[category];
         if (!excel) {
             aliasKey = Object.keys(this.columnAlias);
             aliasValues = Object.values(this.columnAlias);
-            convertColumns = category !== "" && this.columnAlias[category];
         }
         else {
             aliasKey = Object.keys(this.columnAliasKo);
             aliasValues = Object.values(this.columnAliasKo);
-            convertColumns = category !== "" && this.columnAliasKo[category];
         }
         if (page !== undefined) {
             queryPage = Number(page);
@@ -150,10 +149,10 @@ class MediaService {
         return new Promise((resolve, reject) => {
             const queryStr = privilege !== 3 ?
                 `select ${aliasValues[0]}, ${aliasValues[1]} as ${aliasKey[1]}, ${aliasValues[2]} as ${aliasKey[2]}, ${aliasValues[3]} as ${aliasKey[3]}, ${aliasValues[4]} as ${aliasKey[4]}, ${aliasValues[5]} as ${aliasKey[5]}, ${aliasValues[6]} as ${aliasKey[6]},
-      ${aliasValues[8]} as ${aliasKey[8]}, ${aliasValues[9]} as ${aliasKey[9]}, ${aliasValues[7]} as ${aliasKey[7]} `
+      ${aliasValues[7]} as ${aliasKey[7]}, ${aliasValues[8]} as ${aliasKey[8]}, ${aliasValues[9]} as ${aliasKey[9]} `
                 :
                     `select ${aliasValues[0]}, ${aliasValues[1]} as ${aliasKey[1]}, ${aliasValues[2]} as ${aliasKey[2]}, ${aliasValues[3]} as ${aliasKey[3]}, ${aliasValues[4]} as ${aliasKey[4]}, ${aliasValues[5]} as ${aliasKey[5]}, ${aliasValues[6]} as ${aliasKey[6]},
-      ${aliasValues[8]} as ${aliasKey[8]}, ${aliasValues[9]} as ${aliasKey[9]} `;
+      ${aliasValues[7]} as ${aliasKey[7]}, ${aliasValues[8]} as ${aliasKey[8]} `;
             const query = queryStr +
                 "from leakedmediafiles " +
                 whereClause +
@@ -164,20 +163,33 @@ class MediaService {
             Promise.all([
                 new Promise((innerResolve, innerReject) => {
                     db_1.default.query(query, whereQuery, (error, result) => {
-                        const excludedKeys = ['Downloading'];
-                        const filteredKeys = privilege !== 3 ? aliasKey : aliasKey.filter((key) => !excludedKeys.includes(key));
+                        const excludedKeys = ['파일다운로드'];
+                        const excludedKeysMonitor = ['Downloading', '파일다운로드'];
                         if (!excel) {
                             result.map((data, i) => {
-                                const date = data.Time.split(' ')[0];
-                                const fileName = `C:/Program Files (x86)/ciot/WeaselServer/Temp/${date}/${data.Agent_ip}.${data.id}.${data.Downloading}`;
-                                if (fs_1.default.existsSync(fileName)) {
-                                    result[i].Downloading = `${data.Agent_ip}.${data.id}.${data.Downloading}`;
+                                if (privilege !== 3) {
+                                    const date = data.Time.split(' ')[0];
+                                    const fileName = `C:/Program Files (x86)/ciot/WeaselServer/Temp/${date}/${data.Agent_ip}.${data.id}.${data.Downloading}`;
+                                    if (fs_1.default.existsSync(fileName)) {
+                                        result[i].Downloading = `${data.Agent_ip}.${data.id}.${data.Downloading}`;
+                                    }
+                                    else {
+                                        result[i].Downloading = '';
+                                    }
                                 }
                                 else {
-                                    result[i].Downloading = '';
+                                    delete result[i].Downloading;
                                 }
                             });
                         }
+                        else {
+                            result.map((data, i) => {
+                                delete result[i].파일다운로드;
+                            });
+                        }
+                        const filteredKeys = privilege !== 3
+                            ? aliasKey.filter((key) => !excludedKeys.includes(key))
+                            : aliasKey.filter((key) => !excludedKeysMonitor.includes(key));
                         // 검색 결과가 없을 경우의 처리
                         if (result.length === 0) {
                             result[0] = filteredKeys.reduce((obj, key) => {

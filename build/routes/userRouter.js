@@ -241,7 +241,7 @@ router.post("/add", (req, res) => {
                 if (result1.exists) {
                     log_1.weasel.log(user.cookie, req.socket.remoteAddress, "The username you entered is a duplicate and cannot be created.");
                     // weasel.log(user.cookie, req.socket.remoteAddress, "입력한 사용자명이 중복되어 생성할 수 없습니다.");
-                    res.status(401).send({ error: result1.message });
+                    res.status(401).send({ error: '입력한 사용자명이 중복되어 생성할 수 없습니다.' });
                 }
                 else {
                     let IpRange = ipCalcService.parseIPRange(result[0].ip_ranges);
@@ -294,7 +294,7 @@ router.post("/add", (req, res) => {
                 if (result5.exists) {
                     log_1.weasel.log(user.cookie, req.socket.remoteAddress, "The username you entered is a duplicate and cannot be created.");
                     // weasel.log(user.cookie, req.socket.remoteAddress, "입력한 사용자명이 중복되어 생성할 수 없습니다.");
-                    res.status(401).send({ error: result.message });
+                    res.status(401).send({ error: '입력한 사용자명이 중복되어 생성할 수 없습니다.' });
                 }
                 else {
                     //관리자 계정 freq
@@ -686,9 +686,9 @@ router.post("/pwd", (req, res) => {
             else {
                 log_1.weasel.log(username, req.socket.remoteAddress, "The new password you entered matches the existing password.");
                 // weasel.log(username,req.socket.remoteAddress,"입력한 새 비밀번호가 기존의 비밀번호와 일치합니다.");
-                res
-                    .status(500)
-                    .send("The password before the change and the password after the change are the same.");
+                res.status(403).send({
+                    error: "입력한 새 비밀번호가 기존의 비밀번호와 일치합니다."
+                });
             }
         }
     })

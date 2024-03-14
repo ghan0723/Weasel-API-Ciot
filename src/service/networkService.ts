@@ -27,11 +27,11 @@ class NetworkService {
     프로세스명: "proc_name", // 9
     PID: "proc_id", // 10
     유출파일명: "org_file", // 11
-    파일다운로드: "backup_file", // 12
-    스크린샷: "backup_file", // 13
-    파일용량: "file_size", // 14
-    탐지패턴: "patterns", // 15
-    URL: "url", // 16
+    파일용량: "file_size", // 12
+    탐지패턴: "patterns", // 13
+    URL: "url", // 14
+    파일다운로드: "backup_file", // 15
+    스크린샷: "backup_file", // 16
   };
 
   // New_Columns
@@ -49,11 +49,11 @@ class NetworkService {
     Process: "proc_name", // 9
     PIDs: "proc_id", // 10
     SrcFile: "org_file", // 11
-    DownLoad: "backup_file", // 12
-    ScreenShot: "backup_file", // 13
-    FileSizes: "file_size", // 14
-    Keywords: "patterns", // 15
-    DestFiles: "url", // 16
+    FileSizes: "file_size", // 12
+    Keywords: "patterns", // 13
+    DestFiles: "url", // 14
+    DownLoad: "backup_file", // 15
+    ScreenShot: "backup_file", // 16
   };
 
   // Dashboard 일/주/월 건수
@@ -141,15 +141,15 @@ class NetworkService {
     let aliasKey:any; 
     let aliasValues:any; 
     let convertColumns:any; 
+    convertColumns = category !== "" && this.columnAlias[category];
     if(!excel){
       aliasKey = Object.keys(this.columnAlias);
       aliasValues = Object.values(this.columnAlias);
-      convertColumns = category !== "" && this.columnAlias[category];
-    }else{
+    } else{
       aliasKey = Object.keys(this.columnAliasKo);
       aliasValues = Object.values(this.columnAliasKo);
-      convertColumns = category !== "" && this.columnAliasKo[category];
     }
+
     if (page !== undefined) {
       queryPage = Number(page);
     }
@@ -199,13 +199,13 @@ class NetworkService {
         privilege !== 3
           ? `select ${aliasValues[0]}, ${aliasValues[1]} as ${aliasKey[1]}, ${aliasValues[2]} as ${aliasKey[2]}, ${aliasValues[3]} as ${aliasKey[3]}, ${aliasValues[4]} as ${aliasKey[4]}, ${aliasValues[5]} as ${aliasKey[5]}, ` +
             `${aliasValues[6]} as ${aliasKey[6]}, ${aliasValues[7]} as ${aliasKey[7]}, ${aliasValues[8]} as ${aliasKey[8]}, ${aliasValues[9]} as ${aliasKey[9]}, ` +
-            `${aliasValues[10]} as ${aliasKey[10]}, ${aliasValues[11]} as ${aliasKey[11]}, ${aliasValues[14]} as ${aliasKey[14]}, ` +
-            `${aliasValues[15]} as ${aliasKey[15]}, ${aliasValues[16]} as ${aliasKey[16]}, ` +
-            `${aliasValues[12]} as ${aliasKey[12]}, ${aliasValues[13]} as ${aliasKey[13]} `
+            `${aliasValues[10]} as ${aliasKey[10]}, ${aliasValues[11]} as ${aliasKey[11]}, ${aliasValues[12]} as ${aliasKey[12]}, ` +
+            `${aliasValues[13]} as ${aliasKey[13]}, ${aliasValues[14]} as ${aliasKey[14]}, ` +
+            `${aliasValues[15]} as ${aliasKey[15]}, ${aliasValues[16]} as ${aliasKey[16]} `
           : `select ${aliasValues[0]}, ${aliasValues[1]} as ${aliasKey[1]}, ${aliasValues[2]} as ${aliasKey[2]}, ${aliasValues[3]} as ${aliasKey[3]}, ${aliasValues[4]} as ${aliasKey[4]}, ${aliasValues[5]} as ${aliasKey[5]}, ` +
             `${aliasValues[6]} as ${aliasKey[6]}, ${aliasValues[7]} as ${aliasKey[7]}, ${aliasValues[8]} as ${aliasKey[8]}, ${aliasValues[9]} as ${aliasKey[9]}, ` +
-            `${aliasValues[10]} as ${aliasKey[10]}, ${aliasValues[11]} as ${aliasKey[11]}, ${aliasValues[14]} as ${aliasKey[14]}, ` +
-            `${aliasValues[15]} as ${aliasKey[15]}, ${aliasValues[16]} as ${aliasKey[16]} `;
+            `${aliasValues[10]} as ${aliasKey[10]}, ${aliasValues[11]} as ${aliasKey[11]}, ${aliasValues[12]} as ${aliasKey[12]}, ` +
+            `${aliasValues[13]} as ${aliasKey[13]}, ${aliasValues[14]} as ${aliasKey[14]} `;
 
       const query =
         queryStr +
@@ -223,36 +223,53 @@ class NetworkService {
 
       const query2 =
         "select count(*) as count from leakednetworkfiles " + whereClause;
-      const whereQuery = "%" + search + "%";
+      const whereQuery = "%" + search + "%";      
 
       Promise.all([
         new Promise<void>((innerResolve, innerReject) => {
           this.connection.query(query, whereQuery, (error, result) => {
-            const excludedKeys = ["DownLoad", "ScreenShot"];
+            const excludedKeys = ["파일다운로드","스크린샷"];
+            const excludedKeysMonitor = ["DownLoad", "ScreenShot","파일다운로드","스크린샷"];
 
             if(!excel) {
               result.map((data:any,i:number) => {
-                const date = data.Time.split(' ')[0];
-                const fileName = `C:/Program Files (x86)/ciot/WeaselServer/Temp/${date}/${data.Agent_ip}.${data.id}.${data.DownLoad}`;
-                
-                if(fs.existsSync(fileName)) {
-                  result[i].DownLoad = `${data.Agent_ip}.${data.id}.${data.DownLoad}`;
+                if(privilege !== 3) {
+                  const date = data.Time.split(' ')[0];
+                  const fileName = `C:/Program Files (x86)/ciot/WeaselServer/Temp/${date}/${data.Agent_ip}.${data.id}.${data.DownLoad}`;
+                  
+                  if(fs.existsSync(fileName)) {
+                    result[i].DownLoad = `${data.Agent_ip}.${data.id}.${data.DownLoad}`;
+                  } else {
+                    result[i].DownLoad = '';
+                  }
+    
+                  if(fs.existsSync(`${fileName}.png`)) {
+                    result[i].ScreenShot = `${data.Agent_ip}.${data.id}.${data.ScreenShot}`;
+                  } else {
+                    result[i].ScreenShot = '';
+                  }
                 } else {
-                  result[i].DownLoad = '';
+                  delete result[i].DownLoad;
+                  delete result[i].ScreenShot;
                 }
-  
-                if(fs.existsSync(`${fileName}.png`)) {
-                  result[i].ScreenShot = `${data.Agent_ip}.${data.id}.${data.ScreenShot}`;
+              });
+            } else {              
+              result.map((data:any,i:number) => {
+                if(data.정확도 === 100) {
+                  data.정확도 = '정탐';
                 } else {
-                  result[i].ScreenShot = '';
-                }              
+                  data.정확도 = '확인필요';
+                }
+
+                delete result[i].파일다운로드;
+                delete result[i].스크린샷;
               });
             }
 
             const filteredKeys =
               privilege !== 3
-                ? aliasKey
-                : aliasKey.filter((key:any) => !excludedKeys.includes(key));
+                ? aliasKey.filter((key:any) => !excludedKeys.includes(key))
+                : aliasKey.filter((key:any) => !excludedKeysMonitor.includes(key));
 
             // 검색 결과가 없을 경우의 처리
             if (result.length === 0) {
