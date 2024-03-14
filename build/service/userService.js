@@ -326,7 +326,8 @@ class UserService {
                         const pwdChangeFreq = result[0].pwd_change_freq;
                         // 비밀번호 변경 주기를 날짜로 계산
                         const nextChangeDate = new Date(lastPwdDate);
-                        nextChangeDate.setMonth(nextChangeDate.getMonth() + pwdChangeFreq);
+                        const month = lastPwdDate.getMonth() + parseInt(pwdChangeFreq);
+                        nextChangeDate.setMonth(month);
                         // 현재 날짜와 다음 변경 날짜를 비교
                         const currentDate = new Date();
                         if (currentDate > nextChangeDate) {
