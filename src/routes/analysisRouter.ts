@@ -32,7 +32,15 @@ router.post("/select", (req: Request, res: Response) => {
 
   analysis.riskScoring(startDate,endDate,keywords)
   .then(result => {    
-    res.send(result);
+    if(result.length > 0 && result !== undefined && result !== null){
+      res.send(result);
+    } else {
+      res.send([{pcGuid: '',
+      level: 0,
+      pcName: '',
+      status: '',
+      text: ''}])
+    }
   })
   .catch(error => {
     res.status(error.status).send(error.error);

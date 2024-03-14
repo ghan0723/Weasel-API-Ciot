@@ -42,7 +42,7 @@ router.get('/', (req, res) => {
             .then((data) => {
             res.status(200).send(data);
         })
-            .catch((error) => {
+            .catch(() => {
             res.status(500).send("Data Send Error");
         });
     });

@@ -213,7 +213,7 @@ router.post("/fileUpdate", upload.single("file"), (req, res) => {
         }
     }
     else {
-        res.status(400).send("Dat 파일이 아닙니다.");
+        res.status(200).send("Dat 파일이 아닙니다.");
     }
 });
 router.get("/updateFile", (req, res) => {

@@ -4,6 +4,7 @@ import IpCalcService from "../service/ipCalcService";
 import LogService from "../service/logService";
 import { weasel } from "../interface/log";
 import SettingService from "../service/settingService";
+import { backIP } from "../interface/ipDomain";
 
 const router: Router = express.Router();
 const logService: LogService = new LogService();
@@ -73,8 +74,8 @@ router.get("/logout", (req: Request, res: Response) => {
   }
   weasel.log(username,req.socket.remoteAddress,`The logout of ${username} was successful.`);
   // weasel.log(username,req.socket.remoteAddress,`${username}의 로그아웃에 성공하였습니다.`);
-
-  res.send("logout log success");
+  const pastDate = new Date(0);
+  res.send({error : "logout log success"});
 });
 
 // 로그 페이지 관련...
