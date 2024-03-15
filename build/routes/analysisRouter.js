@@ -30,6 +30,7 @@ router.post("/select", (req, res) => {
     const startDate = req.body.startDate + " 00:00:00";
     const endDate = req.body.endDate + " 23:59:59";
     const keywords = req.body.keywords;
+    const username = req.body.username;
     analysis.riskScoring(startDate, endDate, keywords)
         .then(result => {
         if (result.length > 0 && result !== undefined && result !== null) {

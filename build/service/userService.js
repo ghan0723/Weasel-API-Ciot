@@ -292,7 +292,6 @@ class UserService {
     // mng_ip : 변경할 user의 range
     // ipRanges : 로그인 한 user의 range
     checkIpRange(mng_ip, ipRanges) {
-        console.log('mng_ip', mng_ip);
         return new Promise((resolve, reject) => {
             let ipStartCheck = '';
             let ipEndCheck = '';
@@ -320,8 +319,6 @@ class UserService {
     ipToNumber(ip) {
         if (typeof ip === "string" && /^\d+\.\d+\.\d+\.\d+$/.test(ip)) {
             const ipParts = ip.split(".").map(Number);
-            console.log('ip', ip);
-            console.log('ipParts', ipParts);
             if (ipParts.length === 4 &&
                 ipParts.every((part) => part >= 0 && part <= 255)) {
                 return ((ipParts[0] << 24) |
