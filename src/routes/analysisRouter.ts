@@ -36,21 +36,39 @@ router.post("/select", (req: Request, res: Response) => {
   userService.getPrivilegeAndIP(username)
   .then((result1) => {
     const ipRanges = IpCalcService.parseIPRange(result1[0].ip_ranges);
-    analysis.riskScoring(startDate,endDate,keywords, ipRanges)
-    .then(result => {    
-      if(result.length > 0 && result !== undefined && result !== null){
-        res.send(result);
-      } else {
-        res.send([{pcGuid: '',
-        level: 0,
-        pcName: '',
-        status: '',
-        text: ''}])
-      }
-    })
-    .catch(error => {
-      res.status(error.status).send(error.error);
-    });
+    if(result1[0].privilege !== 1){
+      analysis.riskScoring(startDate,endDate,keywords,ipRanges)
+      .then(result => {    
+        if(result.length > 0 && result !== undefined && result !== null){
+          res.send(result);
+        } else {
+          res.send([{pcGuid: '',
+          level: 0,
+          pcName: '',
+          status: '',
+          text: ''}])
+        }
+      })
+      .catch(error => {
+        res.status(error.status).send(error.error);
+      });
+    } else {
+      analysis.riskScoring(startDate,endDate,keywords, undefined)
+      .then(result => {    
+        if(result.length > 0 && result !== undefined && result !== null){
+          res.send(result);
+        } else {
+          res.send([{pcGuid: '',
+          level: 0,
+          pcName: '',
+          status: '',
+          text: ''}])
+        }
+      })
+      .catch(error => {
+        res.status(error.status).send(error.error);
+      });
+    }
   })
   .catch((error1) => {
     res.status(error1.status).send(error1.error);
@@ -78,32 +96,62 @@ router.post("/detail", (req: Request, res: Response) => {
   userService.getPrivilegeAndIP(username)
   .then((result1) => {
     const ipRanges = IpCalcService.parseIPRange(result1[0].ip_ranges);
-    if (matchResult) {
-      const numericValue = parseInt(matchResult[0]);
-      analysis.settingDateAndRange(startDate, endDate,ipRanges, pc_guid)
-      .then((result) => {
-        detail.getAnalysisLineDateByPcGuid(pc_guid, dateRange, startDate, endDate, numericValue)
-        .then((result2) => {
-          detail.getCountFileSize(pc_guid, dateRange, startDate, endDate, numericValue)
-          .then((result3) => {
-            const patternResult = analysis.analyzeDetailPatterns(result,pc_guid);
-            resultValues.push(patternResult);
-            resultValues.push(result2);
-            resultValues.push(result3);
-            resultValues.push({startDate, endDate, level, status})
-            res.send({result:resultValues})
+    if(result1[0].privilege !== 1){
+      if (matchResult) {
+        const numericValue = parseInt(matchResult[0]);
+        analysis.settingDateAndRange(startDate, endDate, ipRanges, pc_guid)
+        .then((result) => {
+          detail.getAnalysisLineDateByPcGuid(pc_guid, dateRange, startDate, endDate, numericValue)
+          .then((result2) => {
+            detail.getCountFileSize(pc_guid, dateRange, startDate, endDate, numericValue)
+            .then((result3) => {
+              const patternResult = analysis.analyzeDetailPatterns(result,pc_guid);
+              resultValues.push(patternResult);
+              resultValues.push(result2);
+              resultValues.push(result3);
+              resultValues.push({startDate, endDate, level, status})
+              res.send({result:resultValues})
+            })
+            .catch((error3) => {
+              res.status(400).send("Detail file size fail");
+            })
           })
-          .catch((error3) => {
-            res.status(400).send("Detail file size fail");
+          .catch((error2) => {
+            res.status(400).send("Unable to extract numeric value from dateRange Detail");
           })
-        })
-        .catch((error2) => {
-          res.status(400).send("Unable to extract numeric value from dateRange Detail");
-        })
-      });
+        });
+      } else {
+        // 숫자 값을 추출할 수 없는 경우에 대한 처리
+        res.status(400).send("Unable to extract numeric value from dateRange Detail");
+      }
     } else {
-      // 숫자 값을 추출할 수 없는 경우에 대한 처리
-      res.status(400).send("Unable to extract numeric value from dateRange Detail");
+      if (matchResult) {
+        const numericValue = parseInt(matchResult[0]);
+        analysis.settingDateAndRange(startDate, endDate, undefined, pc_guid)
+        .then((result) => {
+          detail.getAnalysisLineDateByPcGuid(pc_guid, dateRange, startDate, endDate, numericValue)
+          .then((result2) => {
+            detail.getCountFileSize(pc_guid, dateRange, startDate, endDate, numericValue)
+            .then((result3) => {
+              const patternResult = analysis.analyzeDetailPatterns(result,pc_guid);
+              resultValues.push(patternResult);
+              resultValues.push(result2);
+              resultValues.push(result3);
+              resultValues.push({startDate, endDate, level, status})
+              res.send({result:resultValues})
+            })
+            .catch((error3) => {
+              res.status(400).send("Detail file size fail");
+            })
+          })
+          .catch((error2) => {
+            res.status(400).send("Unable to extract numeric value from dateRange Detail");
+          })
+        });
+      } else {
+        // 숫자 값을 추출할 수 없는 경우에 대한 처리
+        res.status(400).send("Unable to extract numeric value from dateRange Detail");
+      }
     }
   })
 });

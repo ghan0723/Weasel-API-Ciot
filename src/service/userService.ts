@@ -306,34 +306,6 @@ class UserService {
 
   // mng_ip : 변경할 user의 range
   // ipRanges : 로그인 한 user의 range
-  // static checkIpRange(mng_ip: IpRange[], ipRanges: IpRange[]): any {
-  //   let ipStartCheck = '';
-  //   let ipEndCheck = '';
-  //   // const ipToCheck = this.ipToNumber(mng_ip);
-  //   mng_ip.forEach((range) => {
-  //     ipStartCheck = this.ipToNumber(range.start);
-  //     ipEndCheck = this.ipToNumber(range.end);
-  //   });
-  
-  //   const isInRange = ipRanges.some(
-  //     (range) =>
-  //       ipStartCheck >= this.ipToNumber(range.start) &&
-  //       ipEndCheck <= this.ipToNumber(range.end)
-  //   );
-  
-  //   if (isInRange) {
-  //     return {
-  //       inRange: true,
-  //       message: "IP 주소가 허용된 범위 내에 있습니다.",
-  //     };
-  //   } else {
-  //     return {
-  //       inRange: false,
-  //       message: "IP 주소가 허용된 범위에 속하지 않습니다.",
-  //     };
-  //   }
-  // }
-  
   static checkIpRange(mng_ip: IpRange[], ipRanges: IpRange[]): Promise<any> {
     return new Promise((resolve, reject) => {
       let ipStartCheck = '';
@@ -367,7 +339,6 @@ class UserService {
   static ipToNumber(ip: string): any {
     if (typeof ip === "string" && /^\d+\.\d+\.\d+\.\d+$/.test(ip)) {
       const ipParts: number[] = ip.split(".").map(Number);
-
       if (
         ipParts.length === 4 &&
         ipParts.every((part) => part >= 0 && part <= 255)

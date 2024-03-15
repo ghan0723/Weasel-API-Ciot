@@ -33,15 +33,20 @@ class AnalysisService {
                     reject(error);
                 }
                 else {
-                    let detectFiles = [];
-                    for (const file of result) {
-                        const selectRanges = ipCalcService_1.default.parseIPRange(file.latest_agent_ip);
-                        const inRange = yield userService_1.default.checkIpRange(selectRanges, ipRanges);
-                        if (inRange.inRange) {
-                            detectFiles.push(file);
+                    if (ipRanges !== undefined && ipRanges !== null) {
+                        let detectFiles = [];
+                        for (const file of result) {
+                            const selectRanges = ipCalcService_1.default.parseIPRange(file.latest_agent_ip);
+                            const inRange = yield userService_1.default.checkIpRange(selectRanges, ipRanges);
+                            if (inRange.inRange) {
+                                detectFiles.push(file);
+                            }
                         }
+                        resolve(detectFiles);
                     }
-                    resolve(detectFiles);
+                    else {
+                        resolve(result);
+                    }
                 }
             }));
         });

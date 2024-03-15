@@ -438,7 +438,7 @@ router.post("/update/:username", (req, res) => {
             else {
                 if (result1[0].privilege !== 1) {
                     let IpRange = ipCalcService_1.default.parseIPRange(result1[0].ip_ranges);
-                    let IpRange2 = ipCalcService_1.default.parseIPRange(result1[0].ip_ranges);
+                    let IpRange2 = ipCalcService_1.default.parseIPRange(user.mngRange);
                     userService_1.default
                         .checkIpRange(IpRange2, IpRange)
                         .then((result3) => {
@@ -629,9 +629,9 @@ router.get("/all", (req, res) => {
                 else {
                     res.send([
                         {
-                            id: "",
                             username: "",
                             privilege: "",
+                            enabled: "",
                             ip_ranges: "",
                         },
                     ]);
