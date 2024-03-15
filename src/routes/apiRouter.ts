@@ -205,6 +205,7 @@ router.get("/leaked", (req: Request, res: Response) => {
     userService.getPrivilegeAndIP(username)
     .then(result => {
       ipRanges = IpCalcService.parseIPRange(result[0].ip_ranges);
+
     
       leakedService.getApiData(page,pageSize,sorting,desc,category,search,ipRanges,false)
         ?.then((DataItem) => {
