@@ -16,7 +16,7 @@ router.get("/all", (req, res) => {
     // Function to fetch data for each service
     function fetchData(serviceName) {
         return userService.getPrivilegeAndIP(username).then((result) => {
-            let ipRange = ipCalcService.parseIPRange(result[0].ip_ranges);
+            let ipRange = ipCalcService_1.default.parseIPRange(result[0].ip_ranges);
             return complexService.getData(serviceName, select, ipRange);
         });
     }

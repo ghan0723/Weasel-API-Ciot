@@ -35,7 +35,7 @@ router.get("/dwn", async (req: Request, res: Response) => {
     const search = req.query.search;
 
     const result = await userService.getPrivilegeAndIP(username);
-    const ipRanges: IpRange[] = ipCalcService.parseIPRange(result[0].ip_ranges);
+    const ipRanges: IpRange[] = IpCalcService.parseIPRange(result[0].ip_ranges);
 
     let results;
     if (contents === "network") {

@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const ip_1 = __importDefault(require("ip"));
 class IpCalcService {
-    parseIPRange(ipRangeStr) {
+    static parseIPRange(ipRangeStr) {
         const ipRanges = ipRangeStr.split(",").map((range) => range.trim());
         const parsedRanges = ipRanges.map((range) => {
             if (range.includes("/")) {

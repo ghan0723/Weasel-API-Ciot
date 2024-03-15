@@ -44,7 +44,7 @@ router.get("/dwn", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         const category = req.query.category;
         const search = req.query.search;
         const result = yield userService.getPrivilegeAndIP(username);
-        const ipRanges = ipCalcService.parseIPRange(result[0].ip_ranges);
+        const ipRanges = ipCalcService_1.default.parseIPRange(result[0].ip_ranges);
         let results;
         if (contents === "network") {
             results = yield networkService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, result[0].privilege, true);

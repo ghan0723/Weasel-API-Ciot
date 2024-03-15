@@ -19,6 +19,7 @@ class AnalysisService {
         if (error) {
           reject(error);
         } else {
+          
           resolve(result);
         }
       });

@@ -23,7 +23,7 @@ router.get('/', (req, res) => {
         if (result.length === 0) {
             return res.status(500).send();
         }
-        ipRanges = ipCalcService.parseIPRange(result[0].ip_ranges);
+        ipRanges = ipCalcService_1.default.parseIPRange(result[0].ip_ranges);
         switch (select) {
             // 일
             case 'day':

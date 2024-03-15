@@ -7,7 +7,7 @@ interface IpRange {
  
 class IpCalcService {
 
-  parseIPRange(ipRangeStr: string): IpRange[] {
+  static parseIPRange(ipRangeStr: string): IpRange[] {
     const ipRanges = ipRangeStr.split(",").map((range) => range.trim());
     const parsedRanges = ipRanges.map((range) => {
       if (range.includes("/")) {

@@ -244,9 +244,10 @@ router.post("/add", (req, res) => {
                     res.status(401).send({ error: '입력한 사용자명이 중복되어 생성할 수 없습니다.' });
                 }
                 else {
-                    let IpRange = ipCalcService.parseIPRange(result[0].ip_ranges);
+                    let IpRange = ipCalcService_1.default.parseIPRange(result[0].ip_ranges);
+                    let IpRange2 = ipCalcService_1.default.parseIPRange(user.range);
                     //새로 만든 사용자의 대역이 현재 로그인 한 사용자의 ip 대역을 넘지 않는지 확인
-                    userService.checkIpRange(user.range, IpRange).then((result3) => {
+                    userService.checkIpRange(IpRange2, IpRange).then((result3) => {
                         if (result3.inRange) {
                             //대역을 넘지 않을 때
                             //freq 값 추가
@@ -346,7 +347,7 @@ router.post("/rm", (req, res) => {
             .getPrivilegeAndIP(username)
             .then((result) => {
             if (result[0].privilege !== 1) {
-                let IpRange = ipCalcService.parseIPRange(result[0].ip_ranges);
+                let IpRange = ipCalcService_1.default.parseIPRange(result[0].ip_ranges);
                 userService
                     .getUserListByPrivilegeAndIP(result[0].privilege, IpRange, category, searchWord)
                     .then((result2) => {
@@ -435,9 +436,10 @@ router.post("/update/:username", (req, res) => {
             }
             else {
                 if (result1[0].privilege !== 1) {
-                    let IpRange = ipCalcService.parseIPRange(result1[0].ip_ranges);
+                    let IpRange = ipCalcService_1.default.parseIPRange(result1[0].ip_ranges);
+                    let IpRange2 = ipCalcService_1.default.parseIPRange(result1[0].ip_ranges);
                     userService
-                        .checkIpRange(user.mngRange, IpRange)
+                        .checkIpRange(IpRange2, IpRange)
                         .then((result3) => {
                         if (result3.inRange) {
                             //영역별 관리자가 업데이트 할 때 해당 계정의 비밀번호가 변경 되는지 확인
@@ -594,7 +596,7 @@ router.get("/all", (req, res) => {
         .getPrivilegeAndIP(username)
         .then((result) => {
         if (result[0].privilege !== 1) {
-            let IpRange = ipCalcService.parseIPRange(result[0].ip_ranges);
+            let IpRange = ipCalcService_1.default.parseIPRange(result[0].ip_ranges);
             userService
                 .getUserListByPrivilegeAndIP(result[0].privilege, IpRange, category, searchWord)
                 .then((result2) => {

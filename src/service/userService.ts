@@ -1,5 +1,6 @@
 import { IpRange } from "../interface/interface";
 import connection from "../db/db";
+import IpCalcService from "./ipCalcService";
 
 class UserService {
   getLogin(username: string): Promise<any> {
@@ -187,18 +188,19 @@ class UserService {
           break;
       }
     }
-    // IP 범위 조건들을 생성
-    const ipConditions = ipRanges
-      .map(
-        (range) =>
-          `(INET_ATON(ip_ranges) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`
-      )
-      .join(" OR ");
+    // // IP 범위 조건들을 생성
+    // const ipConditions = ipRanges
+    //   .map(
+    //     (range) =>
+    //       `(INET_ATON(ip_ranges) BETWEEN INET_ATON('${range.start}') AND INET_ATON('${range.end}'))`
+    //   )
+    //   .join(" OR ");
 
     // SQL 쿼리 생성
     const query = `
-        SELECT username, privilege, enabled, ip_ranges FROM accountlist WHERE privilege > ${privilege} AND (${ipConditions}) 
-      `;
+        SELECT username, privilege, enabled, ip_ranges FROM accountlist WHERE privilege > ${privilege} `;
+      //   AND (${ipConditions}) 
+      // `;
     return new Promise((resolve, reject) => {
       const query2 = `select username, privilege, enabled, ip_ranges from (${query}) AS userTable ${searchCondition}`;
       // 쿼리 실행
@@ -206,8 +208,16 @@ class UserService {
         if (error) {
           reject(error);
         } else {
+          let users: any[] = []
+          result.forEach(async (user:any) => {
+            const selectRanges = IpCalcService.parseIPRange(user.ip_ranges)
+            const inRange = this.checkIpRange(selectRanges, ipRanges);
+            if(await inRange){
+              users.push(user);
+            }
+          })
           if (privilege !== 3) {
-            resolve(result);
+            resolve(users);
           } else {
             reject("error");
           }
@@ -293,14 +303,20 @@ class UserService {
     });
   }
 
-  checkIpRange(mng_ip: string, ipRanges: IpRange[]): Promise<any> {
+  checkIpRange(mng_ip: IpRange[], ipRanges: IpRange[]): Promise<any> {
     return new Promise((resolve, reject) => {
-      const ipToCheck = this.ipToNumber(mng_ip);
+      let ipStartCheck = '';
+      let ipEndCheck = '';
+      // const ipToCheck = this.ipToNumber(mng_ip);
+      mng_ip.forEach((range) => {
+        ipStartCheck = this.ipToNumber(range.start);
+        ipEndCheck = this.ipToNumber(range.end);
+      })
 
       const isInRange = ipRanges.some(
         (range) =>
-          ipToCheck >= this.ipToNumber(range.start) &&
-          ipToCheck <= this.ipToNumber(range.end)
+        ipStartCheck >= this.ipToNumber(range.start) &&
+        ipEndCheck <= this.ipToNumber(range.end)
       );
 
       if (isInRange) {
@@ -317,7 +333,7 @@ class UserService {
     });
   }
 
-  ipToNumber(ip: string): number {
+  ipToNumber(ip: string): any {
     if (typeof ip === "string" && /^\d+\.\d+\.\d+\.\d+$/.test(ip)) {
       const ipParts: number[] = ip.split(".").map(Number);
 
@@ -332,10 +348,10 @@ class UserService {
           ipParts[3]
         );
       } else {
-        throw new Error("올바르지 않은 IP 주소 형식입니다.");
+        return ({error:'올바르지 않은 IP 주소 형식입니다.'})
       }
     } else {
-      throw new Error("올바르지 않은 IP 형식입니다.");
+      return ({error:'올바르지 않은 IP 형식입니다.'})
     }
   }
 

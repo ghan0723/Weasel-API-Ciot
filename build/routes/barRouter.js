@@ -19,7 +19,7 @@ router.get("/count", (req, res) => {
         return userService
             .getPrivilegeAndIP(username)
             .then((result) => {
-            let ipRange = ipCalcService.parseIPRange(result[0].ip_ranges);
+            let ipRange = ipCalcService_1.default.parseIPRange(result[0].ip_ranges);
             return barService.getBarData(serviceName, select, ipRange);
         });
     }

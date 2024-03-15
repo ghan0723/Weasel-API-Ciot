@@ -24,7 +24,7 @@ router.get('/', (req:Request, res:Response) => {
             return res.status(500).send();
         }
         
-        ipRanges = ipCalcService.parseIPRange(result[0].ip_ranges);
+        ipRanges = IpCalcService.parseIPRange(result[0].ip_ranges);
 
         switch(select) {
             // 일

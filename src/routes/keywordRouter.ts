@@ -17,7 +17,7 @@ router.get("/all", (req: Request, res: Response) => {
 
   function fetchData(serviceName: string) {
     return userService.getPrivilegeAndIP(username).then((result) => {
-      let ipRange = ipCalcService.parseIPRange(result[0].ip_ranges);
+      let ipRange = IpCalcService.parseIPRange(result[0].ip_ranges);
       return keywordService.getKeywordList().then((result2) => {
         keywordList = result2;
         return keywordService.getKeyword(serviceName, select, ipRange, keywordList);

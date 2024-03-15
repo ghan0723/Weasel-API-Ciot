@@ -38,7 +38,7 @@ router.get("/", (req: Request, res: Response) => {
     userService.getPrivilegeAndIP(username)
     .then(result => {
       let results;
-      ipRanges = ipCalcService.parseIPRange(result[0].ip_ranges);
+      ipRanges = IpCalcService.parseIPRange(result[0].ip_ranges);
   
       if (contents === "network") {
         results = networkService.getApiData(page,pageSize,sorting,desc,category,search,ipRanges,result[0].privilege);
@@ -159,7 +159,7 @@ function getApiDataLogic(contents:any,page:any,pageSize:any,sorting:any,desc:any
   userService.getPrivilegeAndIP(username)
   .then(result => {
     let results;
-    ipRanges = ipCalcService.parseIPRange(result[0].ip_ranges);
+    ipRanges = IpCalcService.parseIPRange(result[0].ip_ranges);
     
     switch(contents) {
       case 'network' :
@@ -204,7 +204,7 @@ router.get("/leaked", (req: Request, res: Response) => {
   } else {
     userService.getPrivilegeAndIP(username)
     .then(result => {
-      ipRanges = ipCalcService.parseIPRange(result[0].ip_ranges);
+      ipRanges = IpCalcService.parseIPRange(result[0].ip_ranges);
     
       leakedService.getApiData(page,pageSize,sorting,desc,category,search,ipRanges,false)
         ?.then((DataItem) => {

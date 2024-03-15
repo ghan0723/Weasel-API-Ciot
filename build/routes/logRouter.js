@@ -62,7 +62,8 @@ router.get("/logout", (req, res) => {
     }
     log_1.weasel.log(username, req.socket.remoteAddress, `The logout of ${username} was successful.`);
     // weasel.log(username,req.socket.remoteAddress,`${username}의 로그아웃에 성공하였습니다.`);
-    res.send("logout log success");
+    const pastDate = new Date(0);
+    res.send({ error: "logout log success" });
 });
 // 로그 페이지 관련...
 // 감사로그

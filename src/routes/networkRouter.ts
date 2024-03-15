@@ -15,7 +15,7 @@ router.get('/all', (req:Request, res: Response) => {
     let username = req.query.username;
     userService.getPrivilegeAndIP(username)
     .then((result) => {
-        let ipRange = ipCalcService.parseIPRange(result[0].ip_ranges);
+        let ipRange = IpCalcService.parseIPRange(result[0].ip_ranges);
         networkService.getCountAll(select, ipRange)
         .then((allfiles)=>{
             res.send(allfiles);
