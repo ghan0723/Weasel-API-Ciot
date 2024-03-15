@@ -303,6 +303,8 @@ class UserService {
     });
   }
 
+  // mng_ip : 변경할 user의 range
+  // ipRanges : 로그인 한 user의 range
   checkIpRange(mng_ip: IpRange[], ipRanges: IpRange[]): Promise<any> {
     return new Promise((resolve, reject) => {
       let ipStartCheck = '';

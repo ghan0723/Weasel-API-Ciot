@@ -234,6 +234,7 @@ router.post("/add", (req, res) => {
     userService
         .getPrivilegeAndIP(user.cookie)
         .then((result) => {
+        // 관리자가 아닐 때
         if (result[0].privilege !== 1) {
             userService
                 .checkUsername(user.username)
