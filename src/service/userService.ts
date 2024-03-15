@@ -293,9 +293,14 @@ class UserService {
     });
   }
 
+  // mng_ip : 변경할 user의 range
+  // ipRanges : 로그인 한 user의 range
   checkIpRange(mng_ip: string, ipRanges: IpRange[]): Promise<any> {
     return new Promise((resolve, reject) => {
       const ipToCheck = this.ipToNumber(mng_ip);
+
+      console.log('ipToCheck',ipToCheck);
+      
 
       const isInRange = ipRanges.some(
         (range) =>
@@ -332,10 +337,10 @@ class UserService {
           ipParts[3]
         );
       } else {
-        throw new Error("올바르지 않은 IP 주소 형식입니다.");
+        return 0;
       }
     } else {
-      throw new Error("올바르지 않은 IP 형식입니다.");
+      return 0;
     }
   }
 

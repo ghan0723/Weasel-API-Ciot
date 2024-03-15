@@ -276,9 +276,13 @@ class UserService {
             }
         });
     }
+    // mng_ip : 변경할 user의 range
+    // ipRanges : 로그인 한 user의 range
     checkIpRange(mng_ip, ipRanges) {
+        console.log('mng_ip', mng_ip);
         return new Promise((resolve, reject) => {
             const ipToCheck = this.ipToNumber(mng_ip);
+            console.log('ipToCheck', ipToCheck);
             const isInRange = ipRanges.some((range) => ipToCheck >= this.ipToNumber(range.start) &&
                 ipToCheck <= this.ipToNumber(range.end));
             if (isInRange) {
@@ -298,6 +302,8 @@ class UserService {
     ipToNumber(ip) {
         if (typeof ip === "string" && /^\d+\.\d+\.\d+\.\d+$/.test(ip)) {
             const ipParts = ip.split(".").map(Number);
+            console.log('ip', ip);
+            console.log('ipParts', ipParts);
             if (ipParts.length === 4 &&
                 ipParts.every((part) => part >= 0 && part <= 255)) {
                 return ((ipParts[0] << 24) |
@@ -306,11 +312,11 @@ class UserService {
                     ipParts[3]);
             }
             else {
-                throw new Error("올바르지 않은 IP 주소 형식입니다.");
+                return 0;
             }
         }
         else {
-            throw new Error("올바르지 않은 IP 형식입니다.");
+            return 0;
         }
     }
     checkPwdFreq(username) {

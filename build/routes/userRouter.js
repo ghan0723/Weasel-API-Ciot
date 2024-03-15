@@ -234,6 +234,7 @@ router.post("/add", (req, res) => {
     userService
         .getPrivilegeAndIP(user.cookie)
         .then((result) => {
+        // 관리자가 아닐 때
         if (result[0].privilege !== 1) {
             userService
                 .checkUsername(user.username)
@@ -244,8 +245,9 @@ router.post("/add", (req, res) => {
                     res.status(401).send({ error: '입력한 사용자명이 중복되어 생성할 수 없습니다.' });
                 }
                 else {
+                    // 로그인한 사용자의 IPRange
                     let IpRange = ipCalcService.parseIPRange(result[0].ip_ranges);
-                    //새로 만든 사용자의 대역이 현재 로그인 한 사용자의 ip 대역을 넘지 않는지 확인
+                    // 새로 만든 사용자의 대역이 현재 로그인 한 사용자의 ip 대역을 넘지 않는지 확인
                     userService.checkIpRange(user.range, IpRange).then((result3) => {
                         if (result3.inRange) {
                             //대역을 넘지 않을 때
