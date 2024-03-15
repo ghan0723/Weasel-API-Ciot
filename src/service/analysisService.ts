@@ -1,8 +1,10 @@
 import connection from "../db/db";
 import Average from "../analysis/average";
+import IpCalcService from "./ipCalcService";
+import UserService from "./userService";
 
 class AnalysisService {
-  settingDateAndRange(startDate: any, endDate: any, pcGuid?: any): Promise<any> {
+  settingDateAndRange(startDate: any, endDate: any, ipRanges:any, pcGuid?: any, ): Promise<any> {
     // startDate와 endDate가 주어졌는지 확인
     if (!startDate || !endDate) {
       throw new Error("startDate와 endDate와 ipRanges는 필수 매개변수입니다.");
@@ -15,12 +17,19 @@ class AnalysisService {
     }
     
     return new Promise((resolve, reject) => {
-      connection.query(query, (error, result) => {
+      connection.query(query, async (error, result) => {
         if (error) {
           reject(error);
         } else {
-          
-          resolve(result);
+          let detectFiles: any[] = []
+          for (const file of result) {
+            const selectRanges = IpCalcService.parseIPRange(file.latest_agent_ip)
+            const inRange = await UserService.checkIpRange(selectRanges, ipRanges);
+            if(inRange.inRange){
+              detectFiles.push(file);
+            }
+          }
+          resolve(detectFiles);
         }
       });
     });
@@ -303,7 +312,7 @@ class AnalysisService {
     return transformedAgentInfo;
   }
 
-  riskScoring(startDate:any, endDate:any, keywords:any):Promise<any> {
+  riskScoring(startDate:any, endDate:any, keywords:any, ipRanges:any):Promise<any> {
     let scoringPoint:any;
     const dateRange = this.formatPeriod(startDate, endDate);
     const average:Average = new Average();
@@ -316,7 +325,7 @@ class AnalysisService {
         const numericValue = parseInt(matchResult[0]);
         let patternsResult:{ [pcGuid: string]: {keyword : number, pattern : number} } = {};
     
-        this.settingDateAndRange(startDate, endDate)
+        this.settingDateAndRange(startDate, endDate, ipRanges)
         .then((result) => {
           this.getAgentInfo(startDate, endDate)
           .then((result2) => {

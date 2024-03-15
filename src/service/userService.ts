@@ -3,6 +3,7 @@ import connection from "../db/db";
 import IpCalcService from "./ipCalcService";
 
 class UserService {
+
   getLogin(username: string): Promise<any> {
     return new Promise((resolve, reject) => {
       const query = `SELECT username, passwd, privilege, ip_ranges, enabled, fail_count FROM accountlist WHERE username = '${username}'`;
@@ -211,7 +212,7 @@ class UserService {
           let users: any[] = []
           result.forEach(async (user:any) => {
             const selectRanges = IpCalcService.parseIPRange(user.ip_ranges)
-            const inRange = this.checkIpRange(selectRanges, ipRanges);
+            const inRange = UserService.checkIpRange(selectRanges, ipRanges);
             if(await inRange){
               users.push(user);
             }
@@ -305,7 +306,35 @@ class UserService {
 
   // mng_ip : 변경할 user의 range
   // ipRanges : 로그인 한 user의 range
-  checkIpRange(mng_ip: IpRange[], ipRanges: IpRange[]): Promise<any> {
+  // static checkIpRange(mng_ip: IpRange[], ipRanges: IpRange[]): any {
+  //   let ipStartCheck = '';
+  //   let ipEndCheck = '';
+  //   // const ipToCheck = this.ipToNumber(mng_ip);
+  //   mng_ip.forEach((range) => {
+  //     ipStartCheck = this.ipToNumber(range.start);
+  //     ipEndCheck = this.ipToNumber(range.end);
+  //   });
+  
+  //   const isInRange = ipRanges.some(
+  //     (range) =>
+  //       ipStartCheck >= this.ipToNumber(range.start) &&
+  //       ipEndCheck <= this.ipToNumber(range.end)
+  //   );
+  
+  //   if (isInRange) {
+  //     return {
+  //       inRange: true,
+  //       message: "IP 주소가 허용된 범위 내에 있습니다.",
+  //     };
+  //   } else {
+  //     return {
+  //       inRange: false,
+  //       message: "IP 주소가 허용된 범위에 속하지 않습니다.",
+  //     };
+  //   }
+  // }
+  
+  static checkIpRange(mng_ip: IpRange[], ipRanges: IpRange[]): Promise<any> {
     return new Promise((resolve, reject) => {
       let ipStartCheck = '';
       let ipEndCheck = '';
@@ -335,7 +364,7 @@ class UserService {
     });
   }
 
-  ipToNumber(ip: string): any {
+  static ipToNumber(ip: string): any {
     if (typeof ip === "string" && /^\d+\.\d+\.\d+\.\d+$/.test(ip)) {
       const ipParts: number[] = ip.split(".").map(Number);
 

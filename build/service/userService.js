@@ -198,7 +198,7 @@ class UserService {
                     let users = [];
                     result.forEach((user) => __awaiter(this, void 0, void 0, function* () {
                         const selectRanges = ipCalcService_1.default.parseIPRange(user.ip_ranges);
-                        const inRange = this.checkIpRange(selectRanges, ipRanges);
+                        const inRange = UserService.checkIpRange(selectRanges, ipRanges);
                         if (yield inRange) {
                             users.push(user);
                         }
@@ -291,8 +291,32 @@ class UserService {
     }
     // mng_ip : 변경할 user의 range
     // ipRanges : 로그인 한 user의 range
-    checkIpRange(mng_ip, ipRanges) {
-        console.log('mng_ip', mng_ip);
+    // static checkIpRange(mng_ip: IpRange[], ipRanges: IpRange[]): any {
+    //   let ipStartCheck = '';
+    //   let ipEndCheck = '';
+    //   // const ipToCheck = this.ipToNumber(mng_ip);
+    //   mng_ip.forEach((range) => {
+    //     ipStartCheck = this.ipToNumber(range.start);
+    //     ipEndCheck = this.ipToNumber(range.end);
+    //   });
+    //   const isInRange = ipRanges.some(
+    //     (range) =>
+    //       ipStartCheck >= this.ipToNumber(range.start) &&
+    //       ipEndCheck <= this.ipToNumber(range.end)
+    //   );
+    //   if (isInRange) {
+    //     return {
+    //       inRange: true,
+    //       message: "IP 주소가 허용된 범위 내에 있습니다.",
+    //     };
+    //   } else {
+    //     return {
+    //       inRange: false,
+    //       message: "IP 주소가 허용된 범위에 속하지 않습니다.",
+    //     };
+    //   }
+    // }
+    static checkIpRange(mng_ip, ipRanges) {
         return new Promise((resolve, reject) => {
             let ipStartCheck = '';
             let ipEndCheck = '';
@@ -317,11 +341,9 @@ class UserService {
             }
         });
     }
-    ipToNumber(ip) {
+    static ipToNumber(ip) {
         if (typeof ip === "string" && /^\d+\.\d+\.\d+\.\d+$/.test(ip)) {
             const ipParts = ip.split(".").map(Number);
-            console.log('ip', ip);
-            console.log('ipParts', ipParts);
             if (ipParts.length === 4 &&
                 ipParts.every((part) => part >= 0 && part <= 255)) {
                 return ((ipParts[0] << 24) |

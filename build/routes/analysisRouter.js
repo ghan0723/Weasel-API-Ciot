@@ -8,11 +8,14 @@ const keywordService_1 = __importDefault(require("../service/keywordService"));
 const analysisService_1 = __importDefault(require("../service/analysisService"));
 const generateRandom_1 = require("../interface/generateRandom");
 const detail_1 = __importDefault(require("../analysis/detail"));
+const userService_1 = __importDefault(require("../service/userService"));
+const ipCalcService_1 = __importDefault(require("../service/ipCalcService"));
 const router = express_1.default.Router();
 const average = new average_1.default();
 const analysis = new analysisService_1.default();
 const keywordService = new keywordService_1.default();
 const detail = new detail_1.default();
+const userService = new userService_1.default();
 // keywordList
 router.get("/keywordList", (req, res) => {
     keywordService
@@ -30,21 +33,29 @@ router.post("/select", (req, res) => {
     const startDate = req.body.startDate + " 00:00:00";
     const endDate = req.body.endDate + " 23:59:59";
     const keywords = req.body.keywords;
-    analysis.riskScoring(startDate, endDate, keywords)
-        .then(result => {
-        if (result.length > 0 && result !== undefined && result !== null) {
-            res.send(result);
-        }
-        else {
-            res.send([{ pcGuid: '',
-                    level: 0,
-                    pcName: '',
-                    status: '',
-                    text: '' }]);
-        }
+    const username = req.body.username;
+    userService.getPrivilegeAndIP(username)
+        .then((result1) => {
+        const ipRanges = ipCalcService_1.default.parseIPRange(result1[0].ip_ranges);
+        analysis.riskScoring(startDate, endDate, keywords, ipRanges)
+            .then(result => {
+            if (result.length > 0 && result !== undefined && result !== null) {
+                res.send(result);
+            }
+            else {
+                res.send([{ pcGuid: '',
+                        level: 0,
+                        pcName: '',
+                        status: '',
+                        text: '' }]);
+            }
+        })
+            .catch(error => {
+            res.status(error.status).send(error.error);
+        });
     })
-        .catch(error => {
-        res.status(error.status).send(error.error);
+        .catch((error1) => {
+        res.status(error1.status).send(error1.error);
     });
 });
 router.get('/insert', (req, res) => {
@@ -59,37 +70,42 @@ router.post("/detail", (req, res) => {
     const pc_guid = req.body.pc_guid;
     const level = req.body.level;
     const status = req.body.status;
+    const username = req.body.username;
     const dateRange = analysis.formatPeriod(startDate, endDate);
     const resultValues = [];
     // 정규식을 사용하여 숫자 값을 추출합니다.
     const matchResult = dateRange.match(/\d+/);
-    if (matchResult) {
-        const numericValue = parseInt(matchResult[0]);
-        analysis.settingDateAndRange(startDate, endDate, pc_guid)
-            .then((result) => {
-            detail.getAnalysisLineDateByPcGuid(pc_guid, dateRange, startDate, endDate, numericValue)
-                .then((result2) => {
-                detail.getCountFileSize(pc_guid, dateRange, startDate, endDate, numericValue)
-                    .then((result3) => {
-                    const patternResult = analysis.analyzeDetailPatterns(result, pc_guid);
-                    resultValues.push(patternResult);
-                    resultValues.push(result2);
-                    resultValues.push(result3);
-                    resultValues.push({ startDate, endDate, level, status });
-                    res.send({ result: resultValues });
+    userService.getPrivilegeAndIP(username)
+        .then((result1) => {
+        const ipRanges = ipCalcService_1.default.parseIPRange(result1[0].ip_ranges);
+        if (matchResult) {
+            const numericValue = parseInt(matchResult[0]);
+            analysis.settingDateAndRange(startDate, endDate, ipRanges, pc_guid)
+                .then((result) => {
+                detail.getAnalysisLineDateByPcGuid(pc_guid, dateRange, startDate, endDate, numericValue)
+                    .then((result2) => {
+                    detail.getCountFileSize(pc_guid, dateRange, startDate, endDate, numericValue)
+                        .then((result3) => {
+                        const patternResult = analysis.analyzeDetailPatterns(result, pc_guid);
+                        resultValues.push(patternResult);
+                        resultValues.push(result2);
+                        resultValues.push(result3);
+                        resultValues.push({ startDate, endDate, level, status });
+                        res.send({ result: resultValues });
+                    })
+                        .catch((error3) => {
+                        res.status(400).send("Detail file size fail");
+                    });
                 })
-                    .catch((error3) => {
-                    res.status(400).send("Detail file size fail");
+                    .catch((error2) => {
+                    res.status(400).send("Unable to extract numeric value from dateRange Detail");
                 });
-            })
-                .catch((error2) => {
-                res.status(400).send("Unable to extract numeric value from dateRange Detail");
             });
-        });
-    }
-    else {
-        // 숫자 값을 추출할 수 없는 경우에 대한 처리
-        res.status(400).send("Unable to extract numeric value from dateRange Detail");
-    }
+        }
+        else {
+            // 숫자 값을 추출할 수 없는 경우에 대한 처리
+            res.status(400).send("Unable to extract numeric value from dateRange Detail");
+        }
+    });
 });
 module.exports = router;

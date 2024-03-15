@@ -248,7 +248,7 @@ router.post("/add", (req, res) => {
                     let IpRange = ipCalcService_1.default.parseIPRange(result[0].ip_ranges);
                     let IpRange2 = ipCalcService_1.default.parseIPRange(user.range);
                     //새로 만든 사용자의 대역이 현재 로그인 한 사용자의 ip 대역을 넘지 않는지 확인
-                    userService.checkIpRange(IpRange2, IpRange).then((result3) => {
+                    userService_1.default.checkIpRange(IpRange2, IpRange).then((result3) => {
                         if (result3.inRange) {
                             //대역을 넘지 않을 때
                             //freq 값 추가
@@ -439,7 +439,7 @@ router.post("/update/:username", (req, res) => {
                 if (result1[0].privilege !== 1) {
                     let IpRange = ipCalcService_1.default.parseIPRange(result1[0].ip_ranges);
                     let IpRange2 = ipCalcService_1.default.parseIPRange(result1[0].ip_ranges);
-                    userService
+                    userService_1.default
                         .checkIpRange(IpRange2, IpRange)
                         .then((result3) => {
                         if (result3.inRange) {

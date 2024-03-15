@@ -1,12 +1,23 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const db_1 = __importDefault(require("../db/db"));
 const average_1 = __importDefault(require("../analysis/average"));
+const ipCalcService_1 = __importDefault(require("./ipCalcService"));
+const userService_1 = __importDefault(require("./userService"));
 class AnalysisService {
-    settingDateAndRange(startDate, endDate, pcGuid) {
+    settingDateAndRange(startDate, endDate, ipRanges, pcGuid) {
         // startDate와 endDate가 주어졌는지 확인
         if (!startDate || !endDate) {
             throw new Error("startDate와 endDate와 ipRanges는 필수 매개변수입니다.");
@@ -17,14 +28,22 @@ class AnalysisService {
             query = `select * from leakednetworkfiles where (${dayOption}) AND pc_guid = '${pcGuid}'`;
         }
         return new Promise((resolve, reject) => {
-            db_1.default.query(query, (error, result) => {
+            db_1.default.query(query, (error, result) => __awaiter(this, void 0, void 0, function* () {
                 if (error) {
                     reject(error);
                 }
                 else {
-                    resolve(result);
+                    let detectFiles = [];
+                    for (const file of result) {
+                        const selectRanges = ipCalcService_1.default.parseIPRange(file.latest_agent_ip);
+                        const inRange = yield userService_1.default.checkIpRange(selectRanges, ipRanges);
+                        if (inRange.inRange) {
+                            detectFiles.push(file);
+                        }
+                    }
+                    resolve(detectFiles);
                 }
-            });
+            }));
         });
     }
     getAgentInfo(startDate, endDate) {
@@ -277,7 +296,7 @@ class AnalysisService {
         }
         return transformedAgentInfo;
     }
-    riskScoring(startDate, endDate, keywords) {
+    riskScoring(startDate, endDate, keywords, ipRanges) {
         let scoringPoint;
         const dateRange = this.formatPeriod(startDate, endDate);
         const average = new average_1.default();
@@ -287,7 +306,7 @@ class AnalysisService {
             if (matchResult) {
                 const numericValue = parseInt(matchResult[0]);
                 let patternsResult = {};
-                this.settingDateAndRange(startDate, endDate)
+                this.settingDateAndRange(startDate, endDate, ipRanges)
                     .then((result) => {
                     this.getAgentInfo(startDate, endDate)
                         .then((result2) => {
