@@ -441,9 +441,11 @@ router.post("/update/:username", (req: Request, res: Response) => {
             // weasel.log(user.cookie, req.socket.remoteAddress, "입력한 사용자명이 중복되어 변경할 수 없습니다. ");
             res.status(401).send({ error: result.message });
           } else {
+            // 관리자 계정이 아닐 때
             if (result1[0].privilege !== 1) {
               let IpRange = IpCalcService.parseIPRange(result1[0].ip_ranges);
               let IpRange2 = IpCalcService.parseIPRange(result1[0].ip_ranges);
+              
               UserService
                 .checkIpRange(IpRange2, IpRange)
                 .then((result3) => {
@@ -642,9 +644,9 @@ router.get("/all", (req: Request, res: Response) => {
             } else {
               res.send([
                 {
-                  id: "",
                   username: "",
                   privilege: "",
+                  enabled: "",
                   ip_ranges: "",
                 },
               ]);
