@@ -436,6 +436,7 @@ router.post("/update/:username", (req, res) => {
                 res.status(401).send({ error: result.message });
             }
             else {
+                // 관리자 계정이 아닐 때
                 if (result1[0].privilege !== 1) {
                     let IpRange = ipCalcService_1.default.parseIPRange(result1[0].ip_ranges);
                     let IpRange2 = ipCalcService_1.default.parseIPRange(user.mngRange);

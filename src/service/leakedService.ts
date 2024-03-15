@@ -56,7 +56,7 @@ class LeakedService {
             
             // 검색 결과가 없을 경우의 처리
             if (result.length === 0) {
-              result[0] = { pc_guid: "", time: "", pc_name: "", latest_agent_ip: "" };
+              result[0] = { pc_guid: "", pc_name: "", latest_agent_ip: "", time: "" };
             }
             if (error) {
               innerReject(error);
@@ -73,6 +73,7 @@ class LeakedService {
                   delete result[i].time;
                 }
               }
+              
               innerResolve(result); // 빈 인수로 호출
             }
           });

@@ -120,6 +120,7 @@ router.get("/dwn", async (req: Request, res: Response) => {
       "Content-Disposition",
       `attachment; filename=${contents}.xlsx`
     );
+
     res.send(excelBuffer);
     weasel.log(username,req.socket.remoteAddress,`You have downloaded the Excel file of ${contents}.`);
     // weasel.log(username,req.socket.remoteAddress,`${contents}의 액셀 파일을 다운로드 하였습니다.`);
