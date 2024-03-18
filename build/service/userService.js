@@ -210,9 +210,7 @@ class UserService {
                             _a = false;
                             const user = _d;
                             const selectRanges = ipCalcService_1.default.parseIPRange(user.ip_ranges);
-                            console.log("selectRanges : ", selectRanges);
                             const inRange = yield UserService.checkIpRange(selectRanges, ipRanges);
-                            console.log("inRange : ", inRange);
                             if (inRange.inRange) {
                                 users.push(user);
                             }
