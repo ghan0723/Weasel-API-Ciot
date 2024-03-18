@@ -346,8 +346,8 @@ router.post("/rm", (req: Request, res: Response) => {
       userService
         .getIdAndPriAndIp(username)
         .then((result) => {
+          let IpRange = IpCalcService.parseIPRange(result[0].ip_ranges);
           if (result[0].privilege !== 1) {
-            let IpRange = IpCalcService.parseIPRange(result[0].ip_ranges);
             userService
               .getUserListByPrivilegeAndIP(
                 result[0].privilege,
@@ -366,7 +366,6 @@ router.post("/rm", (req: Request, res: Response) => {
                 res.status(500).send("Internal Server Error");
               });
           } else {
-            let IpRange = IpCalcService.parseIPRange(result[0].ip_ranges);
             userService
               .getUserListAll(category, searchWord, result[0].id, IpRange)
               .then((result) => {
@@ -609,9 +608,8 @@ router.get("/all", (req: Request, res: Response) => {
   userService
     .getIdAndPriAndIp(username)
     .then((result) => {
-      
+      let IpRange = IpCalcService.parseIPRange(result[0].ip_ranges);
       if (result[0].privilege !== 1) {
-        let IpRange = IpCalcService.parseIPRange(result[0].ip_ranges);
         userService
           .getUserListByPrivilegeAndIP(
             result[0].privilege,
@@ -638,8 +636,6 @@ router.get("/all", (req: Request, res: Response) => {
           });
       } else {
         //관리자
-        let IpRange = IpCalcService.parseIPRange(result[0].ip_ranges);
-        
         userService
           .getUserListAll(category, searchWord, result[0].id, IpRange)
           .then((result) => {
