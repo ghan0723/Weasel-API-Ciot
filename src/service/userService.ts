@@ -229,6 +229,7 @@ class UserService {
 
   getUserListAll(category: any, searchWord: any, id:any, ipRanges:IpRange[]): Promise<any> {
     let searchCondition = "";
+    
     if(id !== 1){
       searchCondition = "privilege > 1";
     } else {
@@ -284,8 +285,10 @@ class UserService {
         } else {
           let users = [];
           for await (const user of result) {
+            
             const selectRanges = IpCalcService.parseIPRange(user.ip_ranges);
             const inRange = await UserService.checkIpRange(selectRanges, ipRanges);
+
             if (inRange.inRange) {
               users.push(user);
             }
@@ -333,13 +336,14 @@ class UserService {
         ipStartCheck = this.ipToNumber(range.start);
         ipEndCheck = this.ipToNumber(range.end);
       })
+      
 
       const isInRange = ipRanges.some(
         (range) =>
         ipStartCheck >= this.ipToNumber(range.start) &&
         ipEndCheck <= this.ipToNumber(range.end)
       );
-
+      
       if (isInRange) {
         resolve({
           inRange: true,

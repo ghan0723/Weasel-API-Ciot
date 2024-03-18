@@ -609,6 +609,7 @@ router.get("/all", (req: Request, res: Response) => {
   userService
     .getIdAndPriAndIp(username)
     .then((result) => {
+      
       if (result[0].privilege !== 1) {
         let IpRange = IpCalcService.parseIPRange(result[0].ip_ranges);
         userService
@@ -638,9 +639,11 @@ router.get("/all", (req: Request, res: Response) => {
       } else {
         //관리자
         let IpRange = IpCalcService.parseIPRange(result[0].ip_ranges);
+        
         userService
           .getUserListAll(category, searchWord, result[0].id, IpRange)
           .then((result) => {
+            
             if (result[0]) {
               res.send(result);
             } else {
