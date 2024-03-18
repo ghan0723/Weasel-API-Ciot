@@ -54,11 +54,9 @@ class LeakedService {
                 queryPage * queryPageSize;
             const query2 = "select count(*) as count from agentinfo " + whereClause;
             const whereQuery = "%" + search + "%";
-            console.log('query', query);
             Promise.all([
                 new Promise((innerResolve, innerReject) => {
                     db_1.default.query(query, whereQuery, (error, result) => {
-                        console.log('excelCheck', excelCheck);
                         // 검색 결과가 없을 경우의 처리
                         if (result.length === 0) {
                             result[0] = { pc_guid: "", pc_name: "", latest_agent_ip: "", time: "" };
@@ -68,7 +66,6 @@ class LeakedService {
                         }
                         else {
                             if (excelCheck) {
-                                console.log('들어옴???');
                                 for (let i = 0; i < result.length; i++) {
                                     result[i]['PC GUID'] = result[i]['pc_guid'];
                                     delete result[i].pc_guid;

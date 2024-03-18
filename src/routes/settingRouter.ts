@@ -92,7 +92,9 @@ router.post("/agent", (req: Request, res: Response) => {
     .getAgentSetting()
     .then(result => {      
       const str = settingService.modAgentSettingLog(agent,result[0]);
-      settingService.modAgentSetting(agent)
+      const checkAgent = settingService.checkModAgent(result[0], agent);
+
+      settingService.modAgentSetting(checkAgent)
       .then((result) => {
         weasel.log(username, req.socket.remoteAddress, str);
         res.send(result);
@@ -163,17 +165,32 @@ router.get("/process", (req: Request, res: Response) => {
 router.post("/process", (req: Request, res: Response) => {
   const newProcName = req.body.procName;
   const username = req.query.username;
-  settingService
-    .addProcessAccuracy(newProcName)
-    .then((result) => {
-      weasel.log(username, req.socket.remoteAddress, `Added ${newProcName} to the reconnaissance process.`);
-      // weasel.log(username, req.socket.remoteAddress, `${newProcName}을 정탐 프로세스에 추가하였습니다.`);
-      res.send(result);
-    })
-    .catch((error) => {
-      weasel.error(username, req.socket.remoteAddress, "Failed to Add ProcessAccuracy");
-      res.status(500).send("Add ProcessAccuracy 하다가 에러났어요");
-    });
+
+  settingService.checkProcessAccuracy(newProcName)
+  .then(result => {
+    if(result[0]?.result === 0) {
+      settingService
+      .addProcessAccuracy(newProcName)
+      .then((addResult) => {
+        weasel.log(username, req.socket.remoteAddress, `Added ${newProcName} to the reconnaissance process.`);
+        // weasel.log(username, req.socket.remoteAddress, `${newProcName}을 정탐 프로세스에 추가하였습니다.`);
+        res.send(addResult);
+      })
+      .catch((error:any) => {
+        weasel.error(username, req.socket.remoteAddress, "Adding reconnaissance process ${newProcName} failed.");
+        weasel.error(username, req.socket.remoteAddress, "정탐 프로세스 ${newProcName}을 추가에 실패하였습니다.");
+        res.status(500).send("Add ProcessAccuracy 하다가 에러났어요" + error);
+      });
+    } else {
+      res.send({result:result[0]?.result});
+    }
+  })
+  .catch(error => {
+    weasel.error(username, req.socket.remoteAddress, "An error occurred while executing a query to query the database for a new reconnaissance process to add.");
+    weasel.error(username, req.socket.remoteAddress, "새로 추가할 정탐 프로세스를 데이터베이스에 조회하는 쿼리 실행 중 오류가 발생하였습니다.");
+    res.status(500).send(error);
+  })
+
 });
 
 router.post("/delete", (req: Request, res: Response) => {

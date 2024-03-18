@@ -74,7 +74,6 @@ router.get("/dwn", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         const excelBuffer = yield excelService.getExcelFile(results[0], `${contents}`);
         res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         res.setHeader("Content-Disposition", `attachment; filename=${contents}.xlsx`);
-        console.log('results', results);
         res.send(excelBuffer);
         log_1.weasel.log(username, req.socket.remoteAddress, `You have downloaded the Excel file of ${contents}.`);
         // weasel.log(username,req.socket.remoteAddress,`${contents}의 액셀 파일을 다운로드 하였습니다.`);
