@@ -11,6 +11,38 @@ class SettingService {
             db_1.default;
         });
     }
+    // check된 항목만 적용
+    checkModAgent(currentData, newData) {
+        let result = newData;
+        console.log('currentData', currentData);
+        // 서버 IP
+        if (!((newData.flag & 1) === 1)) {
+            result.serverIP = currentData.clnt_svr_ip;
+        }
+        // 서버 Port
+        if (!((newData.flag & 2) === 2)) {
+            result.serverPort = currentData.clnt_svr_port;
+        }
+        // 서버 접속 주기
+        if (!((newData.flag & 32) === 32)) {
+            result.serverInterval = currentData.clnt_svr_conn_interval;
+        }
+        // 라이센스 배포
+        if (!((newData.flag & 8) === 8)) {
+            result.licenseDist = currentData.clnt_license;
+        }
+        // // 탐지 시 스크린샷 자동 생성 및 다운로드
+        // if(!((newData.flag & 128) === 128)) {
+        // }
+        // // (유출탐지 기능) Outlook 보낸편지함 메일 수집
+        // if(!((newData.flag & 256) === 256)) {
+        // }
+        // 감시 예외대역
+        if (!((newData.flag & 16) === 16)) {
+            result.exceptionList = currentData.clnt_exceptions_list;
+        }
+        return result;
+    }
     modAgentSettingLog(revData, currentData) {
         let str = '';
         // let str = '에이전트 설정 변경에 성공하였습니다.';
@@ -196,6 +228,19 @@ class SettingService {
     }
     getProcessAccuracy() {
         const query = "select * from processaccuracy";
+        return new Promise((resolve, reject) => {
+            db_1.default.query(query, (error, result) => {
+                if (error) {
+                    reject(error);
+                }
+                else {
+                    resolve(result);
+                }
+            });
+        });
+    }
+    checkProcessAccuracy(procName) {
+        const query = `select count(*) as result from processaccuracy where proc_name = '${procName}'`;
         return new Promise((resolve, reject) => {
             db_1.default.query(query, (error, result) => {
                 if (error) {
