@@ -344,7 +344,7 @@ router.post("/rm", (req: Request, res: Response) => {
     .removeUser(users)
     .then(() => {
       userService
-        .getPrivilegeAndIP(username)
+        .getIdAndPriAndIp(username)
         .then((result) => {
           if (result[0].privilege !== 1) {
             let IpRange = IpCalcService.parseIPRange(result[0].ip_ranges);
@@ -366,8 +366,9 @@ router.post("/rm", (req: Request, res: Response) => {
                 res.status(500).send("Internal Server Error");
               });
           } else {
+            let IpRange = IpCalcService.parseIPRange(result[0].ip_ranges);
             userService
-              .getUserListAll(category, searchWord)
+              .getUserListAll(category, searchWord, result[0].id, IpRange)
               .then((result) => {
                 weasel.log(username, req.socket.remoteAddress, "Successfully deleted the user.");
                 // weasel.log(username, req.socket.remoteAddress, "사용자 삭제를 성공하였습니다.");
@@ -606,7 +607,7 @@ router.get("/all", (req: Request, res: Response) => {
   let searchWord = req.query.searchWord;
 
   userService
-    .getPrivilegeAndIP(username)
+    .getIdAndPriAndIp(username)
     .then((result) => {
       if (result[0].privilege !== 1) {
         let IpRange = IpCalcService.parseIPRange(result[0].ip_ranges);
@@ -635,8 +636,10 @@ router.get("/all", (req: Request, res: Response) => {
             res.status(500).send("Internal Server Error");
           });
       } else {
+        //관리자
+        let IpRange = IpCalcService.parseIPRange(result[0].ip_ranges);
         userService
-          .getUserListAll(category, searchWord)
+          .getUserListAll(category, searchWord, result[0].id, IpRange)
           .then((result) => {
             if (result[0]) {
               res.send(result);
@@ -664,7 +667,7 @@ router.get("/all", (req: Request, res: Response) => {
 router.get("/check", (req: Request, res: Response) => {
   let username = req.query.username;
   userService
-    .getPrivilegeAndIP(username)
+    .getIdAndPriAndIp(username)
     .then((result) => {
       res.send(result);
     })

@@ -53,7 +53,8 @@ router.post("/select", (req: Request, res: Response) => {
         res.status(error.status).send(error.error);
       });
     } else {
-      analysis.riskScoring(startDate,endDate,keywords, undefined)
+      //관리자일때
+      analysis.riskScoring(startDate,endDate,keywords, ipRanges)
       .then(result => {    
         if(result.length > 0 && result !== undefined && result !== null){
           res.send(result);

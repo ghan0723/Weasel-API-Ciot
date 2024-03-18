@@ -227,8 +227,13 @@ class UserService {
     });
   }
 
-  getUserListAll(category: any, searchWord: any): Promise<any> {
-    let searchCondition = "privilege > 1";
+  getUserListAll(category: any, searchWord: any, id:any, ipRanges:IpRange[]): Promise<any> {
+    let searchCondition = "";
+    if(id !== 1){
+      searchCondition = "privilege > 1";
+    } else {
+      searchCondition = "privilege >= 1";
+    }
 
     if (searchWord !== "" && category !== "") {
       // 여기에서 category에 따라 적절한 검색 조건을 추가합니다.
@@ -266,13 +271,26 @@ class UserService {
       }
     }
 
+    // id가 1인 경우에만 검색 조건에 추가합니다.
+    if (id === 1) {
+      searchCondition += " AND id != 1";
+    }
+
     return new Promise((resolve, reject) => {
       const query = `select username, privilege, enabled, ip_ranges from accountlist where ${searchCondition}`;
-      connection.query(query, (error, result) => {
+      connection.query(query, async (error, result) => {
         if (error) {
           reject(error);
         } else {
-          resolve(result);
+          let users = [];
+          for await (const user of result) {
+            const selectRanges = IpCalcService.parseIPRange(user.ip_ranges);
+            const inRange = await UserService.checkIpRange(selectRanges, ipRanges);
+            if (inRange.inRange) {
+              users.push(user);
+            }
+          }
+          resolve(users);
         }
       });
     });
@@ -476,6 +494,19 @@ class UserService {
         }
       });
     });
+  }
+
+  getIdAndPriAndIp(username:any): Promise<any> {
+    const query = `select id, privilege, ip_ranges from accountlist where username = ?`;
+    return new Promise((resolve, reject) => {
+      connection.query(query, username,(error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      })
+    })
   }
 }
 

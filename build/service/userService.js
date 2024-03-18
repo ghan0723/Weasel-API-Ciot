@@ -210,9 +210,7 @@ class UserService {
                             _a = false;
                             const user = _d;
                             const selectRanges = ipCalcService_1.default.parseIPRange(user.ip_ranges);
-                            console.log("selectRanges : ", selectRanges);
                             const inRange = yield UserService.checkIpRange(selectRanges, ipRanges);
-                            console.log("inRange : ", inRange);
                             if (inRange.inRange) {
                                 users.push(user);
                             }
@@ -235,8 +233,14 @@ class UserService {
             }); });
         });
     }
-    getUserListAll(category, searchWord) {
-        let searchCondition = "privilege > 1";
+    getUserListAll(category, searchWord, id, ipRanges) {
+        let searchCondition = "";
+        if (id !== 1) {
+            searchCondition = "privilege > 1";
+        }
+        else {
+            searchCondition = "privilege >= 1";
+        }
         if (searchWord !== "" && category !== "") {
             // 여기에서 category에 따라 적절한 검색 조건을 추가합니다.
             switch (category) {
@@ -272,16 +276,41 @@ class UserService {
                     break;
             }
         }
+        // id가 1인 경우에만 검색 조건에 추가합니다.
+        if (id === 1) {
+            searchCondition += " AND id != 1";
+        }
         return new Promise((resolve, reject) => {
             const query = `select username, privilege, enabled, ip_ranges from accountlist where ${searchCondition}`;
-            db_1.default.query(query, (error, result) => {
+            db_1.default.query(query, (error, result) => { var _a, result_2, result_2_1; return __awaiter(this, void 0, void 0, function* () {
+                var _b, e_2, _c, _d;
                 if (error) {
                     reject(error);
                 }
                 else {
-                    resolve(result);
+                    let users = [];
+                    try {
+                        for (_a = true, result_2 = __asyncValues(result); result_2_1 = yield result_2.next(), _b = result_2_1.done, !_b; _a = true) {
+                            _d = result_2_1.value;
+                            _a = false;
+                            const user = _d;
+                            const selectRanges = ipCalcService_1.default.parseIPRange(user.ip_ranges);
+                            const inRange = yield UserService.checkIpRange(selectRanges, ipRanges);
+                            if (inRange.inRange) {
+                                users.push(user);
+                            }
+                        }
+                    }
+                    catch (e_2_1) { e_2 = { error: e_2_1 }; }
+                    finally {
+                        try {
+                            if (!_a && !_b && (_c = result_2.return)) yield _c.call(result_2);
+                        }
+                        finally { if (e_2) throw e_2.error; }
+                    }
+                    resolve(users);
                 }
-            });
+            }); });
         });
     }
     checkUsername(username, oldname) {
@@ -465,6 +494,19 @@ class UserService {
         const query = `update accountlist set fail_count = 0 where username = '${username}'`;
         return new Promise((resolve, reject) => {
             db_1.default.query(query, (error, result) => {
+                if (error) {
+                    reject(error);
+                }
+                else {
+                    resolve(result);
+                }
+            });
+        });
+    }
+    getIdAndPriAndIp(username) {
+        const query = `select id, privilege, ip_ranges from accountlist where username = ?`;
+        return new Promise((resolve, reject) => {
+            db_1.default.query(query, username, (error, result) => {
                 if (error) {
                     reject(error);
                 }

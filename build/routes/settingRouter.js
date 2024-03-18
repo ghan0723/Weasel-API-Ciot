@@ -158,9 +158,8 @@ router.post("/process", (req, res) => {
     const username = req.query.username;
     settingService.checkProcessAccuracy(newProcName)
         .then(result => {
-        var _a, _b, _c;
-        console.log('result', (_a = result[0]) === null || _a === void 0 ? void 0 : _a.result);
-        if (((_b = result[0]) === null || _b === void 0 ? void 0 : _b.result) === 0) {
+        var _a, _b;
+        if (((_a = result[0]) === null || _a === void 0 ? void 0 : _a.result) === 0) {
             settingService
                 .addProcessAccuracy(newProcName)
                 .then((addResult) => {
@@ -175,7 +174,7 @@ router.post("/process", (req, res) => {
             });
         }
         else {
-            res.send({ result: (_c = result[0]) === null || _c === void 0 ? void 0 : _c.result });
+            res.send({ result: (_b = result[0]) === null || _b === void 0 ? void 0 : _b.result });
         }
     })
         .catch(error => {

@@ -14,7 +14,6 @@ class SettingService {
     // check된 항목만 적용
     checkModAgent(currentData, newData) {
         let result = newData;
-        console.log('currentData', currentData);
         // 서버 IP
         if (!((newData.flag & 1) === 1)) {
             result.serverIP = currentData.clnt_svr_ip;
