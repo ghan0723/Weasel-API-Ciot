@@ -205,18 +205,18 @@ class UserService {
     return new Promise((resolve, reject) => {
       const query2 = `select username, privilege, enabled, ip_ranges from (${query}) AS userTable ${searchCondition}`;
       // 쿼리 실행
-      connection.query(query2, (error, result) => {
+      connection.query(query2, async (error, result) => {
         if (error) {
           reject(error);
         } else {
-          let users: any[] = []
-          result.forEach(async (user:any) => {
-            const selectRanges = IpCalcService.parseIPRange(user.ip_ranges)
-            const inRange = UserService.checkIpRange(selectRanges, ipRanges);
-            if(await inRange){
+          let users = [];
+          for await (const user of result) {
+            const selectRanges = IpCalcService.parseIPRange(user.ip_ranges);
+            const inRange = await UserService.checkIpRange(selectRanges, ipRanges);
+            if (inRange.inRange) {
               users.push(user);
             }
-          })
+          }
           if (privilege !== 3) {
             resolve(users);
           } else {

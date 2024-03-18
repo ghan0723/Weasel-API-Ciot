@@ -8,6 +8,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __asyncValues = (this && this.__asyncValues) || function (o) {
+    if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
+    var m = o[Symbol.asyncIterator], i;
+    return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i);
+    function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }
+    function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -190,19 +197,34 @@ class UserService {
         return new Promise((resolve, reject) => {
             const query2 = `select username, privilege, enabled, ip_ranges from (${query}) AS userTable ${searchCondition}`;
             // 쿼리 실행
-            db_1.default.query(query2, (error, result) => {
+            db_1.default.query(query2, (error, result) => { var _a, result_1, result_1_1; return __awaiter(this, void 0, void 0, function* () {
+                var _b, e_1, _c, _d;
                 if (error) {
                     reject(error);
                 }
                 else {
                     let users = [];
-                    result.forEach((user) => __awaiter(this, void 0, void 0, function* () {
-                        const selectRanges = ipCalcService_1.default.parseIPRange(user.ip_ranges);
-                        const inRange = UserService.checkIpRange(selectRanges, ipRanges);
-                        if (yield inRange) {
-                            users.push(user);
+                    try {
+                        for (_a = true, result_1 = __asyncValues(result); result_1_1 = yield result_1.next(), _b = result_1_1.done, !_b; _a = true) {
+                            _d = result_1_1.value;
+                            _a = false;
+                            const user = _d;
+                            const selectRanges = ipCalcService_1.default.parseIPRange(user.ip_ranges);
+                            console.log("selectRanges : ", selectRanges);
+                            const inRange = yield UserService.checkIpRange(selectRanges, ipRanges);
+                            console.log("inRange : ", inRange);
+                            if (inRange.inRange) {
+                                users.push(user);
+                            }
                         }
-                    }));
+                    }
+                    catch (e_1_1) { e_1 = { error: e_1_1 }; }
+                    finally {
+                        try {
+                            if (!_a && !_b && (_c = result_1.return)) yield _c.call(result_1);
+                        }
+                        finally { if (e_1) throw e_1.error; }
+                    }
                     if (privilege !== 3) {
                         resolve(users);
                     }
@@ -210,7 +232,7 @@ class UserService {
                         reject("error");
                     }
                 }
-            });
+            }); });
         });
     }
     getUserListAll(category, searchWord) {
@@ -291,31 +313,6 @@ class UserService {
     }
     // mng_ip : 변경할 user의 range
     // ipRanges : 로그인 한 user의 range
-    // static checkIpRange(mng_ip: IpRange[], ipRanges: IpRange[]): any {
-    //   let ipStartCheck = '';
-    //   let ipEndCheck = '';
-    //   // const ipToCheck = this.ipToNumber(mng_ip);
-    //   mng_ip.forEach((range) => {
-    //     ipStartCheck = this.ipToNumber(range.start);
-    //     ipEndCheck = this.ipToNumber(range.end);
-    //   });
-    //   const isInRange = ipRanges.some(
-    //     (range) =>
-    //       ipStartCheck >= this.ipToNumber(range.start) &&
-    //       ipEndCheck <= this.ipToNumber(range.end)
-    //   );
-    //   if (isInRange) {
-    //     return {
-    //       inRange: true,
-    //       message: "IP 주소가 허용된 범위 내에 있습니다.",
-    //     };
-    //   } else {
-    //     return {
-    //       inRange: false,
-    //       message: "IP 주소가 허용된 범위에 속하지 않습니다.",
-    //     };
-    //   }
-    // }
     static checkIpRange(mng_ip, ipRanges) {
         return new Promise((resolve, reject) => {
             let ipStartCheck = '';
