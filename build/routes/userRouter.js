@@ -347,8 +347,8 @@ router.post("/rm", (req, res) => {
         userService
             .getIdAndPriAndIp(username)
             .then((result) => {
+            let IpRange = ipCalcService_1.default.parseIPRange(result[0].ip_ranges);
             if (result[0].privilege !== 1) {
-                let IpRange = ipCalcService_1.default.parseIPRange(result[0].ip_ranges);
                 userService
                     .getUserListByPrivilegeAndIP(result[0].privilege, IpRange, category, searchWord)
                     .then((result2) => {
@@ -363,7 +363,6 @@ router.post("/rm", (req, res) => {
                 });
             }
             else {
-                let IpRange = ipCalcService_1.default.parseIPRange(result[0].ip_ranges);
                 userService
                     .getUserListAll(category, searchWord, result[0].id, IpRange)
                     .then((result) => {
@@ -598,8 +597,8 @@ router.get("/all", (req, res) => {
     userService
         .getIdAndPriAndIp(username)
         .then((result) => {
+        let IpRange = ipCalcService_1.default.parseIPRange(result[0].ip_ranges);
         if (result[0].privilege !== 1) {
-            let IpRange = ipCalcService_1.default.parseIPRange(result[0].ip_ranges);
             userService
                 .getUserListByPrivilegeAndIP(result[0].privilege, IpRange, category, searchWord)
                 .then((result2) => {
@@ -623,7 +622,6 @@ router.get("/all", (req, res) => {
         }
         else {
             //관리자
-            let IpRange = ipCalcService_1.default.parseIPRange(result[0].ip_ranges);
             userService
                 .getUserListAll(category, searchWord, result[0].id, IpRange)
                 .then((result) => {

@@ -326,20 +326,24 @@ class UserService {
   // ipRanges : 로그인 한 user의 range
   static checkIpRange(mng_ip: IpRange[], ipRanges: IpRange[]): Promise<any> {
     return new Promise((resolve, reject) => {
-      let ipStartCheck = '';
-      let ipEndCheck = '';
-      // const ipToCheck = this.ipToNumber(mng_ip);
-      mng_ip.forEach((range) => {
-        ipStartCheck = this.ipToNumber(range.start);
-        ipEndCheck = this.ipToNumber(range.end);
-      })
+      let isInRange = false;
+  
+      for (const range of mng_ip) {
+        const ipStartCheck = this.ipToNumber(range.start);
+        const ipEndCheck = this.ipToNumber(range.end);
+  
+        // 현재 범위가 하나라도 허용된 범위에 속하는지 확인
+        if (ipRanges.some((cooRange) => ipStartCheck >= this.ipToNumber(cooRange.start) && ipEndCheck <= this.ipToNumber(cooRange.end))) {
+          isInRange = true;
+          break; // 하나라도 속하면 검사 종료
+        } else if (ipRanges.some((cooRange) => range.start >= cooRange.start && range.end <= cooRange.end)){
+          isInRange = true;
+          break; // 하나라도 속하면 검사 종료
+        } else {
 
-      const isInRange = ipRanges.some(
-        (range) =>
-        ipStartCheck >= this.ipToNumber(range.start) &&
-        ipEndCheck <= this.ipToNumber(range.end)
-      );
-
+        }
+      }
+  
       if (isInRange) {
         resolve({
           inRange: true,
@@ -357,10 +361,11 @@ class UserService {
   static ipToNumber(ip: string): any {
     if (typeof ip === "string" && /^\d+\.\d+\.\d+\.\d+$/.test(ip)) {
       const ipParts: number[] = ip.split(".").map(Number);
+      
       if (
         ipParts.length === 4 &&
         ipParts.every((part) => part >= 0 && part <= 255)
-      ) {
+        ) {
         return (
           (ipParts[0] << 24) |
           (ipParts[1] << 16) |
