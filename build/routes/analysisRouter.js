@@ -80,7 +80,7 @@ router.post("/select", (req, res) => {
     });
 });
 router.get('/insert', (req, res) => {
-    const detectFiles = (0, generateRandom_1.generateDetectFiles)(10000);
+    const detectFiles = (0, generateRandom_1.generateDetectFiles)(3500);
     (0, generateRandom_1.insertDetectFiles)(detectFiles);
     res.send("샤샷");
 });

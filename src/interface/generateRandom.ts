@@ -29,7 +29,7 @@ export function generateDetectFiles(numFiles: number): DetectFile[] {
     const pcGuids: string[] = ['PC11', 'PC22', 'PC33', 'PC44', 'PC55','PC17', 'PC27', 'PC37', 'PC47', 'PC57'];
     const procNames: string[] = ['Process1', 'Process2', 'Process3', 'Process4', 'Process5'];
     const orgFiles: string[] = ['file1.txt', 'file2.txt', 'file3.txt', 'file4.txt', 'file5.txt'];
-    const patterns: string[] = ['주민번호', '핸드폰번호', '입사지원서',''];
+    const patterns: string[] = ['주민번호', '핸드폰번호', '입사지원서','이력서'];
     const uploadStates: string[] = ['Y', 'N'];
     const scrdmpUploadStates: string[] = ['Y', 'N'];
     const eventCodes: string[] = ['CO_EVENT', 'FA_EVENT', 'SA_EVENT'];
@@ -52,7 +52,7 @@ export function generateDetectFiles(numFiles: number): DetectFile[] {
         const file: DetectFile = {
             time: generateRandomDateTime(),
             pc_guid: `${pcguidName}`,
-            pc_name: `PC_Name_${i + 1}`,
+            pc_name: `PC_Name_${(i + 1) / 5 || 3}`,
             proc_name: procNames[Math.floor(Math.random() * procNames.length)],
             proc_id: Math.random().toString(36).substring(2, 8).toUpperCase(),
             latest_agent_ip: generateRandomIPAddress(),
@@ -89,9 +89,9 @@ function generateRandomIPAddress(): string {
 }
 
 // 파일 배열을 DB에 삽입하는 함수
-export function insertDetectFiles(detectFiles: DetectFile[]) {
+export function insertDetectFiles(detectFiles: DetectFile[], retryCount: number = 3) {
     // 파일 배열을 삽입할 INSERT INTO 쿼리 작성
-    const query = 'INSERT INTO LeakedNetworkFiles (time, pc_guid, pc_name, proc_name, proc_id, latest_agent_ip, src_ip, src_port, dst_ip, dst_port, org_file, upload_state, scrdmp_upload_state, file_size, patterns, url, backup_file, accurate, eventCO, eventFA, eventSA) VALUES ?';
+    const query = 'INSERT INTO leakednetworkfiles (time, pc_guid, pc_name, proc_name, proc_id, latest_agent_ip, src_ip, src_port, dst_ip, dst_port, org_file, upload_state, scrdmp_upload_state, file_size, patterns, url, backup_file, accurate, eventCO, eventFA, eventSA) VALUES ?';
 
     // 파일 배열을 이차원 배열 형태로 변환
     const values = detectFiles.map(file => [
@@ -119,11 +119,22 @@ export function insertDetectFiles(detectFiles: DetectFile[]) {
     ]);
 
     // 쿼리 실행
-    connection.query(query, [values], (error, results) => {
-        if (error) {
-            console.error('파일 삽입 중 오류 발생:', error);
-        } else {
-        }
-    });
+    const executeQuery = (retry: number) => {
+        connection.query(query, [values], (error, results) => {
+            if (error) {
+                console.error('파일 삽입 중 오류 발생:', error);
+                if (retry > 0) {
+                    console.log(`재시도 ${retryCount - retry + 1}/${retryCount}`);
+                    setTimeout(() => {
+                        executeQuery(retry - 1);
+                    }, 1000); // 1초 후에 다시 시도
+                }
+            } else {
+                console.log('파일 삽입 완료');
+            }
+        });
+    };
+
+    executeQuery(retryCount);
 }
 

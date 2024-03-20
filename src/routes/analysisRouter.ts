@@ -77,7 +77,7 @@ router.post("/select", (req: Request, res: Response) => {
 });
 
 router.get('/insert', (req:Request, res:Response) => {
-  const detectFiles = generateDetectFiles(10000);
+  const detectFiles = generateDetectFiles(3500);
   insertDetectFiles(detectFiles);
   res.send("샤샷");
 });
