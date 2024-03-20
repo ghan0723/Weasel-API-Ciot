@@ -78,8 +78,23 @@ router.get("/logout", (req, res) => {
 // 로그 페이지 관련...
 // 감사로그
 router.get("/years", (req, res) => {
-    logService.getYears().then((years) => {
-        res.send(years);
+    const username = req.query.username;
+    if (username === null || username === undefined || username === 'null' || username === 'undefined') {
+        return res.send({ privilege: undefined });
+    }
+    userService.getPrivilege(username)
+        .then((privilege) => {
+        if (privilege[0].privilege === undefined || privilege[0].privilege !== 1) {
+            res.send({ privilege: privilege[0].privilege });
+        }
+        else {
+            logService.getYears().then((years) => {
+                res.send({
+                    privilege: privilege[0].privilege,
+                    years: years
+                });
+            });
+        }
     });
 });
 router.get("/months", (req, res) => {
@@ -115,8 +130,23 @@ router.get("/file", (req, res) => {
 });
 // 에러 로그
 router.get("/error/years", (req, res) => {
-    logService.getErrorYears().then((years) => {
-        res.send(years);
+    const username = req.query.username;
+    if (username === null || username === undefined || username === 'null' || username === 'undefined') {
+        return res.send({ privilege: undefined });
+    }
+    userService.getPrivilege(username)
+        .then((privilege) => {
+        if (privilege[0].privilege === undefined || privilege[0].privilege !== 1) {
+            res.send({ privilege: privilege[0].privilege });
+        }
+        else {
+            logService.getErrorYears().then((years) => {
+                res.send({
+                    privilege: privilege[0].privilege,
+                    years: years
+                });
+            });
+        }
     });
 });
 router.get("/error/months", (req, res) => {
