@@ -3,10 +3,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 const express_1 = __importDefault(require("express"));
+const userService_1 = __importDefault(require("../service/userService"));
 const logService_1 = __importDefault(require("../service/logService"));
 const log_1 = require("../interface/log");
 const router = express_1.default.Router();
 const logService = new logService_1.default();
+const userService = new userService_1.default();
 router.get("/dashboard", (req, res) => {
     const username = req.query.username;
     if (typeof username !== "string") {
@@ -68,8 +70,23 @@ router.get("/logout", (req, res) => {
 // 로그 페이지 관련...
 // 감사로그
 router.get("/years", (req, res) => {
-    logService.getYears().then((years) => {
-        res.send(years);
+    const username = req.query.username;
+    if (username === null || username === undefined || username === 'null' || username === 'undefined') {
+        return res.send({ privilege: undefined });
+    }
+    userService.getPrivilege(username)
+        .then((privilege) => {
+        if (privilege[0].privilege === undefined || privilege[0].privilege !== 1) {
+            res.send({ privilege: privilege[0].privilege });
+        }
+        else {
+            logService.getYears().then((years) => {
+                res.send({
+                    privilege: privilege[0].privilege,
+                    years: years
+                });
+            });
+        }
     });
 });
 router.get("/months", (req, res) => {
@@ -105,8 +122,23 @@ router.get("/file", (req, res) => {
 });
 // 에러 로그
 router.get("/error/years", (req, res) => {
-    logService.getErrorYears().then((years) => {
-        res.send(years);
+    const username = req.query.username;
+    if (username === null || username === undefined || username === 'null' || username === 'undefined') {
+        return res.send({ privilege: undefined });
+    }
+    userService.getPrivilege(username)
+        .then((privilege) => {
+        if (privilege[0].privilege === undefined || privilege[0].privilege !== 1) {
+            res.send({ privilege: privilege[0].privilege });
+        }
+        else {
+            logService.getErrorYears().then((years) => {
+                res.send({
+                    privilege: privilege[0].privilege,
+                    years: years
+                });
+            });
+        }
     });
 });
 router.get("/error/months", (req, res) => {
