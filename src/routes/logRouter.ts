@@ -8,6 +8,7 @@ import { backIP } from "../interface/ipDomain";
 
 const router: Router = express.Router();
 const logService: LogService = new LogService();
+const userService: UserService = new UserService();
 
 router.get("/dashboard", (req: Request, res: Response) => {
   const username = req.query.username;
@@ -40,15 +41,23 @@ router.get("/tables", (req: Request, res: Response) => {
 
 router.get("/leaked", (req: Request, res: Response) => {
   const username = req.query.username;
-  if (typeof username !== "string") {
+  userService.getPrivilege(username)
+  .then((result) => {
+    if(result[0].privilege === 3){
+      weasel.log(username,req.socket.remoteAddress,`The account is not available for watchlisting.`);
+      // weasel.log(username,req.socket.remoteAddress,`관리대상목록을 이용할 수 없는 계정입니다.`);
+      res.status(400).send(result[0].privilege);
+    } else {
+      weasel.log(username,req.socket.remoteAddress,`You have been directed to the Watchlist menu.`);
+      // weasel.log(username,req.socket.remoteAddress,`관리대상 목록 메뉴로 이동하였습니다.`);
+      res.send("leaked log success");
+    }
+  })
+  .catch((error) => {
     weasel.error(username, req.socket.remoteAddress,  "Failed to navigate to the Watchlist menu.");
     // weasel.error(username, req.socket.remoteAddress,  "관리대상목록 메뉴로 이동에 실패하였습니다.");
     res.status(500).send("leaked log error");
-  } else {
-    weasel.log(username,req.socket.remoteAddress,`You have been directed to the Watchlist menu.`);
-    // weasel.log(username,req.socket.remoteAddress,`관리대상 목록 메뉴로 이동하였습니다.`);
-    res.send("leaked log success");
-  }
+  })
 });
 
 router.get("/analysis", (req: Request, res: Response) => {

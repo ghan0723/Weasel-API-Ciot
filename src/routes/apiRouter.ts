@@ -206,18 +206,15 @@ router.get("/leaked", (req: Request, res: Response) => {
     .then(result => {
       ipRanges = IpCalcService.parseIPRange(result[0].ip_ranges);
 
-    
       leakedService.getApiData(page,pageSize,sorting,desc,category,search,ipRanges,false)
         ?.then((DataItem) => {
-          res.send(DataItem);
+          res.send([DataItem, result[0].privilege]);
         })
         .catch((error) => {
-          console.error(error + " : leaked");
           res.status(500).send("server error");
         });
     })
     .catch(error => {
-      console.error("ipRange error : ", error);
       res.status(500).send("ipRange error");
     });
   }

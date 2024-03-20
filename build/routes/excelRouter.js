@@ -62,12 +62,10 @@ router.get("/dwn", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             results = yield leakedService.getApiData(page, pageSize, sorting, desc, category, search, ipRanges, true);
         }
         else {
-            console.error("Invalid param:", contents);
             res.status(400).send("Invalid param");
             return;
         }
         if (!results) {
-            console.error("No data found");
             res.status(404).send("No data found");
             return;
         }
@@ -121,7 +119,6 @@ router.post("/analytics", (req, res) => __awaiter(void 0, void 0, void 0, functi
                 delete results[i].text;
             }
             if (!results) {
-                console.error("No data found");
                 res.status(404).send("No data found");
                 return;
             }

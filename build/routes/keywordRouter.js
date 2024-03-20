@@ -69,7 +69,6 @@ router.get("/all", (req, res) => {
             res.status(200).send(top5MergedData);
         })
             .catch((err) => {
-            console.error("에러 발생: ", err);
             res.status(500).send("Error fetching data");
         });
     }
@@ -80,7 +79,6 @@ router.get("/all", (req, res) => {
             res.status(200).send(top5MergedData);
         })
             .catch((err) => {
-            console.error("에러 발생: ", err);
             res.status(500).send("Error fetching data");
         });
     }

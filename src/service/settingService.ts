@@ -221,7 +221,6 @@ class SettingService {
       const query = `select svr_ui_idle_timeout from serversetting`;
       connection.query(query, (error, result) => {
         if (error) {
-          console.error("Error in query:", error);
           reject(error);
         } else {
           // 여기서 result 값이 어떤 형태인지 확인하고 적절한 값을 반환하도록 수정
@@ -315,20 +314,16 @@ class SettingService {
     // 기존 파일 삭제
     fs.unlink(newFile, (err) => {
       if (err) {
-        console.error("파일 삭제 중 오류 발생:", err);
         return false;
       } else {
-        console.log("같은 경로의 파일이 삭제됨:", oldFile);
       }
     });
 
     // 새로운 파일의 naming 변경
     fs.rename(oldFile, newFile, (err) => {
       if (err) {
-        console.error("파일 이름 변경 중 오류 발생:", err);
         return false;
       } else {
-        console.log("같은 경로의 이름이 변경됨:", newFile);
       }
     });
 

@@ -327,7 +327,6 @@ class MediaService {
         });
   
       } catch (error) {
-        console.log(`데이터 삽입 ${i+1}번째 실패: ${error}`);
       }
     }
   }

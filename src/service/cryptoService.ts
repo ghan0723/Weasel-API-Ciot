@@ -50,7 +50,6 @@ class CryptoService {
                 return originalString.slice(0, -position) + insertion + originalString.slice(-position);
             }
         } catch (error) {
-            console.error('오류:', error);
             throw error; // 에러가 발생하면 다시 던집니다.
         }
     }
@@ -76,7 +75,6 @@ class CryptoService {
                 return { cutPart, remainingPart };
             }
         } catch (error) {
-            console.error('오류:', error);
             throw error; // 에러가 발생하면 다시 던집니다.
         }
     }
@@ -92,7 +90,6 @@ class CryptoService {
 
             return { iv: iv.toString('hex'), encryptedData: encrypted };
         } catch (error) {
-            console.error('오류:', error);
             throw error; // 에러가 발생하면 다시 던집니다.
         }
     }
@@ -107,7 +104,6 @@ class CryptoService {
 
             return decrypted;
         } catch (error) {
-            console.error('오류:', error);
             throw error; // 에러가 발생하면 다시 던집니다.
         }
     }
@@ -118,7 +114,6 @@ class CryptoService {
             const { iv, encryptedData } = this.encrypt(dataToEncrypt, secretKey);
             return { iv, encryptedData };
         } catch (error) {
-            console.error('오류:', error);
             throw error; // 에러가 발생하면 다시 던집니다.
         }
     }
@@ -129,7 +124,6 @@ class CryptoService {
             const decryptedData: string = this.decrypt(encryptedData, secretKey, iv);
             return decryptedData;
         } catch (error) {
-            console.error('오류:', error);
             throw error; // 에러가 발생하면 다시 던집니다.
         }
     }
@@ -156,7 +150,6 @@ class CryptoService {
 
             return modifiedString;
         } catch (error) {
-            console.error('오류:', error);
             throw error; // 에러가 발생하면 다시 던집니다.
         }
     }
@@ -178,7 +171,6 @@ class CryptoService {
 
             return decryptedData;
         } catch (error) {
-            console.error('오류:', error);
             throw error; // 에러가 발생하면 다시 던집니다.
         }
     }

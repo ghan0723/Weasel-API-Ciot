@@ -98,13 +98,11 @@ router.get("/dwn", async (req: Request, res: Response) => {
         true
       );
     } else {
-      console.error("Invalid param:", contents);
       res.status(400).send("Invalid param");
       return;
     }
 
     if (!results) {
-      console.error("No data found");
       res.status(404).send("No data found");
       return;
     }
@@ -168,7 +166,6 @@ router.post("/analytics", async (req: Request, res: Response) => {
       }
   
       if (!results) {
-        console.error("No data found");
         res.status(404).send("No data found");
         return;
       }

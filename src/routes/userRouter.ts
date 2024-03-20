@@ -76,7 +76,6 @@ router.post("/login", (req: Request, res: Response) => {
                       .catch((error5) => {
                         weasel.error(username,req.socket.remoteAddress,"An error occurred while executing the query that queries the popup to the database.");
                         // weasel.error(username,req.socket.remoteAddress,"팝업을 데이터베이스에 조회하는 쿼리 실행 중 오류가 발생했습니다.");
-                        console.error("PopupNotice 가져오기 실패:", error5);
                         res.status(500).send(error5);
                       });
                   }
@@ -84,7 +83,6 @@ router.post("/login", (req: Request, res: Response) => {
                 .catch((error2) => {
                   weasel.error(username,req.socket.remoteAddress,"An error occurred while executing a query to look up the server's Guitime in the database.");
                   // weasel.error(username, req.socket.remoteAddress, "서버의 Guitime을 데이터베이스에 조회하는 쿼리 실행 중 오류가 발생했습니다.");
-                  console.error("쿠키 타임 가져오기 실패:", error2);
                   res.status(500).send(error2);
                 });
             } else {
@@ -193,7 +191,6 @@ router.post("/login", (req: Request, res: Response) => {
                       "An error occurred while executing a query to look up the server's Guitime in the database."
                     );
                     // weasel.error(username, req.socket.remoteAddress, "서버의 Guitime을 데이터베이스에 조회하는 쿼리 실행 중 오류가 발생했습니다.");
-                    console.error("쿠키 타임 가져오기 실패:", error2);
                     res.status(500).send(error2);
                   });
               }
@@ -264,14 +261,12 @@ router.post("/add", (req: Request, res: Response) => {
                         .catch((error) => {
                           weasel.error(user.cookie, req.socket.remoteAddress, "An error occurred while executing a query to add a new user account to the database.");
                           // weasel.error(user.cookie, req.socket.remoteAddress, "새로운 사용자 계정을 데이터베이스에 추가하는 쿼리 실행 중 오류가 발생하였습니다.");
-                          console.error("회원가입 실패:", error);
                           res.status(500).send(error);
                         });
                     })
                     .catch((error) => {
                       weasel.error(user.cookie, req.socket.remoteAddress, "There was an error running a query to the database to see how often the currently logged in user has changed their password.");
                       // weasel.error(user.cookie, req.socket.remoteAddress, "현재 로그인한 사용자의 비밀번호 변경 주기를 데이터베이스에 조회하는 쿼리 실행 중 오류가 발생하였습니다.");
-                      console.error("회원가입 실패:", error);
                       res.status(500).send(error);
                     });
                 } else {
@@ -376,7 +371,6 @@ router.post("/rm", (req: Request, res: Response) => {
               .catch((error) => {
                 weasel.error(username, req.socket.remoteAddress, "Failed to navigate to the Manage Users menu after deleting a user account.");
                 // weasel.error(username, req.socket.remoteAddress, "사용자 계정 삭제 이후 사용자 관리 메뉴로 이동에 실패하였습니다.");
-                console.error("list 잘못 가져옴:", error);
                 res.status(500).send("Internal Server Error");
               });
           }
@@ -384,14 +378,12 @@ router.post("/rm", (req: Request, res: Response) => {
         .catch((error) => {
           weasel.error(username, req.socket.remoteAddress, "There was an error executing a query to the database to look up the rating and IP band of the currently logged in user.");
           // weasel.error(username, req.socket.remoteAddress, "현재 로그인한 사용자의 등급과 IP 대역을 데이터베이스에 조회하는 쿼리 실행 중 오류가 발생하였습니다.");
-          console.error("user 정보 제대로 못 가져옴:", error);
           res.status(500).send("Internal Server Error");
         });
     })
     .catch((error) => {
       weasel.error(username, req.socket.remoteAddress, "An error occurred while executing a query to delete user accounts to the database.");
       // weasel.error(username, req.socket.remoteAddress, "사용자 계정을 데이터베이스에 삭제하는 쿼리 실행 중 오류가 발생하였습니다.");
-      console.error("실패:", error);
       res.status(500).send("Internal Server Error");
     });
 });
@@ -414,7 +406,6 @@ router.get("/modify/:username", (req: Request, res: Response) => {
     .catch((error) => {
       weasel.error(username, req.socket.remoteAddress, "Failed to navigate to the Edit User menu.");
       // weasel.error(username, req.socket.remoteAddress, "사용자 수정 메뉴로 이동에 실패하였습니다.");
-      console.error("보내기 실패:", error);
       res.status(500).send("Internal Server Error");
     });
 });
@@ -466,7 +457,6 @@ router.post("/update/:username", (req: Request, res: Response) => {
                           .catch((error) => {
                             weasel.error(user.cookie, req.socket.remoteAddress, "An error occurred while executing a query to change user accounts in the database.");
                             // weasel.error(user.cookie, req.socket.remoteAddress, "사용자 계정을 데이터베이스에 변경하는 쿼리 실행 중 오류가 발생하였습니다.");
-                            console.error("업데이트 실패:", error);
                             res.status(500).send("Internal Server Error");
                           });
                       } else {
@@ -484,14 +474,12 @@ router.post("/update/:username", (req: Request, res: Response) => {
                               .catch((error) => {
                                 weasel.error(user.cookie, req.socket.remoteAddress, "Renewing the password change cycle for the changed user account failed.");
                                 // weasel.error(user.cookie, req.socket.remoteAddress, "변경한 사용자 계정의 비밀번호 변경 주기를 갱신하는데 실패하였습니다.");
-                                console.error("업데이트 실패:", error);
                                 res.status(500).send("Internal Server Error");
                               });
                           })
                           .catch((error) => {
                             weasel.error(user.cookie, req.socket.remoteAddress, "An error occurred while executing a query to change user accounts in the database.");
                             // weasel.error(user.cookie, req.socket.remoteAddress, "사용자 계정을 데이터베이스에 변경하는 쿼리 실행 중 오류가 발생하였습니다.");
-                            console.error("업데이트 실패:", error);
                             res.status(500).send("Internal Server Error");
                           });
                       }
@@ -595,7 +583,6 @@ router.get("/privilege", (req: Request, res: Response) => {
       res.send(result);
     })
     .catch((error) => {
-      console.error("privilege 보내기 실패:", error);
       res.status(500).send("Internal Server Error");
     });
 });
@@ -671,7 +658,6 @@ router.get("/check", (req: Request, res: Response) => {
       res.send(result);
     })
     .catch((error) => {
-      console.error("privilege 보내기 실패:", error);
       res.status(500).send("Internal Server Error");
     });
 });

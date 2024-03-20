@@ -4,9 +4,11 @@ import SettingService from "../service/settingService";
 import path from "path";
 import fs from "fs";
 import express, { Request, Response, Router } from "express";
+import UserService from "../service/userService";
 
 const router: Router = express.Router();
 const settingService: SettingService = new SettingService();
+const userService: UserService = new UserService();
 let existFile: string = "";
 // Multer 저장소 설정
 const storage = multer.diskStorage({
@@ -62,7 +64,9 @@ router.post("/server", (req: Request, res: Response) => {
 
 router.get("/servers", (req: Request, res: Response) => {
   const username = req.query.username;
-  settingService
+  userService.getPrivilege(username)
+  .then((result1) => {
+    settingService
     .getServerSetting()
     .then((result) => {
       const newAuto = result[0].svr_auto_fileupload === 1 ? true : false;
@@ -72,17 +76,30 @@ router.get("/servers", (req: Request, res: Response) => {
         auto: newAuto,
         interval: result[0].svr_ui_refresh_interval,
         svr_patterns_list: result[0].svr_patterns_list,
+        privilege:result1[0].privilege,
       };
-      weasel.log(username, req.socket.remoteAddress, "You have been directed to the Server Settings menu.");
-      // weasel.log(username, req.socket.remoteAddress, "서버 설정 메뉴로 이동하였습니다.");
-      res.send(newResult);
+      if(result1[0].privilege === 3){
+        weasel.log(username, req.socket.remoteAddress, "This account does not have access to server settings.");
+        // weasel.log(username, req.socket.remoteAddress, "서버 설정을 이용할 수 없는 계정입니다.");
+        res.send(newResult);
+      } else {
+        weasel.log(username, req.socket.remoteAddress, "You have been directed to the Server Settings menu.");
+        // weasel.log(username, req.socket.remoteAddress, "서버 설정 메뉴로 이동하였습니다.");
+        res.send(newResult);
+      }
     })
     .catch((error) => {
       weasel.error(username, req.socket.remoteAddress, 'Failed to navigate to the Server Settings menu.');
       // weasel.error(username, req.socket.remoteAddress, '서버 설정 메뉴로 이동에 실패하였습니다.');
-      console.error("update get 에러 : ", error);
       res.status(500).send("update get 하다가 에러났어요");
     });
+  })
+  .catch((error) => {
+    weasel.error(username, req.socket.remoteAddress, 'Failed to navigate to the Server Settings menu.');
+    // weasel.error(username, req.socket.remoteAddress, '서버 설정 메뉴로 이동에 실패하였습니다.');
+    res.status(500).send("update get 하다가 에러났어요");
+  })
+
 });
 
 router.post("/agent", (req: Request, res: Response) => {
@@ -113,29 +130,41 @@ router.post("/agent", (req: Request, res: Response) => {
 
 router.get("/agents", (req: Request, res: Response) => {
   const username = req.query.username;
-  settingService
+  userService.getPrivilege(username)
+  .then((result1) => {
+    settingService
     .getAgentSetting()
     .then((result) => {
       settingService
         .getUpdateFileAgent()
         .then((result2) => {
-          weasel.log(username, req.socket.remoteAddress, "You're in the Agent settings menu.");
-          // weasel.log(username, req.socket.remoteAddress, "에이전트 설정 메뉴로 이동하였습니다.");
-          res.send([result, result2]);
+          if(result1[0].privilege === 3){
+            weasel.log(username, req.socket.remoteAddress, "Agent settings are not available for this account.");
+            // weasel.log(username, req.socket.remoteAddress, "에이전트 설정을 이용할 수 없는 계정입니다.");
+            res.send([result, result2, result1]);
+          } else {
+            weasel.log(username, req.socket.remoteAddress, "You're in the Agent settings menu.");
+            // weasel.log(username, req.socket.remoteAddress, "에이전트 설정 메뉴로 이동하였습니다.");
+            res.send([result, result2, result1]);
+          }
         })
         .catch((error2) => {
           weasel.error(username, req.socket.remoteAddress, "Navigating to the agent settings menu failed.");
           // weasel.error(username, req.socket.remoteAddress, "에이전트 설정 메뉴로 이동에 실패하였습니다.");
-          console.error("agent setting get 에러 : ", error2);
           res.status(500).send("agent setting get 하다가 에러났어요");
         });
     })
     .catch((error) => {
       weasel.error(username, req.socket.remoteAddress, "Navigating to the agent settings menu failed.");
       // weasel.error(username, req.socket.remoteAddress, "에이전트 설정 메뉴로 이동에 실패하였습니다.");
-      console.error("agent setting get 에러 : ", error);
       res.status(500).send("agent setting get 하다가 에러났어요");
     });
+  })
+  .catch((error) => {
+    weasel.error(username, req.socket.remoteAddress, "Navigating to the agent settings menu failed.");
+    // weasel.error(username, req.socket.remoteAddress, "에이전트 설정 메뉴로 이동에 실패하였습니다.");
+    res.status(500).send("agent setting get 하다가 에러났어요");
+  })
 });
 
 router.get("/intervalTime", (req: Request, res: Response) => {
@@ -145,7 +174,6 @@ router.get("/intervalTime", (req: Request, res: Response) => {
       res.send(result);
     })
     .catch((error) => {
-      console.error("intervalTime get 에러 : ", error);
       res.status(500).send("intervalTime get 에러");
     });
 });
@@ -157,7 +185,6 @@ router.get("/process", (req: Request, res: Response) => {
       res.send(result);
     })
     .catch((error) => {
-      console.error("get process 에러 : ", error);
       res.status(500).send("get process 에러");
     });
 });
@@ -229,7 +256,6 @@ router.post("/fileUpdate", upload.single("file"), (req: Request, res: Response) 
       // Dat 파일이 아닌 경우 파일 삭제
       fs.unlink(req.file.path, (err) => {
         if (err) {
-          console.error('파일 삭제 중 오류 발생:', err);
           res.status(500).send('파일 삭제 중 오류 발생');
         } else {
           res.status(200).send('Dat 파일이 아닙니다.');

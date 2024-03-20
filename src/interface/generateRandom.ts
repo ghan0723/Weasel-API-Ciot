@@ -122,15 +122,12 @@ export function insertDetectFiles(detectFiles: DetectFile[], retryCount: number 
     const executeQuery = (retry: number) => {
         connection.query(query, [values], (error, results) => {
             if (error) {
-                console.error('파일 삽입 중 오류 발생:', error);
                 if (retry > 0) {
-                    console.log(`재시도 ${retryCount - retry + 1}/${retryCount}`);
                     setTimeout(() => {
                         executeQuery(retry - 1);
                     }, 1000); // 1초 후에 다시 시도
                 }
             } else {
-                console.log('파일 삽입 완료');
             }
         });
     };

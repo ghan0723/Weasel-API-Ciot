@@ -3,10 +3,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 const express_1 = __importDefault(require("express"));
+const userService_1 = __importDefault(require("../service/userService"));
 const logService_1 = __importDefault(require("../service/logService"));
 const log_1 = require("../interface/log");
 const router = express_1.default.Router();
 const logService = new logService_1.default();
+const userService = new userService_1.default();
 router.get("/dashboard", (req, res) => {
     const username = req.query.username;
     if (typeof username !== "string") {
@@ -31,16 +33,24 @@ router.get("/tables", (req, res) => {
 });
 router.get("/leaked", (req, res) => {
     const username = req.query.username;
-    if (typeof username !== "string") {
+    userService.getPrivilege(username)
+        .then((result) => {
+        if (result[0].privilege === 3) {
+            log_1.weasel.log(username, req.socket.remoteAddress, `The account is not available for watchlisting.`);
+            // weasel.log(username,req.socket.remoteAddress,`관리대상목록을 이용할 수 없는 계정입니다.`);
+            res.status(400).send(result[0].privilege);
+        }
+        else {
+            log_1.weasel.log(username, req.socket.remoteAddress, `You have been directed to the Watchlist menu.`);
+            // weasel.log(username,req.socket.remoteAddress,`관리대상 목록 메뉴로 이동하였습니다.`);
+            res.send("leaked log success");
+        }
+    })
+        .catch((error) => {
         log_1.weasel.error(username, req.socket.remoteAddress, "Failed to navigate to the Watchlist menu.");
         // weasel.error(username, req.socket.remoteAddress,  "관리대상목록 메뉴로 이동에 실패하였습니다.");
         res.status(500).send("leaked log error");
-    }
-    else {
-        log_1.weasel.log(username, req.socket.remoteAddress, `You have been directed to the Watchlist menu.`);
-        // weasel.log(username,req.socket.remoteAddress,`관리대상 목록 메뉴로 이동하였습니다.`);
-        res.send("leaked log success");
-    }
+    });
 });
 router.get("/analysis", (req, res) => {
     const username = req.query.username;

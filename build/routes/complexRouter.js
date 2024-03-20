@@ -30,7 +30,6 @@ router.get("/all", (req, res) => {
         res.status(200).send(dataArray);
     })
         .catch((err) => {
-        console.error("에러 발생: ", err);
         // If the error has not been handled earlier, send a generic error message
         res.status(500).send("Error fetching data");
     });

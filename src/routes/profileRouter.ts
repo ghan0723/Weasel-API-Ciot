@@ -29,7 +29,6 @@ router.get("/edit/:username", (req: Request, res: Response) => {
     .catch((error) => {
       weasel.error(username, req.socket.remoteAddress, "Failed to navigate to the Edit Personal Information menu.");
       // weasel.error(username, req.socket.remoteAddress, "본인정보수정 메뉴로 이동에 실패하였습니다.");
-      console.error("profile failed:", error);
       res.status(500).send("Internal Server Error");
     });
 });

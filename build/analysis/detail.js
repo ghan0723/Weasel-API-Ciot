@@ -39,7 +39,7 @@ class Detail {
                     }
                     catch (error) {
                         // 오류 처리
-                        console.error(error);
+                        // console.error(error);
                     }
                 }
             }
@@ -67,7 +67,7 @@ class Detail {
                         result["평균"].data.push(parseFloat(averageData.toFixed(2)));
                     }
                     catch (error) {
-                        console.error(error);
+                        // console.error(error);
                     }
                     // 현재 날짜에 3일을 더함
                     currentDate.setDate(currentDate.getDate() + 3 * numericValue);
@@ -94,7 +94,7 @@ class Detail {
                         result["평균"].data.push(parseFloat(averageData.toFixed(2)));
                     }
                     catch (error) {
-                        console.error(error);
+                        // console.error(error);
                     }
                     currentDate.setMonth(currentDate.getMonth() + 1);
                 }
@@ -122,7 +122,7 @@ class Detail {
                         result["평균"].data.push(parseFloat(averageData.toFixed(2)));
                     }
                     catch (error) {
-                        console.error(error);
+                        // console.error(error);
                     }
                     // 현재 날짜에 3일을 더함
                     currentDate.setDate(currentDate.getDate() + 14);
