@@ -69,6 +69,12 @@ router.get("/dwn", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             res.status(404).send("No data found");
             return;
         }
+        const keys = Object.keys(results[0][0]);
+        if (keys.includes('id')) {
+            for (let i = 0; i < results[0].length; i++) {
+                delete results[0][i].id;
+            }
+        }
         const excelBuffer = yield excelService.getExcelFile(results[0], `${contents}`);
         res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         res.setHeader("Content-Disposition", `attachment; filename=${contents}.xlsx`);

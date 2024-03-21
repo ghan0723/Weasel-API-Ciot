@@ -106,6 +106,15 @@ router.get("/dwn", async (req: Request, res: Response) => {
       res.status(404).send("No data found");
       return;
     }
+
+    const keys = Object.keys(results[0][0]);
+
+    if(keys.includes('id')) {
+      for(let i=0; i < results[0].length; i++) {
+        delete results[0][i].id;
+      }
+    }
+    
     const excelBuffer = await excelService.getExcelFile(
       results[0],
       `${contents}`
