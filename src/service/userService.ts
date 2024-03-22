@@ -330,12 +330,18 @@ class UserService {
   static checkIpRange(mng_ip: IpRange[], ipRanges: IpRange[]): Promise<any> {
     return new Promise((resolve, reject) => {
       let isInRange = false;
+
+      console.log('mng_ip',mng_ip);
+      console.log('ipRanges',ipRanges);
+      
+
       for(const ipRange of ipRanges){
         for (const range of mng_ip) {
           const cookieStartIP: string[] = ipRange.start.trim().split(".");
           const cookieEndIP: string[] = ipRange.end.trim().split(".");          
           const startIP: string[] = range.start.trim().split(".");
           const endIP: string[] = range.end.trim().split(".");
+          
           for (let i = 0; i< 4; i++){
             if((parseInt(startIP[i], 10) < parseInt(cookieStartIP[i], 10)) || (parseInt(endIP[i], 10) > parseInt(cookieEndIP[i], 10))){
               isInRange = false;
