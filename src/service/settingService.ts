@@ -75,10 +75,13 @@ class SettingService {
     exceptionList?: string;
     flag: number;
   }): Promise<any> {
-    let excip = agent.exceptionList?.replace(/(\r\n|\n|\r)/gm, ", ");
-
+    let excip = "";
     // db에 undefined가 문자열로 들어가는 것을 막기위한 예외처리
-    if (excip === undefined) excip = "";
+    if (agent.exceptionList === undefined || agent.exceptionList === null){
+      excip = "";
+    } else {
+      excip = agent.exceptionList?.replace(/(\r\n|\n|\r)/gm, ", ");
+    }
 
     const query = `update serversetting set uid=${agent.uid}, clnt_svr_ip="${agent.serverIP}", clnt_svr_port=${agent.serverPort}, clnt_svr_conn_interval=${agent.serverInterval}, 
     clnt_license="${agent.licenseDist}", clnt_exceptions_list="${excip}", svr_checkbox_flag=${agent.flag}`;

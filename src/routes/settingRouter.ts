@@ -110,7 +110,6 @@ router.post("/agent", (req: Request, res: Response) => {
     .then(result => {      
       const str = settingService.modAgentSettingLog(agent,result[0]);
       const checkAgent = settingService.checkModAgent(result[0], agent);
-
       settingService.modAgentSetting(checkAgent)
       .then((result) => {
         weasel.log(username, req.socket.remoteAddress, str);
