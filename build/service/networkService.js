@@ -35,6 +35,7 @@ class NetworkService {
             URL: "url", // 14
             파일다운로드: "backup_file", // 15
             스크린샷: "backup_file", // 16
+            upload_state: "upload_state", // 17
         };
         // New_Columns
         this.columnAlias = {
@@ -56,6 +57,7 @@ class NetworkService {
             DestFiles: "url", // 14
             DownLoad: "backup_file", // 15
             ScreenShot: "backup_file", // 16
+            upload_state: "upload_state", // 17
         };
         this.connection = connection;
     }
@@ -181,7 +183,7 @@ class NetworkService {
                     `${aliasValues[6]} as ${aliasKey[6]}, ${aliasValues[7]} as ${aliasKey[7]}, ${aliasValues[8]} as ${aliasKey[8]}, ${aliasValues[9]} as ${aliasKey[9]}, ` +
                     `${aliasValues[10]} as ${aliasKey[10]}, ${aliasValues[11]} as ${aliasKey[11]}, ${aliasValues[12]} as ${aliasKey[12]}, ` +
                     `${aliasValues[13]} as ${aliasKey[13]}, ${aliasValues[14]} as ${aliasKey[14]}, ` +
-                    `${aliasValues[15]} as ${aliasKey[15]}, ${aliasValues[16]} as ${aliasKey[16]} `
+                    `${aliasValues[15]} as ${aliasKey[15]}, ${aliasValues[16]} as ${aliasKey[16]}, ${aliasValues[17]} as ${aliasKey[17]} `
                 : `select ${aliasValues[0]}, ${aliasValues[1]} as ${aliasKey[1]}, ${aliasValues[2]} as ${aliasKey[2]}, ${aliasValues[3]} as ${aliasKey[3]}, ${aliasValues[4]} as ${aliasKey[4]}, ${aliasValues[5]} as ${aliasKey[5]}, ` +
                     `${aliasValues[6]} as ${aliasKey[6]}, ${aliasValues[7]} as ${aliasKey[7]}, ${aliasValues[8]} as ${aliasKey[8]}, ${aliasValues[9]} as ${aliasKey[9]}, ` +
                     `${aliasValues[10]} as ${aliasKey[10]}, ${aliasValues[11]} as ${aliasKey[11]}, ${aliasValues[12]} as ${aliasKey[12]}, ` +
@@ -203,15 +205,18 @@ class NetworkService {
             Promise.all([
                 new Promise((innerResolve, innerReject) => {
                     this.connection.query(query, whereQuery, (error, result) => {
-                        const excludedKeys = ["파일다운로드", "스크린샷"];
-                        const excludedKeysMonitor = ["DownLoad", "ScreenShot", "파일다운로드", "스크린샷"];
+                        const excludedKeys = ["파일다운로드", "스크린샷", "upload_state"];
+                        const excludedKeysMonitor = ["DownLoad", "ScreenShot", "파일다운로드", "스크린샷", "upload_state"];
                         if (!excel) {
                             result.map((data, i) => {
                                 if (privilege !== 3) {
                                     const date = data.Time.split(' ')[0];
                                     const fileName = `C:/Program Files (x86)/ciot/WeaselServer/Temp/${date}/${data.Agent_ip}.${data.id}.${data.DownLoad}`;
-                                    if (fs_1.default.existsSync(fileName)) {
+                                    if (fs_1.default.existsSync(fileName) && result[i].upload_state === '2') {
                                         result[i].DownLoad = `${data.Agent_ip}.${data.id}.${data.DownLoad}`;
+                                    }
+                                    else if (result[i].upload_state === '3') {
+                                        result[i].DownLoad = undefined;
                                     }
                                     else {
                                         result[i].DownLoad = '';
@@ -222,6 +227,7 @@ class NetworkService {
                                     else {
                                         result[i].ScreenShot = '';
                                     }
+                                    delete result[i].upload_state;
                                 }
                                 else {
                                     delete result[i].DownLoad;
@@ -278,6 +284,20 @@ class NetworkService {
             })
                 .catch((error) => {
                 return reject(error);
+            });
+        });
+    }
+    // 송신탐지내역 테이블 데이터 삭제
+    getUpdateUpLoad(id) {
+        const query = `update leakednetworkfiles set upload_state = 1 WHERE id = ${id}`;
+        return new Promise((resolve, reject) => {
+            this.connection.query(query, (error, result) => {
+                if (error) {
+                    reject(error);
+                }
+                else {
+                    resolve(result);
+                }
             });
         });
     }
