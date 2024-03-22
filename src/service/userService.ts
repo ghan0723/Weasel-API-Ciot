@@ -331,10 +331,6 @@ class UserService {
     return new Promise((resolve, reject) => {
       let isInRange = false;
 
-      console.log('mng_ip',mng_ip);
-      console.log('ipRanges',ipRanges);
-      
-
       for(const ipRange of ipRanges){
         for (const range of mng_ip) {
           const cookieStartIP: string[] = ipRange.start.trim().split(".");
