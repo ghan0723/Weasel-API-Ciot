@@ -69,6 +69,31 @@ router.get("/", (req: Request, res: Response) => {
   }
 });
 
+router.get("/refresh", (req: Request, res: Response) => {
+  const contents = req.query.contents;
+  const id       = req.query.id;
+  let results:any;
+
+  if (contents === "network") {
+    results = networkService.getUpdateUpLoad(id);
+  } 
+  // else if (contents === "media") {
+  //   results = mediaService.updateUpLoad(id);
+  // } else if (contents === "outlook") {
+  //   results = outlookService.updateUpLoad(id);
+  // } else if (contents === "print") {
+  //   results = printService.updateUpLoad(id);
+  // }
+
+  results?.then(() => {
+    res.send('success');
+  })
+  .catch(() => {
+    res.status(500).send(contents + " server error");
+  });
+
+});
+
 // dummy data 생성
 router.get('/dummy', (req:Request, res:Response) => {
   let   results;
