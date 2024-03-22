@@ -33,6 +33,7 @@ class NetworkService {
     파일다운로드: "backup_file", // 15
     스크린샷: "backup_file", // 16
     upload_state: "upload_state", // 17
+    scrdmp_upload_state:'scrdmp_upload_state', // 18
   };
 
   // New_Columns
@@ -56,6 +57,7 @@ class NetworkService {
     DownLoad: "backup_file", // 15
     ScreenShot: "backup_file", // 16
     upload_state: "upload_state", // 17
+    scrdmp_upload_state: "scrdmp_upload_state" // 18
   };
 
   // Dashboard 일/주/월 건수
@@ -203,7 +205,7 @@ class NetworkService {
             `${aliasValues[6]} as ${aliasKey[6]}, ${aliasValues[7]} as ${aliasKey[7]}, ${aliasValues[8]} as ${aliasKey[8]}, ${aliasValues[9]} as ${aliasKey[9]}, ` +
             `${aliasValues[10]} as ${aliasKey[10]}, ${aliasValues[11]} as ${aliasKey[11]}, ${aliasValues[12]} as ${aliasKey[12]}, ` +
             `${aliasValues[13]} as ${aliasKey[13]}, ${aliasValues[14]} as ${aliasKey[14]}, ` +
-            `${aliasValues[15]} as ${aliasKey[15]}, ${aliasValues[16]} as ${aliasKey[16]}, ${aliasValues[17]} as ${aliasKey[17]} `
+            `${aliasValues[15]} as ${aliasKey[15]}, ${aliasValues[16]} as ${aliasKey[16]}, ${aliasValues[17]} as ${aliasKey[17]}, ${aliasValues[18]} as ${aliasKey[18]} `
           : `select ${aliasValues[0]}, ${aliasValues[1]} as ${aliasKey[1]}, ${aliasValues[2]} as ${aliasKey[2]}, ${aliasValues[3]} as ${aliasKey[3]}, ${aliasValues[4]} as ${aliasKey[4]}, ${aliasValues[5]} as ${aliasKey[5]}, ` +
             `${aliasValues[6]} as ${aliasKey[6]}, ${aliasValues[7]} as ${aliasKey[7]}, ${aliasValues[8]} as ${aliasKey[8]}, ${aliasValues[9]} as ${aliasKey[9]}, ` +
             `${aliasValues[10]} as ${aliasKey[10]}, ${aliasValues[11]} as ${aliasKey[11]}, ${aliasValues[12]} as ${aliasKey[12]}, ` +
@@ -230,8 +232,8 @@ class NetworkService {
       Promise.all([
         new Promise<void>((innerResolve, innerReject) => {
           this.connection.query(query, whereQuery, (error, result) => {
-            const excludedKeys = ["파일다운로드","스크린샷","upload_state"];
-            const excludedKeysMonitor = ["DownLoad", "ScreenShot","파일다운로드","스크린샷","upload_state"];
+            const excludedKeys = ["파일다운로드","스크린샷","upload_state","scrdmp_upload_state"];
+            const excludedKeysMonitor = ["DownLoad", "ScreenShot","파일다운로드","스크린샷","upload_state","scrdmp_upload_state"];
 
             if(!excel) {
               result.map((data:any,i:number) => {
@@ -239,21 +241,26 @@ class NetworkService {
                   const date = data.Time.split(' ')[0];
                   const fileName = `C:/Program Files (x86)/ciot/WeaselServer/Temp/${date}/${data.Agent_ip}.${data.id}.${data.DownLoad}`;
                   
+                  // 파일 다운로드
                   if(fs.existsSync(fileName) && result[i].upload_state === '2') {
                     result[i].DownLoad = `${data.Agent_ip}.${data.id}.${data.DownLoad}`;
                   } else if(result[i].upload_state === '3') {
-                    result[i].DownLoad = undefined;
+                    result[i].DownLoad = result[i].upload_state;
                   } else {
                     result[i].DownLoad = '';
                   }
     
-                  if(fs.existsSync(`${fileName}.png`)) {
+                  // 스크린샷
+                  if(fs.existsSync(`${fileName}.png`) && result[i].scrdmp_upload_state === '2') {
                     result[i].ScreenShot = `${data.Agent_ip}.${data.id}.${data.ScreenShot}`;
+                  } else if(result[i].scrdmp_upload_state === '3') {
+                    result[i].ScreenShot = result[i].scrdmp_upload_state;
                   } else {
                     result[i].ScreenShot = '';
                   }
 
                   delete result[i].upload_state;
+                  delete result[i].scrdmp_upload_state;
                 } else {
                   delete result[i].DownLoad;
                   delete result[i].ScreenShot;
@@ -314,8 +321,13 @@ class NetworkService {
   }
 
   // 송신탐지내역 테이블 데이터 삭제
-  getUpdateUpLoad(id:any) {
-    const query = `update leakednetworkfiles set upload_state = 1 WHERE id = ${id}`;
+  getUpdateUpLoad(id:any,name:any) {
+    let columnName = 'upload_state';
+    if(name === 'screenshot') {
+      columnName = 'scrdmp_upload_state';
+    }
+
+    const query = `update leakednetworkfiles set ${columnName} = 1 WHERE id = ${id}`;
 
     return new Promise((resolve, reject) => {
       this.connection.query(query, (error, result) => {

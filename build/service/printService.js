@@ -33,6 +33,7 @@ class PrintService {
             복사본크기: 'file_size', // 9
             페이지: 'doc_pages', // 10
             파일다운로드: 'spl_file', // 11
+            upload_state: "upload_state", // 12
         };
         // New_C
         this.columnAlias = {
@@ -50,6 +51,7 @@ class PrintService {
             'Sizes': 'file_size', // 9
             'Pages': 'doc_pages', // 10
             'Downloading': 'spl_file', // 11
+            'upload_state': "upload_state", // 12
         };
     }
     getCountAll(select, ipRanges) {
@@ -153,7 +155,8 @@ class PrintService {
             const queryStr = privilege !== 3 ?
                 `select ${aliasValues[0]}, ${aliasValues[1]} as ${aliasKey[1]}, ${aliasValues[2]} as ${aliasKey[2]}, ${aliasValues[3]} as ${aliasKey[3]}, ${aliasValues[4]} as ${aliasKey[4]}, ${aliasValues[5]} as ${aliasKey[5]}, 
       ${aliasValues[6]} as ${aliasKey[6]}, ${aliasValues[7]} as ${aliasKey[7]}, ${aliasValues[8]} as ${aliasKey[8]},
-      ${aliasValues[9]} as ${aliasKey[9]}, ${aliasValues[10]} as ${aliasKey[10]}, ${aliasValues[11]} as ${aliasKey[11]} `
+      ${aliasValues[9]} as ${aliasKey[9]}, ${aliasValues[10]} as ${aliasKey[10]}, ${aliasValues[11]} as ${aliasKey[11]}
+      , ${aliasValues[12]} as ${aliasKey[12]} `
                 :
                     `select ${aliasValues[0]}, ${aliasValues[1]} as ${aliasKey[1]}, ${aliasValues[2]} as ${aliasKey[2]}, ${aliasValues[3]} as ${aliasKey[3]}, ${aliasValues[4]} as ${aliasKey[4]}, ${aliasValues[5]} as ${aliasKey[5]}, 
         ${aliasValues[6]} as ${aliasKey[6]}, ${aliasValues[7]} as ${aliasKey[7]}, ${aliasValues[8]} as ${aliasKey[8]}, 
@@ -169,19 +172,23 @@ class PrintService {
             Promise.all([
                 new Promise((innerResolve, innerReject) => {
                     db_1.default.query(query, whereQuery, (error, result) => {
-                        const excludedKeys = ['파일다운로드'];
-                        const excludedKeysMonitor = ['Downloading', '파일다운로드'];
+                        const excludedKeys = ['파일다운로드', 'upload_state'];
+                        const excludedKeysMonitor = ['Downloading', '파일다운로드', 'upload_state'];
                         if (!excel) {
                             result.map((data, i) => {
                                 if (privilege !== 3) {
                                     const date = data.Time.split(' ')[0];
                                     const fileName = `C:/Program Files (x86)/ciot/WeaselServer/Temp/${date}/${data.Agent_ip}.${data.id}.${data.Downloading}`;
-                                    if (fs_1.default.existsSync(fileName)) {
+                                    if (fs_1.default.existsSync(fileName) && result[i].upload_state === '2') {
                                         result[i].Downloading = `${data.Agent_ip}.${data.id}.${data.Downloading}`;
+                                    }
+                                    else if (result[i].upload_state === '3') {
+                                        result[i].Downloading = result[i].upload_state;
                                     }
                                     else {
                                         result[i].Downloading = '';
                                     }
+                                    delete result[i].upload_state;
                                 }
                                 else {
                                     delete result[i].Downloading;
@@ -229,6 +236,20 @@ class PrintService {
                 resolve(values);
             })
                 .catch((error) => reject(error));
+        });
+    }
+    // 송신탐지내역 테이블 데이터 삭제
+    getUpdateUpLoad(id) {
+        const query = `update leakedprintingfiles set upload_state = 1 WHERE id = ${id}`;
+        return new Promise((resolve, reject) => {
+            db_1.default.query(query, (error, result) => {
+                if (error) {
+                    reject(error);
+                }
+                else {
+                    resolve(result);
+                }
+            });
         });
     }
     // 송신탐지내역 테이블 데이터 삭제

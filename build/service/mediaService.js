@@ -31,6 +31,7 @@ class MediaService {
             파일크기: 'file_size', // 7
             탐지패턴: 'patterns', // 8
             파일다운로드: 'backup_file', // 9
+            upload_state: "upload_state", // 10
         };
         // New_Columns
         this.columnAlias = {
@@ -46,6 +47,7 @@ class MediaService {
             'FileSizes': 'file_size', // 7
             'Keywords': 'patterns', // 8
             'Downloading': 'backup_file', // 9
+            'upload_state': "upload_state", // 10
         };
     }
     getMediaAll(select, ipRanges) {
@@ -149,7 +151,7 @@ class MediaService {
         return new Promise((resolve, reject) => {
             const queryStr = privilege !== 3 ?
                 `select ${aliasValues[0]}, ${aliasValues[1]} as ${aliasKey[1]}, ${aliasValues[2]} as ${aliasKey[2]}, ${aliasValues[3]} as ${aliasKey[3]}, ${aliasValues[4]} as ${aliasKey[4]}, ${aliasValues[5]} as ${aliasKey[5]}, ${aliasValues[6]} as ${aliasKey[6]},
-      ${aliasValues[7]} as ${aliasKey[7]}, ${aliasValues[8]} as ${aliasKey[8]}, ${aliasValues[9]} as ${aliasKey[9]} `
+      ${aliasValues[7]} as ${aliasKey[7]}, ${aliasValues[8]} as ${aliasKey[8]}, ${aliasValues[9]} as ${aliasKey[9]}, ${aliasValues[10]} as ${aliasKey[10]} `
                 :
                     `select ${aliasValues[0]}, ${aliasValues[1]} as ${aliasKey[1]}, ${aliasValues[2]} as ${aliasKey[2]}, ${aliasValues[3]} as ${aliasKey[3]}, ${aliasValues[4]} as ${aliasKey[4]}, ${aliasValues[5]} as ${aliasKey[5]}, ${aliasValues[6]} as ${aliasKey[6]},
       ${aliasValues[7]} as ${aliasKey[7]}, ${aliasValues[8]} as ${aliasKey[8]} `;
@@ -163,19 +165,23 @@ class MediaService {
             Promise.all([
                 new Promise((innerResolve, innerReject) => {
                     db_1.default.query(query, whereQuery, (error, result) => {
-                        const excludedKeys = ['파일다운로드'];
-                        const excludedKeysMonitor = ['Downloading', '파일다운로드'];
+                        const excludedKeys = ['파일다운로드', 'upload_state'];
+                        const excludedKeysMonitor = ['Downloading', '파일다운로드', 'upload_state'];
                         if (!excel) {
                             result.map((data, i) => {
                                 if (privilege !== 3) {
                                     const date = data.Time.split(' ')[0];
                                     const fileName = `C:/Program Files (x86)/ciot/WeaselServer/Temp/${date}/${data.Agent_ip}.${data.id}.${data.Downloading}`;
-                                    if (fs_1.default.existsSync(fileName)) {
+                                    if (fs_1.default.existsSync(fileName) && result[i].upload_state === '2') {
                                         result[i].Downloading = `${data.Agent_ip}.${data.id}.${data.Downloading}`;
+                                    }
+                                    else if (result[i].upload_state === '3') {
+                                        result[i].Downloading = result[i].upload_state;
                                     }
                                     else {
                                         result[i].Downloading = '';
                                     }
+                                    delete result[i].upload_state;
                                 }
                                 else {
                                     delete result[i].Downloading;
@@ -223,6 +229,20 @@ class MediaService {
                 resolve(values);
             })
                 .catch((error) => reject(error));
+        });
+    }
+    // 송신탐지내역 테이블 데이터 삭제
+    getUpdateUpLoad(id) {
+        const query = `update leakedmediafiles set upload_state = 1 WHERE id = ${id}`;
+        return new Promise((resolve, reject) => {
+            db_1.default.query(query, (error, result) => {
+                if (error) {
+                    reject(error);
+                }
+                else {
+                    resolve(result);
+                }
+            });
         });
     }
     // 송신탐지내역 테이블 데이터 삭제

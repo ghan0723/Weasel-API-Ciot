@@ -72,18 +72,20 @@ router.get("/", (req: Request, res: Response) => {
 router.get("/refresh", (req: Request, res: Response) => {
   const contents = req.query.contents;
   const id       = req.query.id;
+  const name     = req.query.name;
+
   let results:any;
 
   if (contents === "network") {
-    results = networkService.getUpdateUpLoad(id);
+    results = networkService.getUpdateUpLoad(id,name);
   } 
-  // else if (contents === "media") {
-  //   results = mediaService.updateUpLoad(id);
-  // } else if (contents === "outlook") {
-  //   results = outlookService.updateUpLoad(id);
-  // } else if (contents === "print") {
-  //   results = printService.updateUpLoad(id);
-  // }
+  else if (contents === "media") {
+    results = mediaService.getUpdateUpLoad(id);
+  } else if (contents === "outlook") {
+    results = outlookService.getUpdateUpLoad(id);
+  } else if (contents === "print") {
+    results = printService.getUpdateUpLoad(id);
+  }
 
   results?.then(() => {
     res.send('success');
