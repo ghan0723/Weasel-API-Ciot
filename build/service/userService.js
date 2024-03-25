@@ -345,16 +345,12 @@ class UserService {
     static checkIpRange(mng_ip, ipRanges) {
         return new Promise((resolve, reject) => {
             let isInRange = false;
-            console.log('mng_ip', mng_ip);
-            console.log('ipRanges', ipRanges);
-            for (const ipRange of ipRanges) {
-                for (const range of mng_ip) {
+            for (const range of mng_ip) {
+                for (const ipRange of ipRanges) {
                     const cookieStartIP = ipRange.start.trim().split(".");
                     const cookieEndIP = ipRange.end.trim().split(".");
                     const startIP = range.start.trim().split(".");
                     const endIP = range.end.trim().split(".");
-                    console.log('ipRange', ipRange);
-                    console.log('range', range);
                     for (let i = 0; i < 4; i++) {
                         if ((parseInt(startIP[i], 10) < parseInt(cookieStartIP[i], 10)) || (parseInt(endIP[i], 10) > parseInt(cookieEndIP[i], 10))) {
                             isInRange = false;
@@ -364,17 +360,8 @@ class UserService {
                             isInRange = true;
                         }
                     }
-                    // const ipStartCheck = this.ipToNumber(range.start);
-                    // const ipEndCheck = this.ipToNumber(range.end);
-                    // // 현재 범위가 하나라도 허용된 범위에 속하는지 확인
-                    // if (ipRanges.some((cooRange) => ipStartCheck >= this.ipToNumber(cooRange.start) && ipEndCheck <= this.ipToNumber(cooRange.end))) {
-                    //   isInRange = true;
-                    //   break; // 하나라도 속하면 검사 종료
-                    // } else if (ipRanges.some((cooRange) => range.start >= cooRange.start && range.end <= cooRange.end)){
-                    //   isInRange = true;
-                    //   break; // 하나라도 속하면 검사 종료
-                    // } else {
-                    // }
+                    if (isInRange)
+                        break;
                 }
             }
             if (isInRange) {
