@@ -15,49 +15,51 @@ class NetworkService {
   // Ko_Columns
   private columnAliasKo: any = {
       // alias    table명
-    id: "id", // 0
-    정확도: "accurate", // 1
-    탐지시각: "time", // 2
-    Pc명: "pc_name", // 3
+    id: "id",                   // 0
+    정확도: "accurate",         // 1
+    탐지시각: "time",           // 2
+    Pc명: "pc_name",            // 3
     AgentIP: "latest_agent_ip", // 4
-    출발지IP: "src_ip", // 5
-    출발지PORT: "src_port", // 6
-    목적지IP: "dst_ip", // 7
-    목적지PORT: "dst_port", // 8
-    프로세스명: "proc_name", // 9
-    PID: "proc_id", // 10
-    유출파일명: "org_file", // 11
-    파일용량: "file_size", // 12
-    탐지패턴: "patterns", // 13
-    URL: "url", // 14
-    파일다운로드: "backup_file", // 15
-    스크린샷: "backup_file", // 16
-    upload_state: "upload_state", // 17
-    scrdmp_upload_state:'scrdmp_upload_state', // 18
+    프로토콜: 'protocol',       // 5
+    출발지IP: "src_ip",         // 6
+    출발지PORT: "src_port",     // 7
+    목적지IP: "dst_ip",         // 8
+    목적지PORT: "dst_port",     // 9
+    프로세스명: "proc_name",    // 10
+    PID: "proc_id",             // 11
+    유출파일명: "org_file",     // 12
+    파일용량: "file_size",      // 13
+    탐지패턴: "patterns",       // 14
+    URL: "url",                 // 15
+    파일다운로드: "backup_file", // 16
+    스크린샷: "backup_file",     // 17
+    upload_state: "upload_state", // 18
+    scrdmp_upload_state:'scrdmp_upload_state', // 19
   };
 
   // New_Columns
   private columnAlias: any = {
     // alias    table명
-    id: "id", // 0
-    Accurancy: "accurate", // 1
-    Time: "time", // 2
-    PcName: "pc_name", // 3
+    id: "id",                    // 0
+    Accurancy: "accurate",       // 1
+    Time: "time",                // 2
+    PcName: "pc_name",           // 3
     Agent_ip: "latest_agent_ip", // 4
-    SrcIp: "src_ip", // 5
-    SrcPort: "src_port", // 6
-    DstIp: "dst_ip", // 7
-    DstPort: "dst_port", // 8
-    Process: "proc_name", // 9
-    PIDs: "proc_id", // 10
-    SrcFile: "org_file", // 11
-    FileSizes: "file_size", // 12
-    Keywords: "patterns", // 13
-    DestFiles: "url", // 14
-    DownLoad: "backup_file", // 15
-    ScreenShot: "backup_file", // 16
-    upload_state: "upload_state", // 17
-    scrdmp_upload_state: "scrdmp_upload_state" // 18
+    protocol: 'protocol',        // 5
+    SrcIp: "src_ip",             // 6
+    SrcPort: "src_port",         // 7
+    DstIp: "dst_ip",             // 8
+    DstPort: "dst_port",         // 9
+    Process: "proc_name",        // 10
+    PIDs: "proc_id",             // 11
+    SrcFile: "org_file",         // 12
+    FileSizes: "file_size",      // 13
+    Keywords: "patterns",        // 14
+    DestFiles: "url",            // 15
+    DownLoad: "backup_file",     // 16
+    ScreenShot: "backup_file",   // 17
+    upload_state: "upload_state", // 18
+    scrdmp_upload_state: "scrdmp_upload_state" // 19
   };
 
   // Dashboard 일/주/월 건수
@@ -205,11 +207,11 @@ class NetworkService {
             `${aliasValues[6]} as ${aliasKey[6]}, ${aliasValues[7]} as ${aliasKey[7]}, ${aliasValues[8]} as ${aliasKey[8]}, ${aliasValues[9]} as ${aliasKey[9]}, ` +
             `${aliasValues[10]} as ${aliasKey[10]}, ${aliasValues[11]} as ${aliasKey[11]}, ${aliasValues[12]} as ${aliasKey[12]}, ` +
             `${aliasValues[13]} as ${aliasKey[13]}, ${aliasValues[14]} as ${aliasKey[14]}, ` +
-            `${aliasValues[15]} as ${aliasKey[15]}, ${aliasValues[16]} as ${aliasKey[16]}, ${aliasValues[17]} as ${aliasKey[17]}, ${aliasValues[18]} as ${aliasKey[18]} `
+            `${aliasValues[15]} as ${aliasKey[15]}, ${aliasValues[16]} as ${aliasKey[16]}, ${aliasValues[17]} as ${aliasKey[17]}, ${aliasValues[18]} as ${aliasKey[18]}, ${aliasValues[19]} as ${aliasKey[19]} `
           : `select ${aliasValues[0]}, ${aliasValues[1]} as ${aliasKey[1]}, ${aliasValues[2]} as ${aliasKey[2]}, ${aliasValues[3]} as ${aliasKey[3]}, ${aliasValues[4]} as ${aliasKey[4]}, ${aliasValues[5]} as ${aliasKey[5]}, ` +
             `${aliasValues[6]} as ${aliasKey[6]}, ${aliasValues[7]} as ${aliasKey[7]}, ${aliasValues[8]} as ${aliasKey[8]}, ${aliasValues[9]} as ${aliasKey[9]}, ` +
             `${aliasValues[10]} as ${aliasKey[10]}, ${aliasValues[11]} as ${aliasKey[11]}, ${aliasValues[12]} as ${aliasKey[12]}, ` +
-            `${aliasValues[13]} as ${aliasKey[13]}, ${aliasValues[14]} as ${aliasKey[14]} `;
+            `${aliasValues[13]} as ${aliasKey[13]}, ${aliasValues[14]} as ${aliasKey[14]}, ${aliasValues[15]} as ${aliasKey[15]} `;
 
       const query =
         queryStr +
@@ -240,7 +242,7 @@ class NetworkService {
                 if(privilege !== 3) {
                   const date = data.Time.split(' ')[0];
                   const fileName = `C:/Program Files (x86)/ciot/WeaselServer/Temp/${date}/${data.Agent_ip}.${data.id}.${data.DownLoad}`;
-                  
+
                   // 파일 다운로드
                   if(fs.existsSync(fileName) && result[i].upload_state === '2') {
                     result[i].DownLoad = `${data.Agent_ip}.${data.id}.${data.DownLoad}`;
@@ -257,6 +259,12 @@ class NetworkService {
                     result[i].ScreenShot = result[i].scrdmp_upload_state;
                   } else {
                     result[i].ScreenShot = '';
+                  }                  
+
+                  if(result[i].protocol === '2') {
+                    result[i].protocol = 'UDP';
+                  } else {
+                    result[i].protocol = 'TCP';
                   }
 
                   delete result[i].upload_state;
@@ -272,6 +280,12 @@ class NetworkService {
                   data.정확도 = '정탐';
                 } else {
                   data.정확도 = '확인필요';
+                }
+
+                if(data.프로토콜 === 2) {
+                  data.프로토콜 = 'UDP';
+                } else {
+                  data.프로토콜 = 'TCP';
                 }
 
                 delete result[i].파일다운로드;
