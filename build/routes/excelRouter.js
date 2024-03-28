@@ -110,10 +110,10 @@ router.post("/analytics", (req, res) => __awaiter(void 0, void 0, void 0, functi
                     results[i]["등급"] = "경고";
                 }
                 else if (results[i]["level"] === 4) {
-                    results[i]["등급"] = "위험";
+                    results[i]["등급"] = "심각";
                 }
                 else {
-                    results[i]["등급"] = "매우 위험";
+                    results[i]["등급"] = "매우 심각";
                 }
                 results[i]["위험도 수치"] = results[i]["status"];
                 results[i]["설명"] = results[i]["text"];
