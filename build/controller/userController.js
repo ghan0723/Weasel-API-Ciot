@@ -6,7 +6,7 @@ class UserController {
         this.userService = userService;
     }
     login(req, res) {
-        const { username, passwd } = req.body;
+        const { username, password } = req.body;
         this.userService.getLogin(username)
             .then((user) => {
             // console.log("user(여긴 컨트롤러) :", user);
@@ -27,8 +27,8 @@ exports.default = UserController;
 //         this.userService = userService;
 //     }
 //     login(req: Request, res: Response, callback: (error: any, user: any) => void) {
-//         const { username, passwd }: { username: string; passwd: string } = req.body;
-//         this.userService.getUser(username, passwd)
+//         const { username, password }: { username: string; password: string } = req.body;
+//         this.userService.getUser(username, password)
 //             .then((user) => {
 //                 callback(null, user);
 //             })
