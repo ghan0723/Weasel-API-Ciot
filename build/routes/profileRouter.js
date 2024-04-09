@@ -11,15 +11,15 @@ const router = express_1.default.Router();
 const profileService = new profileService_1.default();
 const userService = new userService_1.default();
 const cryptoService = new cryptoService_1.default("sn0ISmjyz1CWT6Yb7dxu");
-router.get("/edit/:username", (req, res) => {
-    let username = req.params.username;
+router.get("/edit", (req, res) => {
+    let username = req.query.username;
     profileService
         .getProfile(username)
         .then((user) => {
-        const decPasswd = cryptoService.getDecryptUltra(user[0].passwd);
+        const decpassword = cryptoService.getDecryptUltra(user[0].password);
         const newUser = {
             username: user[0].username,
-            passwd: decPasswd,
+            password: decpassword,
             privilege: user[0].privilege,
             ip_ranges: user[0].ip_ranges,
             pwd_change_freq: user[0].pwd_change_freq,
@@ -35,13 +35,13 @@ router.get("/edit/:username", (req, res) => {
         res.status(500).send("Internal Server Error");
     });
 });
-router.post("/update/:username", (req, res) => {
-    let oldname = req.params.username;
+router.post("/edit", (req, res) => {
+    let oldname = req.query.username;
     let user = req.body;
-    const encPasswd = cryptoService.getEncryptUltra(user.passwd);
+    const encpassword = cryptoService.getEncryptUltra(user.password);
     const newUser = {
         username: user.username,
-        passwd: encPasswd,
+        password: encpassword,
     };
     profileService
         .getProfile(oldname)
@@ -63,9 +63,9 @@ router.post("/update/:username", (req, res) => {
                     userService
                         .getPwdByUsername(oldname)
                         .then((pwd) => {
-                        const decOldPwd = cryptoService.getDecryptUltra(pwd[0].passwd);
+                        const decOldPwd = cryptoService.getDecryptUltra(pwd[0].password);
                         //이전 비밀번호와 동일
-                        if (user.passwd === decOldPwd) {
+                        if (user.password === decOldPwd) {
                             profileService
                                 .modUser(newUser, oldname)
                                 .then((result2) => {
@@ -82,7 +82,7 @@ router.post("/update/:username", (req, res) => {
                         else {
                             //비밀번호가 변경되었다면 갱신주기 업데이트 이후 변경
                             userService
-                                .modifyPwdByFreq(oldname, encPasswd)
+                                .modifyPwdByFreq(oldname, encpassword)
                                 .then((result) => {
                                 profileService
                                     .modUser(newUser, oldname)

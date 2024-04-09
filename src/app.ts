@@ -10,23 +10,10 @@ var logger = require("morgan");
 const cors = require("cors");
 
 var indexRouter = require("./routes/index");
-var pieChartRouter = require("./routes/pieChartRouter.js");
 var userRouter = require("./routes/userRouter.js");
-var networkRouter = require("./routes/networkRouter.js");
-var mediaRouter = require("./routes/mediaRouter.js");
-var outlookRouter = require("./routes/outlookRouter.js");
-var printRouter = require("./routes/printRouter.js");
-var barRouter = require("./routes/barRouter.js");
-var apiRouter = require("./routes/apiRouter.js");
 var profileRouter = require('./routes/profileRouter.js');
 var settingRouter = require('./routes/settingRouter.js');
-var excelRouter = require('./routes/excelRouter.js');
-var complexRouter = require('./routes/complexRouter.js');
-var keywordRouter = require('./routes/keywordRouter.js');
 var logRouter = require('./routes/logRouter.js');
-var analysisRouter = require('./routes/analysisRouter.js');
-var noticeRouter = require('./routes/noticeRouter.js');
-const lineChartsRouter = require("./routes/lineChartsRouter.js");
 
 var app = express();
 const fs = require("fs");
@@ -84,23 +71,10 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
-app.use("/pie", pieChartRouter);
 app.use("/user", userRouter);
-app.use("/network", networkRouter);
-app.use("/media", mediaRouter);
-app.use("/outlook", outlookRouter);
-app.use("/print", printRouter);
-app.use("/bar", barRouter);
-app.use("/api", apiRouter);
 app.use('/profile', profileRouter);
 app.use('/setting', settingRouter);
-app.use('/excel', excelRouter);
-app.use('/complex', complexRouter);
-app.use('/keyword', keywordRouter);
 app.use('/log', logRouter);
-app.use('/analysis', analysisRouter);
-app.use('/notice', noticeRouter);
-app.use("/lineCharts", lineChartsRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req: Request, res: Response, next: NextFunction) {
