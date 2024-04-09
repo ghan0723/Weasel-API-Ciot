@@ -10,16 +10,10 @@ var logger = require("morgan");
 const cors = require("cors");
 
 var indexRouter = require("./routes/index");
-var pieChartRouter = require("./routes/pieChartRouter.js");
 var userRouter = require("./routes/userRouter.js");
-var barRouter = require("./routes/barRouter.js");
-var apiRouter = require("./routes/apiRouter.js");
 var profileRouter = require('./routes/profileRouter.js');
 var settingRouter = require('./routes/settingRouter.js');
-var excelRouter = require('./routes/excelRouter.js');
 var logRouter = require('./routes/logRouter.js');
-var analysisRouter = require('./routes/analysisRouter.js');
-const lineChartsRouter = require("./routes/lineChartsRouter.js");
 
 var app = express();
 const fs = require("fs");
@@ -77,16 +71,10 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
-app.use("/pie", pieChartRouter);
 app.use("/user", userRouter);
-app.use("/bar", barRouter);
-app.use("/api", apiRouter);
 app.use('/profile', profileRouter);
 app.use('/setting', settingRouter);
-app.use('/excel', excelRouter);
 app.use('/log', logRouter);
-app.use('/analysis', analysisRouter);
-app.use("/lineCharts", lineChartsRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req: Request, res: Response, next: NextFunction) {
