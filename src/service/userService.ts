@@ -447,10 +447,10 @@ class UserService {
     });
   }
 
-  getFreq(username: any): Promise<any> {
+  getFreq(): Promise<any> {
     return new Promise((resolve, reject) => {
-      const query = `select pwd_change_freq from accountlist where username = ?`;
-      connection.query(query, username, (error, result) => {
+      const query = `select distinct(pwd_change_freq) from accountlist;`;
+      connection.query(query, (error, result) => {
         if (error) {
           reject(error);
         } else {
@@ -512,6 +512,20 @@ class UserService {
           reject(error);
         } else {
           resolve(result);
+        }
+      })
+    })
+  }
+
+  signUp(user:{username: string; passwd: any; privilege: number; ip_ranges: string; freq:string;}):Promise<any>{
+    let mngip = user.ip_ranges.replace(/(\r\n|\n|\r)/gm, ", ");
+    let query = `insert into accountlist (\`username\`, \`passwd\`, \`privilege\`, \`enabled\`, \`ip_ranges\`, \`last_pwd_date\`, \`pwd_change_freq\`) values ('${user.username}', '${user.passwd}', ${user.privilege}, 1, '${mngip}', now(), ${user.freq})`;
+    return new Promise((resolve, reject) => {
+      connection.query(query, (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve({success: true, message: "회원 가입 성공"});
         }
       })
     })

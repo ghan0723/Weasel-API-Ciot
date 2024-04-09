@@ -64,7 +64,7 @@ router.post("/login", (req, res) => {
                                     // weasel.log(username,req.socket.remoteAddress,"로그인에 성공하였습니다 팝업의 내용을 확인해주세요.");
                                     res
                                         .status(200)
-                                        .send({ username, freq: false, notice: true, });
+                                        .send({ username, freq: false, notice: true, priv: result[0].privilege });
                                 }
                                 else {
                                     //팝업이 존재하지 않는다면
@@ -77,7 +77,7 @@ router.post("/login", (req, res) => {
                                     // weasel.log(username,req.socket.remoteAddress,"로그인에 성공하였습니다.");
                                     res
                                         .status(200)
-                                        .send({ username, freq: false, notice: false, });
+                                        .send({ username, freq: false, notice: false, priv: result[0].privilege });
                                 }
                             })
                                 .catch((error5) => {
@@ -253,7 +253,7 @@ router.post("/add", (req, res) => {
                             //대역을 넘지 않을 때
                             //freq 값 추가
                             userService
-                                .getFreq(user.cookie)
+                                .getFreq()
                                 .then((result) => {
                                 userService
                                     .addUser(newUser, result[0].pwd_change_freq)
@@ -301,7 +301,7 @@ router.post("/add", (req, res) => {
                 else {
                     //관리자 계정 freq
                     userService
-                        .getFreq(user.cookie)
+                        .getFreq()
                         .then((result) => {
                         userService
                             .addUser(newUser, result[0].pwd_change_freq)
@@ -701,6 +701,41 @@ router.post("/pwd", (req, res) => {
         log_1.weasel.error(username, req.socket.remoteAddress, "An error occurred while running a query to the database for the pre-change password.");
         // weasel.error(username,req.socket.remoteAddress,"변경 전 비밀번호를 데이터베이스에 조회하는 쿼리 실행 중 오류가 발생했습니다.");
         res.status(500).send("error :" + error2);
+    });
+});
+router.post('/sign-up', (req, res) => {
+    let user = req.body;
+    let encPasswd = cryptoService.getEncryptUltra(user.passwd);
+    userService.checkUsername(user.username)
+        .then((resultDup) => {
+        if (resultDup.exists) {
+            res.status(401).send({ error: '입력한 사용자명이 중복되어 회원가입에 실패하였습니다.' });
+        }
+        else {
+            userService.getFreq()
+                .then((freq) => {
+                const newUser = {
+                    username: user.username,
+                    passwd: encPasswd,
+                    privilege: user.privilege,
+                    ip_ranges: user.ip_ranges,
+                    freq: freq[0].pwd_change_freq,
+                };
+                userService.signUp(newUser)
+                    .then((result) => {
+                    res.send(result);
+                })
+                    .catch((error) => {
+                    res.status(500).send("error :" + error);
+                });
+            })
+                .catch((errorFreq) => {
+                res.status(500).send("error :" + errorFreq);
+            });
+        }
+    })
+        .catch((errorDup) => {
+        res.status(500).send("error :" + errorDup);
     });
 });
 module.exports = router;
