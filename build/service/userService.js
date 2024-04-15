@@ -36,9 +36,9 @@ class UserService {
         });
     }
     getPrivilege(username) {
-        const query = `select privilege from accountlist where username = ? `;
+        const query = `select privilege from accountlist where username = '${username}'`;
         return new Promise((resolve, reject) => {
-            db_1.default.query(query, username, (error, result) => {
+            db_1.default.query(query, (error, result) => {
                 if (error) {
                     reject(error);
                 }
