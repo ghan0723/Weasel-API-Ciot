@@ -36,10 +36,10 @@ class UserService {
   }
 
   getPrivilege(username: any): Promise<any> {
-    const query = `select privilege from accountlist where username = ? `;
+    const query = `select privilege from accountlist where username = '${username}'`;
 
     return new Promise((resolve, reject) => {
-      connection.query(query, username, (error, result) => {
+      connection.query(query, (error, result) => {
         if (error) {
           reject(error);
         } else {
