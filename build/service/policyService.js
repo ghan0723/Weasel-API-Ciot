@@ -26,6 +26,7 @@ class PolicyService {
         });
     }
     postTcUpload() {
+        const query = ``;
         return new Promise((resolve, reject) => {
         });
     }
