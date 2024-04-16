@@ -19,8 +19,6 @@ router.post("/delete", (req, res) => {
 router.get("/all", (req, res) => {
     let category = req.query.category;
     let searchWord = req.query.searchWord;
-    console.log("category : ", category);
-    console.log("searchWord : ", searchWord);
     sessionService
         .getSessionList(category, searchWord)
         .then((sessionList) => {
