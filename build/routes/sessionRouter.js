@@ -7,14 +7,11 @@ const express_1 = __importDefault(require("express"));
 const router = express_1.default.Router();
 const sessionService = new sessionService_1.default();
 router.post("/delete", (req, res) => {
-    let name = req.body.name;
-    console.log("name : ", name);
-    if (name) {
-        res.send("성공적으로 도착함");
-    }
-    else {
-        res.send("실패");
-    }
+    const { sessionName } = req.body;
+    console.log("sessionName : ", sessionName);
+    sessionService.deleteSession(sessionName)
+        .then(() => res.send('success'))
+        .catch((error) => res.status(500).send(error));
 });
 router.get("/all", (req, res) => {
     let category = req.query.category;
@@ -45,5 +42,16 @@ router.get("/all", (req, res) => {
                 s_time: "",
             },]);
     });
+});
+router.get("/data", (req, res) => {
+    const { sessionname, policyname } = req.query;
+    console.log('sessionname', sessionname);
+    console.log('policyname', policyname);
+    sessionService.getSessionData(sessionname, policyname)
+        .then(result => {
+        console.log('result', result);
+        // return res.send(result)
+    })
+        .catch(error => res.status(500).send(error));
 });
 module.exports = router;

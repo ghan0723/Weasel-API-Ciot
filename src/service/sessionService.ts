@@ -26,7 +26,7 @@ class SessionService {
           break;
       }
     }
-    const query = `select * from sessions ${searchCondition}`;
+    const query = `select * from sessions ${searchCondition} order by s_name DESC`;
     return new Promise((resolve, reject) => {
         connection.query(query, (error, result) => {
             if(error){
@@ -43,6 +43,35 @@ class SessionService {
                     })
                 }
                 resolve(sessions);
+            }
+        })
+    });
+  }
+
+  // session 클릭시 상세 내역
+  getSessionData(s_name: any, p_name: any): Promise<any> {
+
+    const query = `select * from sessions where s_name = ${s_name} and p_name = ${p_name}`;
+    return new Promise((resolve, reject) => {
+        connection.query(query, (error, result) => {
+            if(error){
+                reject(error);
+            } else {
+                resolve(result);
+            }
+        })
+    });
+  }
+
+  // session 삭제
+  deleteSession(s_name:any): Promise<any> {
+    const query = `delete from sessions where s_name = '${s_name}'`;
+    return new Promise((resolve, reject) => {
+        connection.query(query, (error, result) => {
+            if(error){
+                reject(error);
+            } else {
+                resolve(result);
             }
         })
     });
