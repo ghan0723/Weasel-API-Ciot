@@ -5,13 +5,11 @@ const router: Router = express.Router();
 const sessionService: SessionService = new SessionService();
 
 router.post("/delete", (req: Request, res: Response) => {
-  let name = req.body.name;
-  console.log("name : ", name);
-  if (name) {
-    res.send("성공적으로 도착함");
-  } else {
-    res.send("실패");
-  }
+  const {sessionName} = req.body;
+
+  sessionService.deleteSession(sessionName)
+  .then(() => res.send('success'))
+  .catch((error) => res.status(500).send(error))
 });
 
 router.get("/all", (req: Request, res: Response) => {
@@ -21,6 +19,7 @@ router.get("/all", (req: Request, res: Response) => {
   sessionService
     .getSessionList(category, searchWord)
     .then((sessionList) => {
+
       if (sessionList.length > 0) {
         res.status(200).send(sessionList);
       } else {
@@ -43,6 +42,18 @@ router.get("/all", (req: Request, res: Response) => {
           s_time: "",
         },]);
     });
+});
+
+router.get("/data", (req: Request, res: Response) => {
+  const {sessionname, policyname} = req.query;
+
+  sessionService.getSessionData(sessionname,policyname)
+  .then(result => {
+    // return res.send(result)
+  })
+  .catch(error => res.status(500).send(error));
+  
+
 });
 
 export = router;

@@ -130,6 +130,36 @@ class PolicyService {
     //global parameter 가져오기
     getGParameter(username) {
         let query = `select tool_ip, ivn_port, wave_port, lte_v2x_port, lte_uu_port, v2x_dut_ip, v2x_dut_port, ivn_canfd from gl_parameter where username = ?`;
+        return new Promise((resolve, reject) => { });
+    }
+    getTestCases() {
+        let query = `select * from testcases`;
+        return new Promise((resolve, reject) => {
+            db_1.default.query(query, (error, result) => {
+                if (error) {
+                    reject(error);
+                }
+                else {
+                    resolve(result);
+                }
+            });
+        });
+    }
+    getTCByPName(name) {
+        let query = `select * from tc_policy where p_name = ${name}`;
+        return new Promise((resolve, reject) => {
+            db_1.default.query(query, (error, result) => {
+                if (error) {
+                    reject(error);
+                }
+                else {
+                    resolve(result);
+                }
+            });
+        });
+    }
+    getInsertSessions(username, policyname) {
+        const query = `insert into sessions (username, p_name, s_name, s_time, s_response, s_log) values ('${username}', '${policyname}', now(), '', '{}', '{}');`;
         return new Promise((resolve, reject) => {
             db_1.default.query(query, username, (error, result) => {
                 if (error) {
@@ -152,6 +182,14 @@ class PolicyService {
                     else {
                         resolve(gParameters);
                     }
+                }
+            });
+            db_1.default.query(query, (error, result) => {
+                if (error) {
+                    reject(error);
+                }
+                else {
+                    resolve(result);
                 }
             });
         });

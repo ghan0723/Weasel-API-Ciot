@@ -64,7 +64,19 @@ router.get('/add', (req:Request, res:Response) => {
             res.status(500).send({message : "전체 테스트 케이스 db에서 가져오기 실패"});
         })        
     }
-})
+});
+
+router.get('/start', (req:Request, res:Response) => {
+    const {username, policyname} = req.query;
+
+    policyService.getInsertSessions(username,policyname)
+    .then(result => {
+        res.send(result);
+    })
+    .catch((error) => {
+        res.status(500).send(error);
+    });
+});
 
 router.get('/gp', (req:Request, res:Response) => {
     let username = req.query.username;
