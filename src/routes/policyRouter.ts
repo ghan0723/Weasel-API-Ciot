@@ -42,6 +42,8 @@ router.get('/add', (req:Request, res:Response) => {
             policyService.getTCByPName(name)
             .then((list2) => {
                 //교집합인 테스트 케이스를 비교하는 메소드가 필요함
+                const datalist = policyService.compareTestCases(testcases, list2);
+                res.status(200).send(datalist);
             })
             .catch((list2Error) => {
                 res.status(500).send({message : "정책에서 사용하는 테스트 케이스 db에서 가져오기 실패"});
@@ -55,12 +57,24 @@ router.get('/add', (req:Request, res:Response) => {
         policyService.getTestCases()
         .then((testcases) => {
             //전체 테스트 케이스를 우리가 원하는 형태로 가공하는 메소드 필요
-            console.log("testcases : ", testcases);
+            const datalist = policyService.compareTestCases(testcases);
+            res.status(200).send(datalist);
         })
         .catch((testcasesError) => {
             res.status(500).send({message : "전체 테스트 케이스 db에서 가져오기 실패"});
         })        
     }
+})
+
+router.get('/gp', (req:Request, res:Response) => {
+    let username = req.query.username;
+    policyService.getGParameter(username)
+    .then((gParameter) => {
+        res.status(200).send(gParameter[0]);
+    })
+    .catch((gParameterError) => {
+        res.status(500).send({message : "Global Parameter db에서 가져오기 실패"});
+    })
 })
 
 export = router;
