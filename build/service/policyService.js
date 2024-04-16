@@ -11,11 +11,13 @@ class PolicyService {
             db_1.default.query(query, (error, result) => {
                 if (result) {
                     if (result.length === 0) {
-                        result = [{
-                                name: ' ',
-                                distinction: ' ',
-                                author: ' '
-                            }];
+                        result = [
+                            {
+                                name: " ",
+                                distinction: " ",
+                                author: " ",
+                            },
+                        ];
                     }
                     resolve(result);
                 }
@@ -27,7 +29,45 @@ class PolicyService {
     }
     postTcUpload() {
         const query = ``;
+        return new Promise((resolve, reject) => { });
+    }
+    getTestCases() {
+        let query = `select * from testcases`;
         return new Promise((resolve, reject) => {
+            db_1.default.query(query, (error, result) => {
+                if (error) {
+                    reject(error);
+                }
+                else {
+                    resolve(result);
+                }
+            });
+        });
+    }
+    getTCByPName(name) {
+        let query = `select * from tc_policy where p_name = ${name}`;
+        return new Promise((resolve, reject) => {
+            db_1.default.query(query, (error, result) => {
+                if (error) {
+                    reject(error);
+                }
+                else {
+                    resolve(result);
+                }
+            });
+        });
+    }
+    getInsertSessions(username, policyname) {
+        const query = `insert into sessions (username, p_name, s_name, s_time, s_response, s_log) values ('${username}', '${policyname}', now(), '', '{}', '{}');`;
+        return new Promise((resolve, reject) => {
+            db_1.default.query(query, (error, result) => {
+                if (error) {
+                    reject(error);
+                }
+                else {
+                    resolve(result);
+                }
+            });
         });
     }
 }
