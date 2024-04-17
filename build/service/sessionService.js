@@ -52,6 +52,19 @@ class SessionService {
             });
         });
     }
+    getInsertSessions(username, policyname) {
+        const query = `insert into sessions (username, p_name, s_name, s_time, s_response, s_log) values ('${username}', '${policyname}', now(), '', '[{}]', '[{}]');`;
+        return new Promise((resolve, reject) => {
+            db_1.default.query(query, (error, result) => {
+                if (error) {
+                    reject(error);
+                }
+                else {
+                    resolve(result);
+                }
+            });
+        });
+    }
     // session 클릭시 상세 내역
     getSessionData(s_name, p_name) {
         const query = `select * from sessions where s_name = ${s_name} and p_name = ${p_name}`;

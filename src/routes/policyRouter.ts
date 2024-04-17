@@ -43,6 +43,7 @@ router.get('/add', (req:Request, res:Response) => {
             .then((list2) => {
                 //교집합인 테스트 케이스를 비교하는 메소드가 필요함
                 const datalist = policyService.compareTestCases(testcases, list2);
+                
                 res.status(200).send(datalist);
             })
             .catch((list2Error) => {
@@ -64,18 +65,6 @@ router.get('/add', (req:Request, res:Response) => {
             res.status(500).send({message : "전체 테스트 케이스 db에서 가져오기 실패"});
         })        
     }
-});
-
-router.get('/start', (req:Request, res:Response) => {
-    const {username, policyname} = req.query;
-
-    policyService.getInsertSessions(username,policyname)
-    .then(result => {
-        res.send(result);
-    })
-    .catch((error) => {
-        res.status(500).send(error);
-    });
 });
 
 router.get('/gp', (req:Request, res:Response) => {

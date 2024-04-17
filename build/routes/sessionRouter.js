@@ -8,7 +8,6 @@ const router = express_1.default.Router();
 const sessionService = new sessionService_1.default();
 router.post("/delete", (req, res) => {
     const { sessionName } = req.body;
-    console.log("sessionName : ", sessionName);
     sessionService.deleteSession(sessionName)
         .then(() => res.send('success'))
         .catch((error) => res.status(500).send(error));
@@ -45,13 +44,20 @@ router.get("/all", (req, res) => {
 });
 router.get("/data", (req, res) => {
     const { sessionname, policyname } = req.query;
-    console.log('sessionname', sessionname);
-    console.log('policyname', policyname);
     sessionService.getSessionData(sessionname, policyname)
         .then(result => {
-        console.log('result', result);
         // return res.send(result)
     })
         .catch(error => res.status(500).send(error));
+});
+router.get('/start', (req, res) => {
+    const { username, policyname } = req.query;
+    sessionService.getInsertSessions(username, policyname)
+        .then(result => {
+        res.send(result);
+    })
+        .catch((error) => {
+        res.status(500).send(error);
+    });
 });
 module.exports = router;
