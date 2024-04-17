@@ -52,11 +52,13 @@ class PolicyService {
                     reject(error);
                 }
                 else {
-                    let tcList = [{
-                            p_name: '',
-                            tc_id: '',
-                            p_tc_parameter: {}
-                        }];
+                    let tcList = [
+                        {
+                            p_name: "",
+                            tc_id: "",
+                            p_tc_parameter: {},
+                        },
+                    ];
                     if (result.length > 0) {
                         resolve(result);
                     }
@@ -94,7 +96,7 @@ class PolicyService {
                         tc_group: tc.tc_group,
                         expanded: false,
                         checked: false,
-                        children: []
+                        children: [],
                     };
                 }
                 const checked = policyTcIds.includes(tc.tc_id);
@@ -103,8 +105,8 @@ class PolicyService {
                     tc_name: tc.tc_name,
                     tc_context: tc.tc_context,
                     tc_group: tc.tc_group,
-                    tc_parameter: [],
-                    checked: checked
+                    tc_parameter: tc.tc_parameter,
+                    checked: checked,
                 };
                 // 테스트 케이스의 tc_id가 policyTcIds에 포함되어 있으면 해당 테스트 케이스의 p_tc_parameter를 가져와서 추가
                 if (checked) {
@@ -130,15 +132,16 @@ class PolicyService {
                         tc_group: tc.tc_group,
                         expanded: false,
                         checked: false,
-                        children: []
+                        children: [],
                     };
                 }
                 groupMap[tc.tc_group].children.push({
+                    tc_id: tc.tc_id,
                     tc_name: tc.tc_name,
                     tc_context: tc.tc_context,
                     tc_group: tc.tc_group,
-                    tc_parameter: [],
-                    checked: false // 기본값으로 false로 설정
+                    tc_parameter: tc.tc_parameter,
+                    checked: false, // 기본값으로 false로 설정
                 });
             });
             // 그룹화된 테스트 케이스를 treeData에 추가
@@ -157,16 +160,18 @@ class PolicyService {
                     reject(error);
                 }
                 else {
-                    let gParameters = [{
-                            tool_ip: '',
-                            ivn_port: '',
-                            wave_port: '',
-                            lte_v2x_port: '',
-                            lte_uu_port: '',
-                            v2x_dut_ip: '',
-                            v2x_dut_port: '',
-                            ivn_canfd: '',
-                        }];
+                    let gParameters = [
+                        {
+                            tool_ip: "",
+                            ivn_port: "",
+                            wave_port: "",
+                            lte_v2x_port: "",
+                            lte_uu_port: "",
+                            v2x_dut_ip: "",
+                            v2x_dut_port: "",
+                            ivn_canfd: "",
+                        },
+                    ];
                     if (result.length > 0) {
                         resolve(result);
                     }
@@ -175,6 +180,52 @@ class PolicyService {
                     }
                 }
             });
+        });
+    }
+    postInsertPolicy(username, name, data) {
+        // 각 데이터 요소를 처리하는 Promise 배열을 생성합니다.
+        const promises = data.map((item) => {
+            if (item.checked) {
+                item.children.map((tcData) => {
+                    if (tcData.checked) {
+                        console.log('tcData', tcData);
+                        const query = `Insert Into tc_policy (p_name, tc_id, p_tc_parameter) values ('${name}', '${tcData.tc_id}', '${tcData.tc_parameter}');`;
+                        return new Promise((resolve, reject) => {
+                            db_1.default.query(query, (error, result) => {
+                                if (error) {
+                                    reject(error);
+                                }
+                                else {
+                                    resolve(result);
+                                }
+                            });
+                        });
+                    }
+                });
+            }
+        });
+        if (promises.length >= 1) {
+            const query = `Insert Into policys (p_name, p_author, p_distinction) values ('${name}', '${username}', '');`;
+            promises.unshift(new Promise((resolve, reject) => {
+                db_1.default.query(query, (error, result) => {
+                    if (error) {
+                        reject(error);
+                    }
+                    else {
+                        resolve(result);
+                    }
+                });
+            }));
+        }
+        // 모든 Promise를 동시에 실행하고, 모든 작업이 완료되면 완료되었다는 것을 알립니다.
+        return Promise.all(promises)
+            .then((results) => {
+            console.log("모든 데이터 삽입 완료");
+            return results; // 모든 삽입 작업의 결과를 반환
+        })
+            .catch((error) => {
+            console.error("데이터 삽입 중 에러 발생:", error);
+            throw error; // 에러 발생시 예외를 throw하여 호출자에게 알림
         });
     }
 }
