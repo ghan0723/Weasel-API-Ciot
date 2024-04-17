@@ -7,9 +7,8 @@ const express_1 = __importDefault(require("express"));
 const router = express_1.default.Router();
 const sessionService = new sessionService_1.default();
 router.post("/delete", (req, res) => {
-    const { sessionName } = req.body;
-    console.log("sessionName : ", sessionName);
-    sessionService.deleteSession(sessionName)
+    const s_id = req.body.s_id;
+    sessionService.deleteSession(s_id)
         .then(() => res.send('success'))
         .catch((error) => res.status(500).send(error));
 });
@@ -44,13 +43,10 @@ router.get("/all", (req, res) => {
     });
 });
 router.get("/data", (req, res) => {
-    const { sessionname, policyname } = req.query;
-    console.log('sessionname', sessionname);
-    console.log('policyname', policyname);
-    sessionService.getSessionData(sessionname, policyname)
-        .then(result => {
-        console.log('result', result);
-        // return res.send(result)
+    const s_id = req.query.sid;
+    sessionService.getSessionData(s_id)
+        .then((result) => {
+        res.status(200).send(result);
     })
         .catch(error => res.status(500).send(error));
 });

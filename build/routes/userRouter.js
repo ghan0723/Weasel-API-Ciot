@@ -20,7 +20,6 @@ router.get("/namecookie", (req, res) => {
 });
 router.get("/privilege", (req, res) => {
     let username = req.cookies.username;
-    console.log('username', username);
     if (username === undefined || username === null)
         res.status(500);
     userService

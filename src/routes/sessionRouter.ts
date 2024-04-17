@@ -5,9 +5,9 @@ const router: Router = express.Router();
 const sessionService: SessionService = new SessionService();
 
 router.post("/delete", (req: Request, res: Response) => {
-  const {sessionName} = req.body;
+  const s_id = req.body.s_id;
 
-  sessionService.deleteSession(sessionName)
+  sessionService.deleteSession(s_id)
   .then(() => res.send('success'))
   .catch((error) => res.status(500).send(error))
 });
@@ -45,11 +45,11 @@ router.get("/all", (req: Request, res: Response) => {
 });
 
 router.get("/data", (req: Request, res: Response) => {
-  const {sessionname, policyname} = req.query;
+  const s_id = req.query.sid;
 
-  sessionService.getSessionData(sessionname,policyname)
-  .then(result => {
-    // return res.send(result)
+  sessionService.getSessionData(s_id)
+  .then((result) => {
+    res.status(200).send(result);
   })
   .catch(error => res.status(500).send(error));
   

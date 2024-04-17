@@ -67,13 +67,26 @@ class PolicyService {
             });
         });
     }
+    getInsertSessions(username, policyname) {
+        const query = `insert into sessions (username, p_name, s_name, s_time, s_response, s_log) values ('${username}', '${policyname}', now(), '', '[{}]', '[{}]');`;
+        return new Promise((resolve, reject) => {
+            db_1.default.query(query, (error, result) => {
+                if (error) {
+                    reject(error);
+                }
+                else {
+                    // 삽입 후에 자동으로 생성된 s_id 값을 반환
+                    resolve(result.insertId);
+                }
+            });
+        });
+    }
     compareTestCases(testcases, tc_policy) {
         const treeData = [];
         // 각 테스트 케이스를 그룹화하기 위한 임시 객체
         const groupMap = {};
         if (tc_policy !== undefined && tc_policy !== null) {
             const policyTcIds = tc_policy ? tc_policy.map((policy) => policy.tc_id) : [];
-            console.log("policyTcIds : ", policyTcIds);
             // 테스트 케이스를 그룹화
             testcases.forEach((tc) => {
                 if (!groupMap[tc.tc_group]) {
@@ -130,36 +143,6 @@ class PolicyService {
     //global parameter 가져오기
     getGParameter(username) {
         let query = `select tool_ip, ivn_port, wave_port, lte_v2x_port, lte_uu_port, v2x_dut_ip, v2x_dut_port, ivn_canfd from gl_parameter where username = ?`;
-        return new Promise((resolve, reject) => { });
-    }
-    getTestCases() {
-        let query = `select * from testcases`;
-        return new Promise((resolve, reject) => {
-            db_1.default.query(query, (error, result) => {
-                if (error) {
-                    reject(error);
-                }
-                else {
-                    resolve(result);
-                }
-            });
-        });
-    }
-    getTCByPName(name) {
-        let query = `select * from tc_policy where p_name = ${name}`;
-        return new Promise((resolve, reject) => {
-            db_1.default.query(query, (error, result) => {
-                if (error) {
-                    reject(error);
-                }
-                else {
-                    resolve(result);
-                }
-            });
-        });
-    }
-    getInsertSessions(username, policyname) {
-        const query = `insert into sessions (username, p_name, s_name, s_time, s_response, s_log) values ('${username}', '${policyname}', now(), '', '{}', '{}');`;
         return new Promise((resolve, reject) => {
             db_1.default.query(query, username, (error, result) => {
                 if (error) {
@@ -182,14 +165,6 @@ class PolicyService {
                     else {
                         resolve(gParameters);
                     }
-                }
-            });
-            db_1.default.query(query, (error, result) => {
-                if (error) {
-                    reject(error);
-                }
-                else {
-                    resolve(result);
                 }
             });
         });

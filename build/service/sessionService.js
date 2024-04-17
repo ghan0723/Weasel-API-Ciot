@@ -53,22 +53,36 @@ class SessionService {
         });
     }
     // session 클릭시 상세 내역
-    getSessionData(s_name, p_name) {
-        const query = `select * from sessions where s_name = ${s_name} and p_name = ${p_name}`;
+    getSessionData(s_id) {
+        const query = `select * from sessions where s_id = ?`;
         return new Promise((resolve, reject) => {
-            db_1.default.query(query, (error, result) => {
+            db_1.default.query(query, s_id, (error, result) => {
                 if (error) {
                     reject(error);
                 }
                 else {
-                    resolve(result);
+                    let sessionDatas = [{
+                            s_id: '',
+                            username: '',
+                            p_name: '',
+                            s_name: '',
+                            s_time: '',
+                            s_response: '',
+                            s_log: '',
+                        }];
+                    if (result.length > 0) {
+                        resolve(result);
+                    }
+                    else {
+                        resolve(sessionDatas);
+                    }
                 }
             });
         });
     }
     // session 삭제
-    deleteSession(s_name) {
-        const query = `delete from sessions where s_name = '${s_name}'`;
+    deleteSession(s_id) {
+        const query = `delete from sessions where s_id = '${s_id}'`;
         return new Promise((resolve, reject) => {
             db_1.default.query(query, (error, result) => {
                 if (error) {

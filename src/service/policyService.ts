@@ -72,7 +72,8 @@ class PolicyService {
         if (error) {
           reject(error);
         } else {
-          resolve(result);
+          // 삽입 후에 자동으로 생성된 s_id 값을 반환
+          resolve(result.insertId);
         }
       });
     });
@@ -84,37 +85,46 @@ class PolicyService {
     // 각 테스트 케이스를 그룹화하기 위한 임시 객체
     const groupMap: Record<string, any> = {};
 
-    if(tc_policy !== undefined && tc_policy !== null){
-      const policyTcIds = tc_policy ? tc_policy.map((policy: any) => policy.tc_id) : [];
-        // 테스트 케이스를 그룹화
-        testcases.forEach((tc: any) => {
-          if (!groupMap[tc.tc_group]) {
-              groupMap[tc.tc_group] = {
-                  tc_group: tc.tc_group,
-                  expanded: false,
-                  checked: false,
-                  children: []
-              };
+    if (tc_policy !== undefined && tc_policy !== null) {
+      const policyTcIds = tc_policy.map((policy: any) => policy.tc_id);
+      
+      // 테스트 케이스를 그룹화하고 tc_id를 기준으로 tc_policy에서 해당 테스트 케이스의 p_tc_parameter를 가져와서 treeData에 추가
+      testcases.forEach((tc: any) => {
+        if (!groupMap[tc.tc_group]) {
+          groupMap[tc.tc_group] = {
+            tc_group: tc.tc_group,
+            expanded: false,
+            checked: false,
+            children: []
+          };
+        }
+  
+        const checked = policyTcIds.includes(tc.tc_id);
+        const tcNode: any = {
+          tc_id: tc.tc_id,
+          tc_name: tc.tc_name,
+          tc_context: tc.tc_context,
+          tc_group: tc.tc_group,
+          tc_parameter: [],
+          checked: checked
+        };
+  
+        // 테스트 케이스의 tc_id가 policyTcIds에 포함되어 있으면 해당 테스트 케이스의 p_tc_parameter를 가져와서 추가
+        if (checked) {
+          const policy = tc_policy.find((policy: any) => policy.tc_id === tc.tc_id);
+          if (policy && policy.p_tc_parameter) {
+            tcNode.tc_parameter = policy.p_tc_parameter;
           }
-
-          // 테스트 케이스의 tc_id가 policyTcIds에 포함되어 있으면 checked를 true로 설정
-          const checked = policyTcIds.includes(tc.tc_id);
-          
-          groupMap[tc.tc_group].children.push({
-              tc_id: tc.tc_id,
-              tc_name: tc.tc_name,
-              tc_context: tc.tc_context,
-              tc_group: tc.tc_group,
-              tc_parameter: [],
-              checked: checked // 기본값으로 false로 설정
-          });
+        }
+  
+        groupMap[tc.tc_group].children.push(tcNode);
       });
-
+  
       // 그룹화된 테스트 케이스를 treeData에 추가
       for (const groupName in groupMap) {
-          treeData.push(groupMap[groupName]);
+        treeData.push(groupMap[groupName]);
       }
-
+  
       return treeData;
     } else {
         // 테스트 케이스를 그룹화

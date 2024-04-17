@@ -71,7 +71,7 @@ router.get('/start', (req:Request, res:Response) => {
 
     policyService.getInsertSessions(username,policyname)
     .then(result => {
-        res.send(result);
+        res.send({result});
     })
     .catch((error) => {
         res.status(500).send(error);
