@@ -88,7 +88,22 @@ router.get('/gp', (req:Request, res:Response) => {
     .catch((gParameterError) => {
         res.status(500).send({message : "Global Parameter db에서 가져오기 실패"});
     })
-})
+});
+
+router.post('/insertPolicy', (req:Request, res:Response) => {
+    const treeData = req.body.treeData;
+    const policyName = req.body.policyName;
+    const username = req.body.username;
+
+    policyService.postInsertPolicy(username,policyName,treeData)
+    .then(() => {
+        res.status(200);
+    })
+    .catch((error:any) => {
+        res.status(500).send(error);
+
+    });
+});
 
 router.post('/gp', (req:Request, res:Response) => {
     let username = req.body.username;

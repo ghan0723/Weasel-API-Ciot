@@ -94,4 +94,15 @@ router.post('/gp', (req, res) => {
         res.status(500).send({ message: "Global Parameter update 실패" });
     });
 });
+router.post('/insertPolicy', (req, res) => {
+    const treeData = req.body.treeData;
+    const policyName = req.body.policyName;
+    const username = req.body.username;
+    policyService.postInsertPolicy(username, policyName, treeData)
+        .then((result) => {
+        console.log('result', result);
+    })
+        .catch((error) => {
+    });
+});
 module.exports = router;
