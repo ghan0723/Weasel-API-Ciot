@@ -90,4 +90,16 @@ router.get('/gp', (req:Request, res:Response) => {
     })
 })
 
+router.post('/gp', (req:Request, res:Response) => {
+    let username = req.body.username;
+    let gParameter = req.body.gParameter;
+    policyService.updateGParameter(username, gParameter)
+    .then((result) => {
+        res.status(200).send(result);
+    })
+    .catch((updateError) => {
+        res.status(500).send({message : "Global Parameter update 실패"});
+    })
+})
+
 export = router;

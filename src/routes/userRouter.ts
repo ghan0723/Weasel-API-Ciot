@@ -3,10 +3,12 @@ import UserService from "../service/userService";
 import CryptoService from "../service/cryptoService";
 import { frontIP } from "../interface/ipDomain";
 import { weasel } from "../interface/log";
+import PolicyService from "../service/policyService";
 
 const router: Router = express.Router();
 const userService: UserService = new UserService();
 const cryptoService = new CryptoService("sn0ISmjyz1CWT6Yb7dxu");
+const policyService: PolicyService = new PolicyService();
 
 router.get("/namecookie", (req: Request, res: Response) => {
   let username = req.cookies.username;
@@ -248,8 +250,14 @@ router.post('/add', (req:Request, res:Response) => {
         }
         userService.addUser(newUser)
         .then((addUser) => {
-          //새로운 계정 생성 완료
-          res.status(200).send(addUser);
+          //새로운 계정 생성 완료 이후 해당 계정 이름으로 gl_parameter 하나 생성하기
+          policyService.addGParameter(user.username)
+          .then((result) => {
+            res.status(200).send(result);
+          })
+          .catch((addGParamError) => {
+            res.status(500).send({message : "새로운 사용자의 GParameter 저장하기 실패"});
+          })
         })
         .catch((addError) => {
           res.status(500).send({message : "새로운 사용자 db에 저장하기 실패"});

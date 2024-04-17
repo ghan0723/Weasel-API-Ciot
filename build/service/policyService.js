@@ -103,7 +103,7 @@ class PolicyService {
                     tc_name: tc.tc_name,
                     tc_context: tc.tc_context,
                     tc_group: tc.tc_group,
-                    tc_parameter: [],
+                    tc_parameter: tc.tc_parameter,
                     checked: checked
                 };
                 // 테스트 케이스의 tc_id가 policyTcIds에 포함되어 있으면 해당 테스트 케이스의 p_tc_parameter를 가져와서 추가
@@ -137,7 +137,7 @@ class PolicyService {
                     tc_name: tc.tc_name,
                     tc_context: tc.tc_context,
                     tc_group: tc.tc_group,
-                    tc_parameter: [],
+                    tc_parameter: tc.tc_parameter,
                     checked: false // 기본값으로 false로 설정
                 });
             });
@@ -173,6 +173,34 @@ class PolicyService {
                     else {
                         resolve(gParameters);
                     }
+                }
+            });
+        });
+    }
+    addGParameter(username) {
+        let query = `insert into gl_parameter (username, uid, tool_ip, ivn_port, wave_port, lte_v2x_port, lte_uu_port, v2x_dut_ip, v2x_dut_port, ivn_canfd) ` +
+            ` values ('${username}',  0, '192.168.123.253', '12001', '12002', '12003', '12004', '192.168.123.201', '13001', '0')`;
+        return new Promise((resolve, reject) => {
+            db_1.default.query(query, (error, result) => {
+                if (error) {
+                    reject(error);
+                }
+                else {
+                    resolve(result);
+                }
+            });
+        });
+    }
+    updateGParameter(username, gParameter) {
+        let query = `update gl_parameter set tool_ip = '${gParameter.tool_ip}', ivn_port = '${gParameter.ivn_port}', wave_port = '${gParameter.wave_port}', lte_v2x_port = '${gParameter.lte_v2x_port}', ` +
+            `lte_uu_port = '${gParameter.lte_uu_port}', v2x_dut_ip = '${gParameter.v2x_dut_ip}', v2x_dut_port = '${gParameter.v2x_dut_port}', ivn_canfd = '${gParameter.ivn_canfd}', uid = uid+1 where username = ?`;
+        return new Promise((resolve, reject) => {
+            db_1.default.query(query, username, (error, result) => {
+                if (error) {
+                    reject(error);
+                }
+                else {
+                    resolve(result);
                 }
             });
         });

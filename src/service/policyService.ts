@@ -183,6 +183,34 @@ class PolicyService {
       })
     })
   }
+
+  addGParameter(username:any): Promise<any> {
+    let query = `insert into gl_parameter (username, uid, tool_ip, ivn_port, wave_port, lte_v2x_port, lte_uu_port, v2x_dut_ip, v2x_dut_port, ivn_canfd) `+
+    ` values ('${username}',  0, '192.168.123.253', '12001', '12002', '12003', '12004', '192.168.123.201', '13001', '0')`;
+    return new Promise((resolve, reject) => {
+      connection.query(query, (error, result) => {
+        if(error){
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      })
+    })
+  }
+
+  updateGParameter(username:any, gParameter:any): Promise<any> {
+    let query = `update gl_parameter set tool_ip = '${gParameter.tool_ip}', ivn_port = '${gParameter.ivn_port}', wave_port = '${gParameter.wave_port}', lte_v2x_port = '${gParameter.lte_v2x_port}', `+
+    `lte_uu_port = '${gParameter.lte_uu_port}', v2x_dut_ip = '${gParameter.v2x_dut_ip}', v2x_dut_port = '${gParameter.v2x_dut_port}', ivn_canfd = '${gParameter.ivn_canfd}', uid = uid+1 where username = ?`;
+    return new Promise((resolve, reject) => {
+      connection.query(query, username, (error, result) => {
+        if(error){
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      })
+    })
+  }
 }
 
 export default PolicyService;

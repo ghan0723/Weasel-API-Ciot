@@ -83,4 +83,15 @@ router.get('/gp', (req, res) => {
         res.status(500).send({ message: "Global Parameter db에서 가져오기 실패" });
     });
 });
+router.post('/gp', (req, res) => {
+    let username = req.body.username;
+    let gParameter = req.body.gParameter;
+    policyService.updateGParameter(username, gParameter)
+        .then((result) => {
+        res.status(200).send(result);
+    })
+        .catch((updateError) => {
+        res.status(500).send({ message: "Global Parameter update 실패" });
+    });
+});
 module.exports = router;

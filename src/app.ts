@@ -16,6 +16,7 @@ var settingRouter = require('./routes/settingRouter.js');
 var logRouter = require('./routes/logRouter.js');
 var sessionRouter = require('./routes/sessionRouter.js');
 var policyRouter = require('./routes/policyRouter.js');
+var excelRouter = require('./routes/excelRouter.js');
 
 var app = express();
 const fs = require("fs");
@@ -79,6 +80,7 @@ app.use('/setting', settingRouter);
 app.use('/log', logRouter);
 app.use('/session', sessionRouter);
 app.use('/policy', policyRouter);
+app.use('/excel', excelRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req: Request, res: Response, next: NextFunction) {

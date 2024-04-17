@@ -1,27 +1,24 @@
 "use strict";
-// import { IpRange } from "./../interface/interface";
-// import UserService from "../service/userService";
-// import connection from "../db/db";
-// import MediaService from "../service/mediaService";
-// import NetworkService from "../service/networkService";
-// import OutlookService from "../service/outlookService";
-// import PrintService from "../service/printService";
-// import express, { Request, Response, Router } from "express";
-// import IpCalcService from "../service/ipCalcService";
-// import ExcelService from "../service/excelService";
-// import LeakedService from "../service/leakedService";
-// import AnalysisService from "../service/analysisService";
-// import { weasel } from "../interface/log";
-// const router: Router = express.Router();
-// const networkService: NetworkService = new NetworkService(connection);
-// const mediaService: MediaService = new MediaService();
-// const outlookService: OutlookService = new OutlookService();
-// const printService: PrintService = new PrintService();
-// const leakedService: LeakedService = new LeakedService();
-// const userService: UserService = new UserService();
-// const ipCalcService = new IpCalcService();
-// const excelService: ExcelService = new ExcelService();
-// const analysis: AnalysisService = new AnalysisService();
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+const userService_1 = __importDefault(require("../service/userService"));
+const express_1 = __importDefault(require("express"));
+const excelService_1 = __importDefault(require("../service/excelService"));
+const sessionService_1 = __importDefault(require("../service/sessionService"));
+const router = express_1.default.Router();
+const userService = new userService_1.default();
+const excelService = new excelService_1.default();
+const sessionService = new sessionService_1.default();
 // router.get("/dwn", async (req: Request, res: Response) => {
 //   const username = req.query.username;
 //   const contents = req.query.contents;
@@ -178,4 +175,18 @@
 //     res.status(500).send("Server error");
 //   }
 // });
-// export = router;
+router.get('/session', (req, res) => {
+    let category = req.query.category;
+    let searchWord = req.query.searchWord;
+    let rows = req.query.rows;
+    sessionService.getSessionListByExcel(category, searchWord, rows)
+        .then((sessionList) => __awaiter(void 0, void 0, void 0, function* () {
+        const excelBuffer = yield excelService.getExcelFile(sessionList, "session");
+        res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        res.setHeader("Content-Disposition", `attachment; filename=session.xlsx`);
+        res.send(excelBuffer);
+    }))
+        .catch((sessionListError) => {
+    });
+});
+module.exports = router;

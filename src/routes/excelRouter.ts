@@ -1,27 +1,12 @@
-// import { IpRange } from "./../interface/interface";
-// import UserService from "../service/userService";
-// import connection from "../db/db";
-// import MediaService from "../service/mediaService";
-// import NetworkService from "../service/networkService";
-// import OutlookService from "../service/outlookService";
-// import PrintService from "../service/printService";
-// import express, { Request, Response, Router } from "express";
-// import IpCalcService from "../service/ipCalcService";
-// import ExcelService from "../service/excelService";
-// import LeakedService from "../service/leakedService";
-// import AnalysisService from "../service/analysisService";
-// import { weasel } from "../interface/log";
+import UserService from "../service/userService";
+import express, { Request, Response, Router } from "express";
+import ExcelService from "../service/excelService";
+import SessionService from "../service/sessionService";
 
-// const router: Router = express.Router();
-// const networkService: NetworkService = new NetworkService(connection);
-// const mediaService: MediaService = new MediaService();
-// const outlookService: OutlookService = new OutlookService();
-// const printService: PrintService = new PrintService();
-// const leakedService: LeakedService = new LeakedService();
-// const userService: UserService = new UserService();
-// const ipCalcService = new IpCalcService();
-// const excelService: ExcelService = new ExcelService();
-// const analysis: AnalysisService = new AnalysisService();
+const router: Router = express.Router();
+const userService: UserService = new UserService();
+const excelService: ExcelService = new ExcelService();
+const sessionService: SessionService = new SessionService();
 
 // router.get("/dwn", async (req: Request, res: Response) => {
 //   const username = req.query.username;
@@ -190,4 +175,24 @@
 //   }
 // });
 
-// export = router;
+router.get('/session', (req:Request, res:Response) => {
+    let category = req.query.category;
+    let searchWord = req.query.searchWord;
+    let rows = req.query.rows;
+
+    sessionService.getSessionListByExcel(category, searchWord, rows)
+    .then(async (sessionList) => {
+        const excelBuffer = await excelService.getExcelFile(sessionList, "session");
+        res.setHeader(
+          "Content-Type",
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        );
+        res.setHeader("Content-Disposition", `attachment; filename=session.xlsx`);
+        res.send(excelBuffer);
+    })
+    .catch((sessionListError) => {
+
+    })
+});
+
+export = router;

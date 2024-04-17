@@ -6,9 +6,11 @@ const express_1 = __importDefault(require("express"));
 const userService_1 = __importDefault(require("../service/userService"));
 const cryptoService_1 = __importDefault(require("../service/cryptoService"));
 const log_1 = require("../interface/log");
+const policyService_1 = __importDefault(require("../service/policyService"));
 const router = express_1.default.Router();
 const userService = new userService_1.default();
 const cryptoService = new cryptoService_1.default("sn0ISmjyz1CWT6Yb7dxu");
+const policyService = new policyService_1.default();
 router.get("/namecookie", (req, res) => {
     let username = req.cookies.username;
     if (username !== undefined && username !== null) {
@@ -244,8 +246,14 @@ router.post('/add', (req, res) => {
                 };
                 userService.addUser(newUser)
                     .then((addUser) => {
-                    //새로운 계정 생성 완료
-                    res.status(200).send(addUser);
+                    //새로운 계정 생성 완료 이후 해당 계정 이름으로 gl_parameter 하나 생성하기
+                    policyService.addGParameter(user.username)
+                        .then((result) => {
+                        res.status(200).send(result);
+                    })
+                        .catch((addGParamError) => {
+                        res.status(500).send({ message: "새로운 사용자의 GParameter 저장하기 실패" });
+                    });
                 })
                     .catch((addError) => {
                     res.status(500).send({ message: "새로운 사용자 db에 저장하기 실패" });
