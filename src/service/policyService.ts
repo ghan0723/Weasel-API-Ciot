@@ -54,7 +54,7 @@ class PolicyService {
             tc_id:'',
             p_tc_parameter:{}
           }];
-          if(result > 0){
+          if(result.length > 0){
             resolve(result);
           } else {
             resolve(tcList);
@@ -105,7 +105,7 @@ class PolicyService {
           tc_name: tc.tc_name,
           tc_context: tc.tc_context,
           tc_group: tc.tc_group,
-          tc_parameter: [],
+          tc_parameter: tc.tc_parameter,
           checked: checked
         };
   
@@ -115,6 +115,7 @@ class PolicyService {
           if (policy && policy.p_tc_parameter) {
             tcNode.tc_parameter = policy.p_tc_parameter;
           }
+          groupMap[tc.tc_group].checked = true;
         }
   
         groupMap[tc.tc_group].children.push(tcNode);
@@ -141,7 +142,7 @@ class PolicyService {
               tc_name: tc.tc_name,
               tc_context: tc.tc_context,
               tc_group:tc.tc_group,
-              tc_parameter:[],
+              tc_parameter:tc.tc_parameter,
               checked: false // 기본값으로 false로 설정
           });
       });

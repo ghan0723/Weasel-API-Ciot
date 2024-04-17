@@ -43,6 +43,7 @@ router.get('/add', (req:Request, res:Response) => {
             .then((list2) => {
                 //교집합인 테스트 케이스를 비교하는 메소드가 필요함
                 const datalist = policyService.compareTestCases(testcases, list2);
+                
                 res.status(200).send(datalist);
             })
             .catch((list2Error) => {

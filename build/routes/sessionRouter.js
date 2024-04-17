@@ -50,4 +50,14 @@ router.get("/data", (req, res) => {
     })
         .catch(error => res.status(500).send(error));
 });
+router.get('/start', (req, res) => {
+    const { username, policyname } = req.query;
+    sessionService.getInsertSessions(username, policyname)
+        .then(result => {
+        res.send(result);
+    })
+        .catch((error) => {
+        res.status(500).send(error);
+    });
+});
 module.exports = router;
