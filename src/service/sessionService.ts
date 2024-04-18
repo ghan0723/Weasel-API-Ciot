@@ -150,6 +150,42 @@ class SessionService {
         })
     });
   }
+
+  updateSessionTime(s_id:string, s_name:string): Promise<any> {
+    const s_start = new Date(s_name);
+    const s_end = new Date();
+
+    // 두 날짜 사이의 시간 차이 계산 (밀리초 단위)
+    const timeDifference = s_end.getTime() - s_start.getTime();
+
+    // 시간, 분, 초 단위로 변환
+    const hours = Math.floor(timeDifference / (1000 * 60 * 60));
+    const minutes = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
+
+    // 표기할 시간 문자열 생성
+    let formattedTime = "";
+    if (hours > 0) {
+        formattedTime += `${hours}시 `;
+    }
+    if (minutes > 0) {
+        formattedTime += `${minutes}분 `;
+    }
+    if (seconds > 0 || (hours === 0 && minutes === 0)) {
+        formattedTime += `${seconds}초`;
+    }
+    
+    let query = `update sessions set s_time = '${formattedTime}' where s_id = ?`;
+    return new Promise((resolve, reject) => {
+      connection.query(query, s_id, (error, result) => {
+        if(error){
+            reject(error);
+        } else {
+            resolve(result);
+        }
+      })
+    })
+  }
 }
 
 export default SessionService;

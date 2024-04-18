@@ -73,6 +73,38 @@ router.get('/start', (req, res) => {
         res.status(500).send(error);
     });
 });
+router.post('/start', (req, res) => {
+    const { username, policyname } = req.query;
+    let treeData = req.body.treeData;
+    let policyDescription = req.body.policyDescription;
+    //현재 존재하는 policy인지 확인(중복 확인)
+    policyService.duplicatePolicy(policyname)
+        .then((dup) => {
+        //중복이 아닌 policy라면 새로운 정책으로 등록하고
+        if (dup) {
+            res.status(200).send({ dup: true });
+        }
+        else {
+            policyService.postInsertPolicy(username, policyname, treeData, policyDescription)
+                .then((insert) => {
+                //방금 등록한 정책명으로 새로 session을 만들어주면 된다.
+                policyService.getInsertSessions(username, policyname)
+                    .then(result => {
+                    res.send({ result });
+                })
+                    .catch((error) => {
+                    res.status(500).send(error);
+                });
+            })
+                .catch((insertError) => {
+                res.status(500).send(insertError);
+            });
+        }
+    })
+        .catch((dupError) => {
+        res.status(500).send(dupError);
+    });
+});
 router.get('/gp', (req, res) => {
     let username = req.query.username;
     policyService.getGParameter(username)
@@ -81,6 +113,18 @@ router.get('/gp', (req, res) => {
     })
         .catch((gParameterError) => {
         res.status(500).send({ message: "Global Parameter db에서 가져오기 실패" });
+    });
+});
+router.post('/insertPolicy', (req, res) => {
+    const treeData = req.body.treeData;
+    const policyName = req.body.policyName;
+    const username = req.body.username;
+    policyService.postInsertPolicy(username, policyName, treeData)
+        .then(() => {
+        res.status(200);
+    })
+        .catch((error) => {
+        res.status(500).send(error);
     });
 });
 router.post('/gp', (req, res) => {
@@ -92,17 +136,6 @@ router.post('/gp', (req, res) => {
     })
         .catch((updateError) => {
         res.status(500).send({ message: "Global Parameter update 실패" });
-    });
-});
-router.post('/insertPolicy', (req, res) => {
-    const treeData = req.body.treeData;
-    const policyName = req.body.policyName;
-    const username = req.body.username;
-    policyService.postInsertPolicy(username, policyName, treeData)
-        .then((result) => {
-        console.log('result', result);
-    })
-        .catch((error) => {
     });
 });
 module.exports = router;

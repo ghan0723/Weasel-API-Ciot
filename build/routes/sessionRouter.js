@@ -60,4 +60,20 @@ router.get('/start', (req, res) => {
         res.status(500).send(error);
     });
 });
+router.get('/stop', (req, res) => {
+    let s_id = req.query.sid;
+    sessionService.getSessionData(s_id)
+        .then((session) => {
+        sessionService.updateSessionTime(session[0].s_id, session[0].s_name)
+            .then((updateSession) => {
+            res.status(200).send(updateSession);
+        })
+            .catch((updateSessionError) => {
+            res.status(500).send({ message: "session time db에서 update 실패" });
+        });
+    })
+        .catch((sessionError) => {
+        res.status(500).send({ message: "session 데이터 db에서 가져오기 실패" });
+    });
+});
 module.exports = router;

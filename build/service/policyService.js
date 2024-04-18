@@ -106,7 +106,7 @@ class PolicyService {
                     tc_context: tc.tc_context,
                     tc_group: tc.tc_group,
                     tc_parameter: tc.tc_parameter,
-                    checked: checked
+                    checked: checked,
                 };
                 // 테스트 케이스의 tc_id가 policyTcIds에 포함되어 있으면 해당 테스트 케이스의 p_tc_parameter를 가져와서 추가
                 if (checked) {
@@ -141,7 +141,7 @@ class PolicyService {
                     tc_context: tc.tc_context,
                     tc_group: tc.tc_group,
                     tc_parameter: tc.tc_parameter,
-                    checked: false // 기본값으로 false로 설정
+                    checked: false, // 기본값으로 false로 설정
                 });
             });
             // 그룹화된 테스트 케이스를 treeData에 추가
@@ -182,6 +182,49 @@ class PolicyService {
             });
         });
     }
+    postInsertPolicy(username, name, data, policyDescription) {
+        // 각 데이터 요소를 처리하는 Promise 배열을 생성합니다.
+        const promises = data.map((item) => {
+            if (item.checked) {
+                item.children.map((tcData) => {
+                    if (tcData.checked) {
+                        const query = `Insert Into tc_policy (p_name, tc_id, p_tc_parameter) values ('${name}', '${tcData.tc_id}', '${tcData.tc_parameter}');`;
+                        return new Promise((resolve, reject) => {
+                            db_1.default.query(query, (error, result) => {
+                                if (error) {
+                                    reject(error);
+                                }
+                                else {
+                                    resolve(result);
+                                }
+                            });
+                        });
+                    }
+                });
+            }
+        });
+        if (promises.length >= 1) {
+            const query = `Insert Into policys (p_name, p_author, p_distinction) values ('${name}', '${username}', '${policyDescription}');`;
+            promises.unshift(new Promise((resolve, reject) => {
+                db_1.default.query(query, (error, result) => {
+                    if (error) {
+                        reject(error);
+                    }
+                    else {
+                        resolve(result);
+                    }
+                });
+            }));
+        }
+        // 모든 Promise를 동시에 실행하고, 모든 작업이 완료되면 완료되었다는 것을 알립니다.
+        return Promise.all(promises)
+            .then((results) => {
+            return results; // 모든 삽입 작업의 결과를 반환
+        })
+            .catch((error) => {
+            throw error; // 에러 발생시 예외를 throw하여 호출자에게 알림
+        });
+    }
     addGParameter(username) {
         let query = `insert into gl_parameter (username, uid, tool_ip, ivn_port, wave_port, lte_v2x_port, lte_uu_port, v2x_dut_ip, v2x_dut_port, ivn_canfd) ` +
             ` values ('${username}',  0, '192.168.123.253', '12001', '12002', '12003', '12004', '192.168.123.201', '13001', '0')`;
@@ -210,50 +253,20 @@ class PolicyService {
             });
         });
     }
-    postInsertPolicy(username, name, data) {
-        // 각 데이터 요소를 처리하는 Promise 배열을 생성합니다.
-        const promises = data.map((item) => {
-            if (item.checked) {
-                item.children.map((tcData) => {
-                    if (tcData.checked) {
-                        console.log('tcData', tcData);
-                        const query = `Insert Into tc_policy (p_name, tc_id, p_tc_parameter) values ('${name}', '${tcData.tc_id}', '${tcData.tc_parameter}');`;
-                        return new Promise((resolve, reject) => {
-                            db_1.default.query(query, (error, result) => {
-                                if (error) {
-                                    reject(error);
-                                }
-                                else {
-                                    resolve(result);
-                                }
-                            });
-                        });
-                    }
-                });
-            }
-        });
-        if (promises.length >= 1) {
-            const query = `Insert Into policys (p_name, p_author, p_distinction) values ('${name}', '${username}', '');`;
-            promises.unshift(new Promise((resolve, reject) => {
-                db_1.default.query(query, (error, result) => {
-                    if (error) {
-                        reject(error);
-                    }
-                    else {
-                        resolve(result);
-                    }
-                });
-            }));
-        }
-        // 모든 Promise를 동시에 실행하고, 모든 작업이 완료되면 완료되었다는 것을 알립니다.
-        return Promise.all(promises)
-            .then((results) => {
-            console.log("모든 데이터 삽입 완료");
-            return results; // 모든 삽입 작업의 결과를 반환
-        })
-            .catch((error) => {
-            console.error("데이터 삽입 중 에러 발생:", error);
-            throw error; // 에러 발생시 예외를 throw하여 호출자에게 알림
+    //policy 중복 검사
+    duplicatePolicy(policyname) {
+        let query = `SELECT COUNT(*) AS count FROM policys WHERE p_name = ?`;
+        return new Promise((resolve, reject) => {
+            db_1.default.query(query, policyname, (error, result) => {
+                if (error) {
+                    reject(error);
+                }
+                else {
+                    // 결과의 count 값이 0보다 크면 중복된 policy가 있음을 나타내므로 true를 반환하고, 그렇지 않으면 false를 반환합니다.
+                    const count = result[0].count;
+                    resolve(count > 0);
+                }
+            });
         });
     }
 }
