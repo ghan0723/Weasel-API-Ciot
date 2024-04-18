@@ -97,7 +97,7 @@ router.post('/insertPolicy', (req:Request, res:Response) => {
 
     policyService.postInsertPolicy(username,policyName,treeData)
     .then(() => {
-        res.status(200);
+        res.send({'success':'success'});
     })
     .catch((error:any) => {
         res.status(500).send(error);
@@ -115,6 +115,13 @@ router.post('/gp', (req:Request, res:Response) => {
     .catch((updateError) => {
         res.status(500).send({message : "Global Parameter update 실패"});
     })
-})
+});
+
+router.post('/delete', (req:Request, res:Response) => {
+    const policyName = req.body.policyName;
+    policyService.deletePolicy(policyName)
+    .then(() => res.status(200).send)
+    .catch((error) => res.status(500).send(error));
+});
 
 export = router;

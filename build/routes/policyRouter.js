@@ -83,6 +83,18 @@ router.get('/gp', (req, res) => {
         res.status(500).send({ message: "Global Parameter db에서 가져오기 실패" });
     });
 });
+router.post('/insertPolicy', (req, res) => {
+    const treeData = req.body.treeData;
+    const policyName = req.body.policyName;
+    const username = req.body.username;
+    policyService.postInsertPolicy(username, policyName, treeData)
+        .then(() => {
+        res.send({ 'success': 'success' });
+    })
+        .catch((error) => {
+        res.status(500).send(error);
+    });
+});
 router.post('/gp', (req, res) => {
     let username = req.body.username;
     let gParameter = req.body.gParameter;
@@ -94,15 +106,10 @@ router.post('/gp', (req, res) => {
         res.status(500).send({ message: "Global Parameter update 실패" });
     });
 });
-router.post('/insertPolicy', (req, res) => {
-    const treeData = req.body.treeData;
+router.post('/delete', (req, res) => {
     const policyName = req.body.policyName;
-    const username = req.body.username;
-    policyService.postInsertPolicy(username, policyName, treeData)
-        .then((result) => {
-        console.log('result', result);
-    })
-        .catch((error) => {
-    });
+    policyService.deletePolicy(policyName)
+        .then(() => res.status(200).send)
+        .catch((error) => res.status(500).send(error));
 });
 module.exports = router;
