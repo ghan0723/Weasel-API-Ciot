@@ -279,6 +279,60 @@ class PolicyService {
       });
     })
   }
+
+  addPolicy(username:any, policyName:any, policyDescription?:string):Promise<any>{
+    const query = `Insert Into policys (p_name, p_author, p_distinction) values ('${policyName}', '${username}', '${policyDescription}');`
+    return new Promise((resolve, reject) => {
+      connection.query(query, (error, result) => {
+        if(error){
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      })
+    })
+  }
+
+  addTcPolicy(policyName:any, data:any): Promise<any>{
+    const tcPolicy = data.map((item:any) => {
+      if(item.checked){
+        item.children.map((tcData:any) => {
+          if(tcData.checked){
+            const query = `Insert Into tc_policy (p_name, tc_id, p_tc_parameter) values ('${policyName}', '${tcData.tc_id}', '${tcData.tc_parameter}');`;
+            return new Promise((resolve, reject) => {
+              connection.query(query, (error, result) => {
+                if(error){
+                  reject(error);
+                } else {
+                  resolve(result);
+                }
+              })
+            })
+          }
+        })
+      }
+    })
+    return Promise.all(tcPolicy)
+    .then((result) => {
+      return (result);
+    }) 
+    .catch((error) => {
+      return ({message : '에러 발생'})
+    })
+  }
+
+  getPolicyDescription(p_name:any):Promise<any> {
+    let query = `select p_distinction from policys where p_name = ?`
+    return new Promise((resolve, reject) => {
+      connection.query(query, p_name, (error, result) => {
+        if(error){
+          reject(error);
+        } else {
+          resolve(result[0].p_distinction);
+        }
+      })
+    })
+  }
 }
 
 export default PolicyService;
