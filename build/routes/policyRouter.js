@@ -73,6 +73,38 @@ router.get('/start', (req, res) => {
         res.status(500).send(error);
     });
 });
+router.post('/start', (req, res) => {
+    const { username, policyname } = req.query;
+    let treeData = req.body.treeData;
+    let policyDescription = req.body.policyDescription;
+    //현재 존재하는 policy인지 확인(중복 확인)
+    policyService.duplicatePolicy(policyname)
+        .then((dup) => {
+        //중복이 아닌 policy라면 새로운 정책으로 등록하고
+        if (dup) {
+            res.status(200).send({ dup: true });
+        }
+        else {
+            policyService.postInsertPolicy(username, policyname, treeData, policyDescription)
+                .then((insert) => {
+                //방금 등록한 정책명으로 새로 session을 만들어주면 된다.
+                policyService.getInsertSessions(username, policyname)
+                    .then(result => {
+                    res.send({ result });
+                })
+                    .catch((error) => {
+                    res.status(500).send(error);
+                });
+            })
+                .catch((insertError) => {
+                res.status(500).send(insertError);
+            });
+        }
+    })
+        .catch((dupError) => {
+        res.status(500).send(dupError);
+    });
+});
 router.get('/gp', (req, res) => {
     let username = req.query.username;
     policyService.getGParameter(username)
@@ -109,7 +141,15 @@ router.post('/gp', (req, res) => {
 router.post('/delete', (req, res) => {
     const policyName = req.body.policyName;
     policyService.deletePolicy(policyName)
-        .then(() => res.status(200).send)
+        .then(() => {
+        policyService.getPolicyList()
+            .then(list => {
+            res.send(list);
+        })
+            .catch((error) => {
+            res.status(500).send({ error: error });
+        });
+    })
         .catch((error) => res.status(500).send(error));
 });
 module.exports = router;

@@ -189,7 +189,7 @@ class PolicyService {
     });
   }
 
-  postInsertPolicy(username:any ,name:any,data: any) {
+  postInsertPolicy(username:any ,name:any,data: any, policyDescription?:string) {
     // 각 데이터 요소를 처리하는 Promise 배열을 생성합니다.
     const promises = data.map((item: any) => {
       if (item.checked) {
@@ -212,7 +212,7 @@ class PolicyService {
     });
 
     if(promises.length >= 1) {
-      const query = `Insert Into policys (p_name, p_author, p_distinction) values ('${name}', '${username}', '');`
+      const query = `Insert Into policys (p_name, p_author, p_distinction) values ('${name}', '${username}', '${policyDescription}');`
 
       promises.unshift(
         new Promise((resolve, reject) => {
@@ -264,6 +264,22 @@ class PolicyService {
     })
   }
 
+  //policy 중복 검사
+  duplicatePolicy(policyname:any): Promise<any> {
+    let query = `SELECT COUNT(*) AS count FROM policys WHERE p_name = ?`;
+    return new Promise((resolve, reject) => {
+      connection.query(query, policyname, (error, result) => {
+        if (error) {
+            reject(error);
+        } else {
+            // 결과의 count 값이 0보다 크면 중복된 policy가 있음을 나타내므로 true를 반환하고, 그렇지 않으면 false를 반환합니다.
+            const count = result[0].count;
+            resolve(count > 0);
+        }
+      });
+    })
+  }
+
   deletePolicy(policyName:any): Promise<any> {
     // const query  = `delete from tc_policy where p_name = '${policyName}'`;
     // const query2 = `delete from policys where p_name = '${policyName}'`;
@@ -289,8 +305,6 @@ class PolicyService {
     //   throw error;
     // });
 
-    console.log('policyName',policyName);
-    
     const query = `delete from policys where p_name = '${policyName}'`;
     return new Promise((resolve, reject) => {
       connection.query(query, (error, result) => {
