@@ -161,4 +161,18 @@ router.get('/edit', (req, res) => {
         res.status(500).send({ message: "전체 테스트 케이스 db에서 가져오기 실패" });
     });
 });
+router.post('/delete', (req, res) => {
+    const policyName = req.body.policyName;
+    policyService.deletePolicy(policyName)
+        .then(() => {
+        policyService.getPolicyList()
+            .then(list => {
+            res.send(list);
+        })
+            .catch((error) => {
+            res.status(500).send({ error: error });
+        });
+    })
+        .catch((error) => res.status(500).send(error));
+});
 module.exports = router;

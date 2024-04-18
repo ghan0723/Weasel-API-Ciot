@@ -136,7 +136,22 @@ router.post('/gp', (req:Request, res:Response) => {
     .catch((updateError) => {
         res.status(500).send({message : "Global Parameter update 실패"});
     })
-})
+});
+
+router.post('/delete', (req:Request, res:Response) => {
+    const policyName = req.body.policyName;
+    policyService.deletePolicy(policyName)
+    .then(() => {
+        policyService.getPolicyList()
+        .then(list => {
+            res.send(list);
+        })
+        .catch((error:any) => {
+            res.status(500).send({error : error});
+        })
+    })
+    .catch((error) => res.status(500).send(error));
+});
 
 router.get('/edit', (req:Request, res:Response) => {
     //이거 정책 이름

@@ -323,5 +323,41 @@ class PolicyService {
             });
         });
     }
+    deletePolicy(policyName) {
+        // const query  = `delete from tc_policy where p_name = '${policyName}'`;
+        // const query2 = `delete from policys where p_name = '${policyName}'`;
+        // const querys = [query,query2];
+        // return Promise.all(
+        //   querys.map((queryData) => {
+        //     new Promise((resolve, reject) => {
+        //       connection.query(queryData, (error, result) => {
+        //         if (error) {
+        //           reject(error);
+        //         } else {
+        //           resolve(result);
+        //         }
+        //       });
+        //     })
+        //   })
+        // )
+        // .then((results) => {
+        //   return results;
+        // })
+        // .catch((error) => {
+        //   throw error;
+        // });
+        console.log('policyName', policyName);
+        const query = `delete from policys where p_name = '${policyName}'`;
+        return new Promise((resolve, reject) => {
+            db_1.default.query(query, (error, result) => {
+                if (error) {
+                    reject(error);
+                }
+                else {
+                    resolve(result);
+                }
+            });
+        });
+    }
 }
 exports.default = PolicyService;

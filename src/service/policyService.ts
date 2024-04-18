@@ -333,6 +333,22 @@ class PolicyService {
       })
     })
   }
+
+  deletePolicy(policyName:any): Promise<any> {
+
+    const query = `delete from policys where p_name = '${policyName}'`;
+    return new Promise((resolve, reject) => {
+      connection.query(query, (error, result) => {
+        if(error){
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      })
+    })
+
+  }
+
 }
 
 export default PolicyService;
