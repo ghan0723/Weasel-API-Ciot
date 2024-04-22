@@ -161,11 +161,22 @@ class PrintService {
                     `select ${aliasValues[0]}, ${aliasValues[1]} as ${aliasKey[1]}, ${aliasValues[2]} as ${aliasKey[2]}, ${aliasValues[3]} as ${aliasKey[3]}, ${aliasValues[4]} as ${aliasKey[4]}, ${aliasValues[5]} as ${aliasKey[5]}, 
         ${aliasValues[6]} as ${aliasKey[6]}, ${aliasValues[7]} as ${aliasKey[7]}, ${aliasValues[8]} as ${aliasKey[8]}, 
         ${aliasValues[9]} as ${aliasKey[9]}, ${aliasValues[10]} as ${aliasKey[10]} `;
-            const query = queryStr +
-                "from leakedprintingfiles " +
-                whereClause +
-                ' order by ' + querySorting + ' ' + queryDesc + ' ' +
-                'LIMIT ' + queryPageSize + ' offset ' + queryPage * queryPageSize;
+            let query = '';
+            if (!excel) {
+                query =
+                    queryStr +
+                        "from leakedprintingfiles " +
+                        whereClause +
+                        ' order by ' + querySorting + ' ' + queryDesc + ' ' +
+                        'LIMIT ' + queryPageSize + ' offset ' + queryPage * queryPageSize;
+            }
+            else {
+                query =
+                    queryStr +
+                        "from leakedprintingfiles " +
+                        whereClause +
+                        ' order by ' + querySorting + ' ' + queryDesc + ' ';
+            }
             const query2 = "select count(*) as count from leakedprintingfiles " + whereClause;
             const whereQuery = '%' + search + '%';
             ;

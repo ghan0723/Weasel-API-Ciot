@@ -159,13 +159,21 @@ class MediaService {
       :
       `select ${aliasValues[0]}, ${aliasValues[1]} as ${aliasKey[1]}, ${aliasValues[2]} as ${aliasKey[2]}, ${aliasValues[3]} as ${aliasKey[3]}, ${aliasValues[4]} as ${aliasKey[4]}, ${aliasValues[5]} as ${aliasKey[5]}, ${aliasValues[6]} as ${aliasKey[6]},
       ${aliasValues[7]} as ${aliasKey[7]}, ${aliasValues[8]} as ${aliasKey[8]} `;
-
-      const query =
+      let query = '';
+      if(!excel){
+        query =
         queryStr +
         "from leakedmediafiles " +
          whereClause +
         ' order by '+ querySorting + ' ' + queryDesc + ' ' +
         'LIMIT ' + queryPageSize + ' offset ' + queryPage*queryPageSize;
+      } else {
+        query =
+        queryStr +
+        "from leakedmediafiles " +
+         whereClause +
+        ' order by '+ querySorting + ' ' + queryDesc + ' ';
+      }
 
       const query2 = "select count(*) as count from leakedmediafiles " + whereClause;
       const whereQuery = '%' + search + '%';
