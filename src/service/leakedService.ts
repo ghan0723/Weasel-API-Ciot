@@ -32,7 +32,9 @@ class LeakedService {
     }
 
     return new Promise((resolve, reject) => {
-      const query =
+      let query = "";
+      if(!excelCheck){
+        query =
         "select pc_guid, pc_name, latest_agent_ip, time " +
         // "select * " +
         "from agentinfo " +
@@ -46,6 +48,18 @@ class LeakedService {
         queryPageSize +
         " offset " +
         queryPage * queryPageSize;
+      } else {
+        query =
+        "select pc_guid, pc_name, latest_agent_ip, time " +
+        // "select * " +
+        "from agentinfo " +
+        whereClause +
+        " order by " +
+        querySorting +
+        " " +
+        queryDesc +
+        " " ;
+      }
 
       const query2 = "select count(*) as count from agentinfo " + whereClause;
       const whereQuery = "%" + search + "%";
