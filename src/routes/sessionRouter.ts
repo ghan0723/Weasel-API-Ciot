@@ -1,5 +1,7 @@
 import SessionService from "../service/sessionService";
 import express, { Request, Response, Router } from "express";
+import PDFDocument from 'pdfkit';
+import fs from 'fs';
 
 const router: Router = express.Router();
 const sessionService: SessionService = new SessionService();
@@ -84,5 +86,41 @@ router.get('/stop', (req:Request, res:Response) => {
     res.status(500).send({message : "session 데이터 db에서 가져오기 실패"});
   })
 })
+
+router.get('/pdfDwn', (req:Request, res:Response) => {
+  let s_id = req.query.sid;
+  try {
+    sessionService.getSessionData(s_id)
+    .then((session) => {
+      const pdfDoc = new PDFDocument();
+      // PDF 파일을 메모리에 생성
+      const buffers: Buffer[] = [];
+      pdfDoc.on('data', (chunk) => {
+        buffers.push(chunk);
+      });
+      pdfDoc.on('end', () => {
+        const pdfData = Buffer.concat(buffers);
+        // PDF 파일을 클라이언트에게 전송
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename="${session[0].s_name}.pdf"`);
+        res.send(pdfData);
+      });
+
+      pdfDoc.fontSize(24).text('정책 진행 내역', { align: 'left' });
+      pdfDoc.moveDown(0.5); // 0.5인치 아래로 이동
+
+      const logs = JSON.parse(session[0].s_log);
+      logs.forEach((log: any) => {
+        pdfDoc.fontSize(11).text(`${log.name}: ${log.log}`);
+      });
+      pdfDoc.end();
+    })
+    .catch((sessionError) => {
+      res.status(500).send({message : "session 데이터 db에서 가져오기 실패"});
+    })
+  } catch (error) {
+    res.status(500).send('Error generating PDF');
+  }
+});
 
 export = router;

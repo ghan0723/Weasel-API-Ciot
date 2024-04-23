@@ -250,7 +250,7 @@ router.post('/add', (req:Request, res:Response) => {
         }
         userService.addUser(newUser)
         .then((addUser) => {
-          //새로운 계정 생성 완료 이후 해당 계정 이름으로 gl_parameter 하나 생성하기
+          //새로운 계정 생성 완료 이후 해당 계정 이름으로 settings 하나 생성하기
           policyService.addGParameter(user.username)
           .then((result) => {
             res.status(200).send(result);

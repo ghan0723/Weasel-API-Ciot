@@ -115,7 +115,7 @@ router.post('/start', (req:Request, res:Response) => {
     });
 });
 
-router.get('/gp', (req:Request, res:Response) => {
+router.get('/setting', (req:Request, res:Response) => {
     let username = req.query.username;
     policyService.getGParameter(username)
     .then((gParameter) => {
@@ -126,7 +126,7 @@ router.get('/gp', (req:Request, res:Response) => {
     })
 });
 
-router.post('/gp', (req:Request, res:Response) => {
+router.post('/setting', (req:Request, res:Response) => {
     let username = req.body.username;
     let gParameter = req.body.gParameter;
     policyService.updateGParameter(username, gParameter)
@@ -181,6 +181,12 @@ router.get('/edit', (req:Request, res:Response) => {
     .catch((testcasesError) => {
         res.status(500).send({message : "전체 테스트 케이스 db에서 가져오기 실패"});
     })
+});
+
+router.post('/json', (req:Request, res:Response) => {
+    const jsonData = req.body;
+    console.log("jsonData : ", jsonData);
+    res.send(jsonData);
 });
 
 export = router;

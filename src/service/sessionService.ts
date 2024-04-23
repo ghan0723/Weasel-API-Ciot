@@ -49,7 +49,7 @@ class SessionService {
   }
 
   getInsertSessions(username: any, policyname: any): Promise<any> {
-    const query = `insert into sessions (username, p_name, s_name, s_time, s_response, s_log) values ('${username}', '${policyname}', now(), '', '[{}]', '[{}]');`;
+    const query = `insert into sessions (username, p_name, s_name, s_time, s_response, s_log, s_enabled) values ('${username}', '${policyname}', now(), '', '[{}]', '[{}]', 1);`;
 
     return new Promise((resolve, reject) => {
       connection.query(query, (error, result) => {
