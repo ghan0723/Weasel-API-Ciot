@@ -30,12 +30,16 @@ class PolicyService {
   }
 
   getTestCases(): Promise<any> {
-    let query = `select tc_id, tc_name, tc_parameter, tc_context, tc_group, tc_message from testcases`;
+    let query = `select tc_name, tc_parameter, tc_context, tc_group, tc_message from testcases`;
+    console.log('들어옴???2');
+    
     return new Promise((resolve, reject) => {
       connection.query(query, (error, result) => {
         if (error) {
           reject(error);
         } else {
+          console.log('result',result);
+          
           resolve(result);
         }
       });
@@ -43,7 +47,7 @@ class PolicyService {
   }
 
   getTCByPName(name: any): Promise<any> {
-    let query = `select p_name, tc_id, p_tc_parameter from tc_policy where p_name = ?`;
+    let query = `select p_name, tc_name, p_tc_parameter from tc_policy where p_name = ?`;
     return new Promise((resolve, reject) => {
       connection.query(query, name, (error, result) => {
         if (error) {
@@ -52,7 +56,7 @@ class PolicyService {
           let tcList = [
             {
               p_name: "",
-              tc_id: "",
+              tc_name : "",
               p_tc_parameter: {},
             },
           ];
@@ -67,7 +71,7 @@ class PolicyService {
   }
 
   getInsertSessions(username: any, policyname: any): Promise<any> {
-    const query = `insert into sessions (username, p_name, s_name, s_time, s_response, s_log) values ('${username}', '${policyname}', now(), '', '[{}]', '[{}]');`;
+    const query = `insert into sessions (username, p_name, s_name, s_time, s_response, s_log, s_enabled) values ('${username}', '${policyname}', now(), '', '[{}]', '[{}]', 0);`;
 
     return new Promise((resolve, reject) => {
       connection.query(query, (error, result) => {
@@ -88,22 +92,21 @@ class PolicyService {
     const groupMap: Record<string, any> = {};
 
     if (tc_policy !== undefined && tc_policy !== null) {
-      const policyTcIds = tc_policy.map((policy: any) => policy.tc_id);
+      const policyTcIds = tc_policy.map((policy: any) => policy.tc_name);
 
-      // 테스트 케이스를 그룹화하고 tc_id를 기준으로 tc_policy에서 해당 테스트 케이스의 p_tc_parameter를 가져와서 treeData에 추가
+      // 테스트 케이스를 그룹화하고 tc_name을 기준으로 tc_policy에서 해당 테스트 케이스의 p_tc_parameter를 가져와서 treeData에 추가
       testcases.forEach((tc: any) => {
         if (!groupMap[tc.tc_group]) {
           groupMap[tc.tc_group] = {
             tc_group: tc.tc_group,
-            expanded: false,
+            expanded: true,
             checked: false,
             children: [],
           };
         }
 
-        const checked = policyTcIds.includes(tc.tc_id);
+        const checked = policyTcIds.includes(tc.tc_name);
         const tcNode: any = {
-          tc_id: tc.tc_id,
           tc_name: tc.tc_name,
           tc_context: tc.tc_context,
           tc_group: tc.tc_group,
@@ -111,9 +114,9 @@ class PolicyService {
           checked: checked,
         };
 
-        // 테스트 케이스의 tc_id가 policyTcIds에 포함되어 있으면 해당 테스트 케이스의 p_tc_parameter를 가져와서 추가
+        // 테스트 케이스의 tc_name가 policyTcIds에 포함되어 있으면 해당 테스트 케이스의 p_tc_parameter를 가져와서 추가
         if (checked) {
-          const policy = tc_policy.find((policy: any) => policy.tc_id === tc.tc_id);
+          const policy = tc_policy.find((policy: any) => policy.tc_name === tc.tc_name);
           if (policy && policy.p_tc_parameter) {
             tcNode.tc_parameter = policy.p_tc_parameter;
           }
@@ -135,13 +138,12 @@ class PolicyService {
         if (!groupMap[tc.tc_group]) {
           groupMap[tc.tc_group] = {
             tc_group: tc.tc_group,
-            expanded: false,
+            expanded: true,
             checked: false,
             children: [],
           };
         }
         groupMap[tc.tc_group].children.push({
-          tc_id: tc.tc_id,
           tc_name: tc.tc_name,
           tc_context: tc.tc_context,
           tc_group: tc.tc_group,
@@ -161,7 +163,7 @@ class PolicyService {
 
   //global parameter 가져오기
   getGParameter(username: any): Promise<any> {
-    let query = `select tool_ip, ivn_port, wave_port, lte_v2x_port, lte_uu_port, v2x_dut_ip, v2x_dut_port, ivn_canfd from gl_parameter where username = ?`;
+    let query = `select tool_ip, ivn_port, wave_port, lte_v2x_port, lte_uu_port, v2x_dut_ip, v2x_dut_port, ivn_canfd from settings where username = ?`;
     return new Promise((resolve, reject) => {
       connection.query(query, username, (error, result) => {
         if (error) {
@@ -195,7 +197,7 @@ class PolicyService {
       if (item.checked) {
         item.children.map((tcData:any) => {
           if(tcData.checked) {
-            const query = `Insert Into tc_policy (p_name, tc_id, p_tc_parameter) values ('${name}', '${tcData.tc_id}', '${tcData.tc_parameter}');`
+            const query = `Insert Into tc_policy (p_name, tc_name, p_tc_parameter) values ('${name}', '${tcData.tc_name}', '${tcData.tc_parameter}');`
 
             return new Promise((resolve, reject) => {
               connection.query(query, (error, result) => {
@@ -237,7 +239,7 @@ class PolicyService {
   }
 
   addGParameter(username:any): Promise<any> {
-    let query = `insert into gl_parameter (username, uid, tool_ip, ivn_port, wave_port, lte_v2x_port, lte_uu_port, v2x_dut_ip, v2x_dut_port, ivn_canfd) `+
+    let query = `insert into settings (username, uid, tool_ip, ivn_port, wave_port, lte_v2x_port, lte_uu_port, v2x_dut_ip, v2x_dut_port, ivn_canfd) `+
     ` values ('${username}',  0, '192.168.123.253', '12001', '12002', '12003', '12004', '192.168.123.201', '13001', '0')`;
     return new Promise((resolve, reject) => {
       connection.query(query, (error, result) => {
@@ -251,7 +253,7 @@ class PolicyService {
   }
 
   updateGParameter(username:any, gParameter:any): Promise<any> {
-    let query = `update gl_parameter set tool_ip = '${gParameter.tool_ip}', ivn_port = '${gParameter.ivn_port}', wave_port = '${gParameter.wave_port}', lte_v2x_port = '${gParameter.lte_v2x_port}', `+
+    let query = `update settings set tool_ip = '${gParameter.tool_ip}', ivn_port = '${gParameter.ivn_port}', wave_port = '${gParameter.wave_port}', lte_v2x_port = '${gParameter.lte_v2x_port}', `+
     `lte_uu_port = '${gParameter.lte_uu_port}', v2x_dut_ip = '${gParameter.v2x_dut_ip}', v2x_dut_port = '${gParameter.v2x_dut_port}', ivn_canfd = '${gParameter.ivn_canfd}', uid = uid+1 where username = ?`;
     return new Promise((resolve, reject) => {
       connection.query(query, username, (error, result) => {
@@ -298,7 +300,7 @@ class PolicyService {
       if(item.checked){
         item.children.map((tcData:any) => {
           if(tcData.checked){
-            const query = `Insert Into tc_policy (p_name, tc_id, p_tc_parameter) values ('${policyName}', '${tcData.tc_id}', '${tcData.tc_parameter}');`;
+            const query = `Insert Into tc_policy (p_name, tc_name, p_tc_parameter) values ('${policyName}', '${tcData.tc_name}', '${tcData.tc_parameter}');`;
             return new Promise((resolve, reject) => {
               connection.query(query, (error, result) => {
                 if(error){

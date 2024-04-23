@@ -132,6 +132,20 @@ router.post('/gp', (req, res) => {
         res.status(500).send({ message: "Global Parameter update 실패" });
     });
 });
+router.post('/delete', (req, res) => {
+    const policyName = req.body.policyName;
+    policyService.deletePolicy(policyName)
+        .then(() => {
+        policyService.getPolicyList()
+            .then(list => {
+            res.send(list);
+        })
+            .catch((error) => {
+            res.status(500).send({ error: error });
+        });
+    })
+        .catch((error) => res.status(500).send(error));
+});
 router.get('/edit', (req, res) => {
     //이거 정책 이름
     let name = req.query.name;
@@ -146,7 +160,6 @@ router.get('/edit', (req, res) => {
             const datalist = policyService.compareTestCases(testcases, list2);
             policyService.getPolicyDescription(name)
                 .then((policyDescription) => {
-                console.log("policyDescription : ", policyDescription);
                 res.status(200).send([datalist, policyDescription]);
             })
                 .catch((policyDescriptionError) => {
@@ -160,19 +173,5 @@ router.get('/edit', (req, res) => {
         .catch((testcasesError) => {
         res.status(500).send({ message: "전체 테스트 케이스 db에서 가져오기 실패" });
     });
-});
-router.post('/delete', (req, res) => {
-    const policyName = req.body.policyName;
-    policyService.deletePolicy(policyName)
-        .then(() => {
-        policyService.getPolicyList()
-            .then(list => {
-            res.send(list);
-        })
-            .catch((error) => {
-            res.status(500).send({ error: error });
-        });
-    })
-        .catch((error) => res.status(500).send(error));
 });
 module.exports = router;

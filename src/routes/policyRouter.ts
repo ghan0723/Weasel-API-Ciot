@@ -33,6 +33,7 @@ router.post('/upload', (req:Request, res:Response) => {
 router.get('/add', (req:Request, res:Response) => {
     //이거 정책 이름
     let name = req.query.name;
+    
     //정책을 가지고 새로 만드는 친구는 query를 두번 쓸 생각
     if(name !== undefined && name !== null){
         //먼저 테스트 케이스를 다 가져온다.
