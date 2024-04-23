@@ -47,7 +47,15 @@ router.get("/data", (req, res) => {
     const s_id = req.query.sid;
     sessionService.getSessionData(s_id)
         .then((result) => {
-        res.status(200).send(result);
+        sessionService.getSessionLog(s_id)
+            .then((sLog) => {
+            sessionService.getSessionResult(s_id)
+                .then((sResult) => {
+                //다 합쳐서 한꺼번에 보내기
+                res.status(200).send([result, sLog, sResult]);
+            }).catch(error => res.status(500).send(error));
+        })
+            .catch(error => res.status(500).send(error));
     })
         .catch(error => res.status(500).send(error));
 });

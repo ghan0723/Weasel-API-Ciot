@@ -53,7 +53,7 @@ class SessionService {
         });
     }
     getInsertSessions(username, policyname) {
-        const query = `insert into sessions (username, p_name, s_name, s_time, s_response, s_log, s_enabled) values ('${username}', '${policyname}', now(), '', '[{}]', '[{}]', 1);`;
+        const query = `insert into sessions (username, p_name, s_name, s_time, s_enabled) values ('${username}', '${policyname}', now(), '', 1);`;
         return new Promise((resolve, reject) => {
             db_1.default.query(query, (error, result) => {
                 if (error) {
@@ -80,14 +80,62 @@ class SessionService {
                             p_name: '',
                             s_name: '',
                             s_time: '',
-                            s_response: '',
-                            s_log: '',
                         }];
                     if (result.length > 0) {
                         resolve(result);
                     }
                     else {
                         resolve(sessionDatas);
+                    }
+                }
+            });
+        });
+    }
+    //상세내역 중에서도 log
+    getSessionLog(s_id) {
+        const query = `select * from sessionLog where s_id = ?`;
+        return new Promise((resolve, reject) => {
+            db_1.default.query(query, s_id, (error, result) => {
+                if (error) {
+                    reject(error);
+                }
+                else {
+                    let sessionLogs = [{
+                            log_id: '',
+                            log_time: '',
+                            log_text: '',
+                            s_id: s_id
+                        }];
+                    if (result.length > 0) {
+                        resolve(result);
+                    }
+                    else {
+                        resolve(sessionLogs);
+                    }
+                }
+            });
+        });
+    }
+    //상세내역 중에서도 result
+    getSessionResult(s_id) {
+        const query = `select * from sessionResult where s_id = ?`;
+        return new Promise((resolve, reject) => {
+            db_1.default.query(query, s_id, (error, result) => {
+                if (error) {
+                    reject(error);
+                }
+                else {
+                    let sessionResults = [{
+                            r_id: '',
+                            r_tc_name: '',
+                            r_context: '',
+                            s_id: s_id
+                        }];
+                    if (result.length > 0) {
+                        resolve(result);
+                    }
+                    else {
+                        resolve(sessionResults);
                     }
                 }
             });

@@ -36,8 +36,6 @@ class PolicyService {
         if (error) {
           reject(error);
         } else {
-          console.log('result',result);
-          
           resolve(result);
         }
       });
@@ -69,7 +67,7 @@ class PolicyService {
   }
 
   getInsertSessions(username: any, policyname: any): Promise<any> {
-    const query = `insert into sessions (username, p_name, s_name, s_time, s_response, s_log, s_enabled) values ('${username}', '${policyname}', now(), '', '[{}]', '[{}]', 0);`;
+    const query = `insert into sessions (username, p_name, s_name, s_time, s_enabled) values ('${username}', '${policyname}', now(), '', 0);`;
 
     return new Promise((resolve, reject) => {
       connection.query(query, (error, result) => {
