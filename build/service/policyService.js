@@ -39,6 +39,7 @@ class PolicyService {
                     reject(error);
                 }
                 else {
+                    console.log('result', result);
                     resolve(result);
                 }
             });
