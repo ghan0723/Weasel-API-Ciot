@@ -86,6 +86,7 @@ router.post('/add', (req:Request, res:Response) => {
     const policyName = req.body.policyName;
     const username = req.body.username;
     const policyDescription = req.body.policyDescription;
+
     //정책 저장하기 전에 중복 검사부터
     policyService.duplicatePolicy(policyName)
     .then((dup) => {
@@ -94,7 +95,7 @@ router.post('/add', (req:Request, res:Response) => {
             res.status(200).send({dup:true});
         } else {
             //중복되지 않았으니까 먼저 정책부터 저장한다.
-            policyService.addPolicy(username, policyName, policyDescription)
+            policyService.addPolicy(username, policyName, treeData, policyDescription)
             .then((addPolicy) => {
                 //정책을 만들었으니 해당 정책이 테스트할 tc랑 parameter 저장한다.
                 policyService.addTcPolicy(policyName, treeData)

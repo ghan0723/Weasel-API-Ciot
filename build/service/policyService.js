@@ -96,7 +96,7 @@ class PolicyService {
             });
         });
     }
-    compareTestCases(testcases, tc_policy, gl_parameter) {
+    compareTestCases(testcases, gl_parameter, tc_policy) {
         let groupParameter;
         const treeData = [];
         // 각 테스트 케이스를 그룹화하기 위한 임시 객체
@@ -111,7 +111,6 @@ class PolicyService {
                         expanded: true,
                         checked: false,
                         children: [],
-                        tc_parameter: gl_parameter,
                     };
                 }
                 const checked = policyNames.includes(tc.tc_name);
@@ -139,22 +138,15 @@ class PolicyService {
             return treeData;
         }
         else {
-            console.log('gl_parameter', gl_parameter.length);
-            console.log('gl_parameter', gl_parameter[0].g_name);
-            console.log('gl_parameter 1', gl_parameter[1]);
-            console.log('gl_parameter 2', gl_parameter[2]);
             // 테스트 케이스를 그룹화
             testcases.forEach((tc) => {
                 if (!groupMap[tc.tc_group]) {
-                    console.log('tc.tc_group', tc.tc_group);
                     for (let i = 0; i < gl_parameter.length; i++) {
-                        console.log('gl_parameter[i].g_name', gl_parameter[i].g_name);
                         if (gl_parameter[i].g_name == tc.tc_group) {
                             groupParameter = gl_parameter[i].g_parameter;
                             break;
                         }
                     }
-                    console.log('groupParameter', groupParameter);
                     groupMap[tc.tc_group] = {
                         tc_group: tc.tc_group,
                         expanded: true,
@@ -175,7 +167,6 @@ class PolicyService {
             for (const groupName in groupMap) {
                 treeData.push(groupMap[groupName]);
             }
-            console.log('treeData', treeData);
             return treeData;
         }
     }
@@ -297,8 +288,16 @@ class PolicyService {
             });
         });
     }
-    addPolicy(username, policyName, policyDescription) {
-        const query = `Insert Into policys (p_name, p_author, p_distinction) values ('${policyName}', '${username}', '${policyDescription}');`;
+    addPolicy(username, policyName, treeData, policyDescription) {
+        let p_parameter;
+        // 추후 수정 예정
+        treeData.map((data) => {
+            if (data.tc_group === 'CAVP') {
+                p_parameter = data.tc_parameter;
+            }
+            console.log('data', data.tc_parameter);
+        });
+        const query = `Insert Into policys (p_name, p_author, p_distinction, p_parameter) values ('${policyName}', '${username}', '${policyDescription}', '${p_parameter}');`;
         return new Promise((resolve, reject) => {
             db_1.default.query(query, (error, result) => {
                 if (error) {
@@ -373,19 +372,6 @@ class PolicyService {
                 }
                 else {
                     resolve(result[0].p_parameter);
-                }
-            });
-        });
-    }
-    getGlParameter() {
-        let query = `SELECT * FROM gl_parameter WHERE g_name IN (SELECT DISTINCT tc_group FROM testcases);`;
-        return new Promise((resolve, reject) => {
-            db_1.default.query(query, (error, result) => {
-                if (error) {
-                    reject(error);
-                }
-                else {
-                    resolve(result);
                 }
             });
         });

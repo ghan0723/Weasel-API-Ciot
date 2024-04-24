@@ -91,7 +91,7 @@ router.post('/add', (req, res) => {
         }
         else {
             //중복되지 않았으니까 먼저 정책부터 저장한다.
-            policyService.addPolicy(username, policyName, policyDescription)
+            policyService.addPolicy(username, policyName, treeData, policyDescription)
                 .then((addPolicy) => {
                 //정책을 만들었으니 해당 정책이 테스트할 tc랑 parameter 저장한다.
                 policyService.addTcPolicy(policyName, treeData)
