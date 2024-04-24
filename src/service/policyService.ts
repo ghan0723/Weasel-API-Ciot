@@ -42,6 +42,19 @@ class PolicyService {
     });
   }
 
+  getGlParameter(): Promise<any> {
+    let query = `SELECT * FROM gl_parameter WHERE g_name IN (SELECT DISTINCT tc_group FROM testcases);`;
+    return new Promise((resolve, reject) => {
+      connection.query(query, (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      });
+    });
+  }
+
   getTCByPName(name: any): Promise<any> {
     let query = `select p_name, tc_name, p_tc_parameter from tc_policy where p_name = ?`;
     return new Promise((resolve, reject) => {
@@ -81,7 +94,8 @@ class PolicyService {
     });
   }
 
-  compareTestCases(testcases: any, tc_policy?: any) {
+  compareTestCases(testcases: any, gl_parameter: any, tc_policy?: any) {
+    let groupParameter:any;
     const treeData: any[] = [];
 
     // 각 테스트 케이스를 그룹화하기 위한 임시 객체
@@ -132,11 +146,21 @@ class PolicyService {
       // 테스트 케이스를 그룹화
       testcases.forEach((tc: any) => {
         if (!groupMap[tc.tc_group]) {
+          
+          for(let i=0; i<gl_parameter.length; i++) {
+            if(gl_parameter[i].g_name == tc.tc_group) {
+
+              groupParameter = gl_parameter[i].g_parameter;
+              break;
+            }
+          }
+
           groupMap[tc.tc_group] = {
             tc_group: tc.tc_group,
             expanded: true,
             checked: false,
             children: [],
+            tc_parameter : groupParameter
           };
         }
         groupMap[tc.tc_group].children.push({

@@ -44,6 +44,19 @@ class PolicyService {
             });
         });
     }
+    getGlParameter() {
+        let query = `SELECT * FROM gl_parameter WHERE g_name IN (SELECT DISTINCT tc_group FROM testcases);`;
+        return new Promise((resolve, reject) => {
+            db_1.default.query(query, (error, result) => {
+                if (error) {
+                    reject(error);
+                }
+                else {
+                    resolve(result);
+                }
+            });
+        });
+    }
     getTCByPName(name) {
         let query = `select p_name, tc_name, p_tc_parameter from tc_policy where p_name = ?`;
         return new Promise((resolve, reject) => {
@@ -83,7 +96,8 @@ class PolicyService {
             });
         });
     }
-    compareTestCases(testcases, tc_policy) {
+    compareTestCases(testcases, tc_policy, gl_parameter) {
+        let groupParameter;
         const treeData = [];
         // 각 테스트 케이스를 그룹화하기 위한 임시 객체
         const groupMap = {};
@@ -124,14 +138,28 @@ class PolicyService {
             return treeData;
         }
         else {
+            console.log('gl_parameter', gl_parameter.length);
+            console.log('gl_parameter', gl_parameter[0].g_name);
+            console.log('gl_parameter 1', gl_parameter[1]);
+            console.log('gl_parameter 2', gl_parameter[2]);
             // 테스트 케이스를 그룹화
             testcases.forEach((tc) => {
                 if (!groupMap[tc.tc_group]) {
+                    console.log('tc.tc_group', tc.tc_group);
+                    for (let i = 0; i < gl_parameter.length; i++) {
+                        console.log('gl_parameter[i].g_name', gl_parameter[i].g_name);
+                        if (gl_parameter[i].g_name == tc.tc_group) {
+                            groupParameter = gl_parameter[i].g_parameter;
+                            break;
+                        }
+                    }
+                    console.log('groupParameter', groupParameter);
                     groupMap[tc.tc_group] = {
                         tc_group: tc.tc_group,
                         expanded: true,
                         checked: false,
                         children: [],
+                        tc_parameter: groupParameter
                     };
                 }
                 groupMap[tc.tc_group].children.push({
@@ -146,6 +174,7 @@ class PolicyService {
             for (const groupName in groupMap) {
                 treeData.push(groupMap[groupName]);
             }
+            console.log('treeData', treeData);
             return treeData;
         }
     }

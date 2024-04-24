@@ -57,9 +57,12 @@ router.get('/add', (req:Request, res:Response) => {
         //아예 새로 만드는거는 테스트 케이스만 다 가져오면 끝
         policyService.getTestCases()
         .then((testcases) => {
-            //전체 테스트 케이스를 우리가 원하는 형태로 가공하는 메소드 필요
-            const datalist = policyService.compareTestCases(testcases);
-            res.status(200).send(datalist);
+            policyService.getGlParameter()
+            .then((glParameter) => {
+                //전체 테스트 케이스를 우리가 원하는 형태로 가공하는 메소드 필요
+                const datalist = policyService.compareTestCases(testcases,glParameter);
+                res.status(200).send(datalist);
+            })
         })
         .catch((testcasesError) => {
             res.status(500).send({message : "전체 테스트 케이스 db에서 가져오기 실패"});
