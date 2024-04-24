@@ -302,8 +302,17 @@ class PolicyService {
     })
   }
 
-  addPolicy(username:any, policyName:any, policyDescription?:string):Promise<any>{
-    const query = `Insert Into policys (p_name, p_author, p_distinction) values ('${policyName}', '${username}', '${policyDescription}');`
+  addPolicy(username:any, policyName:any, treeData:any, policyDescription?:string):Promise<any>{
+
+    let p_parameter;
+    // 추후 수정 예정
+    treeData.map((data:any) => {
+      if(data.tc_group === 'CAVP') {
+        p_parameter = data.tc_parameter
+      }
+    })
+
+    const query = `Insert Into policys (p_name, p_author, p_distinction, p_parameter) values ('${policyName}', '${username}', '${policyDescription}', '${p_parameter}');`
     return new Promise((resolve, reject) => {
       connection.query(query, (error, result) => {
         if(error){

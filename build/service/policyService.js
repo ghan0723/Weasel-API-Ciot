@@ -288,8 +288,16 @@ class PolicyService {
             });
         });
     }
-    addPolicy(username, policyName, policyDescription) {
-        const query = `Insert Into policys (p_name, p_author, p_distinction) values ('${policyName}', '${username}', '${policyDescription}');`;
+    addPolicy(username, policyName, treeData, policyDescription) {
+        let p_parameter;
+        // 추후 수정 예정
+        treeData.map((data) => {
+            if (data.tc_group === 'CAVP') {
+                p_parameter = data.tc_parameter;
+            }
+            console.log('data', data.tc_parameter);
+        });
+        const query = `Insert Into policys (p_name, p_author, p_distinction, p_parameter) values ('${policyName}', '${username}', '${policyDescription}', '${p_parameter}');`;
         return new Promise((resolve, reject) => {
             db_1.default.query(query, (error, result) => {
                 if (error) {
