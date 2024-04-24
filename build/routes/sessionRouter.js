@@ -90,26 +90,44 @@ router.get('/pdfDwn', (req, res) => {
     try {
         sessionService.getSessionData(s_id)
             .then((session) => {
-            const pdfDoc = new pdfkit_1.default();
-            // PDF 파일을 메모리에 생성
-            const buffers = [];
-            pdfDoc.on('data', (chunk) => {
-                buffers.push(chunk);
+            //로그랑 결과내역 가져오기
+            sessionService.getSessionLog(s_id)
+                .then((sessionLog) => {
+                sessionService.getSessionResult(s_id)
+                    .then((sessionResult) => {
+                    const pdfDoc = new pdfkit_1.default();
+                    // PDF 파일을 메모리에 생성
+                    const buffers = [];
+                    pdfDoc.on('data', (chunk) => {
+                        buffers.push(chunk);
+                    });
+                    pdfDoc.on('end', () => {
+                        const pdfData = Buffer.concat(buffers);
+                        // PDF 파일을 클라이언트에게 전송
+                        res.setHeader('Content-Type', 'application/pdf');
+                        res.setHeader('Content-Disposition', `attachment; filename="${session[0].s_name}.pdf"`);
+                        res.send(pdfData);
+                    });
+                    pdfDoc.fontSize(24).text('정책 진행 내역', { align: 'left' });
+                    pdfDoc.moveDown(0.5); // 0.5인치 아래로 이동
+                    sessionLog.forEach((log) => {
+                        pdfDoc.fontSize(11).text(`${log.log_time}: ${log.log_text}`);
+                    });
+                    pdfDoc.moveDown(3); // 3인치 아래로 이동
+                    pdfDoc.fontSize(24).text('점검 결과 집계', { align: 'left' });
+                    pdfDoc.moveDown(0.5); // 0.5인치 아래로 이동
+                    sessionResult.forEach((result) => {
+                        pdfDoc.fontSize(11).text(`${result.r_tc_name}: ${result.r_context}`);
+                    });
+                    pdfDoc.end();
+                })
+                    .catch((sessionResultError) => {
+                    res.status(500).send({ message: "session 데이터 db에서 가져오기 실패" });
+                });
+            })
+                .catch((sessionLogError) => {
+                res.status(500).send({ message: "session 데이터 db에서 가져오기 실패" });
             });
-            pdfDoc.on('end', () => {
-                const pdfData = Buffer.concat(buffers);
-                // PDF 파일을 클라이언트에게 전송
-                res.setHeader('Content-Type', 'application/pdf');
-                res.setHeader('Content-Disposition', `attachment; filename="${session[0].s_name}.pdf"`);
-                res.send(pdfData);
-            });
-            pdfDoc.fontSize(24).text('정책 진행 내역', { align: 'left' });
-            pdfDoc.moveDown(0.5); // 0.5인치 아래로 이동
-            const logs = JSON.parse(session[0].s_log);
-            logs.forEach((log) => {
-                pdfDoc.fontSize(11).text(`${log.name}: ${log.log}`);
-            });
-            pdfDoc.end();
         })
             .catch((sessionError) => {
             res.status(500).send({ message: "session 데이터 db에서 가져오기 실패" });

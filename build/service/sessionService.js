@@ -128,8 +128,10 @@ class SessionService {
                     let sessionResults = [{
                             r_id: '',
                             r_tc_name: '',
+                            r_dut: '',
                             r_context: '',
-                            s_id: s_id
+                            r_status: '',
+                            s_id: s_id,
                         }];
                     if (result.length > 0) {
                         resolve(result);

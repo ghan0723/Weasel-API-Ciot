@@ -64,7 +64,6 @@ class SessionService {
 
   // session 클릭시 상세 내역
   getSessionData(s_id: any): Promise<any> {
-
     const query = `select * from sessions where s_id = ?`;
     return new Promise((resolve, reject) => {
         connection.query(query, s_id, (error, result) => {
@@ -122,8 +121,10 @@ class SessionService {
           let sessionResults = [{
             r_id:'',
             r_tc_name:'',
+            r_dut:'',
             r_context:'',
-            s_id:s_id
+            r_status:'',
+            s_id:s_id,
           }];
           if(result.length > 0){
             resolve(result);
