@@ -222,7 +222,7 @@ class SessionService {
         if (seconds > 0 || (hours === 0 && minutes === 0)) {
             formattedTime += `${seconds}초`;
         }
-        let query = `update sessions set s_time = '${formattedTime}' where s_id = ?`;
+        let query = `update sessions set s_time = '${formattedTime}', s_enabled = 2 where s_id = ?`;
         return new Promise((resolve, reject) => {
             db_1.default.query(query, s_id, (error, result) => {
                 if (error) {

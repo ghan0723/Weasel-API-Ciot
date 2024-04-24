@@ -67,7 +67,7 @@ class PolicyService {
   }
 
   getInsertSessions(username: any, policyname: any): Promise<any> {
-    const query = `insert into sessions (username, p_name, s_name, s_time, s_enabled) values ('${username}', '${policyname}', now(), '', 0);`;
+    const query = `insert into sessions (username, p_name, s_name, s_time, s_enabled) values ('${username}', '${policyname}', now(), '', 1);`;
 
     return new Promise((resolve, reject) => {
       connection.query(query, (error, result) => {
@@ -81,7 +81,7 @@ class PolicyService {
     });
   }
 
-  compareTestCases(testcases: any, tc_policy?: any) {
+  compareTestCases(testcases: any, gl_parameter:any, tc_policy?: any) {
     const treeData: any[] = [];
 
     // 각 테스트 케이스를 그룹화하기 위한 임시 객체
@@ -98,6 +98,7 @@ class PolicyService {
             expanded: true,
             checked: false,
             children: [],
+            tc_parameter:gl_parameter,
           };
         }
 
@@ -137,6 +138,7 @@ class PolicyService {
             expanded: true,
             checked: false,
             children: [],
+            tc_parameter:gl_parameter,
           };
         }
         groupMap[tc.tc_group].children.push({
@@ -345,6 +347,32 @@ class PolicyService {
       })
     })
 
+  }
+
+  getPolicyParameter(p_name:any):Promise<any> {
+    let query = `select p_parameter from policys where p_name = ?`
+    return new Promise((resolve, reject) => {
+      connection.query(query, p_name, (error, result) => {
+        if(error){
+          reject(error);
+        } else {
+          resolve(result[0].p_parameter);
+        }
+      })
+    })
+  }
+
+  getGlParameter(): Promise<any> {
+    let query = `SELECT * FROM gl_parameter WHERE g_name IN (SELECT DISTINCT tc_group FROM testcases);`;
+    return new Promise((resolve, reject) => {
+      connection.query(query, (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      });
+    });
   }
 
 }

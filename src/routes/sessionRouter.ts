@@ -68,7 +68,6 @@ router.get("/data", (req: Request, res: Response) => {
 
 router.get('/start', (req:Request, res:Response) => {
     const {username, policyname} = req.query;
-
     sessionService.getInsertSessions(username,policyname)
     .then(result => {
         res.send(result);
