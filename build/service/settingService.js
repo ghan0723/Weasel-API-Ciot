@@ -138,7 +138,7 @@ class SettingService {
         });
     }
     modServerSettingLog(revData, currentData) {
-        let str = '[INFO] [SettingService] - successfully changed the server settings. ';
+        let str = '[Info] successfully changed the server settings. ';
         // let str = '서버 설정 변경에 성공하였습니다.';
         if ((revData === null || revData === void 0 ? void 0 : revData.serverPort) !== (currentData === null || currentData === void 0 ? void 0 : currentData.svr_port))
             str += ' the main change being the server port from ' + (currentData === null || currentData === void 0 ? void 0 : currentData.svr_port) + ' -> ' + (revData === null || revData === void 0 ? void 0 : revData.serverPort);

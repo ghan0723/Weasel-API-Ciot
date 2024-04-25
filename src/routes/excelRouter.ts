@@ -129,10 +129,10 @@ router.get("/dwn", async (req: Request, res: Response) => {
     );
 
     res.send(excelBuffer);
-    weasel.log(username,req.socket.remoteAddress,`[Info] The user '${username}' downloaded the Excel file of ${contents}.`);
+    weasel.log(username,req.socket.remoteAddress,`[Info] The user, '${username}' downloaded the Excel file of ${contents}.`);
     // weasel.log(username,req.socket.remoteAddress,`${contents}의 액셀 파일을 다운로드 하였습니다.`);
   } catch (error) {
-    weasel.error(username, req.socket.remoteAddress, `[Error] The user '${username}' download of the excel file in ${contents} fail.`);
+    weasel.error(username, req.socket.remoteAddress, `[Error] The user, '${username}' download of the excel file in ${contents} fail.`);
     // weasel.error(username, req.socket.remoteAddress, `${contents}의 엑셀 파일을 다운로드하는데 실패하였습니다.`);
     res.status(500).send("Server error");
   }
@@ -186,11 +186,11 @@ router.post("/analytics", async (req: Request, res: Response) => {
       );
       res.setHeader("Content-Disposition", `attachment; filename=analytics.xlsx`);
       res.send(excelBuffer);
-      weasel.log(username,req.socket.remoteAddress,`[Info] The user '${username}' downloaded the excel file of the analysis.`);
+      weasel.log(username,req.socket.remoteAddress,`[Info] The user, '${username}' downloaded the excel file of the analysis.`);
       // weasel.log(username,req.socket.remoteAddress,"분석의 엑셀 파일을 다운로드 하였습니다.");
     })
   } catch (error) {
-    weasel.error(username, req.socket.remoteAddress, `[Error] The user '${username}' downloading the analysis excel file failed.`);
+    weasel.error(username, req.socket.remoteAddress, `[Error] The user, '${username}' downloading the analysis excel file failed.`);
     // weasel.error(username, req.socket.remoteAddress, "분석 엑셀 파일을 다운로드하는데 실패했습니다.");
     res.status(500).send("Server error");
   }
