@@ -99,6 +99,7 @@ class SessionService {
             log_id:'',
             log_time:'',
             log_text:'',
+            log_tc_name:'',
             s_id:s_id
           }];
           if(result.length > 0){

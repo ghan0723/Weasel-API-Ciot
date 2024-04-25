@@ -112,6 +112,7 @@ class PolicyService {
             expanded: true,
             checked: false,
             children: [],
+            tc_parameter:gl_parameter
           };
         }
 

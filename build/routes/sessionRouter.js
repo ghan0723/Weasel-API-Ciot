@@ -108,16 +108,17 @@ router.get('/pdfDwn', (req, res) => {
                         res.setHeader('Content-Disposition', `attachment; filename="${session[0].s_name}.pdf"`);
                         res.send(pdfData);
                     });
+                    pdfDoc.font('src/font/NanumGothic.ttf');
+                    pdfDoc.fontSize(24).text('점검 결과 집계', { align: 'left' });
+                    pdfDoc.moveDown(0.5); // 0.5인치 아래로 이동
+                    sessionResult.forEach((result) => {
+                        pdfDoc.fontSize(11).text(`Test Case : ${result.r_tc_name}, DUT : ${result.r_dut}, Context : ${result.r_context}`);
+                    });
+                    pdfDoc.moveDown(3); // 3인치 아래로 이동
                     pdfDoc.fontSize(24).text('정책 진행 내역', { align: 'left' });
                     pdfDoc.moveDown(0.5); // 0.5인치 아래로 이동
                     sessionLog.forEach((log) => {
                         pdfDoc.fontSize(11).text(`${log.log_time}: ${log.log_text}`);
-                    });
-                    pdfDoc.moveDown(3); // 3인치 아래로 이동
-                    pdfDoc.fontSize(24).text('점검 결과 집계', { align: 'left' });
-                    pdfDoc.moveDown(0.5); // 0.5인치 아래로 이동
-                    sessionResult.forEach((result) => {
-                        pdfDoc.fontSize(11).text(`${result.r_tc_name}: ${result.r_context}`);
                     });
                     pdfDoc.end();
                 })
