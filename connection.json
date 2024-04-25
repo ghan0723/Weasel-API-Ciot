@@ -1,6 +1,6 @@
 {
-    "password" : "tldht",
-    "SCHEMA": "filemondb",
+    "password" : "Aa111111",
+    "SCHEMA": "kadiftest",
     "HOST" : "localhost",
     "USER" : "root"
 }
