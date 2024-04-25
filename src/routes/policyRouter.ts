@@ -18,8 +18,6 @@ router.get('/list', (req:Request, res:Response) => {
 // tc upload
 router.post('/upload', (req:Request, res:Response) => {
     const data = req.body;
-    console.log('data',data);
-    
     // policyService.getPolicyList()
     // .then(list => {
     //     res.send(list);
@@ -207,7 +205,6 @@ router.get('/edit', (req:Request, res:Response) => {
 
 router.post('/json', (req:Request, res:Response) => {
     const jsonData = req.body;
-    console.log("jsonData : ", jsonData);
     res.send(jsonData);
 });
 

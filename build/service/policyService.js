@@ -257,8 +257,8 @@ class PolicyService {
         });
     }
     updateGParameter(username, gParameter) {
-        let query = `update settings set tool_ip = '${gParameter.tool_ip}', ivn_port = '${gParameter.ivn_port}', wave_port = '${gParameter.wave_port}', lte_v2x_port = '${gParameter.lte_v2x_port}', ` +
-            `lte_uu_port = '${gParameter.lte_uu_port}', v2x_dut_ip = '${gParameter.v2x_dut_ip}', v2x_dut_port = '${gParameter.v2x_dut_port}', ivn_canfd = '${gParameter.ivn_canfd}', uid = uid+1 where username = ?`;
+        let query = `update settings set platform_ip = '${gParameter.platform_ip}', platform_port = '${gParameter.platform_port}', ivn_port = '${gParameter.ivn_port}', wave_port = '${gParameter.wave_port}', lte_v2x_port = '${gParameter.lte_v2x_port}', ` +
+            `lte_uu_port = '${gParameter.lte_uu_port}', uid = uid+1 where username = ?`;
         return new Promise((resolve, reject) => {
             db_1.default.query(query, username, (error, result) => {
                 if (error) {
