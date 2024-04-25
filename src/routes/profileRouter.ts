@@ -122,7 +122,7 @@ router.post("/update/:username", (req: Request, res: Response) => {
           .then((result) => {
             //중복
             if (result.exists) {
-              weasel.log(oldname, req.socket.remoteAddress, `[Warn] The user, '${oldname}' cannot be changed because The user,name entered is a duplicate.`);
+              weasel.log(oldname, req.socket.remoteAddress, `[Warn] The user, '${oldname}' cannot be changed because The username entered is a duplicate.`);
               // weasel.log(oldname, req.socket.remoteAddress, "입력한 사용자명이 중복되어 변경할 수 없습니다.");
               res.status(401).send({ error: result.message });
             } else {
