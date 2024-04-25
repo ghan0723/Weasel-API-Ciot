@@ -173,7 +173,7 @@ class PolicyService {
     }
     //global parameter 가져오기
     getGParameter(username) {
-        let query = `select tool_ip, ivn_port, wave_port, lte_v2x_port, lte_uu_port, v2x_dut_ip, v2x_dut_port, ivn_canfd from settings where username = ?`;
+        let query = `select platform_ip, platform_port, ivn_port, wave_port, lte_v2x_port, lte_uu_port from settings where username = ?`;
         return new Promise((resolve, reject) => {
             db_1.default.query(query, username, (error, result) => {
                 if (error) {
@@ -182,14 +182,11 @@ class PolicyService {
                 else {
                     let gParameters = [
                         {
-                            tool_ip: "",
-                            ivn_port: "",
+                            platform_ip: "",
+                            platform_port: "",
                             wave_port: "",
                             lte_v2x_port: "",
                             lte_uu_port: "",
-                            v2x_dut_ip: "",
-                            v2x_dut_port: "",
-                            ivn_canfd: "",
                         },
                     ];
                     if (result.length > 0) {
