@@ -151,7 +151,7 @@ class SettingService {
   }
 
   modServerSettingLog(revData:any, currentData:any):string {
-    let str = 'You have successfully changed the server settings. ';
+    let str = '[Info] successfully changed the server settings. ';
     // let str = '서버 설정 변경에 성공하였습니다.';
 
     if(revData?.serverPort !== currentData?.svr_port) str += ' the main change being the server port from ' + currentData?.svr_port + ' -> ' + revData?.serverPort; 

@@ -39,19 +39,35 @@ class LeakedService {
             whereClause = `where ${ipConditions}`;
         }
         return new Promise((resolve, reject) => {
-            const query = "select pc_guid, pc_name, latest_agent_ip, time " +
-                // "select * " +
-                "from agentinfo " +
-                whereClause +
-                " order by " +
-                querySorting +
-                " " +
-                queryDesc +
-                " " +
-                "LIMIT " +
-                queryPageSize +
-                " offset " +
-                queryPage * queryPageSize;
+            let query = "";
+            if (!excelCheck) {
+                query =
+                    "select pc_guid, pc_name, latest_agent_ip, time " +
+                        // "select * " +
+                        "from agentinfo " +
+                        whereClause +
+                        " order by " +
+                        querySorting +
+                        " " +
+                        queryDesc +
+                        " " +
+                        "LIMIT " +
+                        queryPageSize +
+                        " offset " +
+                        queryPage * queryPageSize;
+            }
+            else {
+                query =
+                    "select pc_guid, pc_name, latest_agent_ip, time " +
+                        // "select * " +
+                        "from agentinfo " +
+                        whereClause +
+                        " order by " +
+                        querySorting +
+                        " " +
+                        queryDesc +
+                        " ";
+            }
             const query2 = "select count(*) as count from agentinfo " + whereClause;
             const whereQuery = "%" + search + "%";
             Promise.all([

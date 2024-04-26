@@ -12,7 +12,7 @@ class LogService {
       years = years.sort((a, b) => b.localeCompare(a));
       return years;
     } catch (error) {
-      throw new Error("내부 서버 오류");
+      return [];
     }
   }
 
@@ -27,7 +27,7 @@ class LogService {
       return simplifiedMonths;
       // return months;
     } catch (error) {
-      throw new Error("내부 서버 오류");
+      return [];
     }
   }
 
@@ -43,7 +43,7 @@ class LogService {
       );
       return filesWithoutExtension;
     } catch (error) {
-      throw new Error("내부 서버 오류");
+      return [];
     }
   }
 
@@ -55,7 +55,7 @@ class LogService {
       const content = await fs.readFile(filePath, "utf-8");
       return content;
     } catch (error) {
-      throw new Error("내부 서버 오류");
+      return '';
     }
   }
 
@@ -69,7 +69,7 @@ class LogService {
         years = years.sort((a, b) => b.localeCompare(a));
         return years;
       } catch (error) {
-        throw new Error("내부 서버 오류");
+        return [];
       }
     }
   
@@ -84,7 +84,7 @@ class LogService {
         return simplifiedMonths;
         // return months;
       } catch (error) {
-        throw new Error("내부 서버 오류");
+        return [];
       }
     }
   
@@ -100,7 +100,7 @@ class LogService {
         );
         return filesWithoutExtension;
       } catch (error) {
-        throw new Error("내부 서버 오류");
+        return [];
       }
     }
   
@@ -112,7 +112,7 @@ class LogService {
         const content = await fs.readFile(filePath, "utf-8");
         return content;
       } catch (error) {
-        throw new Error("내부 서버 오류");
+        return '';
       }
     }
 

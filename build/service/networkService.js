@@ -144,10 +144,10 @@ class NetworkService {
             aliasKey = Object.keys(this.columnAliasKo);
             aliasValues = Object.values(this.columnAliasKo);
         }
-        if (page !== undefined) {
+        if (page !== undefined && !excel) {
             queryPage = Number(page);
         }
-        if (pageSize !== undefined) {
+        if (pageSize !== undefined && !excel) {
             queryPageSize = Number(pageSize);
         }
         if (sorting === "" && desc === "") {
@@ -192,18 +192,33 @@ class NetworkService {
                     `${aliasValues[6]} as ${aliasKey[6]}, ${aliasValues[7]} as ${aliasKey[7]}, ${aliasValues[8]} as ${aliasKey[8]}, ${aliasValues[9]} as ${aliasKey[9]}, ` +
                     `${aliasValues[10]} as ${aliasKey[10]}, ${aliasValues[11]} as ${aliasKey[11]}, ${aliasValues[12]} as ${aliasKey[12]}, ` +
                     `${aliasValues[13]} as ${aliasKey[13]}, ${aliasValues[14]} as ${aliasKey[14]}, ${aliasValues[15]} as ${aliasKey[15]} `;
-            const query = queryStr +
-                "from leakednetworkfiles " +
-                whereClause +
-                " order by " +
-                querySorting +
-                " " +
-                queryDesc +
-                " " +
-                "LIMIT " +
-                queryPageSize +
-                " offset " +
-                queryPage * queryPageSize;
+            let query = "";
+            if (!excel) {
+                query =
+                    queryStr +
+                        "from leakednetworkfiles " +
+                        whereClause +
+                        " order by " +
+                        querySorting +
+                        " " +
+                        queryDesc +
+                        " " +
+                        "LIMIT " +
+                        queryPageSize +
+                        " offset " +
+                        queryPage * queryPageSize;
+            }
+            else {
+                query =
+                    queryStr +
+                        "from leakednetworkfiles " +
+                        whereClause +
+                        " order by " +
+                        querySorting +
+                        " " +
+                        queryDesc +
+                        " ";
+            }
             const query2 = "select count(*) as count from leakednetworkfiles " + whereClause;
             const whereQuery = "%" + search + "%";
             Promise.all([

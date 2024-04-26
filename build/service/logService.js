@@ -27,7 +27,7 @@ class LogService {
                 return years;
             }
             catch (error) {
-                throw new Error("내부 서버 오류");
+                return [];
             }
         });
     }
@@ -44,7 +44,7 @@ class LogService {
                 // return months;
             }
             catch (error) {
-                throw new Error("내부 서버 오류");
+                return [];
             }
         });
     }
@@ -60,7 +60,7 @@ class LogService {
                 return filesWithoutExtension;
             }
             catch (error) {
-                throw new Error("내부 서버 오류");
+                return [];
             }
         });
     }
@@ -74,7 +74,7 @@ class LogService {
                 return content;
             }
             catch (error) {
-                throw new Error("내부 서버 오류");
+                return '';
             }
         });
     }
@@ -90,7 +90,7 @@ class LogService {
                 return years;
             }
             catch (error) {
-                throw new Error("내부 서버 오류");
+                return [];
             }
         });
     }
@@ -107,7 +107,7 @@ class LogService {
                 // return months;
             }
             catch (error) {
-                throw new Error("내부 서버 오류");
+                return [];
             }
         });
     }
@@ -123,7 +123,7 @@ class LogService {
                 return filesWithoutExtension;
             }
             catch (error) {
-                throw new Error("내부 서버 오류");
+                return [];
             }
         });
     }
@@ -137,7 +137,7 @@ class LogService {
                 return content;
             }
             catch (error) {
-                throw new Error("내부 서버 오류");
+                return '';
             }
         });
     }
