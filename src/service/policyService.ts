@@ -30,7 +30,7 @@ class PolicyService {
   }
 
   getTestCases(): Promise<any> {
-    let query = `select tc_name, tc_parameter, tc_context, tc_group, tc_message from testcases`;
+    let query = `select tc_name, tc_parameter, tc_context, tc_group, tc_message from testcases order by tc_group`;
     return new Promise((resolve, reject) => {
       connection.query(query, (error, result) => {
         if (error) {
