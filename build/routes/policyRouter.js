@@ -18,7 +18,6 @@ router.get('/list', (req, res) => {
 // tc upload
 router.post('/upload', (req, res) => {
     const data = req.body;
-    console.log('data', data);
     // policyService.getPolicyList()
     // .then(list => {
     //     res.send(list);
@@ -196,7 +195,6 @@ router.get('/edit', (req, res) => {
 });
 router.post('/json', (req, res) => {
     const jsonData = req.body;
-    console.log("jsonData : ", jsonData);
     res.send(jsonData);
 });
 module.exports = router;
