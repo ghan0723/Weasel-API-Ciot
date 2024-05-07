@@ -79,11 +79,11 @@ router.get("/dwn", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         res.setHeader("Content-Disposition", `attachment; filename=${contents}.xlsx`);
         res.send(excelBuffer);
-        log_1.weasel.log(username, req.socket.remoteAddress, `[INFO] [ExcelService] - User '${username}' : Downloaded the Excel file of ${contents}.`);
+        log_1.weasel.log(username, req.socket.remoteAddress, `[Info] The user '${username}' downloaded the Excel file of ${contents}.`);
         // weasel.log(username,req.socket.remoteAddress,`${contents}의 액셀 파일을 다운로드 하였습니다.`);
     }
     catch (error) {
-        log_1.weasel.error(username, req.socket.remoteAddress, `[ERROR] [ExcelService] - User '${username}' : Download of the excel file in ${contents} fail.`);
+        log_1.weasel.error(username, req.socket.remoteAddress, `[Error] The user '${username}' download of the excel file in ${contents} fail.`);
         // weasel.error(username, req.socket.remoteAddress, `${contents}의 엑셀 파일을 다운로드하는데 실패하였습니다.`);
         res.status(500).send("Server error");
     }
@@ -132,12 +132,12 @@ router.post("/analytics", (req, res) => __awaiter(void 0, void 0, void 0, functi
             res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
             res.setHeader("Content-Disposition", `attachment; filename=analytics.xlsx`);
             res.send(excelBuffer);
-            log_1.weasel.log(username, req.socket.remoteAddress, `[INFO] [ExcelService] - User '${username}' : Downloaded the excel file of the analysis.`);
+            log_1.weasel.log(username, req.socket.remoteAddress, `[Info] The user '${username}' downloaded the excel file of the analysis.`);
             // weasel.log(username,req.socket.remoteAddress,"분석의 엑셀 파일을 다운로드 하였습니다.");
         }));
     }
     catch (error) {
-        log_1.weasel.error(username, req.socket.remoteAddress, `[ERROR] [ExcelService] - User '${username}' : Downloading the analysis excel file failed.`);
+        log_1.weasel.error(username, req.socket.remoteAddress, `[Error] The user '${username}' downloading the analysis excel file failed.`);
         // weasel.error(username, req.socket.remoteAddress, "분석 엑셀 파일을 다운로드하는데 실패했습니다.");
         res.status(500).send("Server error");
     }
