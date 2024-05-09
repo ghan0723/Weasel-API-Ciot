@@ -22,12 +22,12 @@ router.get("/edit/:username", (req: Request, res: Response) => {
         ip_ranges: user[0].ip_ranges,
         pwd_change_freq: user[0].pwd_change_freq,
       };
-      weasel.log(username, req.socket.remoteAddress, `[Info] The user '${username}' accesses the Edit Personal information menu.`);
+      weasel.log(username, req.socket.remoteAddress, `[Info] The user, '${username}' accessed the Edit Personal information menu.`);
       // weasel.log(username, req.socket.remoteAddress, "본인정보수정 메뉴로 이동하였습니다.");
       res.send([newUser]);
     })
     .catch((error) => {
-      weasel.error(username, req.socket.remoteAddress, `[Error] The user '${username}' failed to navigate to the Edit Personal Information menu.`);
+      weasel.error(username, req.socket.remoteAddress, `[Error] The user, '${username}' failed to navigate to the Edit Personal Information menu.`);
       // weasel.error(username, req.socket.remoteAddress, "본인정보수정 메뉴로 이동에 실패하였습니다.");
       res.status(500).send("Internal Server Error");
     });
@@ -52,7 +52,7 @@ router.post("/update/:username", (req: Request, res: Response) => {
           .then((result) => {
             //중복이다.
             if (result.exists) {
-              weasel.log(oldname, req.socket.remoteAddress, `[Warn] The user '${oldname}' cannot be changed because the username entered is a duplicate.`);
+              weasel.log(oldname, req.socket.remoteAddress, `[Warn] The user, '${oldname}' cannot be changed because The username entered is a duplicate.`);
               // weasel.log(oldname, req.socket.remoteAddress, "입력한 사용자명이 중복되어 변경할 수 없습니다.");
               res.status(401).send({ error: result.message });
             } else {
@@ -68,12 +68,12 @@ router.post("/update/:username", (req: Request, res: Response) => {
                     profileService
                       .modUser(newUser, oldname)
                       .then((result2) => {
-                        weasel.log(oldname, req.socket.remoteAddress, `[Info] The user '${oldname}' successfully edited '${oldname}' information.`);
+                        weasel.log(oldname, req.socket.remoteAddress, `[Info] The user, '${oldname}' successfully edited '${oldname}' information.`);
                         // weasel.log(oldname, req.socket.remoteAddress, "본인정보수정에 성공하였습니다.");
                         res.send(result2.message);
                       })
                       .catch(() => {
-                        weasel.error(oldname, req.socket.remoteAddress,`[Error] The user '${oldname}' failed to edit information.`);
+                        weasel.error(oldname, req.socket.remoteAddress,`[Error] The user, '${oldname}' failed to edit information.`);
                         // weasel.error(oldname, req.socket.remoteAddress,"본인정보수정에 실패하였습니다.");
                         res.status(500).send("업데이트 잘못된거 같습니다.");
                       });
@@ -85,32 +85,32 @@ router.post("/update/:username", (req: Request, res: Response) => {
                         profileService
                           .modUser(newUser, oldname)
                           .then((result2) => {
-                            weasel.log(oldname, req.socket.remoteAddress, `[Info] The user '${oldname}' successfully edited '${oldname}' information.`);
+                            weasel.log(oldname, req.socket.remoteAddress, `[Info] The user, '${oldname}' successfully edited '${oldname}' information.`);
                             // weasel.log(oldname, req.socket.remoteAddress, "본인정보수정에 성공하였습니다.");
                             res.send(result2.message);
                           })
                           .catch((error) => {
-                            weasel.error(oldname, req.socket.remoteAddress,`[Error] The user '${oldname}' failed to edit information.`);
+                            weasel.error(oldname, req.socket.remoteAddress,`[Error] The user, '${oldname}' failed to edit information.`);
                             // weasel.error(oldname, req.socket.remoteAddress, "본인정보수정에 실패하였습니다.");
                             res.status(500).send("업데이트 잘못된거 같습니다.");
                           });
                       })
                       .catch((error) => {
-                        weasel.error(oldname, req.socket.remoteAddress, `[Error] The user '${oldname}' encountered an error while executing a query to reset the password change cycle in Edit Personal Information..`);
+                        weasel.error(oldname, req.socket.remoteAddress, `[Error] The user, '${oldname}' encountered an error while executing a query to reset the password change cycle in Edit Personal Information..`);
                         // weasel.error(oldname, req.socket.remoteAddress, "본인정보수정에서 비밀번호 변경 주기 초기화하는 쿼리 실행 중 오류가 발생하였습니다.");
                         res.status(500).send("업데이트 잘못된거 같습니다.");
                       });
                   }
                 })
                 .catch(() => {
-                  weasel.error(oldname, req.socket.remoteAddress, `[Error] The user '${oldname}' encountered an error while executing a query to retrieve his password from the database in Edit Personal Information.`);
+                  weasel.error(oldname, req.socket.remoteAddress, `[Error] The user, '${oldname}' encountered an error while executing a query to retrieve his password from the database in Edit Personal Information.`);
                   // weasel.error(oldname, req.socket.remoteAddress, "본인정보수정에서 비밀번호를 데이터베이스에 조회하는 쿼리 실행 중 오류가 발생하였습니다.");
                   res.status(500).send("업데이트 잘못된거 같습니다.");
                 });
             }
           })
           .catch(() => {
-            weasel.error(oldname,req.socket.remoteAddress, `[Error] The user '${oldname}' encountered an error while executing the query to query the database for the username to be changed in Edit Profile.`);
+            weasel.error(oldname,req.socket.remoteAddress, `[Error] The user, '${oldname}' encountered an error while executing the query to query the database for The user,name to be changed in Edit Profile.`);
             // weasel.error(oldname,req.socket.remoteAddress, "본인정보수정에서 변경할 사용자명을 데이터베이스에 조회하는 쿼리 실행 중 오류가 발생하였습니다.");
             res.status(401).send({ error: result1.message });
           });
@@ -122,7 +122,7 @@ router.post("/update/:username", (req: Request, res: Response) => {
           .then((result) => {
             //중복
             if (result.exists) {
-              weasel.log(oldname, req.socket.remoteAddress, `[Warn] The user '${oldname}' cannot be changed because the username entered is a duplicate.`);
+              weasel.log(oldname, req.socket.remoteAddress, `[Warn] The user, '${oldname}' cannot be changed because The username entered is a duplicate.`);
               // weasel.log(oldname, req.socket.remoteAddress, "입력한 사용자명이 중복되어 변경할 수 없습니다.");
               res.status(401).send({ error: result.message });
             } else {
@@ -133,32 +133,32 @@ router.post("/update/:username", (req: Request, res: Response) => {
                   profileService
                     .updateFreq(user.freq)
                     .then((result) => {
-                      weasel.log(oldname, req.socket.remoteAddress, `[Info] The user '${oldname}' successfully edited '${oldname}' information.`);
+                      weasel.log(oldname, req.socket.remoteAddress, `[Info] The user, '${oldname}' successfully edited '${oldname}' information.`);
                       // weasel.log(oldname, req.socket.remoteAddress, "본인정보수정에 성공하였습니다.");
                       res.send(result.message);
                     })
                     .catch(() => {
-                      weasel.error(oldname, req.socket.remoteAddress,`[Warn] The user '${oldname}' encountered an error when executing a query to set the password change period value in Edit Personal Information.`);
+                      weasel.error(oldname, req.socket.remoteAddress,`[Warn] The user, '${oldname}' encountered an error when executing a query to set the password change period value in Edit Personal Information.`);
                       // weasel.error(oldname, req.socket.remoteAddress,"본인정보수정에서 관리자가 비밀번호 변경 주기 값 설정하는 쿼리 실행 중 오류가 발생하였습니다.");
                       res.status(500).send("업데이트 잘못된거 같습니다.");
                     });
                 })
                 .catch(() => {
-                  weasel.error(oldname, req.socket.remoteAddress, `[Warn] The user '${oldname}' failed to edit information.`);
+                  weasel.error(oldname, req.socket.remoteAddress, `[Warn] The user, '${oldname}' failed to edit information.`);
                   // weasel.error(oldname, req.socket.remoteAddress, "본인정보수정에 실패하였습니다.");
                   res.status(500).send("업데이트 잘못된거 같습니다.");
                 });
             }
           })
           .catch(() => {
-            weasel.error(oldname,req.socket.remoteAddress, `[Warn] The user '${oldname}' encountered an error while executing a query to query the database for the username to change in Edit Personal Information.`);
+            weasel.error(oldname,req.socket.remoteAddress, `[Warn] The user, '${oldname}' encountered an error while executing a query to query the database for The user,name to change in Edit Personal Information.`);
             // weasel.error(oldname,req.socket.remoteAddress, "본인정보수정에서 변경할 사용자명을 데이터베이스에 조회하는 쿼리 실행 중 오류가 발생하였습니다.");
             res.status(401).send({ error: result1.message });
           });
       }
     })
     .catch(() => {
-      weasel.error(oldname, req.socket.remoteAddress, `[Warn] The user '${oldname}' encountered an error while executing a query to query the database for the currently logged-in account information in Edit Personal Information.`);
+      weasel.error(oldname, req.socket.remoteAddress, `[Warn] The user, '${oldname}' encountered an error while executing a query to query the database for the currently logged-in account information in Edit Personal Information.`);
       // weasel.error(oldname, req.socket.remoteAddress, "본인정보수정에서 현재 로그인한 계정 정보를 데이터베이스에 조회하는 쿼리 실행 중 오류가 발생하였습니다. ");
       res.status(500).send("업데이트 잘못된거 같습니다.");
     });

@@ -13,16 +13,16 @@ let existFile: string = "";
 // Multer 저장소 설정
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "C:/ciot/updates/");
+    cb(null, "C:/Program Files (x86)/ciot/WeaselServer/Temp/");
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname); // 확장자 추출
     let filename = path.basename(file.originalname, ext) + ext;
-    const fullPath = path.join("C:/ciot/updates/", filename);
+    const fullPath = path.join("C:/Program Files (x86)/ciot/WeaselServer/Temp/", filename);
     existFile = "";
 
     if (fs.existsSync(fullPath)) {
-      existFile = path.join("C:/ciot/updates/", filename);
+      existFile = path.join("C:/Program Files (x86)/ciot/WeaselServer/Temp/", filename);
       filename = path.basename(file.originalname, ext) + "_1" + ext;
       cb(null, filename);
     } else {
@@ -48,14 +48,14 @@ router.post("/server", (req: Request, res: Response) => {
       res.send("업데이트 성공했습니다.");
     }).catch(() => {
       // weasel.error(username, req.socket.remoteAddress, '서버 설정 메뉴로 이동에 실패하였습니다.');
-      weasel.error(username, req.socket.remoteAddress, `[Error] The user '${username}' failed to navigate to the Server Settings menu.`);
+      weasel.error(username, req.socket.remoteAddress, `[Error] The user, '${username}' failed to navigate to the Server Settings menu.`);
 
       res.status(500).send("update 하다가 에러났어요");
     });
   }
   )
     .catch(() => {
-      weasel.error(username, req.socket.remoteAddress, `[Error] The user '${username}' encountered an error while executing a query to change server settings to the database.`);
+      weasel.error(username, req.socket.remoteAddress, `[Error] The user, '${username}' encountered an error while executing a query to change server settings to the database.`);
       // weasel.error(username, req.socket.remoteAddress, '서버 설정을 데이터베이스에 변경하는 쿼리 실행 중 오류가 발생하였습니다.');
       
       res.status(500).send("update 하다가 에러났어요");
@@ -79,23 +79,23 @@ router.get("/servers", (req: Request, res: Response) => {
         privilege:result1[0].privilege,
       };
       if(result1[0].privilege === 3){
-        weasel.log(username, req.socket.remoteAddress, `[Warn] The user '${username}' does not have access to Server Settings menu.`);
+        weasel.log(username, req.socket.remoteAddress, `[Warn] The user, '${username}' does not have accessed to Server Settings menu.`);
         // weasel.log(username, req.socket.remoteAddress, "서버 설정을 이용할 수 없는 계정입니다.");
         res.send(newResult);
       } else {
-        weasel.log(username, req.socket.remoteAddress, `[Info] The user '${username}' directed to the Server Settings menu.`);
+        weasel.log(username, req.socket.remoteAddress, `[Info] The user, '${username}' accessed to the Server Settings menu.`);
         // weasel.log(username, req.socket.remoteAddress, "서버 설정 메뉴로 이동하였습니다.");
         res.send(newResult);
       }
     })
     .catch((error) => {
-      weasel.error(username, req.socket.remoteAddress, `[Error] The user '${username}' failed to navigate to the Server Settings menu.`);
+      weasel.error(username, req.socket.remoteAddress, `[Error] The user, '${username}' failed to navigate to the Server Settings menu.`);
       // weasel.error(username, req.socket.remoteAddress, '서버 설정 메뉴로 이동에 실패하였습니다.');
       res.status(500).send("update get 하다가 에러났어요");
     });
   })
   .catch((error) => {
-    weasel.error(username, req.socket.remoteAddress, `[Error] The user '${username}' failed to navigate to the Server Settings menu.`);
+    weasel.error(username, req.socket.remoteAddress, `[Error] The user, '${username}' failed to navigate to the Server Settings menu.`);
     // weasel.error(username, req.socket.remoteAddress, '서버 설정 메뉴로 이동에 실패하였습니다.');
     res.status(500).send("update get 하다가 에러났어요");
   })
@@ -115,13 +115,13 @@ router.post("/agent", (req: Request, res: Response) => {
         weasel.log(username, req.socket.remoteAddress, str);
         res.send(result);
       }).catch(() => {
-        weasel.error(username, req.socket.remoteAddress, `[Error] The user '${username}' navigating to the Agent Settings Menu failed.`);
+        weasel.error(username, req.socket.remoteAddress, `[Error] The user, '${username}' navigating to the Agent Settings Menu failed.`);
         // weasel.error(username, req.socket.remoteAddress, "에이전트 설정 메뉴로 이동에 실패하였습니다.");
         res.status(500).send("agent setting post 하다가 에러났어요");
       });
     })
     .catch(() => {
-      weasel.error(username, req.socket.remoteAddress, `[Error] The user '${username}' encountered an error while executing a query to change agent settings to the database.`);
+      weasel.error(username, req.socket.remoteAddress, `[Error] The user, '${username}' encountered an error while executing a query to change agent settings to the database.`);
       // weasel.error(username, req.socket.remoteAddress, "에이전트 설정을 데이터베이스에 변경하는 쿼리 실행 중 오류가 발생하였습니다.");
       res.status(500).send("agent setting post 하다가 에러났어요");
     });
@@ -138,29 +138,29 @@ router.get("/agents", (req: Request, res: Response) => {
         .getUpdateFileAgent()
         .then((result2) => {
           if(result1[0].privilege === 3){
-            weasel.log(username, req.socket.remoteAddress, `[Warn] The user '${username}' is an account that does not have access to Agent Settings Menu.`);
+            weasel.log(username, req.socket.remoteAddress, `[Warn] The user, '${username}' is an account that does not have access to Agent Settings Menu.`);
             // weasel.log(username, req.socket.remoteAddress, "에이전트 설정을 이용할 수 없는 계정입니다.");
-            res.send([result, result2, result1]);
+            res.send([result, result2[0].updateFile, result1]);
           } else {
-            weasel.log(username, req.socket.remoteAddress, `[Info] The user '${username}' accesses the Agent Settings Menu.`);
+            weasel.log(username, req.socket.remoteAddress, `[Info] The user, '${username}' accessed the Agent Settings Menu.`);
             // weasel.log(username, req.socket.remoteAddress, "에이전트 설정 메뉴로 이동하였습니다.");
-            res.send([result, result2, result1]);
+            res.send([result, result2[0].updateFile, result1]);
           }
         })
         .catch((error2) => {
-          weasel.error(username, req.socket.remoteAddress, `[Error] The user '${username}' navigating to the Agent Settings Menu failed.`);
+          weasel.error(username, req.socket.remoteAddress, `[Error] The user, '${username}' navigating to the Agent Settings Menu failed.`);
           // weasel.error(username, req.socket.remoteAddress, "에이전트 설정 메뉴로 이동에 실패하였습니다.");
           res.status(500).send("agent setting get 하다가 에러났어요");
         });
     })
     .catch((error) => {
-      weasel.error(username, req.socket.remoteAddress, `[Error] The user '${username}' navigating to the Agent Settings Menu failed.`);
+      weasel.error(username, req.socket.remoteAddress, `[Error] The user, '${username}' navigating to the Agent Settings Menu failed.`);
       // weasel.error(username, req.socket.remoteAddress, "에이전트 설정 메뉴로 이동에 실패하였습니다.");
       res.status(500).send("agent setting get 하다가 에러났어요");
     });
   })
   .catch((error) => {
-    weasel.error(username, req.socket.remoteAddress, `[Error] The user '${username}' Navigating to the agent settings menu failed.`);
+    weasel.error(username, req.socket.remoteAddress, `[Error] The user, '${username}' Navigating to the agent settings menu failed.`);
     // weasel.error(username, req.socket.remoteAddress, "에이전트 설정 메뉴로 이동에 실패하였습니다.");
     res.status(500).send("agent setting get 하다가 에러났어요");
   })
@@ -198,12 +198,12 @@ router.post("/process", (req: Request, res: Response) => {
       settingService
       .addProcessAccuracy(newProcName)
       .then((addResult) => {
-        weasel.log(username, req.socket.remoteAddress, `[Info] The user '${username}' added ${newProcName} to the reconnaissance process.`);
+        weasel.log(username, req.socket.remoteAddress, `[Info] The user, '${username}' added ${newProcName} to the reconnaissance process.`);
         // weasel.log(username, req.socket.remoteAddress, `${newProcName}을 정탐 프로세스에 추가하였습니다.`);
         res.send(addResult);
       })
       .catch((error:any) => {
-        weasel.error(username, req.socket.remoteAddress, `[Error] The user '${username}' adding reconnaissance process ${newProcName} failed.`);
+        weasel.error(username, req.socket.remoteAddress, `[Error] The user, '${username}' adding reconnaissance process ${newProcName} failed.`);
         // weasel.error(username, req.socket.remoteAddress, "정탐 프로세스 ${newProcName}을 추가에 실패하였습니다.");
         res.status(500).send("Add ProcessAccuracy 하다가 에러났어요" + error);
       });
@@ -212,7 +212,7 @@ router.post("/process", (req: Request, res: Response) => {
     }
   })
   .catch(error => {
-    weasel.error(username, req.socket.remoteAddress, `[Error] The user '${username}' encountered an error while running a query to query the database for a new reconnaissance process to add.`);
+    weasel.error(username, req.socket.remoteAddress, `[Error] The user, '${username}' encountered an error while running a query to query the database for a new reconnaissance process to add.`);
     // weasel.error(username, req.socket.remoteAddress, "새로 추가할 정탐 프로세스를 데이터베이스에 조회하는 쿼리 실행 중 오류가 발생하였습니다.");
     res.status(500).send(error);
   })
@@ -225,12 +225,12 @@ router.post("/delete", (req: Request, res: Response) => {
   settingService
     .deleteProcessAccuracy(procName)
     .then((result) => {
-      weasel.log(username, req.socket.remoteAddress, `[Info] The user '${username}' deleted ${procName} from the reconnaissance process.`);
+      weasel.log(username, req.socket.remoteAddress, `[Info] The user, '${username}' deleted ${procName} from the reconnaissance process.`);
       // weasel.log(username, req.socket.remoteAddress, `${procName}을 정탐 프로세스에서 삭제하였습니다.`);
       res.send(result);
     })
     .catch((error) => {
-      weasel.error(username, req.socket.remoteAddress, `[Error] The user '${username}' failed to delete ProcessAccuracy`);
+      weasel.error(username, req.socket.remoteAddress, `[Error] The user, '${username}' failed to delete ProcessAccuracy`);
       res.status(500).send("Delete ProcessAccuracy 하다가 에러났어요");
     });
 });
@@ -239,6 +239,8 @@ router.post("/fileUpdate", upload.single("file"), (req: Request, res: Response) 
   let processFile = false;
   if (req.file) {
     const ext = path.extname(req.file.path); // 확장자 추출
+    
+    // Dat 파일인 경우
     if (ext === ".dat") {
       // 현재 경로에 이름이 겹치는 파일이 있는 경우
       if (existFile !== "") {
@@ -249,7 +251,6 @@ router.post("/fileUpdate", upload.single("file"), (req: Request, res: Response) 
           processFile = settingService.processFile(req.file?.path, existFile);
         }, delayTime);
       }
-      // Dat 파일인 경우
       res.status(200).send("Dat 파일 업로드 성공!");
     } else {
       // Dat 파일이 아닌 경우 파일 삭제
@@ -281,18 +282,21 @@ router.post("/updateFile", (req: Request, res: Response) => {
   const username = req.body.username;
   const updateFile = req.body.updateFile.split('\\').pop();
 
-  settingService
-    .postUpdateFileAgent(updateFile)
+  settingService.getUpdateFileAgent()
+  .then(result => {
+    settingService
+    .postUpdateFileAgent(result[0].id, updateFile)
     .then(() => {
-      weasel.log(username, req.socket.remoteAddress, `[Info] The user '${username}' updated the weasel agent with ${updateFile}.`);
+      weasel.log(username, req.socket.remoteAddress, `[Info] The user, '${username}' updated the weasel agent with ${updateFile}.`);
       // weasel.log(username, req.socket.remoteAddress, `${updateFile}로 weasel 에이전트가 업데이트 되었습니다.`);
       res.send(updateFile);
     })
     .catch(() => {
-      weasel.error(username, req.socket.remoteAddress, `[Error] The user '${username}' failed to update the weasel agent with ${updateFile}.`);
+      weasel.error(username, req.socket.remoteAddress, `[Error] The user, '${username}' failed to update the weasel agent with ${updateFile}.`);
       // weasel.error(username, req.socket.remoteAddress, `${updateFile}로 weasel 에이전트가 업데이트 실패하였습니다.`);
       res.status(500).send("post UpdateAgentFile error");
     });
+  });
 });
 
 router.get("/outlook", (req: Request, res: Response) => {
@@ -309,7 +313,7 @@ router.get("/outlook", (req: Request, res: Response) => {
     weasel.error(
       username,
       req.socket.remoteAddress,
-      "[Error] The user '${username}' unable to retrieve outlook flag value"
+      "[Error] The user, '${username}' unable to retrieve outlook flag value"
     );
     // weasel.error(username, req.socket.remoteAddress, `아웃룩 플래그 값을 이용할 수 없습니다.`);
     res.status(500).send("error");
