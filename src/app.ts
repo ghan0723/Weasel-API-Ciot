@@ -31,15 +31,15 @@ const lineChartsRouter = require("./routes/lineChartsRouter.js");
 var app = express();
 const fs = require("fs");
 
-// 파일 업데이트 디렉터리 생성
-try {
-  const directoryPath  = 'C:/ciot/updates';
-  if(!fs.existsSync(directoryPath )) {
-    fs.mkdirSync(directoryPath , { recursive: true });
-  }
-} catch (err) {
-  console.error(err);
-}
+// // 파일 업데이트 디렉터리 생성
+// try {
+//   const directoryPath  = 'C:/Program Files (x86)/ciot/WeaselServer/Temp';
+//   if(!fs.existsSync(directoryPath )) {
+//     fs.mkdirSync(directoryPath , { recursive: true });
+//   }
+// } catch (err) {
+//   console.error(err);
+// }
 
 
 
