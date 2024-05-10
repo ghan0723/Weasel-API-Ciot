@@ -326,7 +326,7 @@ class SettingService {
         });
     }
     postUpdateFileAgent(id, updateFile) {
-        const query = `update updateagents set update_file = '${updateFile}', id=${+id + 1}`;
+        const query = `update updateagents set update_file = 'Temp\\\\${updateFile}', id=${+id + 1}`;
         return new Promise((resolve, reject) => {
             db_1.default.query(query, (error, result) => {
                 if (error) {
