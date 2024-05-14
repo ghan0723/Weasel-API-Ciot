@@ -35,7 +35,7 @@ const upload = multer({
   storage: storage,
 });
 
-router.post("/server", (req: Request, res: Response) => {
+router.post("/servers", (req: Request, res: Response) => {
   const username = req.query.username;
   const server = req.body;
   settingService
@@ -102,7 +102,7 @@ router.get("/servers", (req: Request, res: Response) => {
 
 });
 
-router.post("/agent", (req: Request, res: Response) => {
+router.post("/agents", (req: Request, res: Response) => {
   const username = req.query.username;
   const agent = req.body;
   settingService
