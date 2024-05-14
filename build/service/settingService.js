@@ -313,7 +313,7 @@ class SettingService {
         return true;
     }
     getUpdateFileAgent() {
-        const query = "select update_file as updateFile from updateagents";
+        const query = "select id, update_file as updateFile from updateagents";
         return new Promise((resolve, reject) => {
             db_1.default.query(query, (error, result) => {
                 if (error) {
@@ -325,8 +325,8 @@ class SettingService {
             });
         });
     }
-    postUpdateFileAgent(updateFile) {
-        const query = `update updateagents set update_file = 'C:/ciot/updates/${updateFile}'`;
+    postUpdateFileAgent(id, updateFile) {
+        const query = `update updateagents set update_file = 'Temp\\\\${updateFile}', id=${+id + 1}`;
         return new Promise((resolve, reject) => {
             db_1.default.query(query, (error, result) => {
                 if (error) {

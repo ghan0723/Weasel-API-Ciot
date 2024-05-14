@@ -261,6 +261,12 @@ class NetworkService {
                                     delete result[i].scrdmp_upload_state;
                                 }
                                 else {
+                                    if (result[i].protocol === '2') {
+                                        result[i].protocol = 'UDP';
+                                    }
+                                    else {
+                                        result[i].protocol = 'TCP';
+                                    }
                                     delete result[i].DownLoad;
                                     delete result[i].ScreenShot;
                                 }

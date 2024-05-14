@@ -13,16 +13,16 @@ let existFile: string = "";
 // Multer 저장소 설정
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "C:/ciot/updates/");
+    cb(null, "C:/Program Files (x86)/ciot/WeaselServer/Temp/");
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname); // 확장자 추출
     let filename = path.basename(file.originalname, ext) + ext;
-    const fullPath = path.join("C:/ciot/updates/", filename);
+    const fullPath = path.join("C:/Program Files (x86)/ciot/WeaselServer/Temp/", filename);
     existFile = "";
 
     if (fs.existsSync(fullPath)) {
-      existFile = path.join("C:/ciot/updates/", filename);
+      existFile = path.join("C:/Program Files (x86)/ciot/WeaselServer/Temp/", filename);
       filename = path.basename(file.originalname, ext) + "_1" + ext;
       cb(null, filename);
     } else {
@@ -35,7 +35,7 @@ const upload = multer({
   storage: storage,
 });
 
-router.post("/server", (req: Request, res: Response) => {
+router.post("/servers", (req: Request, res: Response) => {
   const username = req.query.username;
   const server = req.body;
   settingService
@@ -102,7 +102,7 @@ router.get("/servers", (req: Request, res: Response) => {
 
 });
 
-router.post("/agent", (req: Request, res: Response) => {
+router.post("/agents", (req: Request, res: Response) => {
   const username = req.query.username;
   const agent = req.body;
   settingService
@@ -140,11 +140,11 @@ router.get("/agents", (req: Request, res: Response) => {
           if(result1[0].privilege === 3){
             weasel.log(username, req.socket.remoteAddress, `[Warn] The user, '${username}' is an account that does not have access to Agent Settings Menu.`);
             // weasel.log(username, req.socket.remoteAddress, "에이전트 설정을 이용할 수 없는 계정입니다.");
-            res.send([result, result2, result1]);
+            res.send([result, result2[0].updateFile, result1]);
           } else {
             weasel.log(username, req.socket.remoteAddress, `[Info] The user, '${username}' accessed the Agent Settings Menu.`);
             // weasel.log(username, req.socket.remoteAddress, "에이전트 설정 메뉴로 이동하였습니다.");
-            res.send([result, result2, result1]);
+            res.send([result, result2[0].updateFile, result1]);
           }
         })
         .catch((error2) => {
@@ -239,6 +239,8 @@ router.post("/fileUpdate", upload.single("file"), (req: Request, res: Response) 
   let processFile = false;
   if (req.file) {
     const ext = path.extname(req.file.path); // 확장자 추출
+    
+    // Dat 파일인 경우
     if (ext === ".dat") {
       // 현재 경로에 이름이 겹치는 파일이 있는 경우
       if (existFile !== "") {
@@ -249,7 +251,6 @@ router.post("/fileUpdate", upload.single("file"), (req: Request, res: Response) 
           processFile = settingService.processFile(req.file?.path, existFile);
         }, delayTime);
       }
-      // Dat 파일인 경우
       res.status(200).send("Dat 파일 업로드 성공!");
     } else {
       // Dat 파일이 아닌 경우 파일 삭제
@@ -281,8 +282,10 @@ router.post("/updateFile", (req: Request, res: Response) => {
   const username = req.body.username;
   const updateFile = req.body.updateFile.split('\\').pop();
 
-  settingService
-    .postUpdateFileAgent(updateFile)
+  settingService.getUpdateFileAgent()
+  .then(result => {
+    settingService
+    .postUpdateFileAgent(result[0].id, updateFile)
     .then(() => {
       weasel.log(username, req.socket.remoteAddress, `[Info] The user, '${username}' updated the weasel agent with ${updateFile}.`);
       // weasel.log(username, req.socket.remoteAddress, `${updateFile}로 weasel 에이전트가 업데이트 되었습니다.`);
@@ -293,6 +296,7 @@ router.post("/updateFile", (req: Request, res: Response) => {
       // weasel.error(username, req.socket.remoteAddress, `${updateFile}로 weasel 에이전트가 업데이트 실패하였습니다.`);
       res.status(500).send("post UpdateAgentFile error");
     });
+  });
 });
 
 router.get("/outlook", (req: Request, res: Response) => {
