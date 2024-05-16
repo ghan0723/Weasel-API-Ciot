@@ -575,7 +575,11 @@ router.get("/namecookie", (req: Request, res: Response) => {
 });
 
 router.get("/privilege", (req: Request, res: Response) => {
+  console.log('req',req);
+  
   let username = req.cookies.username;
+  console.log('username',username);
+  
   
   userService
     .getPrivilege(username)
