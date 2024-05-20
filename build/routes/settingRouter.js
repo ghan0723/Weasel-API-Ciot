@@ -36,7 +36,7 @@ const storage = multer_1.default.diskStorage({
 const upload = (0, multer_1.default)({
     storage: storage,
 });
-router.post("/server", (req, res) => {
+router.post("/servers", (req, res) => {
     const username = req.query.username;
     const server = req.body;
     settingService
@@ -98,7 +98,7 @@ router.get("/servers", (req, res) => {
         res.status(500).send("update get 하다가 에러났어요");
     });
 });
-router.post("/agent", (req, res) => {
+router.post("/agents", (req, res) => {
     const username = req.query.username;
     const agent = req.body;
     settingService
