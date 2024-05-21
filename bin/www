@@ -20,16 +20,11 @@ const AUTH0_SESSION_ROLLING_DURATION = parseInt(process.env.AUTH0_SESSION_ROLLIN
 /**
  * Create HTTPs server.
 //  */
-const certsDir = "C:/Program Files (x86)/ciot/certs/";
+const certsDir = "D:/00_work/01_FileDetect/Weasel/Dashboard-horizonUI-Back/bin/certs/";
 
-var serverOptions = {
-  key: fs.readFileSync(path.resolve(__dirname, "./certs/privKey.pem")),
-  cert: fs.readFileSync(path.resolve(__dirname, "./certs/cert.pem")),
-};
-//프로젝트 외부 인증 ssl
 // var serverOptions = {
-// key: fs.readFileSync(path.resolve(certsDir+"privKey.pem")),
-// cert: fs.readFileSync(path.resolve(certsDir+"cert.pem")),
+//   key: fs.readFileSync(path.resolve(certsDir, "./certs/privKey.pem")),
+//   cert: fs.readFileSync(path.resolve(certsDir, "./certs/cert.pem")),
 // };
 var server = http.createServer(app);
 

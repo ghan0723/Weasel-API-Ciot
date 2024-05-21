@@ -167,12 +167,12 @@ router.post('/rm', (req:Request, res:Response) => {
 
   results?.then(() => {     
     getApiDataLogic(contents,0,pageSize,sorting,desc,category,search,username,req,res);
-    weasel.log(username, req.socket.remoteAddress, `[Info] The user, '${username}' deleted ${body.length} data in ${contents}.`);
-    // weasel.log(username, req.socket.remoteAddress, `${contents}의 ${results.length}개 데이터를 삭제하였습니다.`);
+    weasel.log(username, req.ip, `[Info] The user, '${username}' deleted ${body.length} data in ${contents}.`);
+    // weasel.log(username, req.ip, `${contents}의 ${results.length}개 데이터를 삭제하였습니다.`);
   })
   .catch((error) => {
-    weasel.error(username, req.socket.remoteAddress, `[Error] The user, '${username}' deleted ${body.length} pieces of data in ${contents} fail.`);
-    // weasel.error(username, req.socket.remoteAddress, `${contents}의 ${results.length}개 데이터를 삭제하는데 실패하였습니다.`);
+    weasel.error(username, req.ip, `[Error] The user, '${username}' deleted ${body.length} pieces of data in ${contents} fail.`);
+    // weasel.error(username, req.ip, `${contents}의 ${results.length}개 데이터를 삭제하는데 실패하였습니다.`);
     console.error(error + " : " + contents);
     res.status(500).send(contents + " server error");
   });
