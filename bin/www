@@ -13,7 +13,7 @@ var https = require('https');
  */
 const fs = require("fs");
 const path = require("path");
-var port = normalizePort(process.env.PORT || '8000');
+var port = normalizePort(process.env.PORT || '9000');
 app.set("port", port);
 const AUTH0_SESSION_ROLLING = process.env.AUTH0_SESSION_ROLLING === 'true';
 const AUTH0_SESSION_ROLLING_DURATION = parseInt(process.env.AUTH0_SESSION_ROLLING_DURATION || '60', 10);
