@@ -560,10 +560,10 @@ router.post("/update/:username", (req, res) => {
 router.get("/namecookie", (req, res) => {
     let username = req.cookies.username;
     if (username !== undefined && username !== null) {
-        res.json({ username: username });
+        res.send({ username: username });
     }
     else {
-        res.status(500).send({ username });
+        res.status(500).send({ username: username });
     }
 });
 router.get("/privilege", (req, res) => {
