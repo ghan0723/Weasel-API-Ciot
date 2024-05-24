@@ -1,2 +1,2 @@
-export const frontIP = `https://localhost:3001`;
+export const frontIP = `https://172.31.168.110:3001`;
 export const backIP = ``;

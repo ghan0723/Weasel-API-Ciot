@@ -568,9 +568,9 @@ router.get("/namecookie", (req: Request, res: Response) => {
   let username = req.cookies.username;
   
   if(username !== undefined && username !== null){
-    res.json({ username: username });
+    res.send({ username: username });
   } else {
-    res.status(500).send({username})
+    res.status(500).send({username:username})
   }
 });
 
