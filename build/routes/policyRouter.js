@@ -6,10 +6,11 @@ const policyService_1 = __importDefault(require("../service/policyService"));
 const express_1 = __importDefault(require("express"));
 const router = express_1.default.Router();
 const policyService = new policyService_1.default();
-router.get('/list', (req, res) => {
+router.get('/lists', (req, res) => {
     policyService.getPolicyList()
         .then(list => {
-        res.send(list);
+        console.log('list', list);
+        res.send({ list: list });
     })
         .catch((error) => {
         res.status(500).send({ error: error });
@@ -26,7 +27,7 @@ router.post('/upload', (req, res) => {
     //     res.status(500).send({error : error});
     // })
 });
-router.get('/add', (req, res) => {
+router.get('/adds', (req, res) => {
     //이거 정책 이름
     let name = req.query.name;
     //정책을 가지고 새로 만드는 친구는 query를 두번 쓸 생각
@@ -76,7 +77,7 @@ router.get('/add', (req, res) => {
         });
     }
 });
-router.post('/add', (req, res) => {
+router.post('/adds', (req, res) => {
     const treeData = req.body.treeData;
     const policyName = req.body.policyName;
     const username = req.body.username;
@@ -159,7 +160,7 @@ router.post('/delete', (req, res) => {
     })
         .catch((error) => res.status(500).send(error));
 });
-router.get('/edit', (req, res) => {
+router.get('/edits', (req, res) => {
     //이거 정책 이름
     let name = req.query.name;
     //정책을 가지고 새로 만드는 친구는 query를 두번 쓸 생각

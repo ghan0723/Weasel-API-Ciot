@@ -9,7 +9,7 @@ const profileService: ProfileService = new ProfileService();
 const userService: UserService = new UserService();
 const cryptoService = new CryptoService("sn0ISmjyz1CWT6Yb7dxu");
 
-router.get("/edit", (req: Request, res: Response) => {
+router.get("/edits", (req: Request, res: Response) => {
   let username = req.query.username;
   profileService
     .getProfile(username)
@@ -34,7 +34,7 @@ router.get("/edit", (req: Request, res: Response) => {
     });
 });
 
-router.post("/edit", (req: Request, res: Response) => {
+router.post("/edits", (req: Request, res: Response) => {
   let oldname = req.query.username;
   let user = req.body;
   const encpassword = cryptoService.getEncryptUltra(user.password);

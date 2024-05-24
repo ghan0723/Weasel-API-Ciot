@@ -4,10 +4,13 @@ import express, { Request, Response, Router } from "express";
 const router: Router = express.Router();
 const policyService:PolicyService = new PolicyService();
 
-router.get('/list', (req:Request, res:Response) => {
+router.get('/lists', (req:Request, res:Response) => {
     policyService.getPolicyList()
     .then(list => {
-        res.send(list);
+        
+        console.log('list',list);
+        
+        res.send({list:list});
     })
     .catch((error:any) => {
         res.status(500).send({error : error});
@@ -28,7 +31,7 @@ router.post('/upload', (req:Request, res:Response) => {
 
 });
 
-router.get('/add', (req:Request, res:Response) => {
+router.get('/adds', (req:Request, res:Response) => {
     //이거 정책 이름
     let name = req.query.name;
     
@@ -79,7 +82,7 @@ router.get('/add', (req:Request, res:Response) => {
     }
 });
 
-router.post('/add', (req:Request, res:Response) => {
+router.post('/adds', (req:Request, res:Response) => {
     const treeData = req.body.treeData;
     const policyName = req.body.policyName;
     const username = req.body.username;
@@ -167,7 +170,7 @@ router.post('/delete', (req:Request, res:Response) => {
     .catch((error) => res.status(500).send(error));
 });
 
-router.get('/edit', (req:Request, res:Response) => {
+router.get('/edits', (req:Request, res:Response) => {
     //이거 정책 이름
     let name = req.query.name;
     //정책을 가지고 새로 만드는 친구는 query를 두번 쓸 생각

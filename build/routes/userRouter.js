@@ -14,19 +14,21 @@ const policyService = new policyService_1.default();
 router.get("/namecookie", (req, res) => {
     let username = req.cookies.username;
     if (username !== undefined && username !== null) {
-        res.json({ username: username });
+        res.send({ username: username });
     }
     else {
-        res.status(500).send({ username });
+        res.status(500).send({ username: username });
     }
 });
 router.get("/privilege", (req, res) => {
     let username = req.cookies.username;
+    console.log('username', username);
     if (username === undefined || username === null)
         res.status(500);
     userService
         .getPrivilege(username)
         .then((result) => {
+        console.log('result', result);
         res.send([{
                 username: username,
                 privilege: result[0].privilege

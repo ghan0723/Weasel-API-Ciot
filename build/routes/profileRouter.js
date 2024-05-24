@@ -11,7 +11,7 @@ const router = express_1.default.Router();
 const profileService = new profileService_1.default();
 const userService = new userService_1.default();
 const cryptoService = new cryptoService_1.default("sn0ISmjyz1CWT6Yb7dxu");
-router.get("/edit", (req, res) => {
+router.get("/edits", (req, res) => {
     let username = req.query.username;
     profileService
         .getProfile(username)
@@ -35,7 +35,7 @@ router.get("/edit", (req, res) => {
         res.status(500).send("Internal Server Error");
     });
 });
-router.post("/edit", (req, res) => {
+router.post("/edits", (req, res) => {
     let oldname = req.query.username;
     let user = req.body;
     const encpassword = cryptoService.getEncryptUltra(user.password);
