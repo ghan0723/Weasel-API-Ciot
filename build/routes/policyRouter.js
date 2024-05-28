@@ -9,7 +9,6 @@ const policyService = new policyService_1.default();
 router.get('/lists', (req, res) => {
     policyService.getPolicyList()
         .then(list => {
-        console.log('list', list);
         res.send({ list: list });
     })
         .catch((error) => {

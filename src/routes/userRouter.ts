@@ -22,16 +22,12 @@ router.get("/namecookie", (req: Request, res: Response) => {
 
 router.get("/privilege", (req: Request, res: Response) => {
   let username = req.cookies.username;
-  console.log('username',username);
-  
 
   if(username === undefined || username === null) res.status(500);
   
   userService
     .getPrivilege(username)
     .then((result) => {
-      console.log('result',result);
-      
       res.send([{
         username : username,
         privilege:result[0].privilege

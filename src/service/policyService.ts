@@ -5,8 +5,6 @@ class PolicyService {
     const query = `select p_name as name, p_distinction as distinction, p_author as author from policys`;
     return new Promise((resolve, reject) => {
       connection.query(query, (error, result) => {
-        console.log('result',result);
-        
         if (result) {
           if (result.length === 0) {
             result = [
@@ -258,8 +256,8 @@ class PolicyService {
   }
 
   addGParameter(username:any): Promise<any> {
-    let query = `insert into settings (username, uid, tool_ip, ivn_port, wave_port, lte_v2x_port, lte_uu_port, v2x_dut_ip, v2x_dut_port, ivn_canfd) `+
-    ` values ('${username}',  0, '192.168.123.253', '12001', '12002', '12003', '12004', '192.168.123.201', '13001', '0')`;
+    let query = `insert into settings (username, uid, platform_ip, platform_port, ivn_port, wave_port, lte_v2x_port, lte_uu_port) `+
+    ` values ('${username}',  0, '192.168.123.253', '12001', '12002', '12003', '12004', '13001')`;
     return new Promise((resolve, reject) => {
       connection.query(query, (error, result) => {
         if(error){

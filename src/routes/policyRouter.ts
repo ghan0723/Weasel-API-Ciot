@@ -8,8 +8,6 @@ router.get('/lists', (req:Request, res:Response) => {
     policyService.getPolicyList()
     .then(list => {
         
-        console.log('list',list);
-        
         res.send({list:list});
     })
     .catch((error:any) => {
