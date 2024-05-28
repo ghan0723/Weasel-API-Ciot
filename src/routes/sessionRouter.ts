@@ -48,10 +48,11 @@ router.get("/all", (req: Request, res: Response) => {
 
 router.get("/data", (req: Request, res: Response) => {
   const s_id = req.query.sid;
-
+  const lastFetchedTime = req.query.lastFetchedTime;
+  
   sessionService.getSessionData(s_id)
   .then((result) => {
-    sessionService.getSessionLog(s_id)
+    sessionService.getSessionLog(s_id,lastFetchedTime)
     .then((sLog) => {
       sessionService.getSessionResult(s_id)
       .then((sResult) => {

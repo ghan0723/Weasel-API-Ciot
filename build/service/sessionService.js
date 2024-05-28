@@ -92,8 +92,15 @@ class SessionService {
         });
     }
     //상세내역 중에서도 log
-    getSessionLog(s_id) {
-        const query = `select * from sessionLog where s_id = ?`;
+    getSessionLog(s_id, lastFetchedTime) {
+        //fetchTime이 존재할 때는 log_time을 해당 패치 타임 뒤에만 호출하도록
+        let query = "";
+        if (lastFetchedTime !== null && lastFetchedTime !== undefined) {
+            query = `select * from sessionLog where s_id = ? AND log_time > ${lastFetchedTime} ORDER BY log_time ASC`;
+        }
+        else {
+            query = `select * from sessionLog where s_id = ? ORDER BY log_time ASC`;
+        }
         return new Promise((resolve, reject) => {
             db_1.default.query(query, s_id, (error, result) => {
                 if (error) {
