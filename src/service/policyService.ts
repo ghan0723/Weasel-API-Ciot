@@ -5,8 +5,6 @@ class PolicyService {
     const query = `select p_name as name, p_distinction as distinction, p_author as author from policys`;
     return new Promise((resolve, reject) => {
       connection.query(query, (error, result) => {
-        console.log('result',result);
-        
         if (result) {
           if (result.length === 0) {
             result = [
