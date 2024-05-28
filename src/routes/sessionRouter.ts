@@ -52,7 +52,7 @@ router.get("/data", (req: Request, res: Response) => {
   
   sessionService.getSessionData(s_id)
   .then((result) => {
-    sessionService.getSessionLog(s_id,lastFetchedTime)
+    sessionService.getSessionLog(s_id, lastFetchedTime)
     .then((sLog) => {
       sessionService.getSessionResult(s_id)
       .then((sResult) => {
