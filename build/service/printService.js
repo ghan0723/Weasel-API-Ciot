@@ -190,7 +190,7 @@ class PrintService {
                                 if (privilege !== 3) {
                                     const date = data.Time.split(' ')[0];
                                     const fileName = `C:/Program Files (x86)/ciot/WeaselServer/Temp/${date}/${data.Agent_ip}.${data.id}.${data.Downloading}`;
-                                    if (fs_1.default.existsSync(fileName) && result[i].upload_state === '2') {
+                                    if (fs_1.default.existsSync(`${fileName}.enc`) && result[i].upload_state === '2') {
                                         result[i].Downloading = `${data.Agent_ip}.${data.id}.${data.Downloading}`;
                                     }
                                     else if (result[i].upload_state === '3') {

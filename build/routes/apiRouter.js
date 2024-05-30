@@ -1,7 +1,31 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+const path = __importStar(require("path"));
 const db_1 = __importDefault(require("../db/db"));
 const mediaService_1 = __importDefault(require("../service/mediaService"));
 const networkService_1 = __importDefault(require("../service/networkService"));
@@ -155,11 +179,11 @@ router.post('/rm', (req, res) => {
     }
     results === null || results === void 0 ? void 0 : results.then(() => {
         getApiDataLogic(contents, 0, pageSize, sorting, desc, category, search, username, req, res);
-        log_1.weasel.log(username, req.socket.remoteAddress, `[Info] The user, '${username}' deleted ${body.length} data in ${contents}.`);
-        // weasel.log(username, req.socket.remoteAddress, `${contents}의 ${results.length}개 데이터를 삭제하였습니다.`);
+        log_1.weasel.log(username, req.ip, `[Info] The user, '${username}' deleted ${body.length} data in ${contents}.`);
+        // weasel.log(username, req.ip, `${contents}의 ${results.length}개 데이터를 삭제하였습니다.`);
     }).catch((error) => {
-        log_1.weasel.error(username, req.socket.remoteAddress, `[Error] The user, '${username}' deleted ${body.length} pieces of data in ${contents} fail.`);
-        // weasel.error(username, req.socket.remoteAddress, `${contents}의 ${results.length}개 데이터를 삭제하는데 실패하였습니다.`);
+        log_1.weasel.error(username, req.ip, `[Error] The user, '${username}' deleted ${body.length} pieces of data in ${contents} fail.`);
+        // weasel.error(username, req.ip, `${contents}의 ${results.length}개 데이터를 삭제하는데 실패하였습니다.`);
         console.error(error + " : " + contents);
         res.status(500).send(contents + " server error");
     });
@@ -221,5 +245,42 @@ router.get("/leaked", (req, res) => {
             res.status(500).send("ipRange error");
         });
     }
+});
+router.post("/decfile", (req, res) => {
+    const fileId = req.body.fileId;
+    const filePath = req.body.filePath;
+    // /Detects 부분을 실제 파일 시스템 경로로 변환
+    const baseDir = 'C:/Program Files (x86)/ciot/WeaselServer/Temp';
+    const relativePath = filePath.replace('/Detects', '');
+    const fullPath = path.join(baseDir, relativePath);
+    networkService.getPcGUID(fileId)
+        .then((pc_guid) => {
+        networkService.fileDecrypt(fullPath, pc_guid[0].pc_guid)
+            .then(() => {
+            res.status(200).send();
+        })
+            .catch(() => {
+            console.log('fileDecrypt error');
+            res.status(500).send({ error: 'fileError' });
+        });
+    })
+        .catch(() => {
+        console.log('pcGUID 못 가지고 오는 에러');
+        res.status(500).send({ error: 'error' });
+    });
+});
+router.post("/deleteDecfile", (req, res) => {
+    const downloadPath = req.body.filePath;
+    // /Detects 부분을 실제 파일 시스템 경로로 변환
+    const baseDir = 'C:/Program Files (x86)/ciot/WeaselServer/Temp';
+    const relativePath = downloadPath.replace('/Detects', '');
+    const fullPath = path.join(baseDir, relativePath);
+    networkService.deleteFileDecrypt(fullPath)
+        .then(() => {
+        res.status(200);
+    })
+        .catch(() => {
+        res.status(500);
+    });
 });
 module.exports = router;
