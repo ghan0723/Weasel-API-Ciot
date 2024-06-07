@@ -265,7 +265,7 @@ class NetworkService {
                   }
     
                   // 스크린샷
-                  if(fs.existsSync(`${fileName}.png.enc`) && result[i].scrdmp_upload_state === '2') {
+                  if((fs.existsSync(`${fileName}.png.enc`) || fs.existsSync(`${fileName}.jpg.enc`) || fs.existsSync(`${fileName}.jpeg.enc`)) && result[i].scrdmp_upload_state === '2') {
                     result[i].ScreenShot = `${data.Agent_ip}.${data.id}.${data.ScreenShot}`;
                   } else if(result[i].scrdmp_upload_state === '3') {
                     result[i].ScreenShot = result[i].scrdmp_upload_state;
@@ -532,9 +532,16 @@ class NetworkService {
     }
   }
 
-  public deleteFileDecrypt(filePath:string) {
+  public deleteFileDecrypt(filePath:any) {
+    let currentFile:any;
+    filePath.map((filename:any) => {
+      if(fs.existsSync(`${filename}`)) {
+        currentFile = filename;
+      }
+    });    
+
     return new Promise((resolve, reject) => {
-      fs.unlink(filePath, (err:any) => {
+      fs.unlink(currentFile, (err:any) => {
         if(err) {
           console.error('Error deleting file:', err);
           return reject(err);
@@ -545,10 +552,19 @@ class NetworkService {
 
   }
 
-  public fileDecrypt(encryptedFileName:string, pc_guid:string) {
+  public fileDecrypt(encryptedFileNames:any[], pc_guid:string) {
     const {exec} = require('child_process');
     const openSSLPath = 'C:/Program Files (x86)/ciot/WeaselServer/openssl'; // openssl의 절대 경로
-    const cryptedFileName = encryptedFileName;
+    let cryptedFileName;
+    let encryptedFileName:any;
+
+    encryptedFileNames.map((filename:any) => {
+      if(fs.existsSync(`${filename}.enc`)) {
+        cryptedFileName = filename;
+        encryptedFileName = filename;
+      }
+    });
+
     const command = `"${openSSLPath}" enc -d -aes-256-cbc -md sha256 -a -k ${pc_guid}_ -pbkdf2 -in "${cryptedFileName}.enc" -out "${encryptedFileName}"`;
 
     return new Promise((resolve, reject) => {
@@ -562,7 +578,7 @@ class NetworkService {
             reject(error);
         }
 
-        resolve("success");
+        resolve(encryptedFileName);
       });
     });
 

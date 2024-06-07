@@ -242,7 +242,7 @@ class NetworkService {
                                         result[i].DownLoad = '';
                                     }
                                     // 스크린샷
-                                    if (fs_1.default.existsSync(`${fileName}.png.enc`) && result[i].scrdmp_upload_state === '2') {
+                                    if ((fs_1.default.existsSync(`${fileName}.png.enc`) || fs_1.default.existsSync(`${fileName}.jpg.enc`) || fs_1.default.existsSync(`${fileName}.jpeg.enc`)) && result[i].scrdmp_upload_state === '2') {
                                         result[i].ScreenShot = `${data.Agent_ip}.${data.id}.${data.ScreenShot}`;
                                     }
                                     else if (result[i].scrdmp_upload_state === '3') {
@@ -505,8 +505,14 @@ class NetworkService {
         });
     }
     deleteFileDecrypt(filePath) {
+        let currentFile;
+        filePath.map((filename) => {
+            if (fs_1.default.existsSync(`${filename}`)) {
+                currentFile = filename;
+            }
+        });
         return new Promise((resolve, reject) => {
-            fs_1.default.unlink(filePath, (err) => {
+            fs_1.default.unlink(currentFile, (err) => {
                 if (err) {
                     console.error('Error deleting file:', err);
                     return reject(err);
@@ -515,10 +521,18 @@ class NetworkService {
             return resolve('success');
         });
     }
-    fileDecrypt(encryptedFileName, pc_guid) {
+    fileDecrypt(encryptedFileNames, pc_guid) {
         const { exec } = require('child_process');
         const openSSLPath = 'C:/Program Files (x86)/ciot/WeaselServer/openssl'; // openssl의 절대 경로
-        const cryptedFileName = encryptedFileName;
+        let cryptedFileName;
+        let encryptedFileName;
+        encryptedFileNames.map((filename) => {
+            if (fs_1.default.existsSync(`${filename}.enc`)) {
+                cryptedFileName = filename;
+                encryptedFileName = filename;
+            }
+        });
+        console.log('cryptedFileName', cryptedFileName);
         const command = `"${openSSLPath}" enc -d -aes-256-cbc -md sha256 -a -k ${pc_guid}_ -pbkdf2 -in "${cryptedFileName}.enc" -out "${encryptedFileName}"`;
         return new Promise((resolve, reject) => {
             exec(command, (error, stdout, stderr) => {
@@ -530,7 +544,7 @@ class NetworkService {
                     console.error(`Error: ${stderr}`);
                     reject(error);
                 }
-                resolve("success");
+                resolve(encryptedFileName);
             });
         });
     }
