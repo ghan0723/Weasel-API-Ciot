@@ -1,3 +1,4 @@
+import * as path from 'path';
 import connection from "../db/db";
 import MediaService from "../service/mediaService";
 import NetworkService from "../service/networkService";
@@ -245,6 +246,59 @@ router.get("/leaked", (req: Request, res: Response) => {
       res.status(500).send("ipRange error");
     });
   }
+});
+
+router.post("/decfile", (req: Request, res: Response) => {
+  const fileId = req.body.fileId;
+  const filePath = req.body.filePath;  
+
+  // /Detects 부분을 실제 파일 시스템 경로로 변환
+  const baseDir = 'C:/Program Files (x86)/ciot/WeaselServer/Temp';
+  const fullPath:any = [];
+
+  for(let i=0; i < filePath.length; i++) {
+    const relativePath = filePath[i].replace('/Detects', '');
+    fullPath.push(path.join(baseDir, relativePath));
+  }
+
+  networkService.getPcGUID(fileId)
+  .then((pc_guid:any) => {
+    networkService.fileDecrypt(fullPath,pc_guid[0].pc_guid)
+    .then((filename:any) => {
+      
+      res.status(200).send();
+    })
+    .catch(() => {
+      console.log('fileDecrypt error');
+      res.status(500).send({error : 'fileError'});
+    });    
+  })
+  .catch(() => {
+    console.log('pcGUID 못 가지고 오는 에러');
+    res.status(500).send({error : 'error'});
+  });
+});
+
+router.post("/deleteDecfile", (req: Request, res: Response) => {
+  const downloadPath = req.body.filePath;
+
+  // /Detects 부분을 실제 파일 시스템 경로로 변환
+  const baseDir = 'C:/Program Files (x86)/ciot/WeaselServer/Temp';
+  const fullPath:any = [];
+
+  for(let i=0; i < downloadPath.length; i++) {
+    const relativePath = downloadPath[i].replace('/Detects', '');
+    fullPath.push(path.join(baseDir, relativePath));
+  }
+
+  networkService.deleteFileDecrypt(fullPath)
+  .then(() => {
+    res.status(200);
+  })
+  .catch(() => {
+    res.status(500);
+  })
+  
 });
 
 

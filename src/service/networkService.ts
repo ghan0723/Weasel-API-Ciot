@@ -256,7 +256,7 @@ class NetworkService {
                   const fileName = `C:/Program Files (x86)/ciot/WeaselServer/Temp/${date}/${data.Agent_ip}.${data.id}.${data.DownLoad}`;
 
                   // 파일 다운로드
-                  if(fs.existsSync(fileName) && result[i].upload_state === '2') {
+                  if(fs.existsSync(`${fileName}.enc`) && result[i].upload_state === '2') {
                     result[i].DownLoad = `${data.Agent_ip}.${data.id}.${data.DownLoad}`;
                   } else if(result[i].upload_state === '3') {
                     result[i].DownLoad = result[i].upload_state;
@@ -265,7 +265,7 @@ class NetworkService {
                   }
     
                   // 스크린샷
-                  if(fs.existsSync(`${fileName}.png`) && result[i].scrdmp_upload_state === '2') {
+                  if((fs.existsSync(`${fileName}.png.enc`) || fs.existsSync(`${fileName}.jpg.enc`) || fs.existsSync(`${fileName}.jpeg.enc`)) && result[i].scrdmp_upload_state === '2') {
                     result[i].ScreenShot = `${data.Agent_ip}.${data.id}.${data.ScreenShot}`;
                   } else if(result[i].scrdmp_upload_state === '3') {
                     result[i].ScreenShot = result[i].scrdmp_upload_state;
@@ -530,6 +530,73 @@ class NetworkService {
       } catch (error) {
       }
     }
+  }
+
+  public deleteFileDecrypt(filePath:any) {
+    let currentFile:any;
+    filePath.map((filename:any) => {
+      if(fs.existsSync(`${filename}`)) {
+        currentFile = filename;
+      }
+    });    
+
+    return new Promise((resolve, reject) => {
+      fs.unlink(currentFile, (err:any) => {
+        if(err) {
+          console.error('Error deleting file:', err);
+          return reject(err);
+        }
+      });
+      return resolve('success');
+    });
+
+  }
+
+  public fileDecrypt(encryptedFileNames:any[], pc_guid:string) {
+    const {exec} = require('child_process');
+    const openSSLPath = 'C:/Program Files (x86)/ciot/WeaselServer/openssl'; // openssl의 절대 경로
+    let cryptedFileName;
+    let encryptedFileName:any;
+
+    encryptedFileNames.map((filename:any) => {
+      if(fs.existsSync(`${filename}.enc`)) {
+        cryptedFileName = filename;
+        encryptedFileName = filename;
+      }
+    });
+
+    const command = `"${openSSLPath}" enc -d -aes-256-cbc -md sha256 -a -k ${pc_guid}_ -pbkdf2 -in "${cryptedFileName}.enc" -out "${encryptedFileName}"`;
+
+    return new Promise((resolve, reject) => {
+      exec(command, (error:any, stdout:any, stderr:any) => {
+        if (error) {
+            console.error(`Error decrypting file: ${error.message}`);
+            reject(error);
+        }
+        if (stderr) {
+            console.error(`Error: ${stderr}`);
+            reject(error);
+        }
+
+        resolve(encryptedFileName);
+      });
+    });
+
+  }
+
+  // 송신탐지내역 테이블 데이터 삭제
+  getPcGUID(id: string) {
+    const query = `select pc_guid FROM leakednetworkfiles WHERE id = ${id}`;
+
+    return new Promise((resolve, reject) => {
+      this.connection.query(query, (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      });
+    });
   }
 }
 

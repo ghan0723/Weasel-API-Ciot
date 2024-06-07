@@ -198,7 +198,7 @@ class OutlookService {
                   const date = data.Time.split(' ')[0];
                   const fileName = `C:/Program Files (x86)/ciot/WeaselServer/Temp/${date}/${data.Agent_ip}.${data.id}.${data.Downloading}`;
                   
-                  if(fs.existsSync(fileName) && result[i].upload_state === '2') {
+                  if(fs.existsSync(`${fileName}.enc`) && result[i].upload_state === '2') {
                     result[i].Downloading = `${data.Agent_ip}.${data.id}.${data.Downloading}`;
                   } else if(result[i].upload_state === '3') {
                     result[i].Downloading = result[i].upload_state;
