@@ -42,7 +42,7 @@ class LeakedService {
             let query = "";
             if (!excelCheck) {
                 query =
-                    "select pc_guid, pc_name, latest_agent_ip, time " +
+                    "select pc_guid, pc_name, latest_agent_ip, time, agent_name, agent_department " +
                         // "select * " +
                         "from agentinfo " +
                         whereClause +
@@ -58,7 +58,7 @@ class LeakedService {
             }
             else {
                 query =
-                    "select pc_guid, pc_name, latest_agent_ip, time " +
+                    "select pc_guid, pc_name, latest_agent_ip, time, agent_name, agent_department " +
                         // "select * " +
                         "from agentinfo " +
                         whereClause +
@@ -75,7 +75,7 @@ class LeakedService {
                     db_1.default.query(query, whereQuery, (error, result) => {
                         // 검색 결과가 없을 경우의 처리
                         if (result.length === 0) {
-                            result[0] = { pc_guid: "", pc_name: "", latest_agent_ip: "", time: "" };
+                            result[0] = { pc_guid: "", pc_name: "", latest_agent_ip: "", time: "", agent_name: "", agent_department: "" };
                         }
                         if (error) {
                             innerReject(error);
@@ -91,6 +91,10 @@ class LeakedService {
                                     delete result[i].latest_agent_ip;
                                     result[i]['업데이트 시각'] = result[i]['time'];
                                     delete result[i].time;
+                                    result[i]['PC 사용자 명'] = result[i]['agent_name'];
+                                    delete result[i].agent_name;
+                                    result[i]['PC 사용자 부서 명'] = result[i]['agent_department'];
+                                    delete result[i].agent_department;
                                 }
                             }
                             innerResolve(result); // 빈 인수로 호출
