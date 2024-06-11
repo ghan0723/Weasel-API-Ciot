@@ -35,7 +35,7 @@ class LeakedService {
       let query = "";
       if(!excelCheck){
         query =
-        "select pc_guid, pc_name, latest_agent_ip, time " +
+        "select pc_guid, pc_name, latest_agent_ip, time, agent_name, agent_department " +
         // "select * " +
         "from agentinfo " +
         whereClause +
@@ -50,7 +50,7 @@ class LeakedService {
         queryPage * queryPageSize;
       } else {
         query =
-        "select pc_guid, pc_name, latest_agent_ip, time " +
+        "select pc_guid, pc_name, latest_agent_ip, time, agent_name, agent_department " +
         // "select * " +
         "from agentinfo " +
         whereClause +
@@ -70,7 +70,7 @@ class LeakedService {
             
             // 검색 결과가 없을 경우의 처리
             if (result.length === 0) {
-              result[0] = { pc_guid: "", pc_name: "", latest_agent_ip: "", time: "" };
+              result[0] = { pc_guid: "", pc_name: "", latest_agent_ip: "", time: "", agent_name:"", agent_department: "" };
             }
             if (error) {
               innerReject(error);
@@ -85,6 +85,10 @@ class LeakedService {
                   delete result[i].latest_agent_ip;
                   result[i]['업데이트 시각'] = result[i]['time'];
                   delete result[i].time;
+                  result[i]['PC 사용자 명'] = result[i]['agent_name'];
+                  delete result[i].agent_name;
+                  result[i]['PC 사용자 부서 명'] = result[i]['agent_department'];
+                  delete result[i].agent_department;
                 }
               }
               
@@ -178,6 +182,29 @@ class LeakedService {
       }
     }
   }
+
+  //modify leaked agent data
+  modLeakedAgent(columnId:any, value:any, pc_guid:any): Promise<any> {
+    //전달 받은 내용이 PC 사용자명이냐 PC 사용자 부서명이냐에 따라서 query 변경
+    let query = ``;
+    if(columnId === 'agent_name'){
+      query = `update agentinfo set agent_name = '${value}' where pc_guid = '${pc_guid}' `
+    } else if (columnId === 'agent_department') {
+      query = `update agentinfo set agent_department = '${value}' where pc_guid = '${pc_guid}' `
+    } else {
+      //이건 columnId가 안 넘어온 경우
+    }
+    return new Promise((resolve, reject) => {
+      connection.query(query, (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      })
+    })
+  }
+
 }
 
 export default LeakedService;

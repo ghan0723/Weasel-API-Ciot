@@ -43,11 +43,13 @@ router.post("/servers", (req, res) => {
         .getServerSetting()
         .then((result) => {
         const str = settingService.modServerSettingLog(server, result[0]);
-        settingService.modServerSetting(server)
+        settingService
+            .modServerSetting(server)
             .then(() => {
             log_1.weasel.log(username, req.ip, str);
             res.send("업데이트 성공했습니다.");
-        }).catch(() => {
+        })
+            .catch(() => {
             // weasel.error(username, req.ip, '서버 설정 메뉴로 이동에 실패하였습니다.');
             log_1.weasel.error(username, req.ip, `[Error] The user, '${username}' failed to navigate to the Server Settings menu.`);
             res.status(500).send("update 하다가 에러났어요");
@@ -61,7 +63,8 @@ router.post("/servers", (req, res) => {
 });
 router.get("/servers", (req, res) => {
     const username = req.query.username;
-    userService.getPrivilege(username)
+    userService
+        .getPrivilege(username)
         .then((result1) => {
         settingService
             .getServerSetting()
@@ -103,14 +106,16 @@ router.post("/agents", (req, res) => {
     const agent = req.body;
     settingService
         .getAgentSetting()
-        .then(result => {
+        .then((result) => {
         const str = settingService.modAgentSettingLog(agent, result[0]);
         const checkAgent = settingService.checkModAgent(result[0], agent);
-        settingService.modAgentSetting(checkAgent)
+        settingService
+            .modAgentSetting(checkAgent)
             .then((result) => {
             log_1.weasel.log(username, req.ip, str);
             res.send(result);
-        }).catch(() => {
+        })
+            .catch(() => {
             log_1.weasel.error(username, req.ip, `[Error] The user, '${username}' navigating to the Agent Settings Menu failed.`);
             // weasel.error(username, req.ip, "에이전트 설정 메뉴로 이동에 실패하였습니다.");
             res.status(500).send("agent setting post 하다가 에러났어요");
@@ -124,7 +129,8 @@ router.post("/agents", (req, res) => {
 });
 router.get("/agents", (req, res) => {
     const username = req.query.username;
-    userService.getPrivilege(username)
+    userService
+        .getPrivilege(username)
         .then((result1) => {
         settingService
             .getAgentSetting()
@@ -184,8 +190,9 @@ router.get("/process", (req, res) => {
 router.post("/process", (req, res) => {
     const newProcName = req.body.procName;
     const username = req.query.username;
-    settingService.checkProcessAccuracy(newProcName)
-        .then(result => {
+    settingService
+        .checkProcessAccuracy(newProcName)
+        .then((result) => {
         var _a, _b;
         if (((_a = result[0]) === null || _a === void 0 ? void 0 : _a.result) === 0) {
             settingService
@@ -198,14 +205,16 @@ router.post("/process", (req, res) => {
                 .catch((error) => {
                 log_1.weasel.error(username, req.ip, `[Error] The user, '${username}' adding reconnaissance process ${newProcName} failed.`);
                 // weasel.error(username, req.ip, "정탐 프로세스 ${newProcName}을 추가에 실패하였습니다.");
-                res.status(500).send("Add ProcessAccuracy 하다가 에러났어요" + error);
+                res
+                    .status(500)
+                    .send("Add ProcessAccuracy 하다가 에러났어요" + error);
             });
         }
         else {
             res.send({ result: (_b = result[0]) === null || _b === void 0 ? void 0 : _b.result });
         }
     })
-        .catch(error => {
+        .catch((error) => {
         log_1.weasel.error(username, req.ip, `[Error] The user, '${username}' encountered an error while running a query to query the database for a new reconnaissance process to add.`);
         // weasel.error(username, req.ip, "새로 추가할 정탐 프로세스를 데이터베이스에 조회하는 쿼리 실행 중 오류가 발생하였습니다.");
         res.status(500).send(error);
@@ -247,10 +256,10 @@ router.post("/fileUpdate", upload.single("file"), (req, res) => {
             // Dat 파일이 아닌 경우 파일 삭제
             fs_1.default.unlink(req.file.path, (err) => {
                 if (err) {
-                    res.status(500).send('파일 삭제 중 오류 발생');
+                    res.status(500).send("파일 삭제 중 오류 발생");
                 }
                 else {
-                    res.status(200).send('Dat 파일이 아닙니다.');
+                    res.status(200).send("Dat 파일이 아닙니다.");
                 }
             });
         }
@@ -271,9 +280,8 @@ router.get("/updateFile", (req, res) => {
 });
 router.post("/updateFile", (req, res) => {
     const username = req.body.username;
-    const updateFile = req.body.updateFile.split('\\').pop();
-    settingService.getUpdateFileAgent()
-        .then(result => {
+    const updateFile = req.body.updateFile.split("\\").pop();
+    settingService.getUpdateFileAgent().then((result) => {
         settingService
             .postUpdateFileAgent(result[0].id, updateFile)
             .then(() => {
@@ -290,7 +298,8 @@ router.post("/updateFile", (req, res) => {
 });
 router.get("/outlook", (req, res) => {
     const username = req.query.username;
-    settingService.getOutlookFlag()
+    settingService
+        .getOutlookFlag()
         .then((result) => {
         if ((result[0].flag & 256) === 256) {
             res.send(true);

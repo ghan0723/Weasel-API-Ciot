@@ -532,7 +532,6 @@ class NetworkService {
                 encryptedFileName = filename;
             }
         });
-        console.log('cryptedFileName', cryptedFileName);
         const command = `"${openSSLPath}" enc -d -aes-256-cbc -md sha256 -a -k ${pc_guid}_ -pbkdf2 -in "${cryptedFileName}.enc" -out "${encryptedFileName}"`;
         return new Promise((resolve, reject) => {
             exec(command, (error, stdout, stderr) => {

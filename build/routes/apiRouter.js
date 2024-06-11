@@ -260,8 +260,7 @@ router.post("/decfile", (req, res) => {
         .then((pc_guid) => {
         networkService.fileDecrypt(fullPath, pc_guid[0].pc_guid)
             .then((filename) => {
-            console.log('filename', filename);
-            res.status(200).send({ filename: filename });
+            res.status(200).send();
         })
             .catch(() => {
             console.log('fileDecrypt error');
@@ -288,6 +287,16 @@ router.post("/deleteDecfile", (req, res) => {
     })
         .catch(() => {
         res.status(500);
+    });
+});
+router.post("/leaked", (req, res) => {
+    const updateData = req.body;
+    leakedService.modLeakedAgent(updateData.columnId, updateData.value, updateData.original.pc_guid)
+        .then((result) => {
+        res.status(200).send("성공");
+    })
+        .catch((leakedAgentError) => {
+        res.status(500).send({ leakedAgentError: 'error' });
     });
 });
 module.exports = router;
