@@ -182,6 +182,29 @@ class LeakedService {
       }
     }
   }
+
+  //modify leaked agent data
+  modLeakedAgent(columnId:any, value:any, pc_guid:any): Promise<any> {
+    //전달 받은 내용이 PC 사용자명이냐 PC 사용자 부서명이냐에 따라서 query 변경
+    let query = ``;
+    if(columnId === 'agent_name'){
+      query = `update agentinfo set agent_name = '${value}' where pc_guid = '${pc_guid}' `
+    } else if (columnId === 'agent_department') {
+      query = `update agentinfo set agent_department = '${value}' where pc_guid = '${pc_guid}' `
+    } else {
+      //이건 columnId가 안 넘어온 경우
+    }
+    return new Promise((resolve, reject) => {
+      connection.query(query, (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      })
+    })
+  }
+
 }
 
 export default LeakedService;

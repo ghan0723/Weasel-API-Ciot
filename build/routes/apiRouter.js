@@ -290,5 +290,13 @@ router.post("/deleteDecfile", (req, res) => {
     });
 });
 router.post("/leaked", (req, res) => {
+    const updateData = req.body;
+    leakedService.modLeakedAgent(updateData.columnId, updateData.value, updateData.original.pc_guid)
+        .then((result) => {
+        res.status(200).send("성공");
+    })
+        .catch((leakedAgentError) => {
+        res.status(500).send({ leakedAgentError: 'error' });
+    });
 });
 module.exports = router;

@@ -302,6 +302,13 @@ router.post("/deleteDecfile", (req: Request, res: Response) => {
 });
 
 router.post("/leaked", (req:Request, res:Response) => {
-  
+  const updateData = req.body;
+  leakedService.modLeakedAgent(updateData.columnId, updateData.value, updateData.original.pc_guid)
+  .then((result) => {
+    res.status(200).send("성공")
+  })
+  .catch((leakedAgentError) => {
+    res.status(500).send({leakedAgentError : 'error'});
+  })
 })
 export = router;
