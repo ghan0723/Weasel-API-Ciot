@@ -251,6 +251,7 @@ router.get("/leaked", (req: Request, res: Response) => {
 router.post("/decfile", (req: Request, res: Response) => {
   const fileId = req.body.fileId;
   const filePath = req.body.filePath;  
+  const name = req.body.name;  
 
   // /Detects 부분을 실제 파일 시스템 경로로 변환
   const baseDir = 'C:/Program Files (x86)/ciot/WeaselServer/Temp';
@@ -261,7 +262,7 @@ router.post("/decfile", (req: Request, res: Response) => {
     fullPath.push(path.join(baseDir, relativePath));
   }
 
-  networkService.getPcGUID(fileId)
+  networkService.getPcGUID(fileId, name)
   .then((pc_guid:any) => {
     networkService.fileDecrypt(fullPath,pc_guid[0].pc_guid)
     .then((filename:any) => {
@@ -293,10 +294,10 @@ router.post("/deleteDecfile", (req: Request, res: Response) => {
 
   networkService.deleteFileDecrypt(fullPath)
   .then(() => {
-    res.status(200);
+    res.status(200).send();
   })
   .catch(() => {
-    res.status(500);
+    res.status(500).send();
   })
   
 });

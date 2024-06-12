@@ -585,8 +585,17 @@ class NetworkService {
   }
 
   // 송신탐지내역 테이블 데이터 삭제
-  getPcGUID(id: string) {
-    const query = `select pc_guid FROM leakednetworkfiles WHERE id = ${id}`;
+  getPcGUID(id: string, name:string) {
+    let query = ``;
+    if(name === 'network'){
+      query = `select pc_guid FROM leakednetworkfiles WHERE id = ${id}`;
+    } else if (name === 'media'){
+      query = `select pc_guid FROM leakedmediafiles WHERE id = ${id}`;
+    } else if (name === 'outlook'){
+      query = `select pc_guid FROM leakedoutlookfiles WHERE id = ${id}`;
+    } else {
+      query = `select pc_guid FROM leakedprintingfiles WHERE id = ${id}`;
+    }
 
     return new Promise((resolve, reject) => {
       this.connection.query(query, (error, result) => {
