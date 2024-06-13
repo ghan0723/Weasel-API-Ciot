@@ -304,7 +304,7 @@ class PolicyService {
     let p_parameter;
     // 추후 수정 예정
     treeData.map((data:any) => {
-      if(data.tc_group === 'CAVP') {
+      if(data.tc_group === 'CAVP' || data.tc_group === 'V2X') {
         p_parameter = data.tc_parameter
       }
     })
@@ -323,10 +323,11 @@ class PolicyService {
 
   addTcPolicy(policyName:any, data:any): Promise<any>{
     const tcPolicy = data.map((item:any) => {
+      
       if(item.checked){
         item.children.map((tcData:any) => {
           if(tcData.checked){
-            const query = `Insert Into tc_policy (p_name, tc_name, p_tc_parameter) values ('${policyName}', '${tcData.tc_name}', '${tcData.tc_parameter}');`;
+            const query = `Insert Into tc_policy (p_name, tc_name, tc_group, p_tc_parameter) values ('${policyName}', '${tcData.tc_name}', '${tcData.tc_group}',  '${tcData.tc_parameter}');`;
             return new Promise((resolve, reject) => {
               connection.query(query, (error, result) => {
                 if(error){
