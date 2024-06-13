@@ -15,6 +15,7 @@ var logRouter = require('./routes/logRouter.js');
 var sessionRouter = require('./routes/sessionRouter.js');
 var policyRouter = require('./routes/policyRouter.js');
 var excelRouter = require('./routes/excelRouter.js');
+var dashboardRouter = require('./routes/dashboardRouter.js');
 var app = express();
 const fs = require("fs");
 // 파일 업데이트 디렉터리 생성
@@ -68,6 +69,7 @@ app.use('/log', logRouter);
 app.use('/session', sessionRouter);
 app.use('/policy', policyRouter);
 app.use('/excel', excelRouter);
+app.use('/dashboard', dashboardRouter);
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
     next(createError(404));
