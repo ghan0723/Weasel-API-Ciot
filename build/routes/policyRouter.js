@@ -151,7 +151,7 @@ router.post('/delete', (req, res) => {
         .then(() => {
         policyService.getPolicyList()
             .then(list => {
-            res.send(list);
+            res.send({ list: list });
         })
             .catch((error) => {
             res.status(500).send({ error: error });
